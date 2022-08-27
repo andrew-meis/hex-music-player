@@ -163,25 +163,30 @@ app.whenReady()
   .then(() => installExtension(REACT_DEVELOPER_TOOLS))
   .then(createWindow);
 
-app.on('window-all-closed', () => {
-  win = null;
-  if (process.platform !== 'darwin') app.quit();
-});
-
-app.on('second-instance', () => {
-  if (win) {
-    // Focus on the main window if the user tried to open another
-    if (win.isMinimized()) win.restore();
-    win.focus();
+app.on('before-quit', () => {
+  if (process.platform === 'darwin') {
+    app.quitting = true;
   }
 });
 
-app.on('activate', async () => {
-  const allWindows = BrowserWindow.getAllWindows();
-  if (allWindows.length) {
-    allWindows[0].focus();
-  } else {
-    await createWindow();
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+const initialInstance = app.requestSingleInstanceLock();
+if (!initialInstance) app.quit();
+else {
+  app.on('second-instance', () => {
+    if (win.isMinimized()) win.restore();
+    win.focus();
+  });
+}
+
+app.on('activate', () => {
+  if (process.platform === 'darwin' && win !== null) {
+    win.show();
   }
 });
 
