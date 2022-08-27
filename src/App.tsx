@@ -43,7 +43,11 @@ const App = () => {
           <Routes>
             <Route
               element={(
-                <ProtectedRoute authenticated={authenticated} searchContainer={searchContainer} />
+                <ProtectedRoute
+                  authenticated={authenticated}
+                  searchContainer={searchContainer}
+                  setAuthenticated={setAuthenticated}
+                />
               )}
             >
               <Route element={<Content />} path="/">

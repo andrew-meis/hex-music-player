@@ -11,11 +11,12 @@ import TitlebarButtons from './TitlebarButtons';
 const { platform } = window.electron.getAppInfo();
 
 interface TitlebarProps {
-  authenticated: boolean | undefined;
+  authenticated: string;
   searchContainer: React.RefObject<HTMLDivElement>;
+  setAuthenticated: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Titlebar = ({ authenticated, searchContainer }: TitlebarProps) => {
+const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: TitlebarProps) => {
   const player = usePlayerContext();
   const theme = useTheme();
   const [isMaximized, setMaximized] = useState(false);
@@ -52,11 +53,13 @@ const Titlebar = ({ authenticated, searchContainer }: TitlebarProps) => {
         id="window-title-menu"
         width={132}
       >
-        {authenticated && platform !== 'darwin' && (
-          <AppMenu />
+        {authenticated === 'authenticated' && platform !== 'darwin' && (
+          <AppMenu setAuthenticated={setAuthenticated} />
         )}
       </Box>
-      <Search searchContainer={searchContainer} />
+      {authenticated === 'authenticated' && (
+        <Search searchContainer={searchContainer} />
+      )}
       <Box
         display="flex"
         height={50}
@@ -64,10 +67,10 @@ const Titlebar = ({ authenticated, searchContainer }: TitlebarProps) => {
         justifyContent="flex-end"
         width={132}
       >
-        {authenticated && platform === 'darwin' && (
-          <AppMenu />
+        {authenticated === 'authenticated' && platform === 'darwin' && (
+          <AppMenu setAuthenticated={setAuthenticated} />
         )}
-        {platform !== 'darwin' && (
+        {authenticated === 'authenticated' && platform !== 'darwin' && (
           <TitlebarButtons
             handleAppClose={handleAppClose}
             handleMaximizeToggle={handleMaximizeToggle}

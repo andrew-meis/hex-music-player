@@ -2,7 +2,7 @@ import { LoadingButton } from '@mui/lab';
 import {
   Box, ButtonGroup, Fade, Paper, Typography,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import {
   Account, Client, Device, Library, ServerConnection,
@@ -10,8 +10,8 @@ import {
 import qs from 'qs';
 import React, { useState } from 'react';
 import { Config } from '../../types/interfaces';
-import background from './imgs/album-cover-bg.png';
-import darkLogo from './imgs/logo-with-white-text.svg';
+import background from '../../assets/imgs/album-cover-bg.png';
+import darkLogo from '../../assets/imgs/logo-with-white-text.svg';
 
 const config = window.electron.readConfig('config') as Config;
 const sysInfo = window.electron.getAppInfo();
@@ -54,10 +54,11 @@ const createAuthUrl = (pinCode: string): string => {
 };
 
 interface LoginPageProps {
-  setAuthenticated: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  setAuthenticated: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const LoginPage = ({ setAuthenticated }: LoginPageProps) => {
+  const queryClient = useQueryClient();
   const [disabled, setDisabled] = useState('');
   const [loadingButton, setLoadingButton] = useState(0);
   const [selectedServer, setSelectedServer] = useState<Device | undefined>();
@@ -86,7 +87,7 @@ const LoginPage = ({ setAuthenticated }: LoginPageProps) => {
     },
   );
   const { data: authToken } = useQuery(
-    ['authToken'],
+    ['auth-token'],
     () => axios.get(
       `https://plex.tv/api/v2/pins/${pinData?.id}`,
       {
@@ -187,7 +188,14 @@ const LoginPage = ({ setAuthenticated }: LoginPageProps) => {
       serverName: selectedServer?.name,
       token: account.authToken,
     });
-    setAuthenticated(true);
+    queryClient.removeQueries(['auth-url']);
+    queryClient.removeQueries(['auth-token']);
+    queryClient.removeQueries(['servers']);
+    queryClient.removeQueries(['connection']);
+    queryClient.removeQueries(['librarySections']);
+    queryClient.removeQueries(['config']);
+    queryClient.removeQueries(['app']);
+    setAuthenticated('unknown');
   };
 
   return (

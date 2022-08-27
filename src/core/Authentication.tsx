@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import axios from 'axios';
 import {
   Account, Client, Connection, Library, ServerConnection,
@@ -5,6 +6,7 @@ import {
 import React, { ReactNode, useState } from 'react';
 import { useApp } from '../hooks/queryHooks';
 import { Config } from '../types/interfaces';
+import background from '../assets/imgs/album-cover-bg.png';
 
 const sysInfo = window.electron.getAppInfo();
 
@@ -53,26 +55,35 @@ export const initializeApp = async (config: Config) => {
 
 interface AuthenticationProps {
   children(
-    authenticated: boolean | undefined,
-    setAuthenticated: React.Dispatch<React.SetStateAction<boolean | undefined>>
+    authenticated: string,
+    setAuthenticated: React.Dispatch<React.SetStateAction<string>>
   ): ReactNode;
 }
 
 const Authentication = ({ children }: AuthenticationProps) => {
-  const [authenticated, setAuthenticated] = useState<boolean | undefined>();
+  const [authenticated, setAuthenticated] = useState<string>('unknown');
   const onError = () => {
-    setAuthenticated(false);
+    setAuthenticated('unauthenticated');
   };
   const onSuccess = () => {
-    setAuthenticated(true);
+    setAuthenticated('authenticated');
   };
   const appState = useApp(onSuccess, onError);
 
   if (appState.isLoading) {
     return (
-      <div>
-        Loading
-      </div>
+      <Box
+        height="100vh"
+        position="absolute"
+        sx={{
+          backgroundImage: `url(${background})`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          filter: 'grayscale(90%)',
+        }}
+        top={0}
+        width={1}
+      />
     );
   }
 

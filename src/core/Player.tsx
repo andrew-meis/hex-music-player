@@ -41,6 +41,10 @@ const Player = ({ children }: {children: ReactNode}) => {
   const { data: queueId } = useQueueId();
   const { setQueueId, updateTimeline } = useQueue();
 
+  useEffect(() => {
+    console.log(playQueue);
+  }, [playQueue]);
+
   const startTimer = useCallback((queueItem: PlayQueueItem) => {
     window.clearInterval(timelineRef.current);
 
@@ -96,6 +100,17 @@ const Player = ({ children }: {children: ReactNode}) => {
         startTimer(current);
       }
     }
+  };
+
+  player.resetApp = async () => {
+    player.stop();
+    await setQueueId(0);
+    player.removeAllTracks();
+    queryClient.removeQueries(['play-queue']);
+    queryClient.setQueryData(
+      ['player-state'],
+      () => ({ duration: 0, isPlaying: false, position: 0 }),
+    );
   };
 
   player.updateTracks = (queue: PlayQueue, action: 'next' | 'prev' | 'update') => {

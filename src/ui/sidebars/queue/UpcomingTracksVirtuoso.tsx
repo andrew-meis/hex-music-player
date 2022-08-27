@@ -104,8 +104,8 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   };
 
   const handleDrop = () => {
-    box.current?.classList.remove(styles['single-track-over']);
     dropIndex.current = index;
+    box.current?.classList.remove(styles['single-track-over']);
   };
 
   const handleMouseEnter = () => {
@@ -206,9 +206,9 @@ const UpcomingTracksVirtuoso = () => {
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
   const maxListLength = Math.floor(height / 56);
-  const items = playQueue?.items
+  const items = useMemo(() => playQueue?.items
     .slice(playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId) + 1)
-    .slice(0, maxListLength);
+    .slice(0, maxListLength), [maxListLength, playQueue]);
 
   const getPrevId = useCallback((itemId: PlayQueueItem['id']): PlayQueueItem['id'] | undefined => {
     if (playQueue) {
@@ -227,7 +227,6 @@ const UpcomingTracksVirtuoso = () => {
       return;
     }
     const target = items[index];
-    console.log(target);
     if (itemType === DragActions.COPY_TRACK) {
       if (target) {
         const prevId = getPrevId(target.id);
@@ -286,7 +285,7 @@ const UpcomingTracksVirtuoso = () => {
       item: PlayQueueItem | Track | Track[],
       monitor,
     ) => handleDrop(dropIndex.current, item, monitor.getItemType()),
-  }), [playQueue]);
+  }), [items, playQueue]);
 
   const [, drag, dragPreview] = useDrag(() => ({
     previewOptions,

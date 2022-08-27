@@ -32,7 +32,7 @@ const MediaButtons = () => {
   const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
   const { data: queueId } = useQueueId();
-  const { setQueueId } = useQueue();
+  const { updateTimeline } = useQueue();
 
   let currentIndex: number;
   let nowPlaying: PlayQueueItem | boolean = false;
@@ -44,7 +44,6 @@ const MediaButtons = () => {
     nextTrack = playQueue.items[currentIndex + 1];
     prevTrack = playQueue.items[currentIndex - 1];
   }
-  const { updateTimeline } = useQueue();
 
   const getPlayIcon = () => {
     if (!!nowPlaying && ctrlPress) {
@@ -131,17 +130,11 @@ const MediaButtons = () => {
 
   const handlePlayPause = async () => {
     if (ctrlPress) {
-      if (isPlayQueueItem(nowPlaying)) {
+      if (nowPlaying && isPlayQueueItem(nowPlaying)) {
         player.clearTimer();
         await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
       }
-      await setQueueId(0);
-      player.removeAllTracks();
-      queryClient.removeQueries(['play-queue']);
-      queryClient.setQueryData(
-        ['player-state'],
-        () => ({ duration: 0, isPlaying: false, position: 0 }),
-      );
+      await player.resetApp();
       return;
     }
     if (playerState.isPlaying) {

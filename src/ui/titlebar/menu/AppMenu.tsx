@@ -2,6 +2,7 @@ import { Avatar, Box, SvgIcon } from '@mui/material';
 import {
   Menu, MenuItem, MenuButton, MenuButtonProps,
 } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import {
   FiLogOut, FiMoreVertical, IoInformationCircleOutline, IoSettingsSharp,
@@ -9,7 +10,10 @@ import {
 import { useNavigate } from 'react-router-dom';
 import styles from 'styles/Titlebar.module.scss';
 import { usePlayerContext } from '../../../core/Player';
-import { useLibrary, useUser } from '../../../hooks/queryHooks';
+import { useLibrary, useNowPlaying, usePlayerState, useUser } from '../../../hooks/queryHooks';
+import useQueue from '../../../hooks/useQueue';
+import { Config } from '../../../types/interfaces';
+import { isPlayQueueItem } from '../../../types/type-guards';
 
 interface AppMenuButtonProps extends MenuButtonProps{
   open: boolean;
@@ -29,11 +33,19 @@ const AppMenuButton = React.forwardRef((
   </MenuButton>
 ));
 
-const AppMenu = () => {
+interface AppMenuProps {
+  setAuthenticated: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const AppMenu = ({ setAuthenticated }: AppMenuProps) => {
   const library = useLibrary();
   const navigate = useNavigate();
   const player = usePlayerContext();
+  const queryClient = useQueryClient();
+  const { data: nowPlaying } = useNowPlaying();
+  const { data: playerState } = usePlayerState();
   const { data: user } = useUser();
+  const { updateTimeline } = useQueue();
   const thumbSrc = user?.thumb
     ? library.api.getAuthenticatedUrl(
       '/photo/:/transcode',
@@ -51,8 +63,18 @@ const AppMenu = () => {
     navigate('/settings');
   };
 
-  const handleLogout = () => {
-    console.log('logout');
+  const handleLogout = async () => {
+    if (nowPlaying && isPlayQueueItem(nowPlaying)) {
+      player.clearTimer();
+      await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
+    }
+    await player.resetApp();
+    const config = window.electron.readConfig('config') as Config;
+    config.token = '';
+    window.electron.writeConfig('config', config);
+    queryClient.removeQueries(['config']);
+    queryClient.removeQueries(['app']);
+    setAuthenticated('unknown');
   };
 
   return (

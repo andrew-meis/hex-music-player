@@ -46,6 +46,8 @@ declare module '@regosen/gapless-5' {
 
       initTracks: (...params: any) => any;
 
+      resetApp: () => void;
+
       startTimer: (...params: any) => any;
 
       updateTracks: (...params: any) => any;

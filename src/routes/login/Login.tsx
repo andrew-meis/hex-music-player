@@ -4,6 +4,8 @@ import { Navigate } from 'react-router-dom';
 import styles from 'styles/Titlebar.module.scss';
 import LoginPage from './LoginPage';
 
+const { platform } = window.electron.getAppInfo();
+
 const Titlebar = () => {
   const theme = useTheme();
   const [isMaximized, setMaximized] = useState(false);
@@ -31,13 +33,15 @@ const Titlebar = () => {
     >
       <Box
         display="flex"
+        height={50}
         id="window-title-menu"
-        width={150}
+        width={132}
       />
       <Box
         display="flex"
+        height={50}
         id="window-title-buttons"
-        width={150}
+        width={132}
       >
         <Box className={styles['minimize-button']} onClick={() => window.electron.minimize()}>
           <span />
@@ -65,18 +69,20 @@ const Titlebar = () => {
 };
 
 interface LoginProps {
-  authenticated: boolean | undefined;
-  setAuthenticated: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+  authenticated: string;
+  setAuthenticated: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const Login = ({ authenticated, setAuthenticated }: LoginProps) => {
-  if (authenticated) {
+  if (authenticated === 'authenticated') {
     return <Navigate replace to="/" />;
   }
 
   return (
     <>
-      <Titlebar />
+      {platform !== 'darwin' && (
+        <Titlebar />
+      )}
       <LoginPage setAuthenticated={setAuthenticated} />
     </>
   );
