@@ -1,0 +1,144 @@
+import { Box, Button, SvgIcon } from '@mui/material';
+import React from 'react';
+import {
+  BsPlayFill, VscRadioTower, RiShuffleFill, TiArrowForward,
+} from 'react-icons/all';
+import styles from 'styles/Search.module.scss';
+import { useSettings } from '../../../../hooks/queryHooks';
+import usePlayback from '../../../../hooks/usePlayback';
+import { PlayActions } from '../../../../types/enums';
+import { isAlbum, isArtist, isTrack } from '../../../../types/type-guards';
+import { Result } from '../../../../types/types';
+
+const allButtons = [
+  {
+    type: 'track',
+    icon: <SvgIcon sx={{ ml: '-5px' }}><BsPlayFill /></SvgIcon>,
+    name: 'Play now',
+    action: PlayActions.PLAY_TRACK,
+    shuffle: false,
+  },
+  {
+    type: 'track',
+    icon: <SvgIcon sx={{ ml: '-2px', mb: '2px' }}><TiArrowForward /></SvgIcon>,
+    name: 'Play next',
+    action: PlayActions.ADD_TRACK,
+    shuffle: false,
+  },
+  {
+    type: 'album',
+    icon: <SvgIcon sx={{ ml: '-5px' }}><BsPlayFill /></SvgIcon>,
+    name: 'Play now',
+    action: PlayActions.PLAY_ALBUM,
+    shuffle: false,
+  },
+  {
+    type: 'album',
+    icon: <SvgIcon sx={{ width: '0.9em', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    name: 'Shuffle',
+    action: PlayActions.PLAY_ALBUM,
+    shuffle: true,
+  },
+  {
+    type: 'artist',
+    icon: <SvgIcon sx={{ ml: '-5px' }}><BsPlayFill /></SvgIcon>,
+    name: 'Play now',
+    action: PlayActions.PLAY_ARTIST,
+    shuffle: false,
+  },
+  {
+    type: 'artist',
+    icon: <SvgIcon><VscRadioTower /></SvgIcon>,
+    name: 'Artist radio',
+    action: PlayActions.PLAY_ARTIST_RADIO,
+    shuffle: false,
+  },
+];
+
+const TopResultButtons = ({ topResult }: { topResult: Result }) => {
+  const { data: settings } = useSettings();
+  const { playSwitch } = usePlayback();
+  const { colorMode } = settings;
+  const buttons = allButtons.filter((button) => button.type === topResult.type);
+
+  const handleButtonGroup = async (action: PlayActions, shuffle?: boolean) => {
+    if (isArtist(topResult)) {
+      await playSwitch(action, { artist: topResult });
+      return;
+    }
+    if (isAlbum(topResult)) {
+      await playSwitch(action, { album: topResult, shuffle });
+      return;
+    }
+    if (isTrack(topResult)) {
+      await playSwitch(action, { track: topResult });
+      return;
+    }
+    throw new Error('no matching type');
+  };
+
+  return (
+    <>
+      <Button
+        className={styles['play-button']}
+        size="small"
+        sx={{
+          borderRadius: '10px',
+          ml: '6px',
+          minWidth: '116px',
+          maxWidth: '116px',
+          height: '36px',
+          color: 'black.main',
+          textTransform: 'none',
+          backgroundColor: 'rgb(252, 252, 252)',
+          transition: 'background 100ms ease-in',
+          boxShadow: 'none',
+          '&:hover': {
+            backgroundColor: 'rgba(252, 252, 252, 0.7)',
+            boxShadow: 'none',
+          },
+        }}
+        variant="contained"
+        onClick={() => handleButtonGroup(buttons[0].action, buttons[0].shuffle)}
+      >
+        <Box alignItems="center" display="flex" justifyContent="center" width={1}>
+          {buttons[0].icon}
+          <span style={{ width: '6px', flexShrink: 0 }} />
+          {buttons[0].name}
+        </Box>
+      </Button>
+      <Button
+        className={styles['play-button']}
+        size="small"
+        sx={{
+          borderRadius: '10px',
+          ml: '4px',
+          minWidth: '116px',
+          maxWidth: '116px',
+          height: '36px',
+          color: colorMode === 'light' ? 'text.secondary' : 'white.main',
+          textTransform: 'none',
+          backgroundColor: colorMode === 'light'
+            ? 'rgba(252, 252, 252, 0.65)' : 'rgba(252, 252, 252, 0.5)',
+          transition: 'background 100ms ease-in',
+          boxShadow: 'none',
+          '&:hover': {
+            backgroundColor: colorMode === 'light'
+              ? 'rgba(252, 252, 252, 0.35)' : 'rgba(252, 252, 252, 0.2)',
+            boxShadow: 'none',
+          },
+        }}
+        variant="contained"
+        onClick={() => handleButtonGroup(buttons[1].action, buttons[1].shuffle)}
+      >
+        <Box alignItems="center" display="flex" justifyContent="center" width={1}>
+          {buttons[1].icon}
+          <span style={{ width: '6px', flexShrink: 0 }} />
+          {buttons[1].name}
+        </Box>
+      </Button>
+    </>
+  );
+};
+
+export default TopResultButtons;

@@ -1,0 +1,16 @@
+.album-cover {
+    background: var(--img);
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    width: 100%;
+    box-shadow: 2px 2px 6px 0 rgba(0,0,0,0.3);
+    transition: 0.2s;
+    display: flex;
+    cursor: pointer;
+    transform: scale(0.95);
+}
+
+.album-cover:hover {
+    transform: scale(1) translateZ(0px);
+}

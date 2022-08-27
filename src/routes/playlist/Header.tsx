@@ -1,0 +1,143 @@
+import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
+import { Playlist } from 'hex-plex';
+import React from 'react';
+import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import { useInView } from 'react-intersection-observer';
+import { useOutletContext } from 'react-router-dom';
+import FilterInput from '../../components/filter-input/FilterInput';
+import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
+import { useThumbnail } from '../../hooks/plexHooks';
+import usePlayback from '../../hooks/usePlayback';
+import FixedHeader from './FixedHeader';
+import { PlaylistContext } from './Playlist';
+
+const titleStyle = {
+  overflow: 'hidden',
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  fontFamily: 'TT Commons',
+  fontWeight: 600,
+};
+
+// eslint-disable-next-line react/require-default-props
+const Header = ({ context }: { context?: PlaylistContext }) => {
+  const { filter, playlist, setFilter } = context as PlaylistContext;
+  const { playPlaylist } = usePlayback();
+  const { width } = useOutletContext() as { width: number };
+  const countNoun = playlist!.leafCount > 1 || playlist!.leafCount === 0 ? 'tracks' : 'track';
+  const thumbSrc = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 300);
+  const thumbSrcSm = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 100);
+  const { ref, inView, entry } = useInView({
+    threshold: [0.99, 0],
+  });
+
+  const handlePlay = () => playPlaylist(playlist as Playlist);
+  const handleShuffle = () => playPlaylist(playlist as Playlist, true);
+
+  if (!playlist) {
+    return null;
+  }
+
+  return (
+    <>
+      <Fade
+        in={!inView && ((entry ? entry.intersectionRatio : 1) < 1)}
+        style={{ transformOrigin: 'center top' }}
+        timeout={300}
+      >
+        <Box
+          height={71}
+          position="fixed"
+          width={width}
+          zIndex={400}
+        >
+          <FixedHeader
+            handlePlay={handlePlay}
+            handleShuffle={handleShuffle}
+            playlist={playlist}
+            thumbSrcSm={thumbSrcSm}
+          />
+        </Box>
+      </Fade>
+      <Box maxWidth="900px" mx="auto" ref={ref} width="89%">
+        <Box alignItems="flex-end" color="text.primary" display="flex" height={232}>
+          <Avatar
+            alt={playlist.title}
+            src={thumbSrc}
+            sx={{
+              height: 216, margin: '8px', ml: 0, width: 216,
+            }}
+            variant="rounded"
+          />
+          <Box alignItems="center" display="flex" flexGrow={1} mb="10px">
+            <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
+              <Typography
+                sx={titleStyle}
+                variant="h4"
+              >
+                {playlist.title}
+              </Typography>
+              <Box alignItems="center" display="flex" height={32}>
+                <Chip
+                  color="primary"
+                  label="playlist"
+                  sx={{ height: '28px', color: 'common.black' }}
+                />
+                <Typography
+                  ml="10px"
+                  width="fit-content"
+                >
+                  {`${playlist.leafCount} ${countNoun}`}
+                </Typography>
+              </Box>
+            </Box>
+            <PlayShuffleButton
+              handlePlay={handlePlay}
+              handleShuffle={handleShuffle}
+            />
+          </Box>
+        </Box>
+        <Box
+          alignItems="flex-start"
+          borderBottom="1px solid"
+          borderColor="border.main"
+          color="text.secondary"
+          display="flex"
+          height={30}
+          width="100%"
+        >
+          <Box maxWidth="10px" width="10px" />
+          <Box display="flex" flexShrink={0} justifyContent="center" width="40px">
+            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
+              <BiHash />
+            </SvgIcon>
+          </Box>
+          <Box sx={{ width: '56px' }} />
+          <Box sx={{
+            width: '50%', flexGrow: 1, display: 'flex', justifyContent: 'flex-end',
+          }}
+          >
+            <FilterInput filter={filter} setFilter={setFilter} />
+          </Box>
+          <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
+            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
+              <RiHeartLine />
+            </SvgIcon>
+          </Box>
+          <Box sx={{
+            width: '50px', marginLeft: 'auto', textAlign: 'right', flexShrink: 0,
+          }}
+          >
+            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
+              <RiTimeLine />
+            </SvgIcon>
+          </Box>
+          <Box maxWidth="10px" width="10px" />
+        </Box>
+      </Box>
+    </>
+  );
+};
+
+export default Header;

@@ -1,0 +1,56 @@
+// css styling for top result box
+.top-result-box {
+  contain: paint;
+  transition: color 200ms ease-in, background-color 200ms ease-in;
+  svg {
+    opacity: 0;
+  }
+}
+
+.top-result-box:hover {
+  svg {
+    opacity: 1;
+  }
+}
+
+.top-result-box-hover {
+  contain: paint;
+  transition: color 200ms ease-in, background-color 200ms ease-in;
+  svg {
+    opacity: 1;
+  }
+}
+
+.play-button {
+  svg {
+    opacity: 1;
+  }
+}
+
+// css styling for results lists
+.results-list {
+  svg {
+    opacity: 0;
+  }
+  div:first-of-type {
+    svg {
+      opacity: 1;
+    }
+  }
+}
+
+.results-list:hover {
+  background-color: var(--background);
+  border-radius: 4px;
+  svg {
+    opacity: 1;
+  }
+}
+
+.results-list-hover {
+  background-color: var(--background);
+  border-radius: 4px;
+  svg {
+    opacity: 1;
+  }
+}

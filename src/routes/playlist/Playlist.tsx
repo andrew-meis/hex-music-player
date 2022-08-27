@@ -1,0 +1,393 @@
+import { Skeleton } from '@mui/lab';
+import {
+  Box, ClickAwayListener, SvgIcon, Typography, useTheme,
+} from '@mui/material';
+import {
+  ControlledMenu, MenuDivider, MenuItem, useMenuState,
+} from '@szhsin/react-menu';
+import {
+  Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track,
+} from 'hex-plex';
+import { motion } from 'framer-motion';
+import React, {
+  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
+} from 'react';
+import { ConnectDragSource, useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
+import { MdDelete } from 'react-icons/all';
+import { useLocation, useParams } from 'react-router-dom';
+import { useKey } from 'react-use';
+import { ItemProps, ListProps, Virtuoso } from 'react-virtuoso';
+import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
+import { useRemoveFromPlaylist } from '../../hooks/plexHooks';
+import {
+  useIsPlaying,
+  useLibrary,
+  useNowPlaying,
+  usePlaylist,
+  usePlaylistItems,
+} from '../../hooks/queryHooks';
+import useFormattedTime from '../../hooks/useFormattedTime';
+import useMenuStyle from '../../hooks/useMenuStyle';
+import usePlayback from '../../hooks/usePlayback';
+import useRowSelect from '../../hooks/useRowSelect';
+import useToast from '../../hooks/useToast';
+import { DragActions } from '../../types/enums';
+import { RouteParams } from '../../types/interfaces';
+import Header from './Header';
+import Row from './Row';
+
+const mergeRefs = (...refs: any) => {
+  const filteredRefs = refs.filter(Boolean);
+  if (!filteredRefs.length) return null;
+  if (filteredRefs.length === 0) return filteredRefs[0];
+  return (inst: Element) => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const ref of filteredRefs) {
+      if (typeof ref === 'function') {
+        ref(inst);
+      } else if (ref) {
+        ref.current = inst;
+      }
+    }
+  };
+};
+
+const Item = React
+  .forwardRef((
+    {
+      // @ts-ignore
+      style, children, context, ...props
+    }: ItemProps,
+    itemRef: React.ForwardedRef<HTMLDivElement>,
+  ) => (
+    <div
+      {...props}
+      ref={itemRef}
+      style={style}
+      onContextMenu={(event) => context.handleContextMenu(event)}
+    >
+      {children}
+    </div>
+  ));
+
+const List = React
+  .forwardRef((
+    // @ts-ignore
+    { style, children, context }: ListProps,
+    listRef: React.ForwardedRef<HTMLDivElement>,
+  ) => (
+    <ClickAwayListener onClickAway={context.handleClickAway}>
+      <Box
+        className="list-box"
+        ref={mergeRefs(context.drag, listRef)}
+        style={{ ...style, maxWidth: '900px', width: '89%' }}
+        sx={{ mx: 'auto' }}
+        onDragStartCapture={context.handleDragStart}
+      >
+        {children}
+      </Box>
+    </ClickAwayListener>
+  ));
+
+const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
+  <Box alignItems="center" display="flex" height={height}>
+    <Box width="50px" />
+    <Box width="56px">
+      <Skeleton
+        height={40}
+        sx={{ margin: 'auto', borderRadius: '4px' }}
+        variant="rectangular"
+        width={40}
+      />
+    </Box>
+    <Box flexGrow={1} width="50%">
+      <Skeleton variant="text" width="50%" />
+      <Skeleton variant="text" width="40%" />
+    </Box>
+    <Box mx="5px">
+      <Skeleton variant="text" width="80px" />
+    </Box>
+    <Box width="50px">
+      <Skeleton variant="text" width="50px" />
+    </Box>
+    <Box width="10px" />
+  </Box>
+);
+
+const previewOptions = {
+  offsetX: -8,
+};
+
+export interface PlaylistContext {
+  drag: ConnectDragSource,
+  filter: string;
+  getFormattedTime: (inMs: number) => string;
+  handleClickAway: () => void;
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
+  handleDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
+  handleRowClick: (event: React.MouseEvent, index: number) => void;
+  hoverIndex: React.MutableRefObject<number | null>;
+  isPlaying: boolean;
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
+  playlist: PlaylistType | undefined;
+  playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
+  selectedRows: number[];
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export interface RowProps {
+  index: number;
+  item: PlaylistItem;
+  context: PlaylistContext;
+}
+
+const RowContent = (props: RowProps) => <Row {...props} />;
+
+const Playlist = () => {
+  // data loading
+  const { id } = useParams<keyof RouteParams>() as RouteParams;
+  const playlist = usePlaylist(+id);
+  const playlistItems = usePlaylistItems(+id);
+  // other hooks
+  const hoverIndex = useRef<number | null>(null);
+  const library = useLibrary();
+  const location = useLocation();
+  const menuStyle = useMenuStyle();
+  const removeFromPlaylist = useRemoveFromPlaylist();
+  const theme = useTheme();
+  const toast = useToast();
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [filter, setFilter] = useState('');
+  const [menuProps, toggleMenu] = useMenuState();
+  const { data: isPlaying } = useIsPlaying();
+  const { data: nowPlaying } = useNowPlaying();
+  const { getFormattedTime } = useFormattedTime();
+  const { playPlaylistAtTrack, playSwitch } = usePlayback();
+  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+
+  let items: PlaylistItem[] = [];
+  if (playlistItems.data) {
+    items = playlistItems.data.filter(
+      (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
+      || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
+      || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
+      || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
+    );
+  }
+
+  useLayoutEffect(() => {
+    setSelectedRows([]);
+  }, [id, setSelectedRows]);
+
+  const [, drag, dragPreview] = useDrag(() => ({
+    previewOptions,
+    type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
+    item: () => {
+      if (selectedRows.length === 1) {
+        return items[selectedRows[0]].track;
+      }
+      return selectedRows.map((n) => items![n].track);
+    },
+  }), [items, selectedRows]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, selectedRows]);
+
+  const handleDragStart = useCallback(() => {
+    if (selectedRows.includes(hoverIndex.current!)) {
+      return;
+    }
+    setSelectedRows([hoverIndex.current!]);
+  }, [selectedRows, setSelectedRows]);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-index');
+    if (!target) {
+      return;
+    }
+    const targetIndex = parseInt(target, 10);
+    if (selectedRows.length === 0) {
+      setSelectedRows([targetIndex]);
+    }
+    if (selectedRows.length === 1 && selectedRows.includes(targetIndex)) {
+      // pass
+    }
+    if (selectedRows.length === 1 && !selectedRows.includes(targetIndex)) {
+      setSelectedRows([targetIndex]);
+    }
+    if (selectedRows.length > 1 && selectedRows.includes(targetIndex)) {
+      // pass
+    }
+    if (selectedRows.length > 1 && !selectedRows.includes(targetIndex)) {
+      setSelectedRows([targetIndex]);
+    }
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [selectedRows, setSelectedRows, toggleMenu]);
+
+  const handleMenuSelection = async (button: ButtonSpecs) => {
+    if (!items) {
+      return;
+    }
+    if (selectedRows.length === 1) {
+      const [track] = selectedRows.map((n) => items[n].track);
+      await playSwitch(button.action, { track, shuffle: button.shuffle });
+      return;
+    }
+    if (selectedRows.length > 1) {
+      const tracks = selectedRows.map((n) => items[n].track);
+      await playSwitch(button.action, { tracks, shuffle: button.shuffle });
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!items) {
+      return;
+    }
+    if (playlist.data!.smart) {
+      toast({ type: 'error', text: 'Cannot edit smart playlist' });
+      return;
+    }
+    const selectedItems = selectedRows.map((n) => items[n]);
+    setSelectedRows([]);
+    await selectedItems.forEach((item) => {
+      removeFromPlaylist(item.playlistId, item.id);
+    });
+  };
+  useKey('Delete', handleRemove, { event: 'keyup' }, [selectedRows]);
+
+  const handleScrollState = (isScrolling: boolean) => {
+    if (isScrolling) {
+      document.body.classList.add('disable-hover');
+    }
+    if (!isScrolling) {
+      document.body.classList.remove('disable-hover');
+    }
+  };
+
+  const playlistContext = useMemo(() => ({
+    drag,
+    filter,
+    getFormattedTime,
+    handleClickAway,
+    handleContextMenu,
+    handleDragStart,
+    handleRowClick,
+    hoverIndex,
+    isPlaying,
+    library,
+    nowPlaying,
+    playlist: playlist.data,
+    playPlaylistAtTrack,
+    selectedRows,
+    setFilter,
+  }), [
+    drag,
+    filter,
+    getFormattedTime,
+    handleClickAway,
+    handleContextMenu,
+    handleDragStart,
+    handleRowClick,
+    hoverIndex,
+    isPlaying,
+    library,
+    nowPlaying,
+    playlist.data,
+    playPlaylistAtTrack,
+    selectedRows,
+    setFilter,
+  ]);
+
+  if (playlist.isLoading || playlistItems.isLoading) {
+    return null;
+  }
+
+  if (!playlistItems.data || playlistItems.data.length === 0) {
+    return (
+      <Typography color="text.primary" variant="h5">
+        Empty playlist :/
+      </Typography>
+    );
+  }
+
+  return (
+    <>
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={location.pathname}
+        style={{ height: '100%' }}
+      >
+        <Virtuoso
+          className="scroll-container"
+          components={{
+            Header,
+            Item,
+            List,
+            ScrollSeekPlaceholder,
+          }}
+          context={playlistContext}
+          data={items}
+          fixedItemHeight={56}
+          isScrolling={handleScrollState}
+          itemContent={(index, item, context) => RowContent({ index, item, context })}
+          scrollSeekConfiguration={{
+            enter: (velocity) => Math.abs(velocity) > 400,
+            exit: (velocity) => Math.abs(velocity) < 100,
+          }}
+          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          totalCount={items.length}
+          onScroll={(e) => {
+            sessionStorage.setItem(
+              id,
+              (e.currentTarget as unknown as HTMLElement).scrollTop as unknown as string,
+            );
+          }}
+        />
+      </motion.div>
+      <ControlledMenu
+        {...menuProps}
+        portal
+        anchorPoint={anchorPoint}
+        menuStyle={menuStyle}
+        onClose={() => toggleMenu(false)}
+      >
+        {selectedRows.length === 1 && trackButtons.map((button: ButtonSpecs) => (
+          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
+            {button.icon}
+            {button.name}
+          </MenuItem>
+        ))}
+        {selectedRows.length > 1 && tracksButtons.map((button: ButtonSpecs) => (
+          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
+            {button.icon}
+            {button.name}
+          </MenuItem>
+        ))}
+        {!playlist.data!.smart && (
+        <>
+          <MenuDivider />
+          <MenuItem
+            style={{
+              '--menu-primary': theme.palette.error.main,
+              '--menu-transparent': `${theme.palette.error.main}cc`,
+            } as React.CSSProperties}
+            onClick={handleRemove}
+          >
+            <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>
+            Remove
+          </MenuItem>
+        </>
+        )}
+      </ControlledMenu>
+    </>
+  );
+};
+
+export default Playlist;
