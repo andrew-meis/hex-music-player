@@ -47,7 +47,7 @@ const selectedStyle = {
 
 // TODO double-click behavior
 const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined }) => {
-  const { getFormattedTime, library, playSwitch, topTracks } = context!;
+  const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch, topTracks } = context!;
   const hoverIndex = useRef<number | null>(null);
   const menuStyle = useMenuStyle();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -149,6 +149,7 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
         <ClickAwayListener onClickAway={handleClickAway}>
           <Box>
             {topTracks.map((track, index) => {
+              const playing = nowPlaying?.track.id === track.id;
               const selected = selectedRows.includes(index);
               const selUp = selected && selectedRows.includes(index - 1);
               const selDown = selected && selectedRows.includes(index + 1);
@@ -170,10 +171,10 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
                   <TrackRow
                     getFormattedTime={getFormattedTime}
                     index={index + 1}
-                    isPlaying={false}
+                    isPlaying={isPlaying}
                     library={library}
                     options={{ showAlbumTitle: true, showArtwork: true }}
-                    playing={false}
+                    playing={playing}
                     track={track}
                   />
                 </Box>

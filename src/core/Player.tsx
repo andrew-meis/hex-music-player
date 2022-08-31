@@ -41,10 +41,6 @@ const Player = ({ children }: {children: ReactNode}) => {
   const { data: queueId } = useQueueId();
   const { setQueueId, updateTimeline } = useQueue();
 
-  useEffect(() => {
-    console.log(playQueue);
-  }, [playQueue]);
-
   const startTimer = useCallback((queueItem: PlayQueueItem) => {
     window.clearInterval(timelineRef.current);
 

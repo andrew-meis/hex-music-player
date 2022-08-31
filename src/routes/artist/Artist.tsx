@@ -2,7 +2,7 @@ import { SvgIcon, useTheme } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { Palette } from 'color-thief-react';
-import { Album, Artist as ArtistType, Hub, Library, Track } from 'hex-plex';
+import { Album, Artist as ArtistType, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/all';
@@ -13,7 +13,13 @@ import { GroupedVirtuoso, TopItemListProps } from 'react-virtuoso';
 import { motion } from 'framer-motion';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import {
-  useArtist, useArtistAppearances, useArtistTracks, useLibrary, useSettings,
+  useArtist,
+  useArtistAppearances,
+  useArtistTracks,
+  useIsPlaying,
+  useLibrary,
+  useNowPlaying,
+  useSettings,
 } from '../../hooks/queryHooks';
 import useFormattedTime from '../../hooks/useFormattedTime';
 import useHideAlbum from '../../hooks/useHideAlbum';
@@ -90,11 +96,13 @@ export interface ArtistContext {
   colors: string[] | undefined;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
-  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
+  isPlaying: boolean;
   items: ArtistItems;
   library: Library;
   menuTarget: number | undefined;
   navigate: NavigateFunction;
+  nowPlaying: PlayQueueItem | undefined;
   playArtist: (artist: ArtistType, shuffle?: boolean) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   settings: AppSettings;
@@ -129,6 +137,8 @@ const Artist = () => {
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuTarget, setmenuTarget] = useState<number | undefined>();
   const [menuProps, toggleMenu] = useMenuState();
+  const { data: isPlaying } = useIsPlaying();
+  const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
   const { getFormattedTime } = useFormattedTime();
   const { playArtist, playSwitch } = usePlayback();
@@ -239,10 +249,12 @@ const Artist = () => {
     getFormattedTime,
     grid,
     handleContextMenu,
+    isPlaying,
     items,
     library,
     menuTarget,
     navigate,
+    nowPlaying,
     playArtist,
     playSwitch,
     settings,
@@ -253,10 +265,12 @@ const Artist = () => {
     getFormattedTime,
     grid,
     handleContextMenu,
+    isPlaying,
     items,
     library,
     menuTarget,
     navigate,
+    nowPlaying,
     playArtist,
     playSwitch,
     settings,

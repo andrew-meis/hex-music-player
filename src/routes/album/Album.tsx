@@ -152,7 +152,7 @@ const Album = () => {
   const { getFormattedTime } = useFormattedTime();
   const { playAlbumAtTrack, playSwitch } = usePlayback();
   const {
-    selectedRows, setSelectedRows, handleClickAway, handleRowClick
+    selectedRows, setSelectedRows, handleClickAway, handleRowClick,
   } = useRowSelect([], discRows);
 
   useLayoutEffect(() => {

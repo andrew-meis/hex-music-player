@@ -16,11 +16,15 @@ const TrackRating = ({ id, userRating }: TrackRatingProps) => {
   const handleRatingChange = async (newValue: number | null) => {
     if (newValue === null) {
       await library.rate(id, -1);
+      await queryClient.invalidateQueries(['album-tracks']);
+      await queryClient.invalidateQueries(['artist-tracks']);
       await queryClient.invalidateQueries(['play-queue']);
       await queryClient.invalidateQueries(['playlist']);
       return;
     }
     await library.rate(id, newValue * 2);
+    await queryClient.invalidateQueries(['album-tracks']);
+    await queryClient.invalidateQueries(['artist-tracks']);
     await queryClient.invalidateQueries(['play-queue']);
     await queryClient.invalidateQueries(['playlist']);
   };
