@@ -15,6 +15,8 @@ import useQueue from '../../../hooks/useQueue';
 import { Config } from '../../../types/interfaces';
 import { isPlayQueueItem } from '../../../types/type-guards';
 
+const { platform } = window.electron.getAppInfo();
+
 interface AppMenuButtonProps extends MenuButtonProps{
   open: boolean;
 }
@@ -80,9 +82,10 @@ const AppMenu = ({ setAuthenticated }: AppMenuProps) => {
   return (
     <Menu
       transition
+      align={platform === 'darwin' ? 'end' : 'start'}
       menuButton={({ open }) => <AppMenuButton open={open} />}
       menuStyle={{ minWidth: '198px' }}
-      offsetX={6}
+      offsetX={platform === 'darwin' ? -6 : 6}
     >
       <Box
         alignItems="center"

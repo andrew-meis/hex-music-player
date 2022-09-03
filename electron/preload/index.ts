@@ -13,4 +13,16 @@ contextBridge.exposeInMainWorld('electron', {
   writeConfig: (key, value) => ipcRenderer.sendSync('write-config', { key, value }),
   readFilters: (key) => ipcRenderer.sendSync('read-config', { key }),
   writeFilters: (key, value) => ipcRenderer.sendSync('write-config', { key, value }),
+  // communicate player state to and from main process
+  updatePlaying: (key, value) => ipcRenderer.send('update-playing', { key, value }),
+  receive: (channel, func) => {
+    const validChannels = ['taskbar-controls'];
+    if (validChannels.includes(channel)) {
+      const subscription = (event, ...args) => func(...args);
+      ipcRenderer.on(channel, subscription);
+      return () => {
+        ipcRenderer.removeListener(channel, subscription);
+      };
+    }
+  },
 });

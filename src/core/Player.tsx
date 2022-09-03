@@ -204,6 +204,14 @@ const Player = ({ children }: {children: ReactNode}) => {
     }
   };
 
+  player.onplay = () => {
+    window.electron.updatePlaying('playing', true);
+  };
+
+  player.onpause = () => {
+    window.electron.updatePlaying('playing', false);
+  };
+
   return (
     <PlayerContext.Provider value={player}>
       {children}

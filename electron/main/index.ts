@@ -1,11 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies, no-param-reassign */
 // @ts-nocheck
 import {
-  app, BrowserWindow, shell, ipcMain, screen,
+  app, BrowserWindow, shell, ipcMain, screen, nativeImage,
 } from 'electron';
 import { readFileSync, writeFileSync } from 'fs';
 import { hostname, release, version } from 'os';
-import { join } from 'path';
+import path, { join } from 'path';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
 // Config setup
@@ -69,6 +69,29 @@ const preload = join(__dirname, '../preload/index.js');
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin
 const url = process.env.VITE_DEV_SERVER_URL as string;
 const indexHtml = join(ROOT_PATH.dist, 'index.html');
+
+const resetTaskbarButtons = (isPlaying) => {
+  win.setThumbarButtons([
+    {
+      tooltip: 'Previous',
+      icon: nativeImage
+        .createFromPath(path.join(ROOT_PATH.public, 'taskbar', 'prev.png')),
+      click() { win.webContents.send('taskbar-controls', { event: 'prev' }); },
+    },
+    {
+      tooltip: isPlaying ? 'Pause' : 'Play',
+      icon: nativeImage
+        .createFromPath(path.join(ROOT_PATH.public, 'taskbar', `${isPlaying ? 'pause' : 'play'}.png`)),
+      click() { win.webContents.send('taskbar-controls', { event: 'play-pause' }); },
+    },
+    {
+      tooltip: 'Next',
+      icon: nativeImage
+        .createFromPath(path.join(ROOT_PATH.public, 'taskbar', 'next.png')),
+      click() { win.webContents.send('taskbar-controls', { event: 'next' }); },
+    },
+  ]);
+};
 
 async function createWindow() {
   const bounds = readData('bounds', configPath);
@@ -144,6 +167,7 @@ async function createWindow() {
     }
   `;
 
+  win.once('focus', () => resetTaskbarButtons(false));
   win.on('focus', () => win.webContents.executeJavaScript(setTitleOpacity(1)));
   win.on('blur', () => win.webContents.executeJavaScript(setTitleOpacity(0.5)));
   win.on('close', (event) => {
@@ -216,4 +240,7 @@ ipcMain.on('get-app-info', (event) => {
     platform: process.platform,
     version: version(),
   };
+});
+ipcMain.on('update-playing', (event, arg) => {
+  resetTaskbarButtons(arg.value);
 });

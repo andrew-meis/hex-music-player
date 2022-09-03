@@ -51,6 +51,8 @@ export interface IElectronAPI {
   writeConfig: (key: string, value: any) => AppSettings | Config;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
+  updatePlaying: (key: 'playing', value: boolean) => void;
+  receive: (channel: string, func: (action: { event: string }) => void) => () => void;
 }
 
 export interface PlayerState {

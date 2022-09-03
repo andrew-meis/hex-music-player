@@ -13,7 +13,7 @@ interface Props {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ResultButtons = ({ result, open, setOpen }: Props) => {
+const TooltipMenu = ({ result, open, setOpen }: Props) => {
   const { playSwitch } = usePlayback();
   const theme = useTheme();
 
@@ -92,4 +92,4 @@ const ResultButtons = ({ result, open, setOpen }: Props) => {
   );
 };
 
-export default ResultButtons;
+export default TooltipMenu;

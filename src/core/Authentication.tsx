@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import axios from 'axios';
 import {
   Account, Client, Connection, Library, ServerConnection,
@@ -6,7 +5,6 @@ import {
 import React, { ReactNode, useState } from 'react';
 import { useApp } from '../hooks/queryHooks';
 import { Config } from '../types/interfaces';
-import background from '../assets/imgs/album-cover-bg.png';
 
 const sysInfo = window.electron.getAppInfo();
 
@@ -71,20 +69,7 @@ const Authentication = ({ children }: AuthenticationProps) => {
   const appState = useApp(onSuccess, onError);
 
   if (appState.isLoading) {
-    return (
-      <Box
-        height="100vh"
-        position="absolute"
-        sx={{
-          backgroundImage: `url(${background})`,
-          backgroundPosition: 'center',
-          backgroundSize: 'cover',
-          filter: 'grayscale(90%)',
-        }}
-        top={0}
-        width={1}
-      />
-    );
+    return null;
   }
 
   return <>{children(authenticated, setAuthenticated)}</>;

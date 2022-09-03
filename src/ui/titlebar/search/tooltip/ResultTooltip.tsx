@@ -4,7 +4,7 @@ import {
 import React from 'react';
 import { MdKeyboardArrowRight } from 'react-icons/all';
 import { Result } from '../../../../types/types';
-import ResultButtons from './TooltipMenu';
+import TooltipMenu from './TooltipMenu';
 
 interface Props {
   result: Result;
@@ -47,7 +47,7 @@ const ResultTooltip = ({
       placement="right"
       sx={{ pointerEvents: 'auto' }}
       title={(
-        <ResultButtons
+        <TooltipMenu
           open={isTooltipOpen}
           result={result}
           setOpen={setTooltipOpen}

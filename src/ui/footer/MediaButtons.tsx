@@ -1,6 +1,6 @@
 import { Box, IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   IoPlaySkipBack,
   IoPlaySkipForward,
@@ -55,7 +55,7 @@ const MediaButtons = () => {
     return <RiPlayCircleFill />;
   };
 
-  const handleNext = async () => {
+  const handleNext = useCallback(async () => {
     setDisableNext(true);
     if (isPlayQueueItem(nowPlaying)) {
       await updateTimeline(nowPlaying.id, 'stopped', player.currentPosition(), nowPlaying.track);
@@ -75,9 +75,9 @@ const MediaButtons = () => {
       );
       setDisableNext(false);
     }
-  };
+  }, [nextTrack, nowPlaying, player, playerState, queryClient, queueId, updateTimeline]);
 
-  const handlePrev = async () => {
+  const handlePrev = useCallback(async () => {
     setDisablePrev(true);
     // cue current track if no previous track or more than five seconds have elapsed
     if (!prevTrack || player.currentPosition() > 5000) {
@@ -126,9 +126,9 @@ const MediaButtons = () => {
       );
       setDisablePrev(false);
     }
-  };
+  }, [nowPlaying, player, playerState, prevTrack, queryClient, queueId, updateTimeline]);
 
-  const handlePlayPause = async () => {
+  const handlePlayPause = useCallback(async () => {
     if (ctrlPress) {
       if (nowPlaying && isPlayQueueItem(nowPlaying)) {
         player.clearTimer();
@@ -159,7 +159,35 @@ const MediaButtons = () => {
         () => ({ ...playerState, isPlaying: true }),
       );
     }
-  };
+  }, [ctrlPress, nowPlaying, player, playerState, queryClient, updateTimeline]);
+
+  const onEvent = useCallback(async (action: { event: string }) => {
+    if (action.event === 'play-pause' && !!nowPlaying) {
+      await handlePlayPause();
+      return;
+    }
+    if (action.event === 'prev' && !disablePrev) {
+      await handlePrev();
+      return;
+    }
+    if (action.event === 'next' && !disableNext && !!nextTrack) {
+      await handleNext();
+    }
+  }, [
+    disableNext,
+    disablePrev,
+    handleNext,
+    handlePlayPause,
+    handlePrev,
+    nextTrack,
+    nowPlaying,
+  ]);
+
+  useEffect(() => {
+    const removeEventListener = window.electron
+      .receive('taskbar-controls', (action) => onEvent(action));
+    return () => removeEventListener();
+  }, [onEvent]);
 
   const handleShuffle = () => {
     console.log('shuffle button');
