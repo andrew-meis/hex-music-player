@@ -122,7 +122,7 @@ const MediaButtons = () => {
       player.updateTracks(newQueue, 'prev');
       queryClient.setQueryData(
         ['player-state'],
-        () => ({ ...playerState, isPlaying: true, position: 0 }),
+        () => ({ ...playerState, position: 0 }),
       );
       setDisablePrev(false);
     }

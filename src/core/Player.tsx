@@ -72,13 +72,9 @@ const Player = ({ children }: {children: ReactNode}) => {
     }
   }, [nowPlaying, player, startTimer, updateTimeline]);
 
-  player.clearTimer = () => {
-    window.clearInterval(timelineRef.current);
-  };
+  player.clearTimer = () => window.clearInterval(timelineRef.current);
 
-  player.startTimer = (queueItem: PlayQueueItem) => {
-    startTimer(queueItem);
-  };
+  player.startTimer = (queueItem: PlayQueueItem) => startTimer(queueItem);
 
   player.initTracks = (queue: PlayQueue, forcePlay: boolean = true) => {
     const currentIndex = queue.items.findIndex((item) => item.id === queue.selectedItemId);

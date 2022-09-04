@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Album, Artist, Playlist, Track } from 'hex-plex';
 import { forEach, groupBy } from 'lodash';
+import { useRef } from 'react';
 import { initializeApp } from '../core/Authentication';
 import { usePlayerContext } from '../core/Player';
 import { AppSettings, AppState, Config, DiscHeader } from '../types/interfaces';
@@ -106,12 +107,13 @@ export const useSettings = () => useQuery(
  * PLAYER STATE
  */
 export const usePlayerState = () => {
+  const prevPlayState = useRef<boolean>(false);
   const player = usePlayerContext();
   return useQuery(
     ['player-state'],
     () => ({
       duration: player.currentLength(),
-      isPlaying: player.isPlaying(),
+      isPlaying: player.isPlaying() || prevPlayState.current,
       position: player.getPosition(),
     }),
     {
@@ -125,6 +127,9 @@ export const usePlayerState = () => {
           return 1000;
         }
         return false;
+      },
+      onSuccess: (data) => {
+        prevPlayState.current = data.isPlaying;
       },
     },
   );
