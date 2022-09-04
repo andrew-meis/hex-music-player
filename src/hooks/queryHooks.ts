@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { Album, Artist, Playlist, Track } from 'hex-plex';
-import { forEach, groupBy } from 'lodash';
+import axios from 'axios';
+import { Album, Artist, MediaType, Playlist, Track } from 'hex-plex';
+import { parseContainerType } from 'hex-plex/dist/library';
+import { forEach, groupBy, uniqBy } from 'lodash';
 import { useRef } from 'react';
 import { initializeApp } from '../core/Authentication';
 import { usePlayerContext } from '../core/Player';
@@ -122,15 +124,18 @@ export const usePlayerState = () => {
         isPlaying: false,
         position: 0,
       },
+      onSuccess: () => {
+        prevPlayState.current = player.isPlaying();
+      },
       refetchInterval: () => {
         if (player.isPlaying()) {
           return 1000;
         }
         return false;
       },
-      onSuccess: (data) => {
-        prevPlayState.current = data.isPlaying;
-      },
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 };
@@ -322,6 +327,36 @@ export const useSearch = ({ query }: {query: string}) => {
     {
       enabled: !!library && query.length > 1,
       keepPreviousData: true,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    },
+  );
+};
+
+export const useTopTracks = ({ seconds, limit }: { seconds: number, limit: number }) => {
+  const library = useLibrary();
+  const { data: config } = useConfig();
+  return useQuery(
+    ['top-tracks', seconds, limit],
+    async () => {
+      const timestamp = Math.round((new Date()).getTime() / 1000);
+      const url = library.api.getAuthenticatedUrl(
+        '/library/all/top',
+        {
+          type: 10,
+          librarySectionID: config.sectionId as number,
+          'viewedAt>': timestamp - seconds,
+          'viewedAt<': timestamp,
+          limit,
+          accountID: 1,
+        },
+      );
+      const response = await axios.get(url);
+      const { tracks } = parseContainerType(MediaType.TRACK, response.data);
+      return uniqBy(tracks, 'guid');
+    },
+    {
+      enabled: !!library,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
     },

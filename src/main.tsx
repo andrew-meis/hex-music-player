@@ -25,7 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           </DndProvider>
         </Theme>
       </HashRouter>
-      <ReactQueryDevtools initialIsOpen={false} panelProps={{ style: { top: 0 } }} />
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>,
 );

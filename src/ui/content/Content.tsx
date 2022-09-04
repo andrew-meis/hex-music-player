@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
 import Toast from '../../components/toast/Toast';
-import { usePlaylists, useSettings } from '../../hooks/queryHooks';
+import { usePlaylists, useSettings, useTopTracks } from '../../hooks/queryHooks';
 import Footer from '../footer/Footer';
 import MiniNavbar from '../sidebars/navbar/MiniNavbar';
 import Navbar from '../sidebars/navbar/Navbar';
@@ -17,8 +17,9 @@ const Content = () => {
   const [ref, { width }] = useMeasure();
   const { data: settings } = useSettings();
   const { isLoading: playlistLoading } = usePlaylists();
+  const { isLoading: hotTracksLoading } = useTopTracks({ seconds: 60 * 60 * 24 * 90, limit: 300 });
 
-  if (playlistLoading) {
+  if (playlistLoading || hotTracksLoading) {
     return (
       <Box
         alignItems="center"

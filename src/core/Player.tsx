@@ -186,7 +186,12 @@ const Player = ({ children }: {children: ReactNode}) => {
   };
 
   player.onload = async () => {
-    await queryClient.refetchQueries(['player-state']);
+    queryClient.setQueryData(
+      ['player-state'],
+      (
+        current: Updater<PlayerState, PlayerState> | undefined,
+      ) => ({ ...current, duration: player.currentLength(), position: player.getPosition() }),
+    );
     const newTrack = loadQueue.current.shift();
     if (!newTrack) {
       return;
