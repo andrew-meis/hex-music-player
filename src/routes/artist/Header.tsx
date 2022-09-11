@@ -50,7 +50,7 @@ export const thresholds = Array.from(Array(101).keys()).map((n) => n / 100);
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistContext }) => {
   const {
-    artist: artistData, colors, library, playArtist, settings, width,
+    artist: artistData, colors, library, navigate, playArtist, settings, width,
   } = context!;
   const { artist } = artistData!;
   const bannerInView = useInView({ threshold: thresholds });
@@ -162,7 +162,13 @@ const Header = ({ context }: { context?: ArtistContext }) => {
       <Box display="flex" flexWrap="wrap" mx="auto" ref={tracksInView.ref} width={(width * 0.89)}>
         <InfoRow artist={artistData!.artist} colors={colors!} />
         <TopTracks context={context} />
-        <Highlights height={context!.topTracks!.length * 56} width={width} />
+        <Highlights
+          artistData={artistData}
+          height={context!.topTracks!.length * 56}
+          library={library}
+          navigate={navigate}
+          width={width}
+        />
       </Box>
     </>
   );

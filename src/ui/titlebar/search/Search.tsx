@@ -82,8 +82,17 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
           onMouseLeave={() => setInputHover(false)}
         >
           <IconButton
+            disableRipple
             sx={{
-              m: '2px', ml: '8px', p: '5px', pr: '7px', pl: '3px', color: 'text.primary',
+              m: '2px',
+              p: '5px',
+              pr: '7px',
+              pl: '3px',
+              color: 'text.secondary',
+              '&:hover': {
+                backgroundColor: 'transparent',
+                color: 'text.primary',
+              },
             }}
             onClick={() => searchInput.current?.focus()}
           >
@@ -102,7 +111,16 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
           />
           {inputHover && input.length !== 0 && !loading && (
             <IconButton
-              sx={{ m: '2px', p: '5px', color: 'text.primary' }}
+              disableRipple
+              sx={{
+                m: '2px',
+                p: '5px',
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: 'text.primary',
+                },
+              }}
               onClick={handleClear}
             >
               <SvgIcon><MdClear /></SvgIcon>
@@ -112,7 +130,7 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
             <CircularProgress
               size={24}
               sx={{
-                my: 'auto', color: 'text.primary', position: 'absolute', right: '8px',
+                my: 'auto', color: 'text.secondary', position: 'absolute', right: '8px',
               }}
             />
           )}

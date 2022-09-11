@@ -135,7 +135,7 @@ const Artist = () => {
   const theme = useTheme();
   const topMostGroup = useRef<ArtistGroup | null>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuTarget, setmenuTarget] = useState<number | undefined>();
+  const [menuTarget, setMenuTarget] = useState<number | undefined>();
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -207,7 +207,7 @@ const Artist = () => {
       return;
     }
     menuSection.current = section;
-    setmenuTarget(parseInt(target, 10));
+    setMenuTarget(parseInt(target, 10));
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
   }, [toggleMenu]);
@@ -337,7 +337,7 @@ const Artist = () => {
               menuStyle={menuStyle}
               onClose={() => {
                 menuSection.current = null;
-                setmenuTarget(undefined);
+                setMenuTarget(undefined);
                 toggleMenu(false);
               }}
             >
