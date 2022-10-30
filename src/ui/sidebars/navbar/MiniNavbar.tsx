@@ -47,7 +47,7 @@ const MiniNavbar = () => {
             </ListItem>
           )}
         </NavLink>
-        <NavLink className="nav-link" to="/">
+        <NavLink className="nav-link" to="/charts">
           {({ isActive }) => (
             <ListItem sx={isActive ? activeStyle : listStyle} title="Charts">
               <SvgIcon sx={{ mx: '8px' }}><TiChartLine /></SvgIcon>

@@ -313,7 +313,7 @@ const Artist = () => {
                   { index, context: { ...artistContext, colors } },
                 )}
                 groupCounts={items.groupCounts}
-                increaseViewportBy={{ top: 0, bottom: 200 }}
+                increaseViewportBy={{ top: 0, bottom: 500 }}
                 isScrolling={handleScrollState}
                 itemContent={
                   (index, groupIndex, item, context) => AlbumsRowContent({ index, context })

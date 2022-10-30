@@ -114,9 +114,10 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
             </SvgIcon>
           </Box>
           <Box sx={{ width: '56px' }} />
-          <Box sx={{
-            width: '50%', flexGrow: 1, display: 'flex', justifyContent: 'flex-end',
-          }}
+          <Box
+            sx={{
+              width: '50%', flexGrow: 1, display: 'flex', justifyContent: 'flex-end',
+            }}
           >
             <FilterInput filter={filter} setFilter={setFilter} />
           </Box>

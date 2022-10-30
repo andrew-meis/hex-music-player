@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
@@ -17,30 +17,16 @@ import { DragActions } from '../../types/enums';
 import Footer from '../virtuoso-components/Footer';
 import Item from '../virtuoso-components/Item';
 import List from '../virtuoso-components/List';
+import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from '../virtuoso-components/ScrollSeekPlaceholder';
-
-const Header = () => (
-  <Box
-    alignItems="center"
-    borderBottom="1px solid"
-    borderColor="border.main"
-    color="text.primary"
-    display="flex"
-    height={70}
-    maxWidth="900px"
-    mx="auto"
-    width="89%"
-  >
-    <Typography sx={{ fontWeight: 600 }} variant="h4">Charts</Typography>
-  </Box>
-);
 
 const previewOptions = {
   offsetX: -8,
 };
 
 export interface ChartsContext {
+  days: string;
   drag: ConnectDragSource,
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
@@ -52,6 +38,7 @@ export interface ChartsContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   selectedRows: number[];
+  setDays: React.Dispatch<React.SetStateAction<string>>;
   topTracks: Track[] | undefined;
 }
 
@@ -64,8 +51,9 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
+  const [days, setDays] = useState('14');
   // data loading
-  const { data: topTracks, isLoading } = useTopTracks({ seconds: 60 * 60 * 24 * 14, limit: 300 });
+  const { data: topTracks, isLoading } = useTopTracks({ seconds: 60 * 60 * 24 * +days, limit: 100 });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
@@ -159,6 +147,7 @@ const Charts = () => {
   };
 
   const chartsContext = useMemo(() => ({
+    days,
     drag,
     getFormattedTime,
     handleClickAway,
@@ -171,7 +160,9 @@ const Charts = () => {
     nowPlaying,
     topTracks,
     selectedRows,
+    setDays,
   }), [
+    days,
     drag,
     getFormattedTime,
     handleClickAway,
@@ -184,6 +175,7 @@ const Charts = () => {
     nowPlaying,
     topTracks,
     selectedRows,
+    setDays,
   ]);
 
   if (isLoading) {
