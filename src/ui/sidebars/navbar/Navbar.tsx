@@ -3,6 +3,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import {
+  TiChartLine,
   HiHome, HiMusicNote, IoGlobeSharp, IoMdMicrophone, RiAlbumFill,
 } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
@@ -50,6 +51,15 @@ const Navbar = () => {
                 <Box sx={activeBox(isActive)} />
                 <SvgIcon sx={{ mx: '8px' }}><HiHome /></SvgIcon>
                 Home
+              </ListItem>
+            )}
+          </NavLink>
+          <NavLink className="nav-link" to="/charts">
+            {({ isActive }) => (
+              <ListItem sx={isActive ? activeStyle : listStyle}>
+                <Box sx={activeBox(isActive)} />
+                <SvgIcon sx={{ mx: '8px' }}><TiChartLine /></SvgIcon>
+                Charts
               </ListItem>
             )}
           </NavLink>

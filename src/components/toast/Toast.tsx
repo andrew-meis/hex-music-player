@@ -37,7 +37,7 @@ const Toast = () => {
   return (
     <Snackbar
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      autoHideDuration={2000}
+      autoHideDuration={1000}
       open={open}
       sx={{ '&.MuiSnackbar-root': { bottom: '100px' } }}
       onClose={handleClose}

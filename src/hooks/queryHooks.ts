@@ -169,7 +169,7 @@ export const useAlbum = (albumId: Album['id']) => {
     ['album', albumId],
     () => getAlbum(albumId),
     {
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
   );
@@ -189,7 +189,7 @@ export const useAlbumTracks = (albumId: Album['id']) => {
       return array;
     }),
     {
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
   );
@@ -201,7 +201,7 @@ export const useArtist = (artistId: Artist['id']) => {
     ['artist', artistId],
     () => getArtist(artistId),
     {
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
   );
@@ -217,7 +217,7 @@ export const useArtistAppearances = (
     ['artist-appearances', artistId],
     () => getArtistAppearances(artistId, artistTitle, artistGuid),
     {
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
   );
@@ -234,7 +234,7 @@ export const useArtistTracks = (
     ['artist-tracks', artistId, slice],
     () => getArtistTracks(artistId, artistTitle, artistGuid, slice),
     {
-      refetchOnMount: false,
+      refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
   );
@@ -294,7 +294,7 @@ export const usePlaylist = (playlistId: Playlist['id']) => {
     () => library.playlists({ playlistType: 'audio' }),
     {
       enabled: !!library,
-      refetchOnMount: false,
+      refetchOnMount: true,
       select: (data) => data.playlists.find((playlist) => playlist.id === playlistId),
     },
   );
@@ -327,7 +327,6 @@ export const useSearch = ({ query }: {query: string}) => {
     {
       enabled: !!library && query.length > 1,
       keepPreviousData: true,
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
     },
   );
@@ -357,7 +356,6 @@ export const useTopTracks = ({ seconds, limit }: { seconds: number, limit: numbe
     },
     {
       enabled: !!library,
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
     },
   );
@@ -370,7 +368,6 @@ export const useUser = () => {
     () => account.info(),
     {
       enabled: !!account,
-      refetchOnMount: false,
       refetchOnWindowFocus: false,
     },
   );

@@ -1,5 +1,5 @@
 import { Skeleton } from '@mui/lab';
-import { Box, ClickAwayListener, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Artist, Album as AlbumType, Library, Playlist, PlayQueueItem, Track } from 'hex-plex';
@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { ConnectDragSource, useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { NavigateFunction, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { ItemProps, ListProps, Virtuoso } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import {
   useAlbum, useAlbumTracks, useIsPlaying, useLibrary, useNowPlaying,
@@ -19,62 +19,22 @@ import useRowSelect from '../../hooks/useRowSelect';
 import { DragActions } from '../../types/enums';
 import { DiscHeader, RouteParams } from '../../types/interfaces';
 import { isDiscHeader, isTrack } from '../../types/type-guards';
+import Item from '../virtuoso-components/Item';
+import List from '../virtuoso-components/List';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
 
-const mergeRefs = (...refs: any) => {
-  const filteredRefs = refs.filter(Boolean);
-  if (!filteredRefs.length) return null;
-  if (filteredRefs.length === 0) return filteredRefs[0];
-  return (inst: Element) => {
-    // eslint-disable-next-line no-restricted-syntax
-    for (const ref of filteredRefs) {
-      if (typeof ref === 'function') {
-        ref(inst);
-      } else if (ref) {
-        ref.current = inst;
-      }
-    }
-  };
-};
-
-const Item = React
-  .forwardRef((
-    {
-      // @ts-ignore
-      style, children, context, ...props
-    }: ItemProps,
-    itemRef: React.ForwardedRef<HTMLDivElement>,
-  ) => (
-    <div
-      {...props}
-      ref={itemRef}
-      style={style}
-      onContextMenu={(event) => context.handleContextMenu(event)}
-    >
-      {children}
-    </div>
-  ));
-
-const List = React
-  .forwardRef((
-    // @ts-ignore
-    { style, children, context }: ListProps,
-    listRef: React.ForwardedRef<HTMLDivElement>,
-  ) => (
-    <ClickAwayListener onClickAway={context.handleClickAway}>
-      <Box
-        className="list-box"
-        ref={mergeRefs(context.drag, listRef)}
-        style={{ ...style, maxWidth: '900px', width: '89%' }}
-        sx={{ mx: 'auto' }}
-        onDragStartCapture={context.handleDragStart}
-      >
-        {children}
-      </Box>
-    </ClickAwayListener>
-  ));
+const Footer = () => (
+  <Box
+    borderTop="1px solid"
+    borderColor="border.main"
+    height="10px"
+    maxWidth={900}
+    mx="auto"
+    width="89%"
+  />
+);
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <Box alignItems="center" display="flex" height={height}>
@@ -296,6 +256,7 @@ const Album = () => {
         <Virtuoso
           className="scroll-container"
           components={{
+            Footer,
             Header,
             Item,
             List,

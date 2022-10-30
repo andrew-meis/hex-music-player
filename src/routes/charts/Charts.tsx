@@ -1,50 +1,47 @@
-import { SvgIcon, Typography, useTheme } from '@mui/material';
-import {
-  ControlledMenu, MenuDivider, MenuItem, useMenuState,
-} from '@szhsin/react-menu';
-import {
-  Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track,
-} from 'hex-plex';
+import { Box, Typography } from '@mui/material';
+import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import React, {
-  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
-} from 'react';
+import { Library, PlayQueueItem, Track } from 'hex-plex';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ConnectDragSource, useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { MdDelete } from 'react-icons/all';
-import { useLocation, useParams } from 'react-router-dom';
-import { useKey } from 'react-use';
+import { useLocation } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
-import { useRemoveFromPlaylist } from '../../hooks/plexHooks';
-import {
-  useIsPlaying,
-  useLibrary,
-  useNowPlaying,
-  usePlaylist,
-  usePlaylistItems,
-} from '../../hooks/queryHooks';
+import { useIsPlaying, useLibrary, useNowPlaying, useTopTracks } from '../../hooks/queryHooks';
 import useFormattedTime from '../../hooks/useFormattedTime';
 import useMenuStyle from '../../hooks/useMenuStyle';
 import usePlayback from '../../hooks/usePlayback';
 import useRowSelect from '../../hooks/useRowSelect';
-import useToast from '../../hooks/useToast';
 import { DragActions } from '../../types/enums';
-import { RouteParams } from '../../types/interfaces';
 import Footer from '../virtuoso-components/Footer';
 import Item from '../virtuoso-components/Item';
 import List from '../virtuoso-components/List';
-import ScrollSeekPlaceholder from '../virtuoso-components/ScrollSeekPlaceholder';
-import Header from './Header';
 import Row from './Row';
+import ScrollSeekPlaceholder from '../virtuoso-components/ScrollSeekPlaceholder';
+
+const Header = () => (
+  <Box
+    alignItems="center"
+    borderBottom="1px solid"
+    borderColor="border.main"
+    color="text.primary"
+    display="flex"
+    height={70}
+    maxWidth="900px"
+    mx="auto"
+    width="89%"
+  >
+    <Typography sx={{ fontWeight: 600 }} variant="h4">Charts</Typography>
+  </Box>
+);
 
 const previewOptions = {
   offsetX: -8,
 };
 
-export interface PlaylistContext {
+export interface ChartsContext {
   drag: ConnectDragSource,
-  filter: string;
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -54,66 +51,51 @@ export interface PlaylistContext {
   isPlaying: boolean;
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
-  playlist: PlaylistType | undefined;
-  playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   selectedRows: number[];
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
+  topTracks: Track[] | undefined;
 }
 
 export interface RowProps {
   index: number;
-  item: PlaylistItem;
-  context: PlaylistContext;
+  item: Track;
+  context: ChartsContext;
 }
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-const Playlist = () => {
+const Charts = () => {
   // data loading
-  const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const playlist = usePlaylist(+id);
-  const playlistItems = usePlaylistItems(+id);
+  const { data: topTracks, isLoading } = useTopTracks({ seconds: 60 * 60 * 24 * 14, limit: 300 });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
   const location = useLocation();
   const menuStyle = useMenuStyle();
-  const removeFromPlaylist = useRemoveFromPlaylist();
-  const theme = useTheme();
-  const toast = useToast();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playPlaylistAtTrack, playSwitch } = usePlayback();
+  const { playSwitch } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
-
-  let items: PlaylistItem[] = [];
-  if (playlistItems.data) {
-    items = playlistItems.data.filter(
-      (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
-    );
-  }
 
   useLayoutEffect(() => {
     setSelectedRows([]);
-  }, [id, setSelectedRows]);
+  }, [location, setSelectedRows]);
 
   const [, drag, dragPreview] = useDrag(() => ({
     previewOptions,
     type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
     item: () => {
-      if (selectedRows.length === 1) {
-        return items[selectedRows[0]].track;
+      if (!topTracks) {
+        return [];
       }
-      return selectedRows.map((n) => items![n].track);
+      if (selectedRows.length === 1) {
+        return topTracks[selectedRows[0]];
+      }
+      return selectedRows.map((n) => topTracks![n]);
     },
-  }), [items, selectedRows]);
+  }), [topTracks, selectedRows]);
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
@@ -153,35 +135,19 @@ const Playlist = () => {
   }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!items) {
+    if (!topTracks) {
       return;
     }
     if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => items[n].track);
+      const [track] = selectedRows.map((n) => topTracks[n]);
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }
     if (selectedRows.length > 1) {
-      const tracks = selectedRows.map((n) => items[n].track);
+      const tracks = selectedRows.map((n) => topTracks[n]);
       await playSwitch(button.action, { tracks, shuffle: button.shuffle });
     }
   };
-
-  const handleRemove = async () => {
-    if (!items) {
-      return;
-    }
-    if (playlist.data!.smart) {
-      toast({ type: 'error', text: 'Cannot edit smart playlist' });
-      return;
-    }
-    const selectedItems = selectedRows.map((n) => items[n]);
-    setSelectedRows([]);
-    await selectedItems.forEach((item) => {
-      removeFromPlaylist(item.playlistId, item.id);
-    });
-  };
-  useKey('Delete', handleRemove, { event: 'keyup' }, [selectedRows]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -192,9 +158,8 @@ const Playlist = () => {
     }
   };
 
-  const playlistContext = useMemo(() => ({
+  const chartsContext = useMemo(() => ({
     drag,
-    filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -204,13 +169,10 @@ const Playlist = () => {
     isPlaying,
     library,
     nowPlaying,
-    playlist: playlist.data,
-    playPlaylistAtTrack,
+    topTracks,
     selectedRows,
-    setFilter,
   }), [
     drag,
-    filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -220,20 +182,18 @@ const Playlist = () => {
     isPlaying,
     library,
     nowPlaying,
-    playlist.data,
-    playPlaylistAtTrack,
+    topTracks,
     selectedRows,
-    setFilter,
   ]);
 
-  if (playlist.isLoading || playlistItems.isLoading) {
+  if (isLoading) {
     return null;
   }
 
-  if (!playlistItems.data || playlistItems.data.length === 0) {
+  if (!topTracks || topTracks.length === 0) {
     return (
       <Typography color="text.primary" variant="h5">
-        Empty playlist :/
+        No top tracks :/
       </Typography>
     );
   }
@@ -256,8 +216,8 @@ const Playlist = () => {
             List,
             ScrollSeekPlaceholder,
           }}
-          context={playlistContext}
-          data={items}
+          context={chartsContext}
+          data={topTracks}
           fixedItemHeight={56}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ index, item, context })}
@@ -266,13 +226,7 @@ const Playlist = () => {
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={items.length}
-          onScroll={(e) => {
-            sessionStorage.setItem(
-              id,
-              (e.currentTarget as unknown as HTMLElement).scrollTop as unknown as string,
-            );
-          }}
+          totalCount={topTracks.length}
         />
       </motion.div>
       <ControlledMenu
@@ -294,24 +248,9 @@ const Playlist = () => {
             {button.name}
           </MenuItem>
         ))}
-        {!playlist.data!.smart && (
-        <>
-          <MenuDivider />
-          <MenuItem
-            style={{
-              '--menu-primary': theme.palette.error.main,
-              '--menu-transparent': `${theme.palette.error.main}cc`,
-            } as React.CSSProperties}
-            onClick={handleRemove}
-          >
-            <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>
-            Remove
-          </MenuItem>
-        </>
-        )}
       </ControlledMenu>
     </>
   );
 };
 
-export default Playlist;
+export default Charts;

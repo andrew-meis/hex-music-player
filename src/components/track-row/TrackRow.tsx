@@ -79,9 +79,12 @@ const TrackRow = ({
       />
       <Typography fontSize="0.95rem" textAlign="right">
         {
-          track.viewCount
-            ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`
-            : 'unplayed'
+          // eslint-disable-next-line no-nested-ternary
+          track.globalViewCount
+            ? `${track.globalViewCount} ${track.globalViewCount > 1 ? 'plays' : 'play'}`
+            : track.viewCount
+              ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`
+              : 'unplayed'
         }
       </Typography>
     </Box>

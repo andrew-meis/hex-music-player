@@ -159,7 +159,14 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           </Textfit>
         </Box>
       </Box>
-      <Box display="flex" flexWrap="wrap" mx="auto" ref={tracksInView.ref} width={(width * 0.89)}>
+      <Box
+        display="flex"
+        flexWrap="wrap"
+        mt="9px"
+        mx="auto"
+        ref={tracksInView.ref}
+        width={(width * 0.89)}
+      >
         <InfoRow artist={artistData!.artist} colors={colors!} />
         <TopTracks context={context} />
         <Highlights

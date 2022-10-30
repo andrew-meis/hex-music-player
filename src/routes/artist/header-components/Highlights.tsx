@@ -19,9 +19,7 @@ const getMaxCards = (cards: number, height: number, width: number) => {
   return 3;
 };
 
-const linkState = (card: ArtistExt) => {
-  return { guid: card.guid, title: card.title };
-};
+const linkState = (card: ArtistExt) => ({ guid: card.guid, title: card.title });
 
 const textStyle = {
   color: 'text.primary',
