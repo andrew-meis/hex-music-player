@@ -4,7 +4,14 @@ import {
 } from '@mui/material';
 import React from 'react';
 import {
-  HiHome, HiMusicNote, IoGlobeSharp, IoMdMicrophone, IoSettingsSharp, RiAlbumFill, TbPlaylist,
+  HiHome,
+  HiMusicNote,
+  IoGlobeSharp,
+  IoMdMicrophone,
+  IoSettingsSharp,
+  RiAlbumFill,
+  TbPlaylist,
+  TiChartLine,
 } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 
@@ -37,6 +44,13 @@ const MiniNavbar = () => {
           {({ isActive }) => (
             <ListItem sx={isActive ? activeStyle : listStyle} title="Home">
               <SvgIcon sx={{ mx: '8px' }}><HiHome /></SvgIcon>
+            </ListItem>
+          )}
+        </NavLink>
+        <NavLink className="nav-link" to="/">
+          {({ isActive }) => (
+            <ListItem sx={isActive ? activeStyle : listStyle} title="Charts">
+              <SvgIcon sx={{ mx: '8px' }}><TiChartLine /></SvgIcon>
             </ListItem>
           )}
         </NavLink>
