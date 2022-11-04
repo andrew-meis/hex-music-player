@@ -17,7 +17,7 @@ const Content = () => {
   const [ref, { width }] = useMeasure();
   const { data: settings } = useSettings();
   const { isLoading: playlistLoading } = usePlaylists();
-  const { isLoading: hotTracksLoading } = useTopTracks({ seconds: 60 * 60 * 24 * 90, limit: 300 });
+  const { isLoading: hotTracksLoading } = useTopTracks({ limit: 300, seconds: 60 * 60 * 24 * 90 });
 
   if (playlistLoading || hotTracksLoading) {
     return (

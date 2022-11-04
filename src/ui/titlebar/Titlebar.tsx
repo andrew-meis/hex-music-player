@@ -51,7 +51,7 @@ const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: Titlebar
         display="flex"
         height={50}
         id="window-title-menu"
-        width={132}
+        width={138}
       >
         {authenticated === 'authenticated' && platform !== 'darwin' && (
           <AppMenu setAuthenticated={setAuthenticated} />
@@ -65,7 +65,7 @@ const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: Titlebar
         height={50}
         id="window-title-buttons"
         justifyContent="flex-end"
-        width={132}
+        width={138}
       >
         {authenticated === 'authenticated' && platform === 'darwin' && (
           <AppMenu setAuthenticated={setAuthenticated} />

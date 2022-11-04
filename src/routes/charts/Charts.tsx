@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
@@ -26,7 +25,7 @@ const previewOptions = {
 };
 
 export interface ChartsContext {
-  days: string;
+  days: number;
   drag: ConnectDragSource,
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
@@ -38,7 +37,7 @@ export interface ChartsContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   selectedRows: number[];
-  setDays: React.Dispatch<React.SetStateAction<string>>;
+  setDays: React.Dispatch<React.SetStateAction<number>>;
   topTracks: Track[] | undefined;
 }
 
@@ -51,9 +50,9 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
-  const [days, setDays] = useState('14');
+  const [days, setDays] = useState(14);
   // data loading
-  const { data: topTracks, isLoading } = useTopTracks({ seconds: 60 * 60 * 24 * +days, limit: 100 });
+  const { data: topTracks, isLoading } = useTopTracks({ limit: 100, seconds: 60 * 60 * 24 * days });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
@@ -178,18 +177,6 @@ const Charts = () => {
     setDays,
   ]);
 
-  if (isLoading) {
-    return null;
-  }
-
-  if (!topTracks || topTracks.length === 0) {
-    return (
-      <Typography color="text.primary" variant="h5">
-        No top tracks :/
-      </Typography>
-    );
-  }
-
   return (
     <>
       <motion.div
@@ -209,7 +196,7 @@ const Charts = () => {
             ScrollSeekPlaceholder,
           }}
           context={chartsContext}
-          data={topTracks}
+          data={isLoading ? [] : topTracks}
           fixedItemHeight={56}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ index, item, context })}
@@ -218,7 +205,7 @@ const Charts = () => {
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={topTracks.length}
+          totalCount={isLoading || topTracks === undefined ? 0 : topTracks.length}
         />
       </motion.div>
       <ControlledMenu

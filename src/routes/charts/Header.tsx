@@ -1,16 +1,15 @@
 import {
-  Box, FormControl, MenuItem, Select, SelectChangeEvent, SvgIcon, Typography,
+  Box, Chip, SvgIcon, Typography,
 } from '@mui/material';
 import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { ChartsContext } from './Charts';
 
+const dayOptions = [14, 30, 90, 365];
+
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ChartsContext }) => {
   const { days, setDays } = context!;
-  const handleChange = (event: SelectChangeEvent) => {
-    setDays(event.target.value);
-  };
 
   return (
     <Box
@@ -22,9 +21,22 @@ const Header = ({ context }: { context?: ChartsContext }) => {
         alignItems="center"
         color="text.primary"
         display="flex"
-        height={70}
+        height={50}
       >
         <Typography sx={{ fontWeight: 600 }} variant="h4">Charts</Typography>
+      </Box>
+      <Box
+        height={40}
+      >
+        {dayOptions.map((numberOfDays) => (
+          <Chip
+            color={days === numberOfDays ? 'primary' : 'default'}
+            key={numberOfDays}
+            label={`Last ${numberOfDays} days`}
+            sx={{ mr: '8px' }}
+            onClick={() => setDays(numberOfDays)}
+          />
+        ))}
       </Box>
       <Box
         alignItems="flex-start"
@@ -50,24 +62,7 @@ const Header = ({ context }: { context?: ChartsContext }) => {
             display: 'flex',
             justifyContent: 'flex-end',
           }}
-        >
-          <Typography>
-            Chart time period:
-          </Typography>
-          <FormControl size="small" sx={{ ml: 1, minWidth: 120 }} variant="standard">
-            <Select
-              disableUnderline
-              inputProps={{ sx: { borderRadius: '4px !important', padding: '3px 6px' } }}
-              value={days}
-              onChange={handleChange}
-            >
-              <MenuItem value="14">14 days</MenuItem>
-              <MenuItem value="30">30 days</MenuItem>
-              <MenuItem value="90">90 days</MenuItem>
-              <MenuItem value="365">365 days</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
+        />
         <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
           <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
             <RiHeartLine />

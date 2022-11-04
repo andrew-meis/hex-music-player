@@ -20,6 +20,7 @@ const TrackRating = ({ id, userRating }: TrackRatingProps) => {
       await queryClient.invalidateQueries(['artist-tracks']);
       await queryClient.invalidateQueries(['play-queue']);
       await queryClient.invalidateQueries(['playlist']);
+      await queryClient.invalidateQueries(['top-tracks']);
       return;
     }
     await library.rate(id, newValue * 2);
@@ -27,6 +28,7 @@ const TrackRating = ({ id, userRating }: TrackRatingProps) => {
     await queryClient.invalidateQueries(['artist-tracks']);
     await queryClient.invalidateQueries(['play-queue']);
     await queryClient.invalidateQueries(['playlist']);
+    await queryClient.invalidateQueries(['top-tracks']);
   };
 
   return (

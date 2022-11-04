@@ -332,20 +332,38 @@ export const useSearch = ({ query }: {query: string}) => {
   );
 };
 
-export const useTopTracks = ({ seconds, limit }: { seconds: number, limit: number }) => {
+export const useTopTracks = (
+  { limit, start, end, seconds }: { limit: number, start?: number, end?: number, seconds?: number },
+) => {
   const library = useLibrary();
   const { data: config } = useConfig();
   return useQuery(
     ['top-tracks', seconds, limit],
     async () => {
-      const timestamp = Math.round((new Date()).getTime() / 1000);
+      if (seconds) {
+        const timestamp = Math.round((new Date()).getTime() / 1000);
+        const url = library.api.getAuthenticatedUrl(
+          '/library/all/top',
+          {
+            type: 10,
+            librarySectionID: config.sectionId as number,
+            'viewedAt>': timestamp - seconds,
+            'viewedAt<': timestamp,
+            limit,
+            accountID: 1,
+          },
+        );
+        const response = await axios.get(url);
+        const { tracks } = parseContainerType(MediaType.TRACK, response.data);
+        return uniqBy(tracks, 'guid');
+      }
       const url = library.api.getAuthenticatedUrl(
         '/library/all/top',
         {
           type: 10,
           librarySectionID: config.sectionId as number,
-          'viewedAt>': timestamp - seconds,
-          'viewedAt<': timestamp,
+          'viewedAt>': start!,
+          'viewedAt<': end!,
           limit,
           accountID: 1,
         },
@@ -356,6 +374,7 @@ export const useTopTracks = ({ seconds, limit }: { seconds: number, limit: numbe
     },
     {
       enabled: !!library,
+      refetchInterval: 1000 * 60 * 30,
       refetchOnWindowFocus: false,
     },
   );
