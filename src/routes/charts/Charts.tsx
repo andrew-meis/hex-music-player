@@ -55,8 +55,8 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
   const [days, setDays] = useState(7);
-  const [endDate, setEndDate] = useState(new Date().getTime());
-  const [startDate, setStartDate] = useState(new Date().setDate(new Date().getDate() - days));
+  const [endDate, setEndDate] = useState(new Date().setHours(23, 59, 59, 0));
+  const [startDate, setStartDate] = useState(new Date().setHours(0, 0, 0, 0) - (60000 * 60 * 24 * days));
   // data loading
   const { data: topTracks, isLoading } = useTopTracks(
     { limit: 100, start: Math.round(startDate / 1000), end: Math.round(endDate / 1000) },
@@ -82,8 +82,8 @@ const Charts = () => {
     if (days === 0) {
       return;
     }
-    setStartDate(new Date().setDate(new Date().getDate() - days));
-    setEndDate(new Date().getTime());
+    setStartDate(new Date().setHours(0, 0, 0, 0) - (1000 * 60 * 60 * 24 * days));
+    setEndDate(new Date().setHours(23, 59, 59, 0));
   }, [days]);
 
   const [, drag, dragPreview] = useDrag(() => ({

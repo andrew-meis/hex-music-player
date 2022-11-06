@@ -69,11 +69,11 @@ const Header = ({ context }: { context?: ChartsContext }) => {
             // @ts-ignore
             customInput={<DatePickerInput label="start" />}
             dropdownMode="select"
-            maxDate={new Date(endDate - 86400000) || new Date()}
+            maxDate={new Date(endDate) || new Date()}
             minDate={new Date(946702800000)}
             selected={new Date(startDate)}
             onChange={(date) => {
-              setStartDate(date!.getTime());
+              setStartDate(date!.setHours(0, 0, 0, 0));
               setDays(0);
             }}
           />
@@ -85,10 +85,10 @@ const Header = ({ context }: { context?: ChartsContext }) => {
             customInput={<DatePickerInput label="end" />}
             dropdownMode="select"
             maxDate={new Date()}
-            minDate={new Date(startDate + 86400000)}
+            minDate={new Date(startDate)}
             selected={new Date(endDate)}
             onChange={(date) => {
-              setEndDate(date!.getTime());
+              setEndDate(date!.setHours(23, 59, 59, 0));
               setDays(0);
             }}
           />

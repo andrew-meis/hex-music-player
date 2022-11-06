@@ -56,7 +56,9 @@ interface TrackExt extends Track {
 const Highlights = ({ artistData, height, library, navigate, width }: HighlightsProps) => {
   const queryClient = useQueryClient();
   const hotTrack = useMemo(() => {
-    const hotTracks = queryClient.getQueryData<Track[]>(['top-tracks', 60 * 60 * 24 * 90, 300]);
+    const hotTracks = queryClient.getQueryData<Track[]>(
+      ['top-tracks', { limit: 300, seconds: 60 * 60 * 24 * 90 }],
+    );
     if (hotTracks !== undefined) {
       const filteredTracks = hotTracks
         .filter((track: Track) => track.grandparentId === artistData?.artist.id);

@@ -338,7 +338,7 @@ export const useTopTracks = (
   const library = useLibrary();
   const { data: config } = useConfig();
   return useQuery(
-    ['top-tracks', seconds, start, end, limit],
+    ['top-tracks', { limit, seconds, start, end }],
     async () => {
       if (seconds) {
         const timestamp = Math.round((new Date()).getTime() / 1000);
