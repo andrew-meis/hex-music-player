@@ -8,6 +8,7 @@ import { HashRouter } from 'react-router-dom';
 import App from './App';
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import 'styles/index.scss';
 import DragLayer from './core/DragLayer';
 import Theme from './core/Theme';

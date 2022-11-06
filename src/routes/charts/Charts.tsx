@@ -27,6 +27,8 @@ const previewOptions = {
 export interface ChartsContext {
   days: number;
   drag: ConnectDragSource,
+  endDate: number;
+  startDate: number;
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -37,6 +39,8 @@ export interface ChartsContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   selectedRows: number[];
+  setEndDate: React.Dispatch<React.SetStateAction<number>>;
+  setStartDate: React.Dispatch<React.SetStateAction<number>>;
   setDays: React.Dispatch<React.SetStateAction<number>>;
   topTracks: Track[] | undefined;
 }
@@ -50,9 +54,13 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
-  const [days, setDays] = useState(14);
+  const [days, setDays] = useState(7);
+  const [endDate, setEndDate] = useState(new Date().getTime());
+  const [startDate, setStartDate] = useState(new Date().setDate(new Date().getDate() - days));
   // data loading
-  const { data: topTracks, isLoading } = useTopTracks({ limit: 100, seconds: 60 * 60 * 24 * days });
+  const { data: topTracks, isLoading } = useTopTracks(
+    { limit: 100, start: Math.floor(startDate / 1000), end: Math.floor(endDate / 1000) },
+  );
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
@@ -69,6 +77,11 @@ const Charts = () => {
   useLayoutEffect(() => {
     setSelectedRows([]);
   }, [location, setSelectedRows]);
+
+  useEffect(() => {
+    setStartDate(new Date().setDate(new Date().getDate() - days));
+    setEndDate(new Date().getTime());
+  }, [days]);
 
   const [, drag, dragPreview] = useDrag(() => ({
     previewOptions,
@@ -148,6 +161,8 @@ const Charts = () => {
   const chartsContext = useMemo(() => ({
     days,
     drag,
+    endDate,
+    startDate,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -160,9 +175,13 @@ const Charts = () => {
     topTracks,
     selectedRows,
     setDays,
+    setEndDate,
+    setStartDate,
   }), [
     days,
     drag,
+    endDate,
+    startDate,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -175,6 +194,8 @@ const Charts = () => {
     topTracks,
     selectedRows,
     setDays,
+    setEndDate,
+    setStartDate,
   ]);
 
   return (

@@ -139,6 +139,10 @@ img.emoji {
    vertical-align: -0.15em;
 }
 
+select:focus-visible {
+  outline: none;
+}
+
 .disable-hover {
   .list-box {
     pointer-events: none;
@@ -169,6 +173,75 @@ img.emoji {
 
 .active {
   text-decoration: none;
+}
+
+.react-datepicker {
+  font-family: Arimo, sans-serif;
+}
+
+.react-datepicker-wrapper {
+  margin-right: 8px;
+  width: auto;
+}
+
+.react-datepicker__close-icon {
+  padding: 0;
+}
+
+.react-datepicker__close-icon::after {
+  content: "✖";
+  height: 20px;
+  width: 20px;
+  font-size: 14px;
+  background-color: var(--menu-paper);
+  transition: background-color 300ms ease-in-out;
+}
+
+.react-datepicker__close-icon:hover::after {
+  content: "✖";
+  height: 20px;
+  width: 20px;
+  font-size: 14px;
+  background-color: var(--menu-primary);
+}
+
+.react-datepicker__current-month {
+  height: 0;
+  visibility: hidden;
+}
+
+.react-datepicker__month-select {
+  background-color: transparent;
+  border: none;
+  font-family: Arimo, sans-serif;
+  font-size: 0.95rem;
+}
+
+.react-datepicker__year-select {
+  background-color: transparent;
+  border: none;
+  font-family: Arimo, sans-serif;
+  font-size: 0.95rem;
+}
+
+.react-datepicker__year-select::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.react-datepicker__year-select::-webkit-scrollbar-track {
+  border: solid 2px transparent;
+}
+
+.react-datepicker__year-select::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px transparent;
+  border: solid 3px transparent;
+  border-radius: 8px;
+  min-height: 30px;
+}
+
+.react-datepicker__year-select::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px rgba(0, 0, 0, 0.5);
 }
 
 .scroll-container::-webkit-scrollbar {

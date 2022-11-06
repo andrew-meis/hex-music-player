@@ -1,15 +1,34 @@
+import DatePicker from 'react-datepicker';
 import {
-  Box, Chip, SvgIcon, Typography,
+  Box, Chip, SvgIcon, TextField, Typography,
 } from '@mui/material';
 import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { ChartsContext } from './Charts';
 
-const dayOptions = [14, 30, 90, 365];
+const dayOptions = [7, 30, 90, 365];
+
+const DatePickerInput = React
+  .forwardRef<HTMLInputElement>((props, ref) => {
+    // @ts-ignore
+    // eslint-disable-next-line react/prop-types
+    const { label, value, onChange, onClick } = props;
+    return (
+      <TextField
+        label={label}
+        ref={ref}
+        sx={{ position: 'relative', top: '-8px', width: '10ch' }}
+        value={value}
+        variant="standard"
+        onChange={onChange}
+        onClick={onClick}
+      />
+    );
+  });
 
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ChartsContext }) => {
-  const { days, setDays } = context!;
+  const { days, setDays, endDate, setEndDate, startDate, setStartDate } = context!;
 
   return (
     <Box
@@ -21,22 +40,53 @@ const Header = ({ context }: { context?: ChartsContext }) => {
         alignItems="center"
         color="text.primary"
         display="flex"
-        height={50}
+        height={70}
       >
         <Typography sx={{ fontWeight: 600 }} variant="h4">Charts</Typography>
       </Box>
       <Box
-        height={40}
+        alignItems="center"
+        display="flex"
+        height={44}
       >
         {dayOptions.map((numberOfDays) => (
           <Chip
             color={days === numberOfDays ? 'primary' : 'default'}
             key={numberOfDays}
             label={`Last ${numberOfDays} days`}
-            sx={{ mr: '8px' }}
+            sx={{ fontSize: '0.9rem', mr: '8px' }}
             onClick={() => setDays(numberOfDays)}
           />
         ))}
+        <Box
+          display="flex"
+          ml="auto"
+        >
+          <DatePicker
+            scrollableYearDropdown
+            showMonthDropdown
+            showYearDropdown
+            // @ts-ignore
+            customInput={<DatePickerInput label="start" />}
+            dropdownMode="select"
+            maxDate={new Date(endDate) || new Date()}
+            minDate={new Date(946702800000)}
+            selected={new Date(startDate)}
+            onChange={(date) => setStartDate(date!.getTime())}
+          />
+          <DatePicker
+            scrollableYearDropdown
+            showMonthDropdown
+            showYearDropdown
+            // @ts-ignore
+            customInput={<DatePickerInput label="end" />}
+            dropdownMode="select"
+            maxDate={new Date()}
+            minDate={new Date(startDate)}
+            selected={new Date(endDate)}
+            onChange={(date) => setEndDate(date!.getTime())}
+          />
+        </Box>
       </Box>
       <Box
         alignItems="flex-start"
