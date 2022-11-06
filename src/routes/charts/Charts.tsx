@@ -59,7 +59,7 @@ const Charts = () => {
   const [startDate, setStartDate] = useState(new Date().setDate(new Date().getDate() - days));
   // data loading
   const { data: topTracks, isLoading } = useTopTracks(
-    { limit: 100, start: Math.floor(startDate / 1000), end: Math.floor(endDate / 1000) },
+    { limit: 100, start: Math.round(startDate / 1000), end: Math.round(endDate / 1000) },
   );
   // other hooks
   const hoverIndex = useRef<number | null>(null);
@@ -79,6 +79,9 @@ const Charts = () => {
   }, [location, setSelectedRows]);
 
   useEffect(() => {
+    if (days === 0) {
+      return;
+    }
     setStartDate(new Date().setDate(new Date().getDate() - days));
     setEndDate(new Date().getTime());
   }, [days]);

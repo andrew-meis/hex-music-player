@@ -69,10 +69,13 @@ const Header = ({ context }: { context?: ChartsContext }) => {
             // @ts-ignore
             customInput={<DatePickerInput label="start" />}
             dropdownMode="select"
-            maxDate={new Date(endDate) || new Date()}
+            maxDate={new Date(endDate - 86400000) || new Date()}
             minDate={new Date(946702800000)}
             selected={new Date(startDate)}
-            onChange={(date) => setStartDate(date!.getTime())}
+            onChange={(date) => {
+              setStartDate(date!.getTime());
+              setDays(0);
+            }}
           />
           <DatePicker
             scrollableYearDropdown
@@ -82,9 +85,12 @@ const Header = ({ context }: { context?: ChartsContext }) => {
             customInput={<DatePickerInput label="end" />}
             dropdownMode="select"
             maxDate={new Date()}
-            minDate={new Date(startDate)}
+            minDate={new Date(startDate + 86400000)}
             selected={new Date(endDate)}
-            onChange={(date) => setEndDate(date!.getTime())}
+            onChange={(date) => {
+              setEndDate(date!.getTime());
+              setDays(0);
+            }}
           />
         </Box>
       </Box>
