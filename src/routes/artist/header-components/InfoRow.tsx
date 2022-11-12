@@ -1,23 +1,22 @@
-import { Box, Chip, Typography } from '@mui/material';
+import { Avatar, AvatarGroup, Box, Chip, Tooltip, Typography } from '@mui/material';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
-import { Artist } from 'hex-plex';
+import { Album, Artist, Hub, Library } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import React from 'react';
+import { NavigateFunction } from 'react-router-dom';
 import Twemoji from 'react-twemoji';
-import PlayShuffleButton from '../../../components/play-shuffle-buttons/PlayShuffleButton';
-import usePlayback from '../../../hooks/usePlayback';
 
 interface InfoRowProps {
-  artist: Artist;
+  artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   colors: string[];
+  library: Library;
+  navigate: NavigateFunction;
 }
 
-const InfoRow = ({ artist, colors }: InfoRowProps) => {
-  const { playArtist } = usePlayback();
-
-  const handlePlay = () => playArtist(artist);
-  const handleShuffle = () => playArtist(artist, true);
+const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
+  const { artist } = artistData!;
+  const similarArtists = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
 
   return (
     <Box
@@ -26,6 +25,7 @@ const InfoRow = ({ artist, colors }: InfoRowProps) => {
       display="flex"
       flex="1 0 100%"
       height="71px"
+      sx={{ translate: '0px' }}
     >
       {!isEmpty(artist.country)
         && (
@@ -70,7 +70,57 @@ const InfoRow = ({ artist, colors }: InfoRowProps) => {
           />
         ))}
       </Box>
-      <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
+      <AvatarGroup
+        max={5}
+        sx={{
+          marginLeft: 'auto',
+          '& .MuiAvatar-root': {
+            cursor: 'pointer',
+            height: 52,
+            width: 52,
+            transform: 'scale(0.95)',
+            transition: '0.2s',
+            '&:hover': { transform: 'scale(1) translateZ(0px)' },
+          },
+        }}
+      >
+        {similarArtists?.items.map((similarArtist) => {
+          const thumbSrc = library.api
+            .getAuthenticatedUrl(
+              '/photo/:/transcode',
+              { url: similarArtist.thumb, width: 100, height: 100 },
+            );
+          return (
+            <Tooltip
+              arrow
+              enterDelay={500}
+              enterNextDelay={300}
+              key={similarArtist.id}
+              title={(
+                <Typography color="text.primary" textAlign="center">
+                  {similarArtist.title}
+                </Typography>
+              )}
+            >
+              <Avatar
+                alt={similarArtist.title}
+                src={thumbSrc}
+                onClick={() => navigate(
+                  `/artists/${similarArtist.id}`,
+                  { state: { guid: similarArtist.guid, title: similarArtist.title } },
+                )}
+              />
+            </Tooltip>
+          );
+        })}
+      </AvatarGroup>
+      <Typography
+        position="absolute"
+        sx={{ top: '-8px', right: '4px' }}
+        variant="subtitle2"
+      >
+        similar artists
+      </Typography>
     </Box>
   );
 };

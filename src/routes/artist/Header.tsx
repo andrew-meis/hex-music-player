@@ -5,6 +5,7 @@ import React, { useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import styles from 'styles/ArtistHeader.module.scss';
+import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from '../../hooks/plexHooks';
 import { AppSettings } from '../../types/interfaces';
 import { ArtistContext } from './Artist';
@@ -83,7 +84,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         in={!bannerInView.inView
           && ((bannerInView.entry ? bannerInView.entry.intersectionRatio : 1) < 1)}
         style={{ transformOrigin: 'center top' }}
-        timeout={300}
+        timeout={{ enter: 300, exit: 0 }}
       >
         <Box
           height={71}
@@ -158,6 +159,13 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             </Typography>
           </Textfit>
         </Box>
+        <Box
+          marginBottom="12px"
+          position="absolute"
+          right="22px"
+        >
+          <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
+        </Box>
       </Box>
       <Box
         display="flex"
@@ -167,7 +175,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         ref={tracksInView.ref}
         width={(width * 0.89)}
       >
-        <InfoRow artist={artistData!.artist} colors={colors!} />
+        <InfoRow artistData={artistData} colors={colors!} library={library} navigate={navigate} />
         <TopTracks context={context} />
         <Highlights
           artistData={artistData}
