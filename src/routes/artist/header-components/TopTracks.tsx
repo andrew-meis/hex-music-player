@@ -134,7 +134,7 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
       <Box
         className="list-box"
         display="flex"
-        flex="50000 0 600px"
+        flex="50000 0 598px"
         flexDirection="column"
         height={(topTracks.length * 56) + 45}
         mr="8px"

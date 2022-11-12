@@ -7,6 +7,7 @@ import { useSettings } from './hooks/queryHooks';
 import Album from './routes/album/Album';
 import Albums from './routes/Albums';
 import Artist from './routes/artist/Artist';
+import SimilarArtists from './routes/artist/similar-artists/SimilarArtists';
 import Artists from './routes/Artists';
 import Charts from './routes/charts/Charts';
 import Genres from './routes/Genres';
@@ -56,6 +57,7 @@ const App = () => {
                 <Route element={<Album />} path="/albums/:id" />
                 <Route element={<Artists />} path="/artists" />
                 <Route element={<Artist />} path="/artists/:id" />
+                <Route element={<SimilarArtists />} path="/artists/:id/similar" />
                 <Route element={<Charts />} path="/charts" />
                 <Route element={<Genres />} path="/genres" />
                 <Route element={<Home />} path="/" />

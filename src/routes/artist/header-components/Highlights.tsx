@@ -1,25 +1,8 @@
-import { Avatar, Box, Chip, Typography } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import { Album, Artist, Hub, Library, Track } from 'hex-plex';
-import { maxBy, sample } from 'lodash';
+import { Avatar, Box, Typography } from '@mui/material';
+import { Album, Artist, Hub, Library } from 'hex-plex';
+import { maxBy } from 'lodash';
 import React, { useMemo } from 'react';
 import { NavigateFunction } from 'react-router-dom';
-import Palette from '../../../components/palette/Palette';
-import { isAlbum, isArtist, isTrack } from '../../../types/type-guards';
-
-const getMaxCards = (cards: number, height: number, width: number) => {
-  if (width > 1011 && width < 1018) {
-    if (cards < 6) return 3;
-    if (cards >= 6) return 6;
-  }
-  if (width <= 1011) {
-    if (cards < 4) return 2;
-    if (cards >= 4) return 4;
-  }
-  return 3;
-};
-
-const linkState = (card: ArtistExt) => ({ guid: card.guid, title: card.title });
 
 const textStyle = {
   color: 'text.primary',
@@ -31,6 +14,7 @@ const textStyle = {
   fontSize: '1rem',
   fontWeight: 600,
   lineHeight: 1.5,
+  textDecoration: 'inherit',
 };
 
 interface HighlightsProps {
@@ -45,115 +29,78 @@ interface AlbumExt extends Album {
   label: string;
 }
 
-interface ArtistExt extends Artist {
-  label: string;
-}
-
-interface TrackExt extends Track {
-  label: string;
-}
-
 const Highlights = ({ artistData, height, library, navigate, width }: HighlightsProps) => {
-  const queryClient = useQueryClient();
-  const hotTrack = useMemo(() => {
-    const hotTracks = queryClient.getQueryData<Track[]>(
-      ['top-tracks', { limit: 300, seconds: 60 * 60 * 24 * 90 }],
-    );
-    if (hotTracks !== undefined) {
-      const filteredTracks = hotTracks
-        .filter((track: Track) => track.grandparentId === artistData?.artist.id);
-      return filteredTracks[0];
+  const card = useMemo(() => {
+    if (artistData && artistData.albums.length > 0) {
+      const recentAlbum = maxBy(artistData.albums, (album) => album.originallyAvailableAt);
+      if (recentAlbum) {
+        const now = new Date();
+        const msBetweenDates = Math
+          .abs(recentAlbum.originallyAvailableAt.getTime() - now.getTime());
+        const daysBetweenDates = msBetweenDates / (24 * 60 * 60 * 1000);
+        if (daysBetweenDates < 90) {
+          return { ...recentAlbum, label: 'New Release' } as AlbumExt;
+        }
+      }
     }
     return undefined;
-  }, [artistData, queryClient]);
-  const cards = useMemo(() => {
-    const array = [];
-    if (hotTrack !== undefined) {
-      array.push({ ...hotTrack, label: 'recent favorite' });
-    }
-    const similarArtistHub = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
-    if (similarArtistHub && similarArtistHub.items.length > 0) {
-      const sampleSimilar = sample(similarArtistHub.items);
-      array.push({ ...sampleSimilar, label: 'similar artist' });
-    }
-    if (artistData && artistData.albums.length > 0) {
-      const topAlbum = maxBy(artistData.albums, (album) => album.viewCount);
-      array.push({ ...topAlbum, label: 'top album' });
-    }
-    return array as (AlbumExt | ArtistExt | TrackExt)[];
-  }, [artistData, hotTrack]);
-  const maxCards = useMemo(() => getMaxCards(cards.length, height, width), [cards, height, width]);
+  }, [artistData]);
+  const thumbSrc = card
+    ? library.api.getAuthenticatedUrl(
+      '/photo/:/transcode',
+      { url: card.thumb, width: 300, height: 300 },
+    )
+    : '';
 
-  if (height < 280 || cards.length === 0) {
+  if (height < 280 || width < 860 || !card) {
     return null;
   }
 
   return (
-    <Box flex="1 0 300px">
+    <Box flex="1 0 210px">
       <Box bgcolor="background.paper" color="text.primary">
         <Typography fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
-          Highlights
+          {card.label}
         </Typography>
       </Box>
-      <Box display="flex" flexWrap="wrap" maxHeight={Math.floor(height / 96) * 96}>
-        {cards.slice(0, maxCards).map((card) => {
-          const thumbSrc = library.api
-            .getAuthenticatedUrl(
-              '/photo/:/transcode',
-              { url: card.thumb, width: 100, height: 100 },
-            );
-          return (
-            <Box
-              alignItems="center"
-              bgcolor="action.hover"
-              borderRadius="4px"
-              display="flex"
-              flex="1 0 292px"
-              height={88}
-              key={card.id}
-              mb="8px"
-              mr="8px"
-              sx={{ '&:hover': { backgroundColor: 'action.selected' } }}
-              onClick={() => navigate({
-                artist: isArtist(card) ? `/artists/${card.id}` : '',
-                album: isAlbum(card) ? `/albums/${card.id}` : '',
-                track: isTrack(card) ? `/albums/${card.parentId}` : '',
-              }[card.type] || '/', { state: isArtist(card) ? linkState(card) : null })}
-            >
-              <Avatar
-                alt={card.title}
-                src={thumbSrc}
-                sx={{ width: 76, height: 76, marginX: '6px' }}
-                variant={card.type === 'artist' ? 'circular' : 'rounded'}
-              />
-              <Box
-                alignItems="flex-start"
-                display="flex"
-                flexDirection="column"
-                mr="10px"
-                width={1}
-              >
-                <Typography sx={textStyle}>
-                  {card.title}
-                </Typography>
-                <Palette id={card.id} src={thumbSrc}>
-                  {({ data: colors, isLoading }) => (
-                    <Chip
-                      label={card.label}
-                      size="small"
-                      sx={{
-                        backgroundColor: isLoading
-                          ? 'transparent'
-                          : colors?.darkVibrant || ' #cccccc',
-                        color: 'white.main',
-                      }}
-                    />
-                  )}
-                </Palette>
-              </Box>
-            </Box>
-          );
-        })}
+      <Box
+        alignItems="center"
+        borderRadius="4px"
+        display="flex"
+        flexDirection="column"
+        height="calc(100% - 45px)"
+        key={card.id}
+        sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+        onClick={() => navigate(`/albums/${card.id}`)}
+      >
+        <Avatar
+          alt={card.title}
+          src={thumbSrc}
+          sx={{
+            width: 210,
+            height: 210,
+          }}
+          variant={card.type === 'artist' ? 'circular' : 'rounded'}
+        />
+        <Box
+          alignItems="flex-start"
+          display="flex"
+          flexDirection="column"
+          margin="auto"
+          sx={{ textDecoration: 'inherit' }}
+          width={1}
+        >
+          <Typography sx={textStyle}>
+            {card.title}
+          </Typography>
+          <Typography color="text.primary" variant="subtitle2">
+            {card.originallyAvailableAt
+              .toLocaleDateString(
+                'en-gb',
+                { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+              )}
+          </Typography>
+        </Box>
       </Box>
     </Box>
   );

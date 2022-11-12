@@ -91,7 +91,7 @@ export const useGetArtist = () => {
         includeChildren: 1,
         includePopularLeaves: 1,
         includeRelated: 1,
-        includeRelatedCount: 31,
+        includeRelatedCount: 20,
       },
     );
     const response = await axios.get(url);

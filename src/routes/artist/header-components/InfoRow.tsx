@@ -16,7 +16,8 @@ interface InfoRowProps {
 
 const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
   const { artist } = artistData!;
-  const similarArtists = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
+  const similarArtists = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar')
+    || artistData?.hubs.find((hub) => hub.hubIdentifier === 'external.artist.similar.sonically');
 
   return (
     <Box
@@ -71,6 +72,9 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
         ))}
       </Box>
       <AvatarGroup
+        componentsProps={{
+          additionalAvatar: { onClick: () => navigate(`/artists/${artist.id}/similar`) },
+        }}
         max={5}
         sx={{
           marginLeft: 'auto',
@@ -105,6 +109,10 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
               <Avatar
                 alt={similarArtist.title}
                 src={thumbSrc}
+                sx={{
+                  filter: 'grayscale(60%)',
+                  '&:hover': { filter: 'none' },
+                }}
                 onClick={() => navigate(
                   `/artists/${similarArtist.id}`,
                   { state: { guid: similarArtist.guid, title: similarArtist.title } },
@@ -114,13 +122,16 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
           );
         })}
       </AvatarGroup>
-      <Typography
-        position="absolute"
-        sx={{ top: '-8px', right: '4px' }}
-        variant="subtitle2"
-      >
-        similar artists
-      </Typography>
+      {similarArtists
+        && (
+          <Typography
+            position="absolute"
+            sx={{ top: '-8px', right: '4px' }}
+            variant="subtitle2"
+          >
+            similar artists
+          </Typography>
+        )}
     </Box>
   );
 };
