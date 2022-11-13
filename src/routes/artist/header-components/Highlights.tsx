@@ -13,7 +13,7 @@ const textStyle = {
   fontFamily: 'Rubik',
   fontSize: '1rem',
   fontWeight: 600,
-  lineHeight: 1.5,
+  lineHeight: 1.2,
   textDecoration: 'inherit',
 };
 
@@ -45,12 +45,11 @@ const Highlights = ({ artistData, height, library, navigate, width }: Highlights
     }
     return undefined;
   }, [artistData]);
-  const thumbSrc = card
-    ? library.api.getAuthenticatedUrl(
-      '/photo/:/transcode',
-      { url: card.thumb, width: 300, height: 300 },
-    )
-    : '';
+
+  const thumbSrc = useMemo(() => library.api.getAuthenticatedUrl(
+    '/photo/:/transcode',
+    { url: card?.thumb || '', width: 300, height: 300 },
+  ), [card, library]);
 
   if (height < 280 || width < 860 || !card) {
     return null;
@@ -86,14 +85,14 @@ const Highlights = ({ artistData, height, library, navigate, width }: Highlights
           alignItems="flex-start"
           display="flex"
           flexDirection="column"
-          margin="auto"
+          marginTop="8px"
           sx={{ textDecoration: 'inherit' }}
           width={1}
         >
           <Typography sx={textStyle}>
             {card.title}
           </Typography>
-          <Typography color="text.primary" variant="subtitle2">
+          <Typography color="text.primary" lineHeight={2} variant="subtitle2">
             {card.originallyAvailableAt
               .toLocaleDateString(
                 'en-gb',

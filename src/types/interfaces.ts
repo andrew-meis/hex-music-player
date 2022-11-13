@@ -17,6 +17,7 @@ export interface AppInfo {
 }
 
 export interface AppSettings {
+  albumText?: boolean;
   colorMode?: PaletteMode;
   compactNav?: boolean;
   compactQueue?: boolean,

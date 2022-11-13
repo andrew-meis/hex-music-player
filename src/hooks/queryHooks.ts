@@ -14,6 +14,7 @@ import {
 import useQueue from './useQueue';
 
 const defaultSettings: AppSettings = {
+  albumText: true,
   colorMode: 'dark',
   compactNav: false,
   compactQueue: false,
@@ -91,13 +92,17 @@ export const useServer = () => {
 
 export const useSettings = () => useQuery(
   ['settings'],
-  () => window.electron.readConfig('settings') as AppSettings,
+  () => {
+    const savedSettings = window.electron.readConfig('settings') as AppSettings;
+    return { ...defaultSettings, ...savedSettings };
+  },
   {
     initialData: () => {
       if (Object.keys(window.electron.readConfig('settings')).length === 0) {
         return defaultSettings;
       }
-      return window.electron.readConfig('settings') as AppSettings;
+      const savedSettings = window.electron.readConfig('settings') as AppSettings;
+      return { ...defaultSettings, ...savedSettings };
     },
     refetchOnMount: false,
     refetchOnReconnect: 'always',
@@ -374,6 +379,7 @@ export const useTopTracks = (
     },
     {
       enabled: !!library,
+      keepPreviousData: true,
       refetchInterval: 1000 * 60 * 30,
       refetchOnWindowFocus: false,
     },

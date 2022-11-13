@@ -73,6 +73,10 @@ const Settings = () => {
     await updateConfig('compactNav', !settings.compactNav);
   };
 
+  const handleAlbumTextOption = async () => {
+    await updateConfig('albumText', !settings.albumText);
+  };
+
   return (
     <Paper
       elevation={0}
@@ -85,7 +89,7 @@ const Settings = () => {
       }}
     >
       <Typography sx={{ fontWeight: 600 }} variant="h4">Settings</Typography>
-      <Typography mt={1} sx={{ fontWeight: 600 }} variant="h6">Visual</Typography>
+      <Typography mt={1} sx={{ fontWeight: 600 }} variant="h5">App-wide</Typography>
       <Box sx={boxStyle}>
         <Typography sx={{ fontWeight: 600 }} variant="body1">Dark Mode</Typography>
         <Switch
@@ -138,6 +142,17 @@ const Settings = () => {
           checked={settings.compactNav}
           sx={switchStyle}
           onChange={handleCompactNavOption}
+        />
+      </Box>
+      <Typography sx={{ fontWeight: 600 }} variant="body1">Album Grid Text</Typography>
+      <Box mt={-1} sx={boxStyle}>
+        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+          Always show album title in album grid views
+        </Typography>
+        <Switch
+          checked={settings.albumText}
+          sx={switchStyle}
+          onChange={handleAlbumTextOption}
         />
       </Box>
     </Paper>

@@ -1,4 +1,4 @@
-import { SvgIcon, useTheme } from '@mui/material';
+import { Box, SvgIcon, useTheme } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { Palette } from 'color-thief-react';
@@ -30,6 +30,15 @@ import { AppSettings, RouteParams } from '../../types/interfaces';
 import AlbumsRow from './AlbumsRow';
 import Header from './Header';
 import GroupRow from './GroupRow';
+
+const Footer = () => (
+  <Box
+    height="20px"
+    maxWidth={900}
+    mx="auto"
+    width="89%"
+  />
+);
 
 const TopItemList = React
   .forwardRef((
@@ -305,8 +314,9 @@ const Artist = () => {
               <GroupedVirtuoso
                 className="scroll-container"
                 components={{
-                  TopItemList,
+                  Footer,
                   Header,
+                  TopItemList,
                 }}
                 context={{ ...artistContext, colors }}
                 groupContent={(index) => GroupRowContent(
