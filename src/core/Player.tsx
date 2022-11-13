@@ -176,9 +176,7 @@ const Player = ({ children }: {children: ReactNode}) => {
         player.updateTracks(newQueue, 'next');
         queryClient.setQueryData(
           ['player-state'],
-          (
-            current: Updater<PlayerState, PlayerState> | undefined,
-          ) => ({ ...current, isPlaying: true, position: 0 }),
+          () => ({ duration: next.track.duration, isPlaying: true, position: 0 }),
         );
         await startTimer(next);
       }
@@ -207,10 +205,22 @@ const Player = ({ children }: {children: ReactNode}) => {
 
   player.onplay = () => {
     window.electron.updatePlaying('playing', true);
+    queryClient.setQueryData(
+      ['player-state'],
+      (
+        current: Updater<PlayerState, PlayerState> | undefined,
+      ) => ({ ...current, isPlaying: true }),
+    );
   };
 
   player.onpause = () => {
     window.electron.updatePlaying('playing', false);
+    queryClient.setQueryData(
+      ['player-state'],
+      (
+        current: Updater<PlayerState, PlayerState> | undefined,
+      ) => ({ ...current, isPlaying: false }),
+    );
   };
 
   return (

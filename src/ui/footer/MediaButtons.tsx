@@ -71,7 +71,12 @@ const MediaButtons = () => {
       player.updateTracks(newQueue, 'next');
       queryClient.setQueryData(
         ['player-state'],
-        () => ({ ...playerState, isPlaying: true, position: 0 }),
+        () => {
+          if (isPlayQueueItem(nextTrack)) {
+            return ({ duration: nextTrack.track.duration, isPlaying: true, position: 0 });
+          }
+          return ({ duration: 0, isPlaying: true, position: 0 });
+        },
       );
       setDisableNext(false);
     }
@@ -122,7 +127,12 @@ const MediaButtons = () => {
       player.updateTracks(newQueue, 'prev');
       queryClient.setQueryData(
         ['player-state'],
-        () => ({ ...playerState, position: 0 }),
+        () => {
+          if (isPlayQueueItem(prevTrack)) {
+            return ({ ...playerState, duration: prevTrack.track.duration, position: 0 });
+          }
+          return ({ ...playerState, duration: 0, position: 0 });
+        },
       );
       setDisablePrev(false);
     }

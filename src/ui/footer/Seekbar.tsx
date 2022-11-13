@@ -66,7 +66,7 @@ const Seekbar = () => {
         <Grid item xs>
           <Slider
             disabled={queueId === 0}
-            max={playerState.duration}
+            max={playerState.duration || 1}
             min={0}
             size="small"
             sx={{
