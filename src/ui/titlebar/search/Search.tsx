@@ -11,12 +11,14 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import { CgSearch, MdClear } from 'react-icons/all';
+import { IoIosArrowBack, IoIosArrowForward, CgSearch, MdClear } from 'react-icons/all';
+import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
 import { useSearch } from '../../../hooks/queryHooks';
 import SearchResultBox from './SearchResultBox';
 
 const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivElement>}) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const searchInput = useRef<HTMLInputElement>(null);
   const [input, setInput] = useState('');
@@ -59,57 +61,81 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
   };
 
   return (
-    <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAway}>
+    <Box
+      alignItems="center"
+      display="flex"
+      margin="auto"
+      sx={{ WebkitAppRegion: 'no-drag' }}
+      width={550}
+    >
       <Box
-        height={40}
-        maxWidth={502}
-        mx="auto"
         sx={{
-          willChange: 'transform',
+          color: 'text.secondary',
+          opacity: window.history.state.idx === 0 ? 0 : 1,
+          pointerEvents: window.history.state.idx === 0 ? 'none' : 'auto',
+          transition: '0.2s',
+          '&:hover': {
+            color: 'primary.main',
+            transform: 'scale(1.2)',
+            cursor: 'pointer',
+          },
         }}
-        width="calc(40vw + 2px)"
+        title="Back"
+        onClick={() => navigate(-1)}
       >
-        <Paper
-          component="form"
+        <SvgIcon>
+          <IoIosArrowBack />
+        </SvgIcon>
+      </Box>
+      <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAway}>
+        <Box
+          height={40}
+          maxWidth={502}
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            boxShadow: 'none',
-            WebkitAppRegion: 'no-drag',
+            willChange: 'transform',
           }}
-          onMouseEnter={() => setInputHover(true)}
-          onMouseLeave={() => setInputHover(false)}
+          width="calc(40vw + 2px)"
         >
-          <IconButton
-            disableRipple
+          <Paper
+            component="form"
             sx={{
-              m: '2px',
-              p: '5px',
-              pr: '7px',
-              pl: '3px',
-              color: 'text.secondary',
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: 'text.primary',
-              },
+              display: 'flex',
+              alignItems: 'center',
+              width: '100%',
+              boxShadow: 'none',
             }}
-            onClick={() => searchInput.current?.focus()}
+            onMouseEnter={() => setInputHover(true)}
+            onMouseLeave={() => setInputHover(false)}
           >
-            <SvgIcon><CgSearch /></SvgIcon>
-          </IconButton>
-          <InputBase
-            fullWidth
-            autoComplete="off"
-            inputProps={{ maxLength: 35, spellCheck: false }}
-            inputRef={searchInput}
-            placeholder="Search"
-            value={input}
-            onBlur={() => null}
-            onChange={handleChange}
-            onFocus={handleFocus}
-          />
-          {inputHover && input.length !== 0 && !loading && (
+            <IconButton
+              disableRipple
+              sx={{
+                m: '2px',
+                p: '5px',
+                pr: '7px',
+                pl: '3px',
+                color: 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: 'text.primary',
+                },
+              }}
+              onClick={() => searchInput.current?.focus()}
+            >
+              <SvgIcon><CgSearch /></SvgIcon>
+            </IconButton>
+            <InputBase
+              fullWidth
+              autoComplete="off"
+              inputProps={{ maxLength: 35, spellCheck: false }}
+              inputRef={searchInput}
+              placeholder="Search"
+              value={input}
+              onBlur={() => null}
+              onChange={handleChange}
+              onFocus={handleFocus}
+            />
+            {inputHover && input.length !== 0 && !loading && (
             <IconButton
               disableRipple
               sx={{
@@ -125,57 +151,81 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
             >
               <SvgIcon><MdClear /></SvgIcon>
             </IconButton>
-          )}
-          {loading && (
+            )}
+            {loading && (
             <CircularProgress
               size={24}
               sx={{
                 my: 'auto', color: 'text.secondary', position: 'absolute', right: '8px',
               }}
             />
-          )}
-        </Paper>
-        <Portal container={searchContainer.current}>
-          <Fade in={open} style={{ transformOrigin: 'top' }} timeout={300}>
-            <Box
-              bgcolor="transparent"
-              border="1px solid"
-              borderColor="primary.main"
-              borderRadius="4px"
-              display="table"
-              id="search-container"
-              left={0}
-              margin="auto"
-              maxWidth="502px"
-              position="absolute"
-              right={0}
-              sx={{
-                transform: 'scale(1,1) !important',
-              }}
-              top={4}
-              width="calc(40vw + 2px)"
-              zIndex={1300}
-            >
+            )}
+          </Paper>
+          <Portal container={searchContainer.current}>
+            <Fade in={open} style={{ transformOrigin: 'top' }} timeout={300}>
               <Box
-                boxShadow="none !important"
-                component={Paper}
+                bgcolor="transparent"
+                border="1px solid"
+                borderColor="primary.main"
+                borderRadius="4px"
+                display="table"
+                id="search-container"
+                left={0}
+                margin="auto"
+                maxWidth="502px"
+                position="absolute"
+                right={0}
+                sx={{
+                  transform: 'scale(1,1) !important',
+                }}
+                top={4}
+                width="calc(40vw + 2px)"
+                zIndex={1300}
               >
                 <Box
-                  borderBottom="1px solid"
-                  borderColor="border.main"
                   boxShadow="none !important"
                   component={Paper}
-                  height={38}
-                  marginX="auto"
-                  width="95%"
-                />
-                <SearchResultBox query={inputDebounced} results={searchResults} setOpen={setOpen} />
+                >
+                  <Box
+                    borderBottom="1px solid"
+                    borderColor="border.main"
+                    boxShadow="none !important"
+                    component={Paper}
+                    height={38}
+                    marginX="auto"
+                    width="95%"
+                  />
+                  <SearchResultBox
+                    query={inputDebounced}
+                    results={searchResults}
+                    setOpen={setOpen}
+                  />
+                </Box>
               </Box>
-            </Box>
-          </Fade>
-        </Portal>
+            </Fade>
+          </Portal>
+        </Box>
+      </ClickAwayListener>
+      <Box
+        sx={{
+          color: 'text.secondary',
+          opacity: window.history.state.idx === window.history.length - 1 ? 0 : 1,
+          pointerEvents: window.history.state.idx === window.history.length - 1 ? 'none' : 'auto',
+          transition: '0.2s',
+          '&:hover': {
+            color: 'primary.main',
+            transform: 'scale(1.2)',
+            cursor: 'pointer',
+          },
+        }}
+        title="Forward"
+        onClick={() => navigate(1)}
+      >
+        <SvgIcon>
+          <IoIosArrowForward />
+        </SvgIcon>
       </Box>
-    </ClickAwayListener>
+    </Box>
   );
 };
 

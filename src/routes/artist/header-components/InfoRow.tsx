@@ -3,7 +3,7 @@ import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import { isEmpty } from 'lodash';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import Twemoji from 'react-twemoji';
 
@@ -16,8 +16,20 @@ interface InfoRowProps {
 
 const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
   const { artist } = artistData!;
-  const similarArtists = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar')
-    || artistData?.hubs.find((hub) => hub.hubIdentifier === 'external.artist.similar.sonically');
+  const similarArtists = useMemo(() => {
+    const similar = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
+    const sonicSimilar = artistData?.hubs
+      .find((hub) => hub.hubIdentifier === 'external.artist.similar.sonically');
+    let array = [];
+    if (similar && similar.items.length > 0) {
+      array.push(...similar.items);
+    }
+    if (sonicSimilar && sonicSimilar.items.length > 0) {
+      array.push(...sonicSimilar.items);
+    }
+    array = [...new Map(array.map((item) => [item.id, item])).values()];
+    return array as Artist[];
+  }, [artistData]);
 
   return (
     <Box
@@ -75,7 +87,7 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
         componentsProps={{
           additionalAvatar: { onClick: () => navigate(`/artists/${artist.id}/similar`) },
         }}
-        max={5}
+        max={similarArtists.length < 5 ? similarArtists.length - 1 : 5}
         sx={{
           marginLeft: 'auto',
           '& .MuiAvatar-root': {
@@ -88,7 +100,7 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
           },
         }}
       >
-        {similarArtists?.items.map((similarArtist) => {
+        {similarArtists?.map((similarArtist) => {
           const thumbSrc = library.api
             .getAuthenticatedUrl(
               '/photo/:/transcode',
