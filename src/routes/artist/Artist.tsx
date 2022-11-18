@@ -154,11 +154,7 @@ const Artist = () => {
   const { width } = useOutletContext() as { width: number };
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
-  const grid = useMemo(() => (
-    {
-      cols: throttledCols() as number,
-    }
-  ), [throttledCols]);
+  const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const items = useMemo(() => {
     if (!artist.data || !appearances.data) {
       return {};
@@ -331,10 +327,10 @@ const Artist = () => {
                 itemsRendered={(list) => {
                   // @ts-ignore
                   const renderedGroupIndices = (list).map((listEl) => listEl.groupIndex);
-                  if (topMostGroup.current !== items.groups[renderedGroupIndices[0]]) {
+                  if (topMostGroup.current !== items.groups![renderedGroupIndices[0]]) {
                     queryClient
-                      .setQueryData(['header-text'], items.groups[renderedGroupIndices[0]]?.text);
-                    topMostGroup.current = items.groups[renderedGroupIndices[0]];
+                      .setQueryData(['header-text'], items.groups![renderedGroupIndices[0]]?.text);
+                    topMostGroup.current = items.groups![renderedGroupIndices[0]];
                   }
                 }}
                 style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}

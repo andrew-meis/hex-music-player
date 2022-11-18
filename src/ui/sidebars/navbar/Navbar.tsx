@@ -3,13 +3,13 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import {
-  HiHome,
   HiMusicNote,
   IoGlobeSharp,
   IoMdMicrophone,
   RiAlbumFill,
   TiChartLine,
 } from 'react-icons/all';
+import { HiHome } from 'react-icons/hi';
 import { NavLink } from 'react-router-dom';
 import PlaylistLinks from './playlists/PlaylistLinks';
 import PlaylistSubheader from './playlists/PlaylistSubheader';

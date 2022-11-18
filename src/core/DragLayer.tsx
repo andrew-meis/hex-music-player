@@ -31,7 +31,7 @@ const getItemStyles = (
     transform,
     background: 'tomato',
     width: 'fit-content',
-    opacity: 0.7,
+    opacity: 0.8,
     lineHeight: '1.5rem',
     borderRadius: '4px',
     padding: '6px',

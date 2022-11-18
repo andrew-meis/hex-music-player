@@ -68,6 +68,7 @@ const AlbumCover = ({
           '&:hover': { backgroundColor: backgroundColor() },
         }}
         width={Math.floor((width * 0.89) / grid.cols)}
+        onClick={() => navigate(`/albums/${album.id}`)}
         onContextMenu={handleContextMenu}
       >
         <Box
@@ -79,7 +80,6 @@ const AlbumCover = ({
           } as React.CSSProperties}
           sx={{ transform: menuTarget === album.id ? 'scale(1) translateZ(0px)' : '' }}
           width={Math.floor((width * 0.89) / grid.cols) - 8}
-          onClick={() => navigate(`/albums/${album.id}`)}
         />
         <Typography sx={textStyle}>
           {album.title}

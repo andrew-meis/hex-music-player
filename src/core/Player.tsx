@@ -1,13 +1,11 @@
-import { useQueryClient } from '@tanstack/react-query';
-// eslint-disable-next-line import/no-unresolved
-import { Updater } from '@tanstack/react-query/build/types/packages/query-core/src/utils';
 import React, {
   ReactNode, useCallback, useContext, useEffect, useMemo, useRef,
 } from 'react';
 import { Gapless5, LogLevel } from '@regosen/gapless-5';
 import { PlayQueue, PlayQueueItem } from 'hex-plex';
+import { Updater, useQueryClient } from '@tanstack/react-query';
 import {
-  useCurrentQueue, useLibrary, useNowPlaying, useQueueId,
+  useCurrentQueue, useLibrary, useNowPlaying, useQueueId, useSettings,
 } from '../hooks/queryHooks';
 import useQueue from '../hooks/useQueue';
 import { PlayerState } from '../types/interfaces';
@@ -33,13 +31,19 @@ const Player = ({ children }: {children: ReactNode}) => {
   const initialized = useRef<boolean | null>(null);
   const loadQueue = useRef<PlayQueueItem[]>([]);
   const library = useLibrary();
-  const player = useMemo((): Gapless5 => new Gapless5(playerOptions), []);
   const queryClient = useQueryClient();
   const timelineRef = useRef(0);
   const { data: nowPlaying } = useNowPlaying();
   const { data: playQueue } = useCurrentQueue();
   const { data: queueId } = useQueueId();
+  const { data: settings } = useSettings();
   const { setQueueId, updateTimeline } = useQueue();
+
+  const player = useMemo((): Gapless5 => new Gapless5({
+    ...playerOptions,
+    loop: settings.repeat !== 'repeat-none',
+    singleMode: settings.repeat === 'repeat-one',
+  }), []);
 
   const startTimer = useCallback((queueItem: PlayQueueItem) => {
     window.clearInterval(timelineRef.current);
@@ -162,6 +166,14 @@ const Player = ({ children }: {children: ReactNode}) => {
 
   player.onfinishedtrack = async () => {
     if (playQueue) {
+      if (nowPlaying && settings.repeat === 'repeat-one') {
+        await updateTimeline(nowPlaying.id, 'playing', 0, nowPlaying.track);
+        queryClient.setQueryData(
+          ['player-state'],
+          () => ({ duration: nowPlaying.track.duration, isPlaying: true, position: 0 }),
+        );
+        return;
+      }
       const currentIndex = playQueue.items
         .findIndex((item) => item.id === playQueue.selectedItemId);
       const next = playQueue.items[currentIndex + 1];

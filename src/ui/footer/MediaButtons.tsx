@@ -14,7 +14,7 @@ import {
 import { PlayQueueItem } from 'hex-plex';
 import useKeyPress from '../../hooks/useKeyPress';
 import { iconButtonStyle } from '../../constants/style';
-import { useCurrentQueue, usePlayerState, useQueueId } from '../../hooks/queryHooks';
+import { useCurrentQueue, usePlayerState, useQueueId, useSettings } from '../../hooks/queryHooks';
 import useQueue from '../../hooks/useQueue';
 import { usePlayerContext } from '../../core/Player';
 import { isPlayQueueItem } from '../../types/type-guards';
@@ -25,13 +25,13 @@ const MediaButtons = () => {
   const ctrlPress = useKeyPress(platform === 'darwin' ? 'Meta' : 'Control');
   const player = usePlayerContext();
   const queryClient = useQueryClient();
-  const repeatMode = 'repeat-none';
   const shuffleMode = false;
   const [disableNext, setDisableNext] = useState(false);
   const [disablePrev, setDisablePrev] = useState(false);
   const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
   const { data: queueId } = useQueueId();
+  const { data: settings } = useSettings();
   const { updateTimeline } = useQueue();
 
   let currentIndex: number;
@@ -199,6 +199,27 @@ const MediaButtons = () => {
     return () => removeEventListener();
   }, [onEvent]);
 
+  const handleRepeat = useCallback(async (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => {
+    const newSettings = structuredClone(settings);
+    newSettings.repeat = value;
+    window.electron.writeConfig('settings', newSettings);
+    await queryClient.refetchQueries(['settings']);
+    if (value === 'repeat-one') {
+      player.loop = true;
+      player.singleMode = true;
+      return;
+    }
+    if (value === 'repeat-none') {
+      player.loop = false;
+      player.singleMode = false;
+      return;
+    }
+    if (value === 'repeat-all') {
+      player.loop = true;
+      player.singleMode = false;
+    }
+  }, [settings, queryClient, player]);
+
   const handleShuffle = () => {
     console.log('shuffle button');
   };
@@ -261,19 +282,18 @@ const MediaButtons = () => {
         <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipForward /></SvgIcon>
       </IconButton>
       <span style={{ width: 5 }} />
-      {repeatMode === 'repeat-none'
+      {settings.repeat === 'repeat-none'
         && (
           <IconButton
             disableRipple
             size="small"
             sx={{ ...iconButtonStyle }}
-            onClick={() => console.log('repeat')}
+            onClick={() => handleRepeat('repeat-all')}
           >
             <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeat2Fill /></SvgIcon>
           </IconButton>
         )}
-      {/* @ts-ignore */}
-      {repeatMode === 'repeat-all'
+      {settings.repeat === 'repeat-all'
         && (
           <IconButton
             disableRipple
@@ -286,13 +306,12 @@ const MediaButtons = () => {
                 color: 'primary.main',
               },
             }}
-            onClick={() => console.log('repeat')}
+            onClick={() => handleRepeat('repeat-one')}
           >
             <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeat2Fill /></SvgIcon>
           </IconButton>
         )}
-      {/* @ts-ignore */}
-      {repeatMode === 'repeat-one'
+      {settings.repeat === 'repeat-one'
         && (
           <IconButton
             disableRipple
@@ -305,7 +324,7 @@ const MediaButtons = () => {
                 color: 'primary.main',
               },
             }}
-            onClick={() => console.log('repeat')}
+            onClick={() => handleRepeat('repeat-none')}
           >
             <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeatOneFill /></SvgIcon>
           </IconButton>

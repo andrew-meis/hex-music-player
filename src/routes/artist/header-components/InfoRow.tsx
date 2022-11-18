@@ -91,9 +91,10 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
         sx={{
           marginLeft: 'auto',
           '& .MuiAvatar-root': {
+            border: 'none',
             cursor: 'pointer',
-            height: 52,
-            width: 52,
+            height: 54,
+            width: 54,
             transform: 'scale(0.95)',
             transition: '0.2s',
             '&:hover': { transform: 'scale(1) translateZ(0px)' },

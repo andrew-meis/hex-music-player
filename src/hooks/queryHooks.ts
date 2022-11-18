@@ -19,6 +19,7 @@ const defaultSettings: AppSettings = {
   compactNav: false,
   compactQueue: false,
   dockedQueue: true,
+  repeat: 'repeat-none',
 };
 
 /**
