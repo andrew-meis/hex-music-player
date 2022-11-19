@@ -2,8 +2,16 @@ import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import { throttle } from 'lodash';
 import React, { useMemo } from 'react';
-import { Location, useLocation, useOutletContext, useParams } from 'react-router-dom';
+import {
+  Location,
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
+import { Avatar, Box, Typography } from '@mui/material';
 import { useArtist, useLibrary } from '../../../hooks/queryHooks';
 import { RouteParams } from '../../../types/interfaces';
 import GroupRow from './GroupRow';
@@ -56,6 +64,7 @@ export interface SimilarArtistContext {
   grid: { cols: number };
   items: SimilarArtistItems;
   library: Library;
+  navigate: NavigateFunction;
   width: number;
 }
 
@@ -73,7 +82,15 @@ const SimilarArtists = () => {
   const artist = useArtist(+id);
 
   const library = useLibrary();
+  const navigate = useNavigate();
   const { width } = useOutletContext() as { width: number };
+
+  const thumbSrc = library.api
+    .getAuthenticatedUrl(
+      '/photo/:/transcode',
+      { url: artist.data?.artist.thumb || 'null', width: 100, height: 100 },
+    );
+
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
@@ -116,14 +133,20 @@ const SimilarArtists = () => {
     grid,
     items,
     library,
+    navigate,
     width,
   }), [
     artist.data,
     grid,
     items,
     library,
+    navigate,
     width,
   ]);
+
+  if (!artist.data) {
+    return null;
+  }
 
   return (
     <motion.div
@@ -133,6 +156,31 @@ const SimilarArtists = () => {
       key={location.pathname}
       style={{ height: '100%' }}
     >
+      <Box
+        alignItems="center"
+        color="text.primary"
+        display="flex"
+        height={70}
+        margin="auto"
+        position="absolute"
+        right="5.5%"
+        width="89%"
+        zIndex={10}
+      >
+        <Typography alignSelf="flex-start" fontFamily="TT Commons" fontSize="1.625rem" mr="auto">
+          {artist.data.artist.title}
+          &nbsp;&nbsp;»&nbsp;&nbsp;
+        </Typography>
+        <Avatar
+          alt={artist.data.artist.title}
+          src={thumbSrc}
+          sx={{ cursor: 'pointer', width: 60, height: 60 }}
+          onClick={() => navigate(
+            `/artists/${artist.data.artist.id}`,
+            { state: { guid: artist.data.artist.guid, title: artist.data.artist.title } },
+          )}
+        />
+      </Box>
       <GroupedVirtuoso
         className="scroll-container"
         context={similarArtistContext}

@@ -9,7 +9,7 @@ const GroupRow = React.memo(({ index, context }: RowProps) => {
   const { text } = groups![index];
 
   return (
-    <Box color="text.primary" mx="auto" width="89%">
+    <Box alignItems="flex-end" color="text.primary" display="flex" height={72} mx="auto" width="89%">
       <Typography fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
         {text}
       </Typography>

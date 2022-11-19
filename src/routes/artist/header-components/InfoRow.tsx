@@ -66,7 +66,7 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
             </Typography>
           </>
         )}
-      <Box flexWrap="wrap" height="32px" overflow="hidden">
+      <Box flexWrap="wrap" height="32px" mr="8px" overflow="hidden">
         {artist.genre.map((genre, index) => (
           <Chip
             key={genre.id}

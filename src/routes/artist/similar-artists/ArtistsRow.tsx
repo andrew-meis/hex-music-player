@@ -1,11 +1,12 @@
 import { Box, Typography } from '@mui/material';
 import { Artist, Library } from 'hex-plex';
 import React from 'react';
+import { NavigateFunction } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
 import { RowProps } from './SimilarArtists';
 
 const textStyle = {
-  color: 'text.primary',
+  color: 'common.white',
   overflow: 'hidden',
   display: '-webkit-box',
   WebkitLineClamp: 2,
@@ -14,21 +15,22 @@ const textStyle = {
   fontSize: '1rem',
   fontWeight: 600,
   lineHeight: 1.2,
-  mt: '2px',
-  mx: '8px',
+  mx: '16px',
   position: 'relative',
-  top: '-64px',
+  top: '-68px',
+  height: '44px',
 };
 
 interface ArtistCardProps {
   artist: Artist;
   grid: { cols: number };
   library: Library;
+  navigate: NavigateFunction;
   width: number;
 }
 
-const ArtistCard = ({ artist, grid, library, width }: ArtistCardProps) => {
-  const imgHeight = (Math.floor((width * 0.89) / grid.cols) * 1.3) + 30;
+const ArtistCard = ({ artist, grid, library, navigate, width }: ArtistCardProps) => {
+  const imgHeight = (Math.floor((width * 0.89) / grid.cols) * 1.2) + 30;
   const imgWidth = Math.floor((width * 0.89) / grid.cols);
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
@@ -44,6 +46,10 @@ const ArtistCard = ({ artist, grid, library, width }: ArtistCardProps) => {
       height={imgHeight + 30}
       key={artist.id}
       width={imgWidth}
+      onClick={() => navigate(
+        `/artists/${artist.id}`,
+        { state: { guid: artist.guid, title: artist.title } },
+      )}
     >
       <Box
         className={styles['album-cover']}
@@ -52,7 +58,6 @@ const ArtistCard = ({ artist, grid, library, width }: ArtistCardProps) => {
         style={{
           alignItems: 'flex-end',
           borderRadius: '32px',
-          contain: 'paint',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         width={imgWidth - 8}
@@ -61,8 +66,10 @@ const ArtistCard = ({ artist, grid, library, width }: ArtistCardProps) => {
           height="68px"
           sx={{
             backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            borderBottomLeftRadius: '30px',
+            borderBottomRightRadius: '30px',
           }}
-          width={imgWidth - 8}
+          width={imgWidth}
         />
       </Box>
       <Typography sx={textStyle}>
@@ -74,14 +81,14 @@ const ArtistCard = ({ artist, grid, library, width }: ArtistCardProps) => {
 
 const ArtistsRow = React.memo(({ index, context }: RowProps) => {
   const {
-    grid, items: { rows }, library, width,
+    grid, items: { rows }, library, navigate, width,
   } = context;
-  const { artists, section } = rows![index];
+  const { artists } = rows![index];
 
   return (
     <Box
       display="flex"
-      height={(Math.floor((width * 0.89) / grid.cols) * 1.3) + 30}
+      height={(Math.floor((width * 0.89) / grid.cols) * 1.2) + 30}
       mx="auto"
       width={(width * 0.89)}
     >
@@ -91,6 +98,7 @@ const ArtistsRow = React.memo(({ index, context }: RowProps) => {
           grid={grid}
           key={artist.id}
           library={library}
+          navigate={navigate}
           width={width}
         />
       ))}

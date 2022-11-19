@@ -11,10 +11,6 @@ import useDragActions from '../../../hooks/useDragActions';
 import { DragActions } from '../../../types/enums';
 import { isPlayQueueItem } from '../../../types/type-guards';
 
-const previewOptions = {
-  offsetX: -8,
-};
-
 interface ItemProps {
   isDragging: boolean;
   item: PlayQueueItem;
@@ -157,7 +153,6 @@ const CompactQueue = () => {
   }), [items, playQueue]);
 
   const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
     type: DragActions.MOVE_TRACK,
     item: () => {
       if (items && isNumber(hoverIndex.current)) {
