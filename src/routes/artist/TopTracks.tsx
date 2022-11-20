@@ -1,14 +1,16 @@
 import { Box, ClickAwayListener, Typography } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import TrackRow from '../../../components/track-row/TrackRow';
-import { ButtonSpecs, trackButtons, tracksButtons } from '../../../constants/buttons';
-import useMenuStyle from '../../../hooks/useMenuStyle';
-import useRowSelect from '../../../hooks/useRowSelect';
-import { DragActions } from '../../../types/enums';
-import { ArtistContext } from '../Artist';
+import TrackRow from '../../components/track-row/TrackRow';
+import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
+import useMenuStyle from '../../hooks/useMenuStyle';
+import useRowSelect from '../../hooks/useRowSelect';
+import { DragActions } from '../../types/enums';
+import { ArtistContext } from './Artist';
+import { SimilarArtistContext } from './similar-artists/SimilarArtists';
 
 const itemStyle = {
   borderRadius: '4px',
@@ -45,9 +47,15 @@ const selectedStyle = {
   },
 };
 
+interface TopTracksProps {
+  context: ArtistContext | SimilarArtistContext | undefined;
+  style: React.CSSProperties;
+  tracks: Track[] | undefined;
+}
+
 // TODO double-click behavior
-const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined }) => {
-  const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch, topTracks } = context!;
+const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
+  const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
   const menuStyle = useMenuStyle();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -59,11 +67,11 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
     type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
     item: () => {
       if (selectedRows.length === 1) {
-        return topTracks![selectedRows[0]];
+        return tracks![selectedRows[0]];
       }
-      return selectedRows.map((n) => topTracks![n]);
+      return selectedRows.map((n) => tracks![n]);
     },
-  }), [topTracks, selectedRows]);
+  }), [tracks, selectedRows]);
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
@@ -103,17 +111,17 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
   }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!topTracks) {
+    if (!tracks) {
       return;
     }
     if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => topTracks[n]);
+      const [track] = selectedRows.map((n) => tracks[n]);
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }
     if (selectedRows.length > 1) {
-      const tracks = selectedRows.map((n) => topTracks[n]);
-      await playSwitch(button.action, { tracks, shuffle: button.shuffle });
+      const selectedTracks = selectedRows.map((n) => tracks[n]);
+      await playSwitch(button.action, { tracks: selectedTracks, shuffle: button.shuffle });
     }
   };
 
@@ -125,7 +133,7 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
     hoverIndex.current = parseInt(target, 10);
   };
 
-  if (!topTracks) {
+  if (!tracks) {
     return null;
   }
 
@@ -136,19 +144,19 @@ const TopTracks = React.memo(({ context }: { context: ArtistContext | undefined 
         display="flex"
         flex="50000 0 598px"
         flexDirection="column"
-        height={(topTracks.length * 56) + 45}
+        height={(tracks.length * 56) + 45}
         mr="8px"
         ref={drag}
         onDragStartCapture={handleDragStart}
       >
-        <Box bgcolor="background.paper" color="text.primary">
-          <Typography fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
+        <Box color="text.primary">
+          <Typography fontFamily="TT Commons" style={style}>
             Top Tracks
           </Typography>
         </Box>
         <ClickAwayListener onClickAway={handleClickAway}>
           <Box>
-            {topTracks.map((track, index) => {
+            {tracks.map((track, index) => {
               const playing = nowPlaying?.track.id === track.id;
               const selected = selectedRows.includes(index);
               const selUp = selected && selectedRows.includes(index - 1);

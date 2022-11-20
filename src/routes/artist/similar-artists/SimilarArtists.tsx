@@ -12,7 +12,13 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
-import { useArtist, useArtistTracks, useIsPlaying, useLibrary, useNowPlaying } from '../../../hooks/queryHooks';
+import {
+  useArtist,
+  useArtistTracks,
+  useIsPlaying,
+  useLibrary,
+  useNowPlaying,
+} from '../../../hooks/queryHooks';
 import useFormattedTime from '../../../hooks/useFormattedTime';
 import usePlayback, { PlayParams } from '../../../hooks/usePlayback';
 import { PlayActions } from '../../../types/enums';
@@ -79,11 +85,13 @@ export interface SimilarArtistContext {
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   openArtist: OpenArtist;
-  openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}, unknown>,
+  openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
+  openArtistTracksQuery: UseQueryResult<Track[]>;
+  openCard: {row: number, index: number};
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
+  setOpenCard: React.Dispatch<React.SetStateAction<{row: number, index: number}>>;
   thumbSrc: string;
-  topTracks: Track[] | undefined,
   width: number;
 }
 
@@ -105,6 +113,7 @@ const SimilarArtists = () => {
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
+  const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
@@ -112,12 +121,12 @@ const SimilarArtists = () => {
   const { width } = useOutletContext() as { width: number };
 
   const openArtistQuery = useArtist(openArtist.id);
-  const topTracks = useArtistTracks({
+  const openArtistTracksQuery = useArtistTracks({
     artistGuid: openArtist.guid,
     artistId: openArtist.id,
     artistTitle: openArtist.title,
     limit: 10,
-    slice: 4,
+    slice: 5,
   });
 
   const thumbSrc = library.api
@@ -194,10 +203,12 @@ const SimilarArtists = () => {
     nowPlaying,
     openArtist,
     openArtistQuery,
+    openArtistTracksQuery,
+    openCard,
     playSwitch,
     setOpenArtist,
+    setOpenCard,
     thumbSrc,
-    topTracks: topTracks?.data,
     width,
   }), [
     artist.data,
@@ -210,10 +221,12 @@ const SimilarArtists = () => {
     nowPlaying,
     openArtist,
     openArtistQuery,
+    openArtistTracksQuery,
+    openCard,
     playSwitch,
     setOpenArtist,
+    setOpenCard,
     thumbSrc,
-    topTracks.data,
     width,
   ]);
 

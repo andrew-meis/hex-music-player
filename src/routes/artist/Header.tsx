@@ -14,7 +14,7 @@ import { ArtistContext } from './Artist';
 import FixedHeader from './FixedHeader';
 import Highlights from './header-components/Highlights';
 import InfoRow from './header-components/InfoRow';
-import TopTracks from './header-components/TopTracks';
+import TopTracks from './TopTracks';
 
 const getPosX = (settings: AppSettings) => {
   let leftWidth = 300;
@@ -204,7 +204,11 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         width={(width * 0.89)}
       >
         <InfoRow artistData={artistData} colors={colors} library={library} navigate={navigate} />
-        <TopTracks context={context} />
+        <TopTracks
+          context={context}
+          style={{ fontSize: '1.625rem', paddingTop: '6px' }}
+          tracks={context!.topTracks}
+        />
         <Highlights
           artistData={artistData}
           height={context!.topTracks!.length * 56}

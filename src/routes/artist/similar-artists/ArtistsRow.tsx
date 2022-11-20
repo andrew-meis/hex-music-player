@@ -1,12 +1,12 @@
 import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
-import { Artist, Library } from 'hex-plex';
+import { Artist } from 'hex-plex';
 import React from 'react';
 import { BiCaretUp, FaAngleDown, IoMdMicrophone } from 'react-icons/all';
-import { NavigateFunction, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
 import HighlightAlbum from './HighlightAlbum';
-import TopTracks from './TopTracks';
-import { OpenArtist, RowProps } from './SimilarArtists';
+import TopTracks from '../TopTracks';
+import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
 const textStyle = {
   color: 'common.white',
@@ -16,7 +16,7 @@ const textStyle = {
   WebkitBoxOrient: 'vertical',
   fontFamily: 'Rubik',
   fontSize: '1rem',
-  fontWeight: 600,
+  // fontWeight: 600,
   lineHeight: 1.2,
   mx: '14px',
   position: 'absolute',
@@ -26,17 +26,15 @@ const textStyle = {
 
 interface ArtistCardProps {
   artist: Artist;
-  grid: { cols: number };
-  library: Library;
-  navigate: NavigateFunction;
-  openArtist: OpenArtist;
-  setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
-  width: number;
+  context: SimilarArtistContext;
+  index: number;
+  rowIndex: number;
 }
 
-const ArtistCard = ({
-  artist, grid, library, navigate, openArtist, setOpenArtist, width,
-}: ArtistCardProps) => {
+const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
+  const {
+    grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
+  } = context;
   const imgHeight = (Math.floor((width * 0.89) / grid.cols) * 1.3);
   const imgWidth = Math.floor((width * 0.89) / grid.cols);
   const open = openArtist.id === artist.id;
@@ -47,20 +45,24 @@ const ArtistCard = ({
     },
   );
 
-  const handleOpen = () => {
-    if (openArtist.id === artist.id) {
+  const handleClick = () => {
+    if (openCard.row === rowIndex && openCard.index === index) {
       setOpenArtist({
         id: -1,
         guid: '',
         title: '',
       });
+      setOpenCard({ row: -1, index: -1 });
       return;
     }
-    setOpenArtist({
-      id: artist.id,
-      guid: artist.guid,
-      title: artist.title,
-    });
+    if (openCard.row === rowIndex) {
+      setOpenArtist({
+        id: artist.id,
+        guid: artist.guid,
+        title: artist.title,
+      });
+    }
+    setOpenCard({ row: rowIndex, index });
   };
 
   return (
@@ -73,7 +75,7 @@ const ArtistCard = ({
         contain: 'paint',
       }}
       width={imgWidth}
-      onClick={handleOpen}
+      onClick={handleClick}
     >
       <Box
         bgcolor="action.selected"
@@ -131,18 +133,44 @@ const ArtistCard = ({
   );
 };
 
-const ArtistsRow = React.memo(({ index, context }: RowProps) => {
+const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
   const {
-    grid, items: { rows }, library, navigate, openArtist, openArtistQuery, topTracks, setOpenArtist, width,
+    grid,
+    items: { rows },
+    library,
+    navigate,
+    openArtist,
+    openArtistQuery,
+    openArtistTracksQuery,
+    setOpenArtist,
+    width,
+    openCard,
   } = context;
   if (rows?.length === 0) {
     return (
       <Box height={1} />
     );
   }
-  const { artists } = rows![index];
-  const openIndex = artists.findIndex((artist) => artist.id === openArtist.id);
-  const caretPos = (((width * 0.89) / grid.cols) * (openIndex + 1)) - ((width * 0.89) / (grid.cols * 2));
+  const { artists } = rows![rowIndex];
+  const openIndex = openCard.index;
+  const caretPos = (((width * 0.89) / grid.cols) * (openIndex + 1))
+    - ((width * 0.89) / (grid.cols * 2));
+
+  const handleEntered = () => {
+    if (openArtist.id === artists[openIndex].id) {
+      setOpenArtist({
+        id: -1,
+        guid: '',
+        title: '',
+      });
+      return;
+    }
+    setOpenArtist({
+      id: artists[openIndex].id,
+      guid: artists[openIndex].guid,
+      title: artists[openIndex].title,
+    });
+  };
 
   return (
     <Box
@@ -154,24 +182,24 @@ const ArtistsRow = React.memo(({ index, context }: RowProps) => {
         mx="auto"
         width={(width * 0.89)}
       >
-        {artists.map((artist) => (
+        {artists.map((artist, index) => (
           <ArtistCard
             artist={artist}
-            grid={grid}
+            context={context}
+            index={index}
             key={artist.id}
-            library={library}
-            navigate={navigate}
-            openArtist={openArtist}
-            setOpenArtist={setOpenArtist}
-            width={width}
+            rowIndex={rowIndex}
           />
         ))}
       </Box>
-      <Collapse in={artists.some((artist) => artist.id === openArtist.id)}>
+      <Collapse
+        in={openCard.row === rowIndex}
+        onEntered={handleEntered}
+      >
         <Box
           bgcolor="common.contrastGrey"
           borderRadius="24px"
-          height={324}
+          height={380}
           margin="auto"
           marginTop="12px"
           sx={{
@@ -191,7 +219,7 @@ const ArtistsRow = React.memo(({ index, context }: RowProps) => {
           >
             <BiCaretUp />
           </SvgIcon>
-          {openArtist && openArtistQuery.data && topTracks && (
+          {openArtist && openArtistQuery.data && openArtistTracksQuery.data && (
             <Box
               margin="auto"
               width="calc(100% - 48px)"
@@ -208,7 +236,11 @@ const ArtistsRow = React.memo(({ index, context }: RowProps) => {
               <Box
                 display="flex"
               >
-                <TopTracks context={context} />
+                <TopTracks
+                  context={context}
+                  style={{ fontSize: '1.3rem' }}
+                  tracks={openArtistTracksQuery.data}
+                />
                 <HighlightAlbum
                   artistData={openArtistQuery.data}
                   library={library}

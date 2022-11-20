@@ -59,7 +59,7 @@ const HighlightAlbum = ({ artistData, library, navigate, width }: HighlightAlbum
   }
 
   return (
-    <Box flex="1 0 168px">
+    <Box flex="1 0 210px">
       <Box color="text.primary">
         <Typography fontFamily="TT Commons" fontSize="1.3rem">
           {card.label}
@@ -79,8 +79,8 @@ const HighlightAlbum = ({ artistData, library, navigate, width }: HighlightAlbum
           alt={card.title}
           src={thumbSrc}
           sx={{
-            width: 168,
-            height: 168,
+            width: 210,
+            height: 210,
           }}
           variant={card.type === 'artist' ? 'circular' : 'rounded'}
         />
