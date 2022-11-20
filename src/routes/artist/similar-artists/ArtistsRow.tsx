@@ -1,9 +1,12 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
 import { Artist, Library } from 'hex-plex';
 import React from 'react';
-import { NavigateFunction } from 'react-router-dom';
+import { BiCaretUp, FaAngleDown, IoMdMicrophone } from 'react-icons/all';
+import { NavigateFunction, NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
-import { RowProps } from './SimilarArtists';
+import HighlightAlbum from './HighlightAlbum';
+import TopTracks from './TopTracks';
+import { OpenArtist, RowProps } from './SimilarArtists';
 
 const textStyle = {
   color: 'common.white',
@@ -15,10 +18,10 @@ const textStyle = {
   fontSize: '1rem',
   fontWeight: 600,
   lineHeight: 1.2,
-  mx: '16px',
-  position: 'relative',
-  top: '-68px',
-  height: '44px',
+  mx: '14px',
+  position: 'absolute',
+  bottom: '28px',
+  height: '40px',
 };
 
 interface ArtistCardProps {
@@ -26,12 +29,17 @@ interface ArtistCardProps {
   grid: { cols: number };
   library: Library;
   navigate: NavigateFunction;
+  openArtist: OpenArtist;
+  setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
   width: number;
 }
 
-const ArtistCard = ({ artist, grid, library, navigate, width }: ArtistCardProps) => {
-  const imgHeight = (Math.floor((width * 0.89) / grid.cols) * 1.2) + 30;
+const ArtistCard = ({
+  artist, grid, library, navigate, openArtist, setOpenArtist, width,
+}: ArtistCardProps) => {
+  const imgHeight = (Math.floor((width * 0.89) / grid.cols) * 1.3);
   const imgWidth = Math.floor((width * 0.89) / grid.cols);
+  const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
@@ -39,25 +47,44 @@ const ArtistCard = ({ artist, grid, library, navigate, width }: ArtistCardProps)
     },
   );
 
+  const handleOpen = () => {
+    if (openArtist.id === artist.id) {
+      setOpenArtist({
+        id: -1,
+        guid: '',
+        title: '',
+      });
+      return;
+    }
+    setOpenArtist({
+      id: artist.id,
+      guid: artist.guid,
+      title: artist.title,
+    });
+  };
+
   return (
     <Box
       className={styles['album-box']}
       data-id={artist.id}
-      height={imgHeight + 30}
+      height={imgHeight}
       key={artist.id}
+      sx={{
+        contain: 'paint',
+      }}
       width={imgWidth}
-      onClick={() => navigate(
-        `/artists/${artist.id}`,
-        { state: { guid: artist.guid, title: artist.title } },
-      )}
+      onClick={handleOpen}
     >
       <Box
+        bgcolor="action.selected"
         className={styles['album-cover']}
+        flexDirection="column-reverse"
         height={imgHeight - 8}
         margin="4px"
         style={{
           alignItems: 'flex-end',
           borderRadius: '32px',
+          transform: open ? 'scale(1) translateZ(0px)' : '',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         width={imgWidth - 8}
@@ -65,43 +92,134 @@ const ArtistCard = ({ artist, grid, library, navigate, width }: ArtistCardProps)
         <Box
           height="68px"
           sx={{
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            backgroundColor: open ? 'transparent' : 'rgba(60, 60, 70, 0.6)',
             borderBottomLeftRadius: '30px',
             borderBottomRightRadius: '30px',
+            transition: '200ms',
           }}
-          width={imgWidth}
+          width={imgWidth - 8}
         />
+        {!artist.thumb && (
+          <SvgIcon
+            className="generic-artist"
+            sx={{ alignSelf: 'center', color: 'common.grey', height: '65%', width: '65%' }}
+          >
+            <IoMdMicrophone />
+          </SvgIcon>
+        )}
       </Box>
-      <Typography sx={textStyle}>
+      <Typography
+        sx={{
+          ...textStyle,
+          opacity: open ? 0 : 1,
+          transition: '200ms',
+        }}
+      >
         {artist.title}
       </Typography>
+      <SvgIcon
+        sx={{
+          bottom: '8px',
+          color: 'common.white',
+          position: 'absolute',
+          width: '100%',
+        }}
+      >
+        <FaAngleDown />
+      </SvgIcon>
     </Box>
   );
 };
 
 const ArtistsRow = React.memo(({ index, context }: RowProps) => {
   const {
-    grid, items: { rows }, library, navigate, width,
+    grid, items: { rows }, library, navigate, openArtist, openArtistQuery, topTracks, setOpenArtist, width,
   } = context;
+  if (rows?.length === 0) {
+    return (
+      <Box height={1} />
+    );
+  }
   const { artists } = rows![index];
+  const openIndex = artists.findIndex((artist) => artist.id === openArtist.id);
+  const caretPos = (((width * 0.89) / grid.cols) * (openIndex + 1)) - ((width * 0.89) / (grid.cols * 2));
 
   return (
     <Box
       display="flex"
-      height={(Math.floor((width * 0.89) / grid.cols) * 1.2) + 30}
-      mx="auto"
-      width={(width * 0.89)}
+      flexDirection="column"
     >
-      {artists.map((artist) => (
-        <ArtistCard
-          artist={artist}
-          grid={grid}
-          key={artist.id}
-          library={library}
-          navigate={navigate}
-          width={width}
-        />
-      ))}
+      <Box
+        display="flex"
+        mx="auto"
+        width={(width * 0.89)}
+      >
+        {artists.map((artist) => (
+          <ArtistCard
+            artist={artist}
+            grid={grid}
+            key={artist.id}
+            library={library}
+            navigate={navigate}
+            openArtist={openArtist}
+            setOpenArtist={setOpenArtist}
+            width={width}
+          />
+        ))}
+      </Box>
+      <Collapse in={artists.some((artist) => artist.id === openArtist.id)}>
+        <Box
+          bgcolor="common.contrastGrey"
+          borderRadius="24px"
+          height={324}
+          margin="auto"
+          marginTop="12px"
+          sx={{
+            transform: 'translateZ(0px)',
+          }}
+          width="89%"
+        >
+          <SvgIcon
+            sx={{
+              color: 'common.contrastGrey',
+              height: '1.5em',
+              left: caretPos - 18,
+              position: 'absolute',
+              top: '-22px',
+              width: '1.5em',
+            }}
+          >
+            <BiCaretUp />
+          </SvgIcon>
+          {openArtist && openArtistQuery.data && topTracks && (
+            <Box
+              margin="auto"
+              width="calc(100% - 48px)"
+            >
+              <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
+                <NavLink
+                  className="link"
+                  state={{ guid: openArtist.guid, title: openArtist.title }}
+                  to={`/artists/${openArtist.id}`}
+                >
+                  {openArtist.title}
+                </NavLink>
+              </Typography>
+              <Box
+                display="flex"
+              >
+                <TopTracks context={context} />
+                <HighlightAlbum
+                  artistData={openArtistQuery.data}
+                  library={library}
+                  navigate={navigate}
+                  width={width}
+                />
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Collapse>
     </Box>
   );
 });

@@ -1,8 +1,13 @@
+import { grey } from '@mui/material/colors';
 import React, { ReactNode, useMemo } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { useSettings } from '../hooks/queryHooks';
 
 declare module '@mui/material/styles' {
+  interface CommonColors {
+    grey: string;
+    contrastGrey: string;
+  }
   interface Palette {
     border: Palette['primary'];
   }
@@ -16,8 +21,8 @@ const Theme = ({ children }: {children: ReactNode}) => {
 
   const customBackgrounds = useMemo(
     () => (settings.colorMode === 'light'
-      ? { default: '#fefefe', grey: '#616161', paper: '#fdfdfd' }
-      : { grey: '#e0e0e0' }),
+      ? { default: '#fefefe', paper: '#fdfdfd' }
+      : {}),
     [settings],
   );
 
@@ -57,6 +62,8 @@ const Theme = ({ children }: {children: ReactNode}) => {
         common: {
           black: '#101010',
           white: '#f9f9f9',
+          grey: settings.colorMode === 'light' ? grey['400'] : grey['600'],
+          contrastGrey: settings.colorMode === 'light' ? grey['100'] : grey['900'],
         },
         background: {
           ...customBackgrounds,

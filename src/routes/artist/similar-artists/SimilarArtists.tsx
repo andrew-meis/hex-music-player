@@ -1,7 +1,8 @@
+import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Album, Artist, Hub, Library } from 'hex-plex';
+import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { throttle } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Location,
   NavigateFunction,
@@ -11,11 +12,14 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
-import { Avatar, Box, Typography } from '@mui/material';
-import { useArtist, useLibrary } from '../../../hooks/queryHooks';
+import { useArtist, useArtistTracks, useIsPlaying, useLibrary, useNowPlaying } from '../../../hooks/queryHooks';
+import useFormattedTime from '../../../hooks/useFormattedTime';
+import usePlayback, { PlayParams } from '../../../hooks/usePlayback';
+import { PlayActions } from '../../../types/enums';
 import { RouteParams } from '../../../types/interfaces';
 import GroupRow from './GroupRow';
 import ArtistsRow from './ArtistsRow';
+import Header from './Header';
 
 const getCols = (width: number) => {
   if (width >= 1350) {
@@ -40,6 +44,12 @@ interface LocationWithState extends Location {
   state: { guid: Artist['guid'], title: Artist['title'] }
 }
 
+export interface OpenArtist {
+  id: number;
+  guid: string;
+  title: string;
+}
+
 export interface SimilarArtistGroup {
   _type: string;
   identifier: string;
@@ -61,10 +71,19 @@ export interface SimilarArtistItems {
 
 export interface SimilarArtistContext {
   artist: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
+  getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
+  isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
   navigate: NavigateFunction;
+  nowPlaying: PlayQueueItem | undefined;
+  openArtist: OpenArtist;
+  openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}, unknown>,
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
+  setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
+  thumbSrc: string;
+  topTracks: Track[] | undefined,
   width: number;
 }
 
@@ -83,7 +102,23 @@ const SimilarArtists = () => {
 
   const library = useLibrary();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const topMostGroup = useRef<SimilarArtistGroup | null>(null);
+  const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
+  const { data: isPlaying } = useIsPlaying();
+  const { data: nowPlaying } = useNowPlaying();
+  const { getFormattedTime } = useFormattedTime();
+  const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
+
+  const openArtistQuery = useArtist(openArtist.id);
+  const topTracks = useArtistTracks({
+    artistGuid: openArtist.guid,
+    artistId: openArtist.id,
+    artistTitle: openArtist.title,
+    limit: 10,
+    slice: 4,
+  });
 
   const thumbSrc = library.api
     .getAuthenticatedUrl(
@@ -101,21 +136,41 @@ const SimilarArtists = () => {
     const rows: SimilarArtistRow[] = [];
     const groups: SimilarArtistGroup[] = [];
     const groupCounts: number[] = [];
-    artist.data.hubs.forEach((hub) => {
-      if (hub.type === 'artist' && hub.size > 0) {
-        let count = 0;
-        const identifier = hub.hubIdentifier;
-        groups.push({ _type: 'subheaderText', identifier, text: hub.title });
-        for (let i = 0; i < hub.items.length; i += grid.cols) {
-          const row = hub.items.slice(i, i + grid.cols) as Artist[];
-          rows.push({
-            _type: 'artists', artists: row, grid, section: hub.title,
-          });
-          count += 1;
-        }
-        groupCounts.push(count);
+    const similar = artist.data?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
+    let sonicSimilar = artist.data?.hubs
+      .find((hub) => hub.hubIdentifier === 'external.artist.similar.sonically');
+    const sonicFiltered = sonicSimilar?.items
+      .filter((sonicArtist) => similar?.items
+        .every((similarArtist) => similarArtist.id !== sonicArtist.id));
+    if (similar && similar.items.length > 0 && sonicSimilar && sonicFiltered) {
+      sonicSimilar = { ...sonicSimilar, items: sonicFiltered || [] };
+    }
+    if (similar && similar.size > 0) {
+      let count = 0;
+      const identifier = similar.hubIdentifier;
+      groups.push({ _type: 'subheaderText', identifier, text: similar.title });
+      for (let i = 0; i < similar.items.length; i += grid.cols) {
+        const row = similar.items.slice(i, i + grid.cols) as Artist[];
+        rows.push({
+          _type: 'artists', artists: row, grid, section: similar.title,
+        });
+        count += 1;
       }
-    });
+      groupCounts.push(count);
+    }
+    if (sonicSimilar && sonicSimilar.size > 0) {
+      let count = 0;
+      const identifier = sonicSimilar.hubIdentifier;
+      groups.push({ _type: 'subheaderText', identifier, text: sonicSimilar.title });
+      for (let i = 0; i < sonicSimilar.items.length; i += grid.cols) {
+        const row = sonicSimilar.items.slice(i, i + grid.cols) as Artist[];
+        rows.push({
+          _type: 'artists', artists: row, grid, section: sonicSimilar.title,
+        });
+        count += 1;
+      }
+      groupCounts.push(count);
+    }
     return { rows, groups, groupCounts };
   }, [artist.data, grid]);
 
@@ -130,17 +185,35 @@ const SimilarArtists = () => {
 
   const similarArtistContext = useMemo(() => ({
     artist: artist.data,
+    getFormattedTime,
     grid,
+    isPlaying,
     items,
     library,
     navigate,
+    nowPlaying,
+    openArtist,
+    openArtistQuery,
+    playSwitch,
+    setOpenArtist,
+    thumbSrc,
+    topTracks: topTracks?.data,
     width,
   }), [
     artist.data,
+    getFormattedTime,
     grid,
+    isPlaying,
     items,
     library,
     navigate,
+    nowPlaying,
+    openArtist,
+    openArtistQuery,
+    playSwitch,
+    setOpenArtist,
+    thumbSrc,
+    topTracks.data,
     width,
   ]);
 
@@ -156,33 +229,11 @@ const SimilarArtists = () => {
       key={location.pathname}
       style={{ height: '100%' }}
     >
-      <Box
-        alignItems="center"
-        color="text.primary"
-        display="flex"
-        height={70}
-        margin="auto"
-        position="absolute"
-        right="5.5%"
-        width="89%"
-        zIndex={10}
-      >
-        <Typography alignSelf="flex-start" fontFamily="TT Commons" fontSize="1.625rem" mr="auto">
-          {artist.data.artist.title}
-          &nbsp;&nbsp;»&nbsp;&nbsp;
-        </Typography>
-        <Avatar
-          alt={artist.data.artist.title}
-          src={thumbSrc}
-          sx={{ cursor: 'pointer', width: 60, height: 60 }}
-          onClick={() => navigate(
-            `/artists/${artist.data.artist.id}`,
-            { state: { guid: artist.data.artist.guid, title: artist.data.artist.title } },
-          )}
-        />
-      </Box>
       <GroupedVirtuoso
         className="scroll-container"
+        components={{
+          Header,
+        }}
         context={similarArtistContext}
         groupContent={(index) => GroupRowContent(
           { index, context: similarArtistContext },
@@ -193,6 +244,15 @@ const SimilarArtists = () => {
         itemContent={
           (index, groupIndex, item, context) => ArtistsRowContent({ index, context })
         }
+        itemsRendered={(list) => {
+          // @ts-ignore
+          const renderedGroupIndices = (list).map((listEl) => listEl.groupIndex);
+          if (topMostGroup.current !== items.groups![renderedGroupIndices[0]]) {
+            queryClient
+              .setQueryData(['similar-header-text'], items.groups![renderedGroupIndices[0]]?.text);
+            topMostGroup.current = items.groups![renderedGroupIndices[0]];
+          }
+        }}
         style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
       />
     </motion.div>

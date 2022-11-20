@@ -20,7 +20,7 @@ interface ItemProps {
 }
 
 const Text = ({ track }: { track: Track }) => (
-  <Typography color="text.primary" textAlign="center">
+  <Typography color="common.white" textAlign="center">
     {`${track.originalTitle || track.grandparentTitle} — ${track.title}`}
   </Typography>
 );

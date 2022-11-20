@@ -1,6 +1,7 @@
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React from 'react';
+import { IoMdMicrophone } from 'react-icons/all';
 import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
 
 interface FixedHeaderProps {
@@ -29,9 +30,16 @@ const FixedHeader = ({
   >
     <Avatar
       alt={artist.title}
-      src={thumbSrcSm}
+      src={artist.thumb ? thumbSrcSm : ''}
       sx={{ width: 60, height: 60 }}
-    />
+    >
+      <SvgIcon
+        className="generic-artist"
+        sx={{ alignSelf: 'center', color: 'common.black', height: '65%', width: '65%' }}
+      >
+        <IoMdMicrophone />
+      </SvgIcon>
+    </Avatar>
     <Typography
       alignSelf="center"
       fontFamily="TT Commons"

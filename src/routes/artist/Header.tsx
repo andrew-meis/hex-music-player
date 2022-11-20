@@ -1,7 +1,9 @@
-import { Avatar, Box, Fade, Typography } from '@mui/material';
+import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import { useQuery } from '@tanstack/react-query';
 import { sample } from 'lodash';
 import React, { useMemo } from 'react';
+import { IoMdMicrophone } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import styles from 'styles/ArtistHeader.module.scss';
@@ -29,12 +31,14 @@ const getPosX = (settings: AppSettings) => {
   return (leftWidth / 2) - (rightWidth / 2);
 };
 
-const hex2rgb = (hex: string | undefined) => {
+const hex2rgb = (hex: string | undefined, settings: AppSettings) => {
   if (!hex) {
-    return '75, 75, 75';
+    const color = settings.colorMode === 'light' ? grey['400'] : grey['600'];
+    const [r, g, b] = color.match(/\w\w/g)!.map((x) => parseInt(x, 16));
+    return `${r}, ${g}, ${b}`;
   }
-  // @ts-ignore
-  const [r, g, b] = hex.match(/\w\w/g).map((x) => parseInt(x, 16));
+
+  const [r, g, b] = hex.match(/\w\w/g)!.map((x) => parseInt(x, 16));
   return `${r}, ${g}, ${b}`;
 };
 
@@ -59,12 +63,12 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   // calculated values
   const bannerResize = scale(bannerInView.entry?.intersectionRatio || 1, [0, 1], [0, 50]);
   const color = useMemo(() => sample(colors), [colors]);
-  const hex = useMemo(() => hex2rgb(color), [color]);
+  const hex = useMemo(() => hex2rgb(color, settings), [color, settings]);
   const posX = useMemo(() => getPosX(settings), [settings]);
   const bannerSrc = artist.art ? library.api.getAuthenticatedUrl(artist.art) : undefined;
   const thumbSrc = artist.thumb ? library.api.getAuthenticatedUrl(artist.thumb) : undefined;
   const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
-  const newHeaderText = useQuery(
+  const headerText = useQuery(
     ['header-text'],
     () => '',
     {
@@ -96,7 +100,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             artist={artist}
             handlePlay={handlePlay}
             handleShuffle={handleShuffle}
-            headerText={tracksInView.inView ? 'Top Tracks' : newHeaderText.data}
+            headerText={tracksInView.inView ? 'Top Tracks' : headerText.data}
             thumbSrcSm={thumbSrcSm}
           />
         </Box>
@@ -143,6 +147,30 @@ const Header = ({ context }: { context?: ArtistContext }) => {
               </Box>
             </span>
           )}
+        {!artist.art && !artist.thumb
+          && (
+            <span
+              className={styles['artist-banner']}
+              style={{
+                display: 'flex',
+                '--color': hex,
+                '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0) < 0.2
+                  ? 0.2
+                  : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
+              } as React.CSSProperties}
+            >
+              <Box alignItems="center" display="flex" height={1} mx="auto" width="89%">
+                <Avatar
+                  alt={artist.title}
+                  sx={{ width: 300, height: 300 }}
+                >
+                  <SvgIcon className="generic-artist" sx={{ height: '65%', width: '65%' }}>
+                    <IoMdMicrophone />
+                  </SvgIcon>
+                </Avatar>
+              </Box>
+            </span>
+          )}
         <Box position="absolute" width="80%">
           <Textfit max={72} min={24} mode="single">
             <Typography
@@ -175,7 +203,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         ref={tracksInView.ref}
         width={(width * 0.89)}
       >
-        <InfoRow artistData={artistData} colors={colors!} library={library} navigate={navigate} />
+        <InfoRow artistData={artistData} colors={colors} library={library} navigate={navigate} />
         <TopTracks context={context} />
         <Highlights
           artistData={artistData}

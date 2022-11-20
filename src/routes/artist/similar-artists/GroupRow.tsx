@@ -11,12 +11,9 @@ const GroupRow = React.memo(({ index, context }: RowProps) => {
   return (
     <Box
       alignItems="flex-end"
-      bgcolor="background.paper"
-      borderBottom="1px solid"
-      borderColor="border.main"
       color="text.primary"
       display="flex"
-      height={70}
+      height={72}
       mx="auto"
       width="89%"
     >

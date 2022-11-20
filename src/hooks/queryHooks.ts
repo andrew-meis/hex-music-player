@@ -207,6 +207,7 @@ export const useArtist = (artistId: Artist['id']) => {
     ['artist', artistId],
     () => getArtist(artistId),
     {
+      enabled: artistId !== -1,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
@@ -229,17 +230,27 @@ export const useArtistAppearances = (
   );
 };
 
-export const useArtistTracks = (
+export const useArtistTracks = ({
+  artistId, artistTitle, artistGuid, slice, limit,
+}: {
   artistId: Artist['id'],
   artistTitle: Artist['title'],
   artistGuid: Artist['guid'],
   slice?: number,
-) => {
+  limit?: number,
+}) => {
   const getArtistTracks = useGetArtistTracks();
   return useQuery(
     ['artist-tracks', artistId, slice],
-    () => getArtistTracks(artistId, artistTitle, artistGuid, slice),
+    () => getArtistTracks({
+      guid: artistGuid,
+      id: artistId,
+      title: artistTitle,
+      limit,
+      slice,
+    }),
     {
+      enabled: artistId !== -1,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },

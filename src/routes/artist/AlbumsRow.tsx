@@ -110,7 +110,7 @@ const AlbumCover = ({
         enterDelay={500}
         enterNextDelay={300}
         key={album.id}
-        title={<Typography color="text.primary" textAlign="center">{album.title}</Typography>}
+        title={<Typography color="common.white" textAlign="center">{album.title}</Typography>}
       >
         <Box
           className={styles['album-cover']}

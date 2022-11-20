@@ -133,7 +133,12 @@ const Artist = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const artist = useArtist(+id);
   const appearances = useArtistAppearances(+id, location.state.title, location.state.guid);
-  const topTracks = useArtistTracks(+id, location.state.title, location.state.guid, 5);
+  const topTracks = useArtistTracks({
+    artistGuid: location.state.guid,
+    artistId: +id,
+    artistTitle: location.state.title,
+    slice: 5,
+  });
   // other hooks
   const hideAlbum = useHideAlbum();
   const library = useLibrary();

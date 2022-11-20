@@ -11,7 +11,7 @@ export const iconButtonStyle = {
 };
 
 export const sliderStyle = {
-  color: 'background.grey',
+  color: 'common.grey',
   height: '4px',
   '& .MuiSlider-track': {
     border: 'none',

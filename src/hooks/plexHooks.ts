@@ -158,12 +158,15 @@ export const useGetArtistTracks = () => {
   const account = useAccount();
   const library = useLibrary();
   const { data: config } = useConfig();
-  return async (
+  return async ({
+    id, title, guid, slice = 0, limit = 0,
+  }: {
     id: Artist['id'],
     title: Artist['title'],
     guid: Artist['guid'],
-    slice = 0,
-  ) => {
+    slice?: number,
+    limit?: number,
+  }) => {
     const params = new URLSearchParams();
     params.append('push', '1');
     params.append('artist.id', id.toString());
@@ -175,6 +178,9 @@ export const useGetArtistTracks = () => {
     params.append('group', 'guid');
     params.append('sort', 'viewCount:desc,originallyAvailableAt:desc');
     params.append('type', MediaType.TRACK.toString());
+    if (limit) {
+      params.append('limit', limit.toString());
+    }
     const url = library.api.uri
       + `/library/sections/${config.sectionId}`
       + `/all?${params.toString()}`

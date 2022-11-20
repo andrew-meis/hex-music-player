@@ -23,6 +23,7 @@ const PlayShuffleButton = ({ handlePlay, handleShuffle }: PlayShuffleButtonProps
       color="primary"
       size="medium"
       sx={{
+        transition: '200ms',
         zIndex: 0,
         '&:hover': {
           backgroundColor: 'primary.light',
@@ -44,6 +45,7 @@ const PlayShuffleButton = ({ handlePlay, handleShuffle }: PlayShuffleButtonProps
         height: '22px',
         color: 'primary.main',
         backgroundColor: 'background.default',
+        transition: '200ms',
         '&:hover': {
           color: 'primary.light',
           backgroundColor: 'background.default',

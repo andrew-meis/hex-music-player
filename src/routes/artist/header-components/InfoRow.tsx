@@ -1,15 +1,18 @@
-import { Avatar, AvatarGroup, Box, Chip, Tooltip, Typography } from '@mui/material';
+import {
+  Avatar, AvatarGroup, Box, Chip, SvgIcon, Tooltip, Typography,
+} from '@mui/material';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import React, { useMemo } from 'react';
+import { IoMdMicrophone } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
 import Twemoji from 'react-twemoji';
 
 interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
-  colors: string[];
+  colors: string[] | undefined;
   library: Library;
   navigate: NavigateFunction;
 }
@@ -73,9 +76,9 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
             label={genre.tag.toLowerCase()}
             sx={{
               ml: index === 0 ? '0px' : '10px',
-              backgroundColor: colors[index],
+              backgroundColor: colors ? colors[index] : 'common.grey',
               transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
-              color: fontColorContrast(colors[index]),
+              color: fontColorContrast(colors ? colors[index] : 'common.grey'),
               '&:hover': {
                 boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)',
               },
@@ -114,14 +117,14 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
               enterNextDelay={300}
               key={similarArtist.id}
               title={(
-                <Typography color="text.primary" textAlign="center">
+                <Typography color="common.white" textAlign="center">
                   {similarArtist.title}
                 </Typography>
               )}
             >
               <Avatar
                 alt={similarArtist.title}
-                src={thumbSrc}
+                src={similarArtist.thumb ? thumbSrc : ''}
                 sx={{
                   filter: 'grayscale(60%)',
                   '&:hover': { filter: 'none' },
@@ -130,7 +133,11 @@ const InfoRow = ({ artistData, colors, library, navigate }: InfoRowProps) => {
                   `/artists/${similarArtist.id}`,
                   { state: { guid: similarArtist.guid, title: similarArtist.title } },
                 )}
-              />
+              >
+                <SvgIcon className="generic-artist" sx={{ height: '65%', width: '65%' }}>
+                  <IoMdMicrophone />
+                </SvgIcon>
+              </Avatar>
             </Tooltip>
           );
         })}
