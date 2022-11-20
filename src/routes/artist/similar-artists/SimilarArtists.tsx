@@ -11,7 +11,7 @@ import {
   useOutletContext,
   useParams,
 } from 'react-router-dom';
-import { GroupedVirtuoso } from 'react-virtuoso';
+import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import {
   useArtist,
   useArtistTracks,
@@ -79,6 +79,7 @@ export interface SimilarArtistContext {
   artist: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
+  height: number;
   isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
@@ -92,6 +93,7 @@ export interface SimilarArtistContext {
   setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
   setOpenCard: React.Dispatch<React.SetStateAction<{row: number, index: number}>>;
   thumbSrc: string;
+  virtuoso: React.RefObject<GroupedVirtuosoHandle>;
   width: number;
 }
 
@@ -112,13 +114,14 @@ const SimilarArtists = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
+  const virtuoso = useRef<GroupedVirtuosoHandle>(null);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
-  const { width } = useOutletContext() as { width: number };
+  const { width, height } = useOutletContext() as { width: number, height: number };
 
   const openArtistQuery = useArtist(openArtist.id);
   const openArtistTracksQuery = useArtistTracks({
@@ -196,6 +199,7 @@ const SimilarArtists = () => {
     artist: artist.data,
     getFormattedTime,
     grid,
+    height,
     isPlaying,
     items,
     library,
@@ -209,11 +213,13 @@ const SimilarArtists = () => {
     setOpenArtist,
     setOpenCard,
     thumbSrc,
+    virtuoso,
     width,
   }), [
     artist.data,
     getFormattedTime,
     grid,
+    height,
     isPlaying,
     items,
     library,
@@ -227,6 +233,7 @@ const SimilarArtists = () => {
     setOpenArtist,
     setOpenCard,
     thumbSrc,
+    virtuoso,
     width,
   ]);
 
@@ -266,6 +273,7 @@ const SimilarArtists = () => {
             topMostGroup.current = items.groups![renderedGroupIndices[0]];
           }
         }}
+        ref={virtuoso}
         style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
       />
     </motion.div>

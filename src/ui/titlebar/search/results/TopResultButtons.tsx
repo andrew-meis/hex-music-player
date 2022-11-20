@@ -103,7 +103,7 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
       >
         <Box alignItems="center" display="flex" justifyContent="center" width={1}>
           {buttons[0].icon}
-          <span style={{ width: '6px', flexShrink: 0 }} />
+          <span style={{ width: '5px', flexShrink: 0 }} />
           {buttons[0].name}
         </Box>
       </Button>
@@ -133,7 +133,7 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
       >
         <Box alignItems="center" display="flex" justifyContent="center" width={1}>
           {buttons[1].icon}
-          <span style={{ width: '6px', flexShrink: 0 }} />
+          <span style={{ width: '5px', flexShrink: 0 }} />
           {buttons[1].name}
         </Box>
       </Button>

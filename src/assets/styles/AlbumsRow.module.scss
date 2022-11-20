@@ -30,3 +30,7 @@
 .album-box:hover > svg {
     opacity: 1;
 }
+
+.open > svg {
+    opacity: 0;
+}

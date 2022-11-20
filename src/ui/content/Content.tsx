@@ -14,7 +14,7 @@ import Queue from '../sidebars/queue/Queue';
 const Content = () => {
   const location = useLocation();
   const [index, setIndex] = useState(1);
-  const [ref, { width }] = useMeasure();
+  const [ref, { width, height }] = useMeasure();
   const { data: settings } = useSettings();
   const { isLoading: playlistLoading } = usePlaylists();
   const { isLoading: hotTracksLoading } = useTopTracks({ limit: 300, seconds: 60 * 60 * 24 * 90 });
@@ -75,7 +75,7 @@ const Content = () => {
         >
           <Box height={1} maxWidth={1600} mx="auto" ref={ref}>
             <AnimatePresence exitBeforeEnter>
-              <Outlet context={{ width }} key={location.pathname} />
+              <Outlet context={{ width, height }} key={location.pathname} />
             </AnimatePresence>
           </Box>
         </Box>

@@ -16,7 +16,6 @@ const textStyle = {
   WebkitBoxOrient: 'vertical',
   fontFamily: 'Rubik',
   fontSize: '1rem',
-  // fontWeight: 600,
   lineHeight: 1.2,
   mx: '14px',
   position: 'absolute',
@@ -35,7 +34,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   const {
     grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
   } = context;
-  const imgHeight = (Math.floor((width * 0.89) / grid.cols) * 1.3);
+  const imgHeight = Math.floor((width * 0.89) / grid.cols) * 1.3;
   const imgWidth = Math.floor((width * 0.89) / grid.cols);
   const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -120,12 +119,14 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         {artist.title}
       </Typography>
       <SvgIcon
+        className={open ? styles.open : ''}
         sx={{
           bottom: '8px',
           color: 'common.white',
           position: 'absolute',
           width: '100%',
         }}
+        viewBox="1 0 24 24"
       >
         <FaAngleDown />
       </SvgIcon>
@@ -133,30 +134,34 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   );
 };
 
+const getCaretPos = (cols: number, openIndex: number, width: number) => {
+  const colWidth = Math.floor((width * 0.89) / cols);
+  return (colWidth * openIndex) + (colWidth / 2);
+};
+
 const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
   const {
     grid,
+    height,
     items: { rows },
     library,
     navigate,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
-    setOpenArtist,
-    width,
     openCard,
+    setOpenArtist,
+    virtuoso,
+    width,
   } = context;
-  if (rows?.length === 0) {
-    return (
-      <Box height={1} />
-    );
-  }
   const { artists } = rows![rowIndex];
+  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 1.3) - 24;
+
   const openIndex = openCard.index;
-  const caretPos = (((width * 0.89) / grid.cols) * (openIndex + 1))
-    - ((width * 0.89) / (grid.cols * 2));
+  const caretPos = getCaretPos(grid.cols, openIndex, width);
 
   const handleEntered = () => {
+    virtuoso.current?.scrollToIndex({ index: rowIndex, behavior: 'smooth' });
     if (openArtist.id === artists[openIndex].id) {
       setOpenArtist({
         id: -1,
@@ -199,9 +204,9 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
         <Box
           bgcolor="common.contrastGrey"
           borderRadius="24px"
-          height={380}
+          height={panelHeight}
           margin="auto"
-          marginTop="12px"
+          maxHeight={380}
           sx={{
             transform: 'translateZ(0px)',
           }}
@@ -211,9 +216,10 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
             sx={{
               color: 'common.contrastGrey',
               height: '1.5em',
-              left: caretPos - 18,
+              left: caretPos,
               position: 'absolute',
               top: '-22px',
+              translate: '-50%',
               width: '1.5em',
             }}
           >
@@ -222,7 +228,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
           {openArtist && openArtistQuery.data && openArtistTracksQuery.data && (
             <Box
               margin="auto"
-              width="calc(100% - 48px)"
+              width="calc(100% - 36px)"
             >
               <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
                 <NavLink
@@ -239,10 +245,12 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
                 <TopTracks
                   context={context}
                   style={{ fontSize: '1.3rem' }}
-                  tracks={openArtistTracksQuery.data}
+                  tracks={openArtistTracksQuery.data
+                    .slice(0, Math.floor((panelHeight - 77) / 56))}
                 />
                 <HighlightAlbum
                   artistData={openArtistQuery.data}
+                  height={panelHeight}
                   library={library}
                   navigate={navigate}
                   width={width}
