@@ -224,7 +224,6 @@ export const useArtist = (artistId: Artist['id']) => {
     () => getArtist(artistId),
     {
       enabled: artistId !== -1,
-      keepPreviousData: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
@@ -241,7 +240,6 @@ export const useArtistAppearances = (
     ['artist-appearances', artistId],
     () => getArtistAppearances(artistId, artistTitle, artistGuid),
     {
-      keepPreviousData: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
@@ -269,7 +267,6 @@ export const useArtistTracks = ({
     }),
     {
       enabled: artistId !== -1,
-      keepPreviousData: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },

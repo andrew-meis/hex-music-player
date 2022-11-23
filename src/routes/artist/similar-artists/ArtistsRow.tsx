@@ -1,6 +1,6 @@
 import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
-import React from 'react';
+import React, { useState } from 'react';
 import { BiCaretUp, FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
@@ -140,6 +140,7 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
 };
 
 const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
+  const [open, setOpen] = useState(false);
   const {
     grid,
     height,
@@ -168,6 +169,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
         guid: '',
         title: '',
       });
+      setOpen(true);
       return;
     }
     setOpenArtist({
@@ -175,6 +177,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
       guid: artists[openIndex].guid,
       title: artists[openIndex].title,
     });
+    setOpen(true);
   };
 
   return (
@@ -200,6 +203,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
       <Collapse
         in={openCard.row === rowIndex}
         onEntered={handleEntered}
+        onExit={() => setOpen(false)}
       >
         <Box
           bgcolor="common.contrastGrey"
@@ -225,7 +229,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
           >
             <BiCaretUp />
           </SvgIcon>
-          {openArtist && openArtistQuery.data && openArtistTracksQuery.data && (
+          {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
             <Box
               margin="auto"
               width="calc(100% - 36px)"
@@ -233,10 +237,13 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
               <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
                 <NavLink
                   className="link"
-                  state={{ guid: openArtist.guid, title: openArtist.title }}
+                  state={{
+                    guid: openArtistQuery.data.artist.guid,
+                    title: openArtistQuery.data.artist.title,
+                  }}
                   to={`/artists/${openArtist.id}`}
                 >
-                  {openArtist.title}
+                  {openArtistQuery.data.artist.title}
                 </NavLink>
               </Typography>
               <Box
