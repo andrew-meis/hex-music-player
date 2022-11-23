@@ -115,7 +115,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                         sx={{
                           background: !colors
                             ? 'active.selected'
-                            : chroma(colors.lightVibrant).saturate(3).hex(),
+                            : chroma(colors.muted).saturate(2).brighten(1).hex(),
                           cursor: 'pointer',
                           transition: 'box-shadow 200ms ease-in',
                           '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
@@ -134,7 +134,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                         <Typography
                           color={!colors
                             ? 'text.main'
-                            : fontColorContrast(chroma(colors.lightVibrant).saturate(3).hex())}
+                            : fontColorContrast(chroma(colors.muted).saturate(2).brighten(1).hex())}
                           fontSize="0.875rem"
                           ml="8px"
                           mr="12px"
