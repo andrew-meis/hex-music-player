@@ -91,7 +91,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         width={imgWidth - 8}
       >
         <Box
-          height="68px"
+          height="64px"
           sx={{
             backgroundColor: open ? 'transparent' : 'rgba(60, 60, 70, 0.6)',
             borderBottomLeftRadius: '30px',

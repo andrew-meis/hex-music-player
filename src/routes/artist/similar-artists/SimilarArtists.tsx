@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
@@ -26,6 +27,15 @@ import { RouteParams } from '../../../types/interfaces';
 import GroupRow from './GroupRow';
 import ArtistsRow from './ArtistsRow';
 import Header from './Header';
+
+const Footer = () => (
+  <Box
+    height="16px"
+    maxWidth={900}
+    mx="auto"
+    width="89%"
+  />
+);
 
 const getCols = (width: number) => {
   if (width >= 1350) {
@@ -252,6 +262,7 @@ const SimilarArtists = () => {
       <GroupedVirtuoso
         className="scroll-container"
         components={{
+          Footer,
           Header,
         }}
         context={similarArtistContext}

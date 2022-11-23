@@ -25,3 +25,11 @@ release
 .vscode/.debug.env
 package-lock.json
 pnpm-lock.yaml
+
+.yarn/*
+.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

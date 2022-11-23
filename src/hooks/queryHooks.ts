@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { Album, Artist, MediaType, Playlist, Track } from 'hex-plex';
 import { parseContainerType } from 'hex-plex/dist/library';
 import { forEach, groupBy, uniqBy } from 'lodash';
@@ -9,7 +8,12 @@ import { usePlayerContext } from '../core/Player';
 import { AppSettings, AppState, Config, DiscHeader } from '../types/interfaces';
 import { Result } from '../types/types';
 import {
-  useGetAlbum, useGetArtist, useGetArtistAppearances, useGetArtistTracks,
+  useGetAlbum,
+  useGetAlbumQuery,
+  useGetArtist,
+  useGetArtistAppearances,
+  useGetArtistTracks,
+  useGetTop,
 } from './plexHooks';
 import useQueue from './useQueue';
 
@@ -181,6 +185,18 @@ export const useAlbum = (albumId: Album['id']) => {
   );
 };
 
+export const useAlbumQuery = (query: Record<string, string>) => {
+  const getAlbumQuery = useGetAlbumQuery();
+  return useQuery(
+    ['albums', query],
+    () => getAlbumQuery(query),
+    {
+      refetchOnMount: true,
+      refetchOnWindowFocus: false,
+    },
+  );
+};
+
 export const useAlbumTracks = (albumId: Album['id']) => {
   const library = useLibrary();
   return useQuery(
@@ -208,6 +224,7 @@ export const useArtist = (artistId: Artist['id']) => {
     () => getArtist(artistId),
     {
       enabled: artistId !== -1,
+      keepPreviousData: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
@@ -224,6 +241,7 @@ export const useArtistAppearances = (
     ['artist-appearances', artistId],
     () => getArtistAppearances(artistId, artistTitle, artistGuid),
     {
+      keepPreviousData: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
@@ -251,6 +269,7 @@ export const useArtistTracks = ({
     }),
     {
       enabled: artistId !== -1,
+      keepPreviousData: true,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
     },
@@ -349,46 +368,45 @@ export const useSearch = ({ query }: {query: string}) => {
   );
 };
 
+export const useTopAlbums = (
+  { limit, start, end, seconds }: { limit: number, start?: number, end?: number, seconds?: number },
+) => {
+  const library = useLibrary();
+  const type = 9;
+  const topAlbums = useGetTop({ type, limit, seconds, start, end });
+  return useQuery(
+    ['top', { type, limit, seconds, start, end }],
+    () => topAlbums().then((response) => {
+      if (!response) {
+        return undefined;
+      }
+      const { albums } = parseContainerType(MediaType.ALBUM, response.data);
+      return uniqBy(albums, 'guid');
+    }),
+    {
+      enabled: !!library,
+      keepPreviousData: true,
+      refetchInterval: 1000 * 60 * 30,
+      refetchOnWindowFocus: false,
+    },
+  );
+};
+
 export const useTopTracks = (
   { limit, start, end, seconds }: { limit: number, start?: number, end?: number, seconds?: number },
 ) => {
   const library = useLibrary();
-  const { data: config } = useConfig();
+  const type = 10;
+  const topTracks = useGetTop({ type, limit, seconds, start, end });
   return useQuery(
-    ['top-tracks', { limit, seconds, start, end }],
-    async () => {
-      if (seconds) {
-        const timestamp = Math.round((new Date()).getTime() / 1000);
-        const url = library.api.getAuthenticatedUrl(
-          '/library/all/top',
-          {
-            type: 10,
-            librarySectionID: config.sectionId as number,
-            'viewedAt>': timestamp - seconds,
-            'viewedAt<': timestamp,
-            limit,
-            accountID: 1,
-          },
-        );
-        const response = await axios.get(url);
-        const { tracks } = parseContainerType(MediaType.TRACK, response.data);
-        return uniqBy(tracks, 'guid');
+    ['top', { type, limit, seconds, start, end }],
+    () => topTracks().then((response) => {
+      if (!response) {
+        return undefined;
       }
-      const url = library.api.getAuthenticatedUrl(
-        '/library/all/top',
-        {
-          type: 10,
-          librarySectionID: config.sectionId as number,
-          'viewedAt>': start!,
-          'viewedAt<': end!,
-          limit,
-          accountID: 1,
-        },
-      );
-      const response = await axios.get(url);
       const { tracks } = parseContainerType(MediaType.TRACK, response.data);
       return uniqBy(tracks, 'guid');
-    },
+    }),
     {
       enabled: !!library,
       keepPreviousData: true,

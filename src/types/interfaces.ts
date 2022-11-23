@@ -71,16 +71,3 @@ export interface ToastMessage {
   type: AlertColor | undefined;
   text: string;
 }
-
-export interface TrackContainerContextState {
-  handleRowClick: (index: number) => void;
-  scrollSpeed: React.MutableRefObject<number>
-  selectedRows: number[];
-  setSelectedRows: React.Dispatch<React.SetStateAction<number[]>>;
-}
-
-export interface TrackRowOptions {
-  showAlbum: boolean;
-  showArt: boolean;
-  showTrackNumber: boolean;
-}

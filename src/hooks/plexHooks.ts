@@ -181,6 +181,7 @@ export const useGetArtistTracks = () => {
     if (limit) {
       params.append('limit', limit.toString());
     }
+    // eslint-disable-next-line prefer-template
     const url = library.api.uri
       + `/library/sections/${config.sectionId}`
       + `/all?${params.toString()}`
@@ -204,6 +205,63 @@ export const useGetArtistTracks = () => {
     }
     if (slice) { return tracks.slice(0, slice); }
     return tracks;
+  };
+};
+
+export const useGetAlbumQuery = () => {
+  const library = useLibrary();
+  const { data: config } = useConfig();
+  return async (query: Record<string, string>) => {
+    const response = await library.albums(config.sectionId!, query);
+    return response.albums;
+  };
+};
+
+interface UseGetTopProps {
+  type: 8 | 9 | 10
+  limit: number,
+  start?: number,
+  end?: number,
+  seconds?: number,
+}
+
+export const useGetTop = (
+  { type, limit, start, end, seconds }: UseGetTopProps,
+) => {
+  const library = useLibrary();
+  const { data: config } = useConfig();
+  return async () => {
+    let response;
+    if (seconds) {
+      const timestamp = Math.round((new Date()).getTime() / 1000);
+      const url = library.api.getAuthenticatedUrl(
+        '/library/all/top',
+        {
+          type,
+          librarySectionID: config.sectionId as number,
+          'viewedAt>': timestamp - seconds,
+          'viewedAt<': timestamp,
+          limit,
+          accountID: 1,
+        },
+      );
+      response = await axios.get(url);
+    }
+    if (!seconds) {
+      const url = library.api.getAuthenticatedUrl(
+        '/library/all/top',
+        {
+          type,
+          librarySectionID: config.sectionId as number,
+          'viewedAt>': start!,
+          'viewedAt<': end!,
+          limit,
+          accountID: 1,
+        },
+      );
+      response = await axios.get(url);
+    }
+    return response;
   };
 };
 

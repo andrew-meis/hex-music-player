@@ -1,4 +1,5 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import { Album } from 'hex-plex';
 import React from 'react';
@@ -114,7 +115,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                         sx={{
                           background: !colors
                             ? 'active.selected'
-                            : `linear-gradient(to bottom right, ${colors.lightMuted} -90%, ${colors.lightVibrant})`,
+                            : chroma(colors.lightVibrant).saturate(3).hex(),
                           cursor: 'pointer',
                           transition: 'box-shadow 200ms ease-in',
                           '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
@@ -131,7 +132,9 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                           sx={{ width: '24px', height: '24px', ml: '2px' }}
                         />
                         <Typography
-                          color={!colors ? 'text.main' : fontColorContrast(colors.lightVibrant)}
+                          color={!colors
+                            ? 'text.main'
+                            : fontColorContrast(chroma(colors.lightVibrant).saturate(3).hex())}
                           fontSize="0.875rem"
                           ml="8px"
                           mr="12px"
