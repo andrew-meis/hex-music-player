@@ -3,7 +3,7 @@ import React from 'react';
 import { BiAlbum } from 'react-icons/all';
 import { GroupRowProps } from './Album';
 
-const GroupRow = React.memo(({ item }: GroupRowProps) => (
+const GroupRow = React.memo(({ discNumber }: GroupRowProps) => (
   <Box alignItems="center" color="text.primary" display="flex" height={56}>
     <Box maxWidth="10px" width="10px" />
     <Box
@@ -20,7 +20,7 @@ const GroupRow = React.memo(({ item }: GroupRowProps) => (
       </SvgIcon>
     </Box>
     <Typography sx={{ ml: '10px' }}>
-      {`Disc ${item.value}`}
+      {`Disc ${discNumber}`}
     </Typography>
   </Box>
 ));

@@ -34,12 +34,11 @@ const selectedStyle = {
   },
 };
 
-const Row = React.memo(({ index, item, context }: RowProps) => {
+const Row = React.memo(({ context, index, track }: RowProps) => {
   const {
     getFormattedTime, handleRowClick, hoverIndex, isPlaying, library,
     nowPlaying, playAlbumAtTrack, selectedRows,
   } = context;
-  const track = item;
   const playing = nowPlaying?.track.id === track.id;
   const selected = selectedRows.includes(index);
   const selUp = selected && selectedRows.includes(index - 1);

@@ -202,13 +202,8 @@ export const useAlbumTracks = (albumId: Album['id']) => {
   return useQuery(
     ['album-tracks', albumId],
     () => library.albumTracks(albumId).then((r) => {
-      const groups = groupBy(r.tracks, (track) => track.parentIndex);
-      if (Object.keys(groups).length === 1) {
-        return r.tracks;
-      }
-      const array: (Track | DiscHeader)[] = [];
-      forEach(groups, (value, key) => array.push({ _type: 'discHeader', value: key }, ...value));
-      return array;
+      const { tracks } = r;
+      return tracks;
     }),
     {
       refetchOnMount: true,

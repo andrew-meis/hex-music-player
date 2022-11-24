@@ -3,11 +3,12 @@ import { Box, Typography } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Artist, Album as AlbumType, Library, Playlist, PlayQueueItem, Track } from 'hex-plex';
+import { countBy } from 'lodash';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ConnectDragSource, useDrag } from 'react-dnd';
+import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { NavigateFunction, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { GroupedVirtuoso } from 'react-virtuoso';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import {
   useAlbum, useAlbumTracks, useIsPlaying, useLibrary, useNowPlaying,
@@ -16,25 +17,15 @@ import useFormattedTime from '../../hooks/useFormattedTime';
 import useMenuStyle from '../../hooks/useMenuStyle';
 import usePlayback from '../../hooks/usePlayback';
 import useRowSelect from '../../hooks/useRowSelect';
-import { DragActions } from '../../types/enums';
-import { DiscHeader, RouteParams } from '../../types/interfaces';
+import useTrackDragDrop from '../../hooks/useTrackDragDrop';
+import { RouteParams } from '../../types/interfaces';
 import { isDiscHeader, isTrack } from '../../types/type-guards';
+import Footer from '../virtuoso-components/Footer';
 import Item from '../virtuoso-components/Item';
-import List from '../virtuoso-components/List';
+import ListGrouped from '../virtuoso-components/ListGrouped';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
-
-const Footer = () => (
-  <Box
-    borderTop="1px solid"
-    borderColor="border.main"
-    height="10px"
-    maxWidth={900}
-    mx="auto"
-    width="89%"
-  />
-);
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <Box alignItems="center" display="flex" height={height}>
@@ -52,10 +43,6 @@ const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
     <Box width="10px" />
   </Box>
 );
-
-const previewOptions = {
-  offsetX: -8,
-};
 
 export interface AlbumContext {
   album: {album: AlbumType, related: (Playlist | Track | AlbumType | Artist)[]} | undefined;
@@ -75,15 +62,13 @@ export interface AlbumContext {
 }
 
 export interface GroupRowProps {
-  index: number;
-  item: DiscHeader;
-  context: AlbumContext;
+  discNumber: number;
 }
 
 export interface RowProps {
-  index: number;
-  item: Track;
   context: AlbumContext;
+  index: number;
+  track: Track;
 }
 
 const GroupRowContent = (props: GroupRowProps) => <GroupRow {...props} />;
@@ -94,11 +79,9 @@ const Album = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const album = useAlbum(+id);
   const albumTracks = useAlbumTracks(+id);
-  const discRows = useMemo(
-    // eslint-disable-next-line no-underscore-dangle
-    () => albumTracks.data?.flatMap((item, i) => (item._type === 'discHeader' ? i : [])),
-    [albumTracks.data],
-  );
+  const counts = countBy(albumTracks.data, 'parentIndex');
+  const groupCounts = Object.values(counts);
+  const groups = Object.keys(counts).map((i) => +i);
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
@@ -113,44 +96,29 @@ const Album = () => {
   const { playAlbumAtTrack, playSwitch } = usePlayback();
   const {
     selectedRows, setSelectedRows, handleClickAway, handleRowClick,
-  } = useRowSelect([], discRows);
+  } = useRowSelect([]);
+  const { drag, dragPreview, handleDragStart } = useTrackDragDrop({
+    hoverIndex,
+    selectedRows,
+    setSelectedRows,
+    tracks: albumTracks.data || [],
+  });
 
   useLayoutEffect(() => {
     setSelectedRows([]);
   }, [id, setSelectedRows]);
 
-  const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
-    type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
-    item: () => {
-      if (selectedRows.length === 1) {
-        return albumTracks.data![selectedRows[0]];
-      }
-      return selectedRows.map((n) => albumTracks.data![n]);
-    },
-  }), [albumTracks.data, selectedRows]);
-
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const handleDragStart = useCallback(() => {
-    if (selectedRows.includes(hoverIndex.current!)) {
-      return;
-    }
-    setSelectedRows([hoverIndex.current!]);
-  }, [selectedRows, setSelectedRows]);
-
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-index');
+    const target = event.currentTarget.getAttribute('data-item-index');
     if (!target) {
       return;
     }
     const targetIndex = parseInt(target, 10);
-    if (discRows && discRows.includes(targetIndex)) {
-      return;
-    }
     if (selectedRows.length === 0) {
       setSelectedRows([targetIndex]);
     }
@@ -168,7 +136,7 @@ const Album = () => {
     }
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
-  }, [discRows, selectedRows, setSelectedRows, toggleMenu]);
+  }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleMenuSelection = async (button: ButtonSpecs) => {
     if (!albumTracks.data) {
@@ -253,31 +221,28 @@ const Album = () => {
         key={location.pathname}
         style={{ height: '100%' }}
       >
-        <Virtuoso
+        <GroupedVirtuoso
           className="scroll-container"
           components={{
             Footer,
             Header,
             Item,
-            List,
+            List: ListGrouped,
             ScrollSeekPlaceholder,
           }}
           context={albumContext}
-          data={albumTracks.data}
           fixedItemHeight={56}
+          groupContent={(index) => GroupRowContent({ discNumber: groups[index] })}
+          groupCounts={groupCounts}
           isScrolling={handleScrollState}
-          itemContent={(index, item, context) => {
-            if (isTrack(item)) {
-              return RowContent({ index, item, context });
-            }
-            return GroupRowContent({ index, item, context });
-          }}
+          itemContent={(index, groupIndex, _item, context) => RowContent(
+            { context, index, track: albumTracks.data![index] },
+          )}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 700,
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={albumTracks.data!.length}
           onScroll={(e) => {
             sessionStorage.setItem(
               id,

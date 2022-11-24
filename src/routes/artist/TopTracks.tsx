@@ -2,13 +2,12 @@ import { Box, ClickAwayListener, Typography } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import TrackRow from '../../components/track-row/TrackRow';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import useMenuStyle from '../../hooks/useMenuStyle';
 import useRowSelect from '../../hooks/useRowSelect';
-import { DragActions } from '../../types/enums';
+import useTrackDragDrop from '../../hooks/useTrackDragDrop';
 import { ArtistContext } from './Artist';
 import { SimilarArtistContext } from './similar-artists/SimilarArtists';
 
@@ -19,10 +18,6 @@ const itemStyle = {
     color: 'text.primary',
     backgroundColor: 'action.hover',
   },
-};
-
-const previewOptions = {
-  offsetX: -8,
 };
 
 const selectBorderRadius = (selUp: boolean, selDown: boolean) => {
@@ -61,32 +56,20 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
-
-  const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
-    type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
-    item: () => {
-      if (selectedRows.length === 1) {
-        return tracks![selectedRows[0]];
-      }
-      return selectedRows.map((n) => tracks![n]);
-    },
-  }), [tracks, selectedRows]);
+  const { drag, dragPreview, handleDragStart } = useTrackDragDrop({
+    hoverIndex,
+    selectedRows,
+    setSelectedRows,
+    tracks: tracks || [],
+  });
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const handleDragStart = useCallback(() => {
-    if (selectedRows.includes(hoverIndex.current!)) {
-      return;
-    }
-    setSelectedRows([hoverIndex.current!]);
-  }, [selectedRows, setSelectedRows]);
-
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-index');
+    const target = event.currentTarget.getAttribute('data-item-index');
     if (!target) {
       return;
     }
@@ -126,7 +109,7 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
   };
 
   const handleMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget.getAttribute('data-index');
+    const target = event.currentTarget.getAttribute('data-item-index');
     if (!target) {
       return;
     }
@@ -147,6 +130,7 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
         height={(tracks.length * 56) + 45}
         mr="8px"
         ref={drag}
+        onDragEndCapture={handleClickAway}
         onDragStartCapture={handleDragStart}
       >
         <Box color="text.primary">
@@ -165,7 +149,7 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
                 <Box
                   alignItems="center"
                   color="text.secondary"
-                  data-index={index}
+                  data-item-index={index}
                   display="flex"
                   height={56}
                   key={track.id}

@@ -2,7 +2,7 @@ import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ConnectDragSource, useDrag } from 'react-dnd';
+import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
@@ -12,17 +12,13 @@ import useFormattedTime from '../../hooks/useFormattedTime';
 import useMenuStyle from '../../hooks/useMenuStyle';
 import usePlayback from '../../hooks/usePlayback';
 import useRowSelect from '../../hooks/useRowSelect';
-import { DragActions } from '../../types/enums';
+import useTrackDragDrop from '../../hooks/useTrackDragDrop';
 import Footer from '../virtuoso-components/Footer';
 import Item from '../virtuoso-components/Item';
 import List from '../virtuoso-components/List';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from '../virtuoso-components/ScrollSeekPlaceholder';
-
-const previewOptions = {
-  offsetX: -8,
-};
 
 export interface ChartsContext {
   days: number;
@@ -46,9 +42,9 @@ export interface ChartsContext {
 }
 
 export interface RowProps {
-  index: number;
-  item: Track;
   context: ChartsContext;
+  index: number;
+  track: Track;
 }
 
 const RowContent = (props: RowProps) => <Row {...props} />;
@@ -73,6 +69,12 @@ const Charts = () => {
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+  const { drag, dragPreview, handleDragStart } = useTrackDragDrop({
+    hoverIndex,
+    selectedRows,
+    setSelectedRows,
+    tracks: topTracks || [],
+  });
 
   useLayoutEffect(() => {
     setSelectedRows([]);
@@ -86,30 +88,9 @@ const Charts = () => {
     setEndDate(new Date().setHours(23, 59, 59, 0));
   }, [days]);
 
-  const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
-    type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
-    item: () => {
-      if (!topTracks) {
-        return [];
-      }
-      if (selectedRows.length === 1) {
-        return topTracks[selectedRows[0]];
-      }
-      return selectedRows.map((n) => topTracks![n]);
-    },
-  }), [topTracks, selectedRows]);
-
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
-
-  const handleDragStart = useCallback(() => {
-    if (selectedRows.includes(hoverIndex.current!)) {
-      return;
-    }
-    setSelectedRows([hoverIndex.current!]);
-  }, [selectedRows, setSelectedRows]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -223,7 +204,7 @@ const Charts = () => {
           data={isLoading ? [] : topTracks}
           fixedItemHeight={56}
           isScrolling={handleScrollState}
-          itemContent={(index, item, context) => RowContent({ index, item, context })}
+          itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 400,
             exit: (velocity) => Math.abs(velocity) < 100,

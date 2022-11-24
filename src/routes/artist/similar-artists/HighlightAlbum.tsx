@@ -85,8 +85,10 @@ const HighlightAlbum = ({ artistData, height, library, navigate, width }: Highli
             alt={card.title}
             src={thumbSrc}
             sx={{
-              width: measure,
               height: measure,
+              maxHeight: 280,
+              maxWidth: 280,
+              width: measure,
             }}
             variant="rounded"
           />
