@@ -3,8 +3,14 @@ import React from 'react';
 import { BiAlbum } from 'react-icons/all';
 import { GroupRowProps } from './Album';
 
-const GroupRow = React.memo(({ discNumber }: GroupRowProps) => (
-  <Box alignItems="center" color="text.primary" display="flex" height={56}>
+const GroupRow = React.memo(({ context, discNumber }: GroupRowProps) => (
+  <Box
+    alignItems="center"
+    color="text.primary"
+    display="flex"
+    height={56}
+    onClick={context.handleClickAway}
+  >
     <Box maxWidth="10px" width="10px" />
     <Box
       sx={{

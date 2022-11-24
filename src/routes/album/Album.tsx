@@ -62,6 +62,7 @@ export interface AlbumContext {
 }
 
 export interface GroupRowProps {
+  context: AlbumContext;
   discNumber: number;
 }
 
@@ -232,7 +233,9 @@ const Album = () => {
           }}
           context={albumContext}
           fixedItemHeight={56}
-          groupContent={(index) => GroupRowContent({ discNumber: groups[index] })}
+          groupContent={(index) => GroupRowContent(
+            { context: albumContext, discNumber: groups[index] },
+          )}
           groupCounts={groupCounts}
           isScrolling={handleScrollState}
           itemContent={(index, groupIndex, _item, context) => RowContent(
@@ -244,9 +247,10 @@ const Album = () => {
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           onScroll={(e) => {
+            const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
               id,
-              (e.currentTarget as unknown as HTMLElement).scrollTop as unknown as string,
+              target.scrollTop as unknown as string,
             );
           }}
         />

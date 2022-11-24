@@ -49,7 +49,7 @@ const HighlightAlbum = ({ artistData, height, library, navigate, width }: Highli
   }
 
   return (
-    <Box flex={`1 0 ${measure}px`}>
+    <Box flex={`1 0 ${measure > 280 ? 280 : measure}px`}>
       <Box color="text.primary">
         <Typography fontFamily="TT Commons" fontSize="1.3rem">
           {card.label}
