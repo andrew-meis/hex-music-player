@@ -1,4 +1,5 @@
-import { Avatar, Box, SvgIcon } from '@mui/material';
+import { Avatar, Box, SvgIcon, useTheme } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import {
   Menu, MenuItem, MenuButton, MenuButtonProps,
 } from '@szhsin/react-menu';
@@ -11,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from 'styles/Titlebar.module.scss';
 import { usePlayerContext } from '../../../core/Player';
 import { useLibrary, useNowPlaying, usePlayerState, useUser } from '../../../hooks/queryHooks';
+import useMenuStyle from '../../../hooks/useMenuStyle';
 import useQueue from '../../../hooks/useQueue';
 import { Config } from '../../../types/interfaces';
 import { isPlayQueueItem } from '../../../types/type-guards';
@@ -41,9 +43,11 @@ interface AppMenuProps {
 
 const AppMenu = ({ setAuthenticated }: AppMenuProps) => {
   const library = useLibrary();
+  const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const player = usePlayerContext();
   const queryClient = useQueryClient();
+  const theme = useTheme();
   const { data: nowPlaying } = useNowPlaying();
   const { data: playerState } = usePlayerState();
   const { data: user } = useUser();
@@ -84,7 +88,12 @@ const AppMenu = ({ setAuthenticated }: AppMenuProps) => {
       transition
       align={platform === 'darwin' ? 'end' : 'start'}
       menuButton={({ open }) => <AppMenuButton open={open} />}
-      menuStyle={{ minWidth: '198px' }}
+      menuStyle={{
+        ...menuStyle,
+        fontSize: '1rem',
+        minWidth: '198px',
+        '--menu-grey': theme.palette.mode === 'light' ? grey['100'] : grey['800'],
+      } as React.CSSProperties}
       offsetX={platform === 'darwin' ? -6 : 6}
     >
       <Box

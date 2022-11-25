@@ -53,6 +53,7 @@ const Content = () => {
           flexDirection="column"
           flexShrink={0}
           mb="4px"
+          sx={{ contain: 'paint' }}
           width={settings.compactNav ? 52 : 300}
         >
           {settings.compactNav && (

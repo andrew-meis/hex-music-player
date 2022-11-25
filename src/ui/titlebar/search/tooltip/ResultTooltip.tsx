@@ -28,12 +28,12 @@ const ResultTooltip = ({
             width: '152px',
             left: '-4px',
             padding: '5px 5px',
-            background: `${theme.palette.background.paper}f5`,
+            background: theme.palette.background.paper,
             border: 'solid 1px',
             borderColor: 'border.main',
             '& .MuiTooltip-arrow': {
               '&::before': {
-                background: `${theme.palette.background.paper}f5`,
+                background: theme.palette.background.paper,
                 border: 'solid 1px',
                 borderColor: 'border.main',
               },
@@ -53,8 +53,14 @@ const ResultTooltip = ({
           setOpen={setTooltipOpen}
         />
       )}
-      onClose={() => setTooltipOpen(false)}
-      onOpen={() => setTooltipOpen(true)}
+      onClose={() => {
+        setTooltipOpen(false);
+        document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
+      }}
+      onOpen={() => {
+        setTooltipOpen(true);
+        document.querySelector('.titlebar')?.classList.add('titlebar-nodrag');
+      }}
     >
       <SvgIcon sx={{ color, height: '48px' }}>
         <MdKeyboardArrowRight />

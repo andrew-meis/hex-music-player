@@ -25,7 +25,7 @@ const Titlebar = () => {
 
   return (
     <Box
-      className={styles.titlebar}
+      className="titlebar"
       style={{
         '--color': theme.palette.getContrastText(theme.palette.background.default),
         '--hover': theme.palette.action.selected,

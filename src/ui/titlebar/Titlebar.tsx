@@ -1,6 +1,5 @@
 import { Box, useTheme } from '@mui/material';
 import React, { useState } from 'react';
-import styles from 'styles/Titlebar.module.scss';
 import useQueue from '../../hooks/useQueue';
 import { usePlayerContext } from '../../core/Player';
 import { useNowPlaying } from '../../hooks/queryHooks';
@@ -41,7 +40,7 @@ const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: Titlebar
 
   return (
     <Box
-      className={styles.titlebar}
+      className="titlebar"
       style={{
         '--color': theme.palette.getContrastText(theme.palette.background.default),
         '--hover': theme.palette.action.selected,

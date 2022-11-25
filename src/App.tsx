@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import React, { useRef } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Authentication from './core/Authentication';
@@ -20,7 +20,6 @@ import Tracks from './routes/Tracks';
 import Content from './ui/content/Content';
 
 const App = () => {
-  const theme = useTheme();
   const searchContainer = useRef<HTMLDivElement>(null);
   const { data: settings } = useSettings();
 
@@ -32,11 +31,6 @@ const App = () => {
         '--scrollbar': settings.colorMode === 'light'
           ? 'rgba(69, 69, 69, 0.5)'
           : 'rgba(255, 255, 255, 0.5)',
-        '--menu-border': theme.palette.border.main,
-        '--menu-color': theme.palette.text.primary,
-        '--menu-paper': theme.palette.background.paper,
-        '--menu-primary': theme.palette.primary.main,
-        '--menu-transparent': `${theme.palette.primary.main}cc`,
       } as React.CSSProperties}
       width="100vw"
     >

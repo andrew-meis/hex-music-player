@@ -38,7 +38,7 @@ const Theme = ({ children }: {children: ReactNode}) => {
       palette: {
         mode: settings.colorMode,
         border: {
-          main: settings.colorMode === 'light' ? '#e0e0e0' : '#616161',
+          main: settings.colorMode === 'light' ? '#eff3f4' : '#323637',
         },
         primary: {
           main: '#1caf7b',

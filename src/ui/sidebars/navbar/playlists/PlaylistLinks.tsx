@@ -1,6 +1,7 @@
 import {
   Box, Collapse, List, ListItem, SvgIcon, Typography, useTheme,
 } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import {
   ControlledMenu, MenuDivider, MenuItem, useMenuState,
 } from '@szhsin/react-menu';
@@ -133,7 +134,10 @@ const PlaylistLinks = () => {
         {...menuProps}
         portal
         anchorPoint={anchorPoint}
-        menuStyle={menuStyle}
+        menuStyle={{
+          ...menuStyle,
+          '--menu-grey': theme.palette.mode === 'light' ? grey['100'] : grey['800'],
+        } as React.CSSProperties}
         onClose={() => toggleMenu(false)}
       >
         {playlistButtons.map((button: ButtonSpecs) => (

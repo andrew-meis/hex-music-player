@@ -1,7 +1,7 @@
 import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React, { useState } from 'react';
-import { BiCaretUp, FaAngleDown, IoMdMicrophone } from 'react-icons/all';
+import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
 import HighlightAlbum from './HighlightAlbum';
@@ -207,6 +207,8 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
       >
         <Box
           bgcolor="common.contrastGrey"
+          border="1px solid"
+          borderColor="border.main"
           borderRadius="24px"
           height={panelHeight}
           margin="auto"
@@ -216,19 +218,21 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
           }}
           width="89%"
         >
-          <SvgIcon
+          <Box
+            bgcolor="common.contrastGrey"
+            height={17}
+            position="absolute"
             sx={{
-              color: 'common.contrastGrey',
-              height: '1.5em',
-              left: caretPos,
-              position: 'absolute',
-              top: '-22px',
-              translate: '-50%',
-              width: '1.5em',
+              borderTop: '1px solid',
+              borderRight: '1px solid',
+              borderColor: 'border.main',
+              left: `calc(-3.5% + ${caretPos}px)`,
+              overflow: 'hidden',
+              transform: 'translate(100%, 0) rotate(-45deg)',
+              transformOrigin: 'top left',
             }}
-          >
-            <BiCaretUp />
-          </SvgIcon>
+            width={17}
+          />
           {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
             <Box
               margin="auto"

@@ -1,15 +1,3 @@
-.titlebar {
-  height: 50px;
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  z-index: 2000;
-  -webkit-app-region: drag;
-  -webkit-user-select: none;
-}
-
 %button-box {
   height: 46px;
   width: 46px;

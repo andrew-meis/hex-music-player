@@ -270,6 +270,7 @@ select:focus-visible {
   background-color: var(--menu-paper);
   border: 1px solid var(--menu-border);
   border-radius: 4px;
+  box-shadow: 0 16px 24px rgba(0,0,0,0.3),0 6px 8px rgba(0,0,0,0.2);
   color: var(--menu-color);
   min-width: 164px;
   padding: 5px 0;
@@ -301,4 +302,20 @@ select:focus-visible {
 
 .szh-menu-container--itemTransition .szh-menu__item {
   transition-property: background-color;
+}
+
+.titlebar {
+  height: 50px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  z-index: 1400;
+  -webkit-app-region: drag;
+  -webkit-user-select: none;
+}
+
+.titlebar-nodrag {
+  -webkit-app-region: no-drag;
 }
