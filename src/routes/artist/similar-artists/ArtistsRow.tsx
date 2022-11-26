@@ -220,18 +220,19 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
         >
           <Box
             bgcolor="common.contrastGrey"
-            height={17}
+            height={18}
             position="absolute"
             sx={{
-              borderTop: '1px solid',
-              borderRight: '1px solid',
-              borderColor: 'border.main',
-              left: `calc(-3.5% + ${caretPos}px)`,
+              border: '1px solid transparent',
+              borderTopColor: 'border.main',
+              borderLeftColor: 'border.main',
+              left: caretPos,
               overflow: 'hidden',
-              transform: 'translate(100%, 0) rotate(-45deg)',
+              top: '-14px',
+              transform: 'rotate(45deg)',
               transformOrigin: 'top left',
             }}
-            width={17}
+            width={18}
           />
           {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
             <Box
