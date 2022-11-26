@@ -55,8 +55,30 @@ const MediaButtons = () => {
     return <RiPlayCircleFill />;
   };
 
+  const handleRepeat = useCallback(async (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => {
+    const newSettings = structuredClone(settings);
+    newSettings.repeat = value;
+    window.electron.writeConfig('settings', newSettings);
+    await queryClient.refetchQueries(['settings']);
+    if (value === 'repeat-one') {
+      player.loop = true;
+      player.singleMode = true;
+      return;
+    }
+    if (value === 'repeat-none') {
+      player.loop = false;
+      player.singleMode = false;
+      return;
+    }
+    if (value === 'repeat-all') {
+      player.loop = true;
+      player.singleMode = false;
+    }
+  }, [settings, queryClient, player]);
+
   const handleNext = useCallback(async () => {
     setDisableNext(true);
+    await handleRepeat('repeat-none');
     if (isPlayQueueItem(nowPlaying)) {
       await updateTimeline(nowPlaying.id, 'stopped', player.currentPosition(), nowPlaying.track);
       if (isPlayQueueItem(nextTrack)) {
@@ -80,7 +102,16 @@ const MediaButtons = () => {
       );
       setDisableNext(false);
     }
-  }, [nextTrack, nowPlaying, player, playerState, queryClient, queueId, updateTimeline]);
+  }, [
+    handleRepeat,
+    nextTrack,
+    nowPlaying,
+    player,
+    playerState,
+    queryClient,
+    queueId,
+    updateTimeline,
+  ]);
 
   const handlePrev = useCallback(async () => {
     setDisablePrev(true);
@@ -117,6 +148,7 @@ const MediaButtons = () => {
     }
     // else go to previous track
     if (isPlayQueueItem(nowPlaying)) {
+      await handleRepeat('repeat-none');
       await updateTimeline(nowPlaying.id, 'stopped', player.currentPosition(), nowPlaying.track);
       if (isPlayQueueItem(prevTrack)) {
         await updateTimeline(prevTrack.id, 'playing', 0, prevTrack.track);
@@ -136,7 +168,16 @@ const MediaButtons = () => {
       );
       setDisablePrev(false);
     }
-  }, [nowPlaying, player, playerState, prevTrack, queryClient, queueId, updateTimeline]);
+  }, [
+    handleRepeat,
+    nowPlaying,
+    player,
+    playerState,
+    prevTrack,
+    queryClient,
+    queueId,
+    updateTimeline,
+  ]);
 
   const handlePlayPause = useCallback(async () => {
     if (ctrlPress) {
@@ -198,27 +239,6 @@ const MediaButtons = () => {
       .receive('taskbar-controls', (action) => onEvent(action));
     return () => removeEventListener();
   }, [onEvent]);
-
-  const handleRepeat = useCallback(async (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => {
-    const newSettings = structuredClone(settings);
-    newSettings.repeat = value;
-    window.electron.writeConfig('settings', newSettings);
-    await queryClient.refetchQueries(['settings']);
-    if (value === 'repeat-one') {
-      player.loop = true;
-      player.singleMode = true;
-      return;
-    }
-    if (value === 'repeat-none') {
-      player.loop = false;
-      player.singleMode = false;
-      return;
-    }
-    if (value === 'repeat-all') {
-      player.loop = true;
-      player.singleMode = false;
-    }
-  }, [settings, queryClient, player]);
 
   const handleShuffle = () => {
     console.log('shuffle button');

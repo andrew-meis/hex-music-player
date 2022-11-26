@@ -81,6 +81,7 @@ const Player = ({ children }: {children: ReactNode}) => {
   player.startTimer = (queueItem: PlayQueueItem) => startTimer(queueItem);
 
   player.initTracks = (queue: PlayQueue, forcePlay: boolean = true) => {
+    initialized.current = true;
     const currentIndex = queue.items.findIndex((item) => item.id === queue.selectedItemId);
     const current = queue.items[currentIndex];
     const next = queue.items[currentIndex + 1];
