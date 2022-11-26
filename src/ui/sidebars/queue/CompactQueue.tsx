@@ -29,24 +29,24 @@ const Text = ({ track }: { track: Track }) => (
 const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemProps) => {
   const handleDrop = () => {
     onDrop();
-    document.querySelector(`.queue-track[data-index="${index}"]`)
-      ?.classList.remove('queue-track-over');
+    document.querySelector(`.compact-queue[data-index="${index}"]`)
+      ?.classList.remove('compact-queue-over');
   };
 
   return (
     <Box
-      className="queue-track"
+      className="compact-queue"
       data-index={index}
       sx={{
         marginRight: '3px',
       }}
       onDragEnter={() => {
-        document.querySelector(`.queue-track[data-index="${index}"]`)
-          ?.classList.add('queue-track-over');
+        document.querySelector(`.compact-queue[data-index="${index}"]`)
+          ?.classList.add('compact-queue-over');
       }}
       onDragLeave={() => {
-        document.querySelector(`.queue-track[data-index="${index}"]`)
-          ?.classList.remove('queue-track-over');
+        document.querySelector(`.compact-queue[data-index="${index}"]`)
+          ?.classList.remove('compact-queue-over');
       }}
       onDrop={handleDrop}
       onMouseEnter={onMouseEnter}

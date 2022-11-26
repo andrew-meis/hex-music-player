@@ -38,10 +38,6 @@ import ScrollSeekPlaceholder from '../virtuoso-components/ScrollSeekPlaceholder'
 import Header from './Header';
 import Row from './Row';
 
-const previewOptions = {
-  offsetX: -8,
-};
-
 export interface PlaylistContext {
   drag: ConnectDragSource,
   filter: string;
@@ -105,7 +101,6 @@ const Playlist = () => {
   }, [id, setSelectedRows]);
 
   const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
     type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
     item: () => {
       if (selectedRows.length === 1) {

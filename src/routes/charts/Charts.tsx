@@ -28,7 +28,6 @@ export interface ChartsContext {
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
   handleRowClick: (event: React.MouseEvent, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
   isPlaying: boolean;
@@ -52,7 +51,8 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 const Charts = () => {
   const [days, setDays] = useState(7);
   const [endDate, setEndDate] = useState(new Date().setHours(23, 59, 59, 0));
-  const [startDate, setStartDate] = useState(new Date().setHours(0, 0, 0, 0) - (60000 * 60 * 24 * days));
+  const [startDate, setStartDate] = useState(new Date()
+    .setHours(0, 0, 0, 0) - (60000 * 60 * 24 * days));
   // data loading
   const { data: topTracks, isLoading } = useTopTracks(
     { limit: 100, start: Math.round(startDate / 1000), end: Math.round(endDate / 1000) },
@@ -69,10 +69,9 @@ const Charts = () => {
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
-  const { drag, dragPreview, handleDragStart } = useTrackDragDrop({
+  const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     selectedRows,
-    setSelectedRows,
     tracks: topTracks || [],
   });
 
@@ -150,7 +149,6 @@ const Charts = () => {
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
-    handleDragStart,
     handleRowClick,
     hoverIndex,
     isPlaying,
@@ -169,7 +167,6 @@ const Charts = () => {
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
-    handleDragStart,
     handleRowClick,
     hoverIndex,
     isPlaying,

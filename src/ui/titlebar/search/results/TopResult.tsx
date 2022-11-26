@@ -24,10 +24,6 @@ const typographyStyle = {
   WebkitBoxOrient: 'vertical',
 };
 
-const previewOptions = {
-  offsetX: -8,
-};
-
 const textStyle = {
   backgroundColor: 'grey.800',
   color: 'common.white',
@@ -74,7 +70,6 @@ const TopResult = ({ topResult, setOpen }: Props) => {
   const { data: palette, isError } = usePalette(topResult.id, thumbSrc);
 
   const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
     type: getDragType(topResult.type),
     item: topResult,
   }), [topResult]);

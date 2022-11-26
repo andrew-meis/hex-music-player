@@ -22,10 +22,6 @@ const itemStyle = {
   },
 };
 
-const previewOptions = {
-  offsetX: -8,
-};
-
 const selectBorderRadius = (selUp: boolean, selDown: boolean) => {
   if (selUp && selDown) {
     return '0';
@@ -190,7 +186,6 @@ const PreviousTracksVirtuoso = () => {
     .reverse(), [playQueue]);
 
   const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
     type: selectedRows.length > 1 ? DragActions.MOVE_TRACKS : DragActions.MOVE_TRACK,
     item: () => {
       if (selectedRows.length === 1) {

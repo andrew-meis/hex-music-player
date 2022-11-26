@@ -47,7 +47,6 @@ const ListGrouped = React
           style={{ ...style, maxWidth: '900px', width: '89%' }}
           sx={{ mx: 'auto' }}
           onDragEndCapture={context.handleClickAway}
-          onDragStartCapture={context.handleDragStart}
         >
           {children}
         </Box>

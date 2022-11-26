@@ -56,10 +56,9 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
-  const { drag, dragPreview, handleDragStart } = useTrackDragDrop({
+  const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     selectedRows,
-    setSelectedRows,
     tracks: tracks || [],
   });
 
@@ -131,7 +130,6 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
         mr="8px"
         ref={drag}
         onDragEndCapture={handleClickAway}
-        onDragStartCapture={handleDragStart}
       >
         <Box color="text.primary">
           <Typography fontFamily="TT Commons" style={style}>

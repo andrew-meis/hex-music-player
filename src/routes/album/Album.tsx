@@ -50,7 +50,6 @@ export interface AlbumContext {
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
   handleRowClick: (event: React.MouseEvent, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
   isPlaying: boolean;
@@ -98,10 +97,9 @@ const Album = () => {
   const {
     selectedRows, setSelectedRows, handleClickAway, handleRowClick,
   } = useRowSelect([]);
-  const { drag, dragPreview, handleDragStart } = useTrackDragDrop({
+  const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     selectedRows,
-    setSelectedRows,
     tracks: albumTracks.data || [],
   });
 
@@ -175,7 +173,6 @@ const Album = () => {
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
-    handleDragStart,
     handleRowClick,
     hoverIndex,
     isPlaying,
@@ -190,7 +187,6 @@ const Album = () => {
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
-    handleDragStart,
     handleRowClick,
     hoverIndex,
     isPlaying,

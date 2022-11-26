@@ -25,7 +25,7 @@ const getItemStyles = (
 
   const x = initialCursorOffset.x + (currentOffset.x - initialOffset.x);
   const y = initialCursorOffset.y + (currentOffset.y - initialOffset.y);
-  const transform = `translate(${x}px, ${y}px)`;
+  const transform = `translateX(-25%) translate(${x}px, ${y}px)`;
 
   return {
     transform,

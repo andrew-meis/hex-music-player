@@ -30,7 +30,7 @@ const List = React
         ref={mergeRefs(context.drag, listRef)}
         style={{ ...style, maxWidth: '900px', width: '89%' }}
         sx={{ mx: 'auto' }}
-        onDragStartCapture={context.handleDragStart}
+        onDragEndCapture={context.handleClickAway}
       >
         {children}
       </Box>

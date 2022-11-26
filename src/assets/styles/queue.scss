@@ -36,3 +36,15 @@
   content: "add last";
   height: 32px;
 }
+
+.compact-queue {
+  border: 1px solid transparent;
+}
+
+.compact-queue-over {
+  border-top: 1px solid tomato;
+}
+
+.compact-queue-over > div {
+  pointer-events: none;
+}

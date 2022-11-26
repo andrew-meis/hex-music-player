@@ -28,10 +28,6 @@ const linkBoxStyle = {
   overflow: 'hidden',
 };
 
-const previewOptions = {
-  offsetX: -8,
-};
-
 const getDragType = (resultType: string): DragActions => {
   switch (resultType) {
     case 'artist':
@@ -69,7 +65,6 @@ const ResultRow = ({
     : undefined;
 
   const [, drag, dragPreview] = useDrag(() => ({
-    previewOptions,
     type: getDragType(result.type),
     item: result,
   }), [result]);
