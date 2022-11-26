@@ -66,7 +66,6 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
       display="flex"
       margin="auto"
       sx={{ WebkitAppRegion: 'no-drag' }}
-      width={550}
     >
       <Box
         sx={{

@@ -203,7 +203,13 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         ref={tracksInView.ref}
         width={(width * 0.89)}
       >
-        <InfoRow artistData={artistData} colors={colors} library={library} navigate={navigate} />
+        <InfoRow
+          artistData={artistData}
+          colors={colors}
+          library={library}
+          navigate={navigate}
+          width={width}
+        />
         <TopTracks
           context={context}
           style={{ fontSize: '1.625rem', paddingTop: '6px' }}

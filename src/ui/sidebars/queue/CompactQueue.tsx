@@ -5,13 +5,14 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
-import styles from 'styles/Queue.module.scss';
+import 'styles/queue.scss';
 import { useCurrentQueue, useLibrary } from '../../../hooks/queryHooks';
 import useDragActions from '../../../hooks/useDragActions';
 import { DragActions } from '../../../types/enums';
 import { isPlayQueueItem } from '../../../types/type-guards';
 
 interface ItemProps {
+  index: number;
   isDragging: boolean;
   item: PlayQueueItem;
   library: Library;
@@ -25,26 +26,27 @@ const Text = ({ track }: { track: Track }) => (
   </Typography>
 );
 
-const Item = ({ isDragging, item, library, onDrop, onMouseEnter } : ItemProps) => {
-  const box = useRef<HTMLDivElement | null>(null);
-
+const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemProps) => {
   const handleDrop = () => {
     onDrop();
-    box.current?.classList.remove(styles['single-track-over']);
+    document.querySelector(`.queue-track[data-index="${index}"]`)
+      ?.classList.remove('queue-track-over');
   };
 
   return (
     <Box
-      className={styles['single-track']}
-      ref={box}
+      className="queue-track"
+      data-index={index}
       sx={{
         marginRight: '3px',
       }}
       onDragEnter={() => {
-        box.current?.classList.add(styles['single-track-over']);
+        document.querySelector(`.queue-track[data-index="${index}"]`)
+          ?.classList.add('queue-track-over');
       }}
       onDragLeave={() => {
-        box.current?.classList.remove(styles['single-track-over']);
+        document.querySelector(`.queue-track[data-index="${index}"]`)
+          ?.classList.remove('queue-track-over');
       }}
       onDrop={handleDrop}
       onMouseEnter={onMouseEnter}
@@ -184,6 +186,7 @@ const CompactQueue = () => {
       >
         {items.map((item, index) => (
           <Item
+            index={index}
             isDragging={isDragging}
             item={item}
             key={item.id}

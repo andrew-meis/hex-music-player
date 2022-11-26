@@ -1,0 +1,38 @@
+.queue-track {
+  border: 1px solid transparent;
+  svg {
+    display: none;
+  }
+}
+
+.queue-track:hover {
+  svg {
+    display: inherit;
+  }
+}
+
+.queue-track-over {
+  svg {
+    display: none;
+  }
+  border-top: 1px solid tomato;
+}
+
+.queue-track-over > div {
+  pointer-events: none;
+}
+
+.queue-box::after {
+  align-items: flex-end;
+  border: 1px solid transparent;
+  content: "";
+  display: flex;
+  height: 12px;
+  justify-content: center;
+}
+
+.queue-box-over::after {
+  border-top: 1px solid tomato;
+  content: "add last";
+  height: 32px;
+}

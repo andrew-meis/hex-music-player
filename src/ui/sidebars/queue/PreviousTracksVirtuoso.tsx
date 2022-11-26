@@ -3,10 +3,9 @@ import { Library, PlayQueueItem } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { FiMoreHorizontal, TiArrowBack } from 'react-icons/all';
-import { useMeasure } from 'react-use';
+import { TiArrowBack } from 'react-icons/all';
 import { Virtuoso } from 'react-virtuoso';
-import styles from 'styles/Queue.module.scss';
+import 'styles/queue.scss';
 import Subtext from '../../../components/subtext/Subtext';
 import { useCurrentQueue, useLibrary, useSettings } from '../../../hooks/queryHooks';
 import useDragActions from '../../../hooks/useDragActions';
@@ -73,7 +72,6 @@ export interface RowProps {
 }
 
 const Row = React.memo(({ index, item, context }: RowProps) => {
-  const box = useRef<HTMLDivElement | null>(null);
   const {
     handleMoveTrack,
     handleRowClick,
@@ -109,10 +107,10 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   return (
     <Box
       alignItems="center"
-      className={styles['single-track']}
+      className="queue-track"
+      data-index={index}
       display="flex"
       height={54}
-      ref={box}
       sx={selected
         ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
         : { ...itemStyle }}
@@ -163,7 +161,10 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
               transform: 'rotate(90deg) scale(1.3)',
             },
           }}
-          onClick={() => handleMoveTrack(item)}
+          onClick={async (event) => {
+            event.stopPropagation();
+            await handleMoveTrack(item);
+          }}
         >
           <TiArrowBack />
         </SvgIcon>
@@ -178,18 +179,15 @@ const PreviousTracksVirtuoso = () => {
   const box = useRef<HTMLDivElement | null>(null);
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
-  const [ref, { height }] = useMeasure();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
   const { moveTrack } = useDragActions();
   const { playQueueItem } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
-  const maxListLength = Math.floor(height / 56);
-  const items = playQueue?.items
+  const items = useMemo(() => playQueue?.items
     .slice(0, playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId))
-    .reverse()
-    .slice(0, maxListLength);
+    .reverse(), [playQueue]);
 
   const [, drag, dragPreview] = useDrag(() => ({
     previewOptions,
@@ -247,60 +245,41 @@ const PreviousTracksVirtuoso = () => {
   }
 
   return (
-    <>
+    <Box
+      color="text.primary"
+      display="flex"
+      flexDirection="column"
+      height={settings.dockedQueue ? 'calc(100vh - 192px)' : 'calc(100vh - 206px)'}
+    >
       <Box
-        color="text.primary"
         display="flex"
         flexDirection="column"
-        height={settings.dockedQueue ? 'calc(100vh - 230px)' : 'calc(100vh - 214px)'}
-        ref={ref}
+        height="-webkit-fill-available"
+        ref={drag}
+        onDragEndCapture={handleClickAway}
+        onDragStartCapture={handleDragStart}
       >
-        <Box
-          display="flex"
-          flexDirection="column"
-          height="-webkit-fill-available"
-          ref={drag}
-          onDragStartCapture={handleDragStart}
-        >
-          <ClickAwayListener onClickAway={handleClickAway}>
-            <Virtuoso
-              context={virtuosoContext}
-              data={items}
-              fixedItemHeight={56}
-              itemContent={(index, item, context) => RowContent({ index, item, context })}
-              style={{ height: items.length * 56, marginLeft: '4px', marginRight: '8px' }}
-            />
-          </ClickAwayListener>
-          <Box
-            className={styles['single-track']}
-            flexGrow={1}
-            ref={box}
-            sx={{ marginLeft: '4px', marginRight: '8px' }}
-            onDragEnter={() => {
-              box.current?.classList.add(styles['single-track-over']);
-            }}
-            onDragLeave={() => {
-              box.current?.classList.remove(styles['single-track-over']);
-            }}
-            onDrop={() => {
-              box.current?.classList.remove(styles['single-track-over']);
-            }}
+        <ClickAwayListener onClickAway={handleClickAway}>
+          <Virtuoso
+            className="scroll-container"
+            context={virtuosoContext}
+            data={items}
+            fixedItemHeight={56}
+            itemContent={(index, item, context) => RowContent({ index, item, context })}
+            style={{ height: items.length * 56, marginLeft: '4px', scrollbarGutter: 'stable' }}
           />
-        </Box>
+        </ClickAwayListener>
+        <Box
+          className="queue-box"
+          flexGrow={1}
+          ref={box}
+          sx={{
+            marginLeft: '4px',
+            marginRight: '8px',
+          }}
+        />
       </Box>
-      <SvgIcon
-        sx={{
-          bottom: 0,
-          color: 'transparent',
-          height: '38px',
-          position: 'absolute',
-          width: '100%',
-        }}
-        viewBox="0 -8 24 38"
-      >
-        <FiMoreHorizontal />
-      </SvgIcon>
-    </>
+    </Box>
   );
 };
 

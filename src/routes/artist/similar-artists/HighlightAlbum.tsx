@@ -41,8 +41,8 @@ const HighlightAlbum = ({ artistData, height, library, navigate, width }: Highli
 
   const thumbSrc = useMemo(() => library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
-    { url: card?.thumb || '', width: 300, height: 300 },
-  ), [card, library]);
+    { url: card?.thumb || '', width: measure > 250 ? 400 : 300, height: measure > 250 ? 400 : 300 },
+  ), [card, library, measure]);
 
   if (width < 860 || !card) {
     return null;
