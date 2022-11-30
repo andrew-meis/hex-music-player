@@ -210,4 +210,4 @@ const Header = ({ context }: { context?: AlbumContext }) => {
   );
 };
 
-export default Header;
+export default React.memo(Header);

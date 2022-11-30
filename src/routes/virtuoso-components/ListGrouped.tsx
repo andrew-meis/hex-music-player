@@ -46,7 +46,15 @@ const ListGrouped = React
           ref={mergeRefs(context.drag, listRef)}
           style={{ ...style, maxWidth: '900px', width: '89%' }}
           sx={{ mx: 'auto' }}
-          onDragEndCapture={context.handleClickAway}
+          onDragEndCapture={() => {
+            context.handleClickAway();
+            document.querySelectorAll('.track-row')
+              .forEach((node) => node.classList.remove('track-row-dragging'));
+          }}
+          onDragStartCapture={() => {
+            document.querySelectorAll('.track-row')
+              .forEach((node) => node.classList.add('track-row-dragging'));
+          }}
         >
           {children}
         </Box>

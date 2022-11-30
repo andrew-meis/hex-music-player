@@ -18,6 +18,9 @@ const useTrackDragDrop = ({
       if (!selectedRows.includes(hoverIndex.current!)) {
         return tracks[hoverIndex.current!];
       }
+      if (selectedRows.includes(hoverIndex.current!) && selectedRows.length === 1) {
+        return tracks[hoverIndex.current!];
+      }
       return selectedRows.map((n) => tracks[n]);
     },
   }), [hoverIndex, tracks, selectedRows]);

@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import React, {
   useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
 } from 'react';
-import { ConnectDragSource, useDrag } from 'react-dnd';
+import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/all';
 import { useLocation, useParams } from 'react-router-dom';
@@ -29,7 +29,7 @@ import useMenuStyle from '../../hooks/useMenuStyle';
 import usePlayback from '../../hooks/usePlayback';
 import useRowSelect from '../../hooks/useRowSelect';
 import useToast from '../../hooks/useToast';
-import { DragActions } from '../../types/enums';
+import useTrackDragDrop from '../../hooks/useTrackDragDrop';
 import { RouteParams } from '../../types/interfaces';
 import Footer from '../virtuoso-components/Footer';
 import Item from '../virtuoso-components/Item';
@@ -44,7 +44,6 @@ export interface PlaylistContext {
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleDragStart: (event: React.DragEvent<HTMLDivElement>) => void;
   handleRowClick: (event: React.MouseEvent, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
   isPlaying: boolean;
@@ -96,30 +95,19 @@ const Playlist = () => {
     );
   }
 
+  const { drag, dragPreview } = useTrackDragDrop({
+    hoverIndex,
+    selectedRows,
+    tracks: items.map((item) => item.track),
+  });
+
   useLayoutEffect(() => {
     setSelectedRows([]);
   }, [id, setSelectedRows]);
 
-  const [, drag, dragPreview] = useDrag(() => ({
-    type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
-    item: () => {
-      if (selectedRows.length === 1) {
-        return items[selectedRows[0]].track;
-      }
-      return selectedRows.map((n) => items![n].track);
-    },
-  }), [items, selectedRows]);
-
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
-
-  const handleDragStart = useCallback(() => {
-    if (selectedRows.includes(hoverIndex.current!)) {
-      return;
-    }
-    setSelectedRows([hoverIndex.current!]);
-  }, [selectedRows, setSelectedRows]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -193,7 +181,6 @@ const Playlist = () => {
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
-    handleDragStart,
     handleRowClick,
     hoverIndex,
     isPlaying,
@@ -209,7 +196,6 @@ const Playlist = () => {
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
-    handleDragStart,
     handleRowClick,
     hoverIndex,
     isPlaying,

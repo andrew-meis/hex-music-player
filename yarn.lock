@@ -1183,8 +1183,8 @@ __metadata:
 
 "@regosen/gapless-5@patch:@regosen/gapless-5@npm%3A1.4.1#./.yarn/patches/@regosen-gapless-5-npm-1.4.1-369b39d027.patch::locator=hex-music-player%40workspace%3A.":
   version: 1.4.1
-  resolution: "@regosen/gapless-5@patch:@regosen/gapless-5@npm%3A1.4.1#./.yarn/patches/@regosen-gapless-5-npm-1.4.1-369b39d027.patch::version=1.4.1&hash=c54d6f&locator=hex-music-player%40workspace%3A."
-  checksum: 60705409e86bced8949d2ae8efa6c3d2ae3a717cae75efad1790df9a48f055a6464e34dddab7e8c7daae46eec488ba9c1de8c0fe500e54be0023956101f3b015
+  resolution: "@regosen/gapless-5@patch:@regosen/gapless-5@npm%3A1.4.1#./.yarn/patches/@regosen-gapless-5-npm-1.4.1-369b39d027.patch::version=1.4.1&hash=2ae08f&locator=hex-music-player%40workspace%3A."
+  checksum: cb4fa664936a987ca5b2ea8224ef0f0599048a31036f0b057c9d01ce0c8cb3e3f056a3739cb88127630ec65c226369e7199c0909faca55641166cb44597a6fcb
   languageName: node
   linkType: hard
 

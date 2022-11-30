@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import React from 'react';
 import TrackRow from '../../components/track-row/TrackRow';
 import { RowProps } from './Album';
+import 'styles/track.scss';
 
 const itemStyle = {
   borderRadius: '4px',
@@ -55,6 +56,7 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
   return (
     <Box
       alignItems="center"
+      className="track-row"
       color="text.secondary"
       display="flex"
       height={56}
