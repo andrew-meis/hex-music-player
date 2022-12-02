@@ -47,7 +47,7 @@ const TrackRow = ({
             url: track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
           },
         )}
-        sx={{ marginLeft: '8px', marginRight: '8px' }}
+        sx={{ marginLeft: '8px' }}
         variant="rounded"
       />
     )}
@@ -55,6 +55,7 @@ const TrackRow = ({
       display="table"
       flexGrow={1}
       sx={{
+        marginLeft: '8px',
         tableLayout: 'fixed',
       }}
       width={0.5}

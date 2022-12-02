@@ -30,7 +30,7 @@ import Row from './Row';
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <Box alignItems="center" display="flex" height={height}>
     <Box width="50px" />
-    <Box flexGrow={1} width="50%">
+    <Box flexGrow={1} marginLeft="8px" width="50%">
       <Skeleton variant="text" width="50%" />
       <Skeleton variant="text" width="40%" />
     </Box>
