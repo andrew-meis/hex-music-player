@@ -6,10 +6,10 @@ import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
-import Palette from '../../components/palette/Palette';
-import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
-import { useThumbnail } from '../../hooks/plexHooks';
-import usePlayback from '../../hooks/usePlayback';
+import Palette from 'components/palette/Palette';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { useThumbnail } from 'hooks/plexHooks';
+import usePlayback from 'hooks/usePlayback';
 import { AlbumContext } from './Album';
 import FixedHeader from './FixedHeader';
 

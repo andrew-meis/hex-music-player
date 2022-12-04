@@ -9,12 +9,12 @@ import React, { useState } from 'react';
 import {
   FaCaretDown, FaCaretRight, MdDelete, TiFolder,
 } from 'react-icons/all';
+import { useDeletePlaylist } from 'hooks/playlistHooks';
+import useMenuStyle from 'hooks/useMenuStyle';
+import usePlayback from 'hooks/usePlayback';
+import useToast from 'hooks/useToast';
+import { usePlaylists } from 'queries/playlist-queries';
 import { ButtonSpecs, playlistButtons } from '../../../../constants/buttons';
-import { useDeletePlaylist } from '../../../../hooks/plexHooks';
-import { usePlaylists } from '../../../../hooks/queryHooks';
-import useMenuStyle from '../../../../hooks/useMenuStyle';
-import usePlayback from '../../../../hooks/usePlayback';
-import useToast from '../../../../hooks/useToast';
 import PlaylistLink from './PlaylistLink';
 
 const listItemStyle = {

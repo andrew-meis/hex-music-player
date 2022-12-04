@@ -1,11 +1,11 @@
 import { rmSync } from 'fs';
 import path from 'path';
+import react from '@vitejs/plugin-react';
 import {
   type Plugin,
   type UserConfig,
   defineConfig,
 } from 'vite';
-import react from '@vitejs/plugin-react';
 import electron from 'vite-plugin-electron';
 import pkg from './package.json';
 
@@ -15,7 +15,15 @@ rmSync(path.join(__dirname, 'dist'), { recursive: true, force: true }); // v14.1
 export default defineConfig({
   resolve: {
     alias: {
+      components: path.join(__dirname, 'src/components'),
+      hooks: path.join(__dirname, 'src/hooks'),
+      queries: path.join(__dirname, 'src/queries'),
+      root: path.join(__dirname, 'src/root'),
+      routes: path.join(__dirname, 'src/routes'),
+      scripts: path.join(__dirname, 'src/scripts'),
       styles: path.join(__dirname, 'src/assets/styles'),
+      types: path.join(__dirname, 'src/types'),
+      ui: path.join(__dirname, 'src/ui'),
     },
   },
   plugins: [

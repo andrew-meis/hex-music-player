@@ -6,15 +6,16 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiCloseFill } from 'react-icons/all';
 import { Virtuoso } from 'react-virtuoso';
 import 'styles/queue.scss';
-import Subtext from '../../../components/subtext/Subtext';
-import { usePlayerContext } from '../../../core/Player';
-import { useCurrentQueue, useLibrary, useSettings } from '../../../hooks/queryHooks';
-import useDragActions from '../../../hooks/useDragActions';
-import usePlayback from '../../../hooks/usePlayback';
-import useQueue from '../../../hooks/useQueue';
-import useRowSelect from '../../../hooks/useRowSelect';
-import { DragActions } from '../../../types/enums';
-import { isPlayQueueItem } from '../../../types/type-guards';
+import Subtext from 'components/subtext/Subtext';
+import useDragActions from 'hooks/useDragActions';
+import usePlayback from 'hooks/usePlayback';
+import useQueue from 'hooks/useQueue';
+import useRowSelect from 'hooks/useRowSelect';
+import { useLibrary, useSettings } from 'queries/app-queries';
+import { useCurrentQueue } from 'queries/plex-queries';
+import { usePlayerContext } from 'root/Player';
+import { DragActions } from 'types/enums';
+import { isPlayQueueItem } from 'types/type-guards';
 
 const itemStyle = {
   color: 'text.secondary',

@@ -1,9 +1,9 @@
 import { IconButton, Slider, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { IoVolumeLow, IoVolumeMedium, IoVolumeOff } from 'react-icons/all';
+import { usePlayerState } from 'queries/player-queries';
+import { usePlayerContext } from 'root/Player';
 import { iconButtonStyle, sliderStyle } from '../../constants/style';
-import { usePlayerState } from '../../hooks/queryHooks';
-import { usePlayerContext } from '../../core/Player';
 
 const VolumeSlider = () => {
   const player = usePlayerContext();

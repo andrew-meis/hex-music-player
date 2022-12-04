@@ -2,9 +2,9 @@ import { Box, Tooltip, Typography } from '@mui/material';
 import { Album, Library } from 'hex-plex';
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import usePalette, { defaultColors } from 'hooks/usePalette';
 import styles from 'styles/AlbumsRow.module.scss';
-import usePalette, { defaultColors } from '../../hooks/usePalette';
-import { AppSettings } from '../../types/interfaces';
+import { IAppSettings } from 'types/interfaces';
 import { RowProps } from './Artist';
 
 const textStyle = {
@@ -29,7 +29,7 @@ interface AlbumCoverProps {
   navigate: NavigateFunction;
   menuTarget: number | undefined;
   section: string;
-  settings: AppSettings;
+  settings: IAppSettings;
   width: number;
 }
 

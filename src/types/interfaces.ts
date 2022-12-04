@@ -1,22 +1,7 @@
 import { AlertColor, PaletteMode } from '@mui/material';
 import { Account, Artist, Device, Library } from 'hex-plex';
-import React from 'react';
 
-export interface AppState {
-  account: Account;
-  server: Device;
-  library: Library;
-}
-
-export interface AppInfo {
-  appName: string;
-  appVersion: string;
-  hostname: string;
-  platform: string;
-  version: string;
-}
-
-export interface AppSettings {
+export interface IAppSettings {
   albumText?: boolean;
   colorMode?: PaletteMode;
   compactNav?: boolean;
@@ -25,7 +10,13 @@ export interface AppSettings {
   repeat?: 'repeat-none' | 'repeat-one' | 'repeat-all'
 }
 
-export interface Config {
+export interface IAuth {
+  account: Account;
+  server: Device;
+  library: Library;
+}
+
+export interface IConfig {
   clientId?: string;
   queueId?: number;
   sectionId?: number;
@@ -33,9 +24,12 @@ export interface Config {
   token?: string;
 }
 
-export interface DiscHeader {
-  _type: 'discHeader';
-  value: string;
+export interface IAppInfo {
+  appName: string;
+  appVersion: string;
+  hostname: string;
+  platform: string;
+  version: string;
 }
 
 export interface Filter {
@@ -48,9 +42,9 @@ export interface IElectronAPI {
   minimize: () => void;
   quit: () => void;
   unmaximize: () => void;
-  getAppInfo: () => AppInfo;
-  readConfig: (key: string) => AppSettings | Config;
-  writeConfig: (key: string, value: any) => AppSettings | Config;
+  getAppInfo: () => IAppInfo;
+  readConfig: (key: string) => IAppSettings | IConfig;
+  writeConfig: (key: string, value: any) => IAppSettings | IConfig;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
   updatePlaying: (key: 'playing', value: boolean) => void;

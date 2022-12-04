@@ -3,11 +3,11 @@ import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import TrackRow from '../../components/track-row/TrackRow';
+import TrackRow from 'components/track-row/TrackRow';
+import useMenuStyle from 'hooks/useMenuStyle';
+import useRowSelect from 'hooks/useRowSelect';
+import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
-import useMenuStyle from '../../hooks/useMenuStyle';
-import useRowSelect from '../../hooks/useRowSelect';
-import useTrackDragDrop from '../../hooks/useTrackDragDrop';
 import { ArtistContext } from './Artist';
 import { SimilarArtistContext } from './similar-artists/SimilarArtists';
 

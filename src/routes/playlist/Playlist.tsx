@@ -2,9 +2,6 @@ import { SvgIcon, Typography, useTheme } from '@mui/material';
 import {
   ControlledMenu, MenuDivider, MenuItem, useMenuState,
 } from '@szhsin/react-menu';
-import {
-  Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track,
-} from 'hex-plex';
 import { motion } from 'framer-motion';
 import React, {
   useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
@@ -15,28 +12,28 @@ import { MdDelete } from 'react-icons/all';
 import { useLocation, useParams } from 'react-router-dom';
 import { useKey } from 'react-use';
 import { Virtuoso } from 'react-virtuoso';
+import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
+import useFormattedTime from 'hooks/useFormattedTime';
+import useMenuStyle from 'hooks/useMenuStyle';
+import usePlayback from 'hooks/usePlayback';
+import useRowSelect from 'hooks/useRowSelect';
+import useToast from 'hooks/useToast';
+import useTrackDragDrop from 'hooks/useTrackDragDrop';
+import { useLibrary } from 'queries/app-queries';
+import { useIsPlaying } from 'queries/player-queries';
+import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
+import { useNowPlaying } from 'queries/plex-queries';
+import Footer from 'routes/virtuoso-components/Footer';
+import Item from 'routes/virtuoso-components/Item';
+import List from 'routes/virtuoso-components/List';
+import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
-import { useRemoveFromPlaylist } from '../../hooks/plexHooks';
-import {
-  useIsPlaying,
-  useLibrary,
-  useNowPlaying,
-  usePlaylist,
-  usePlaylistItems,
-} from '../../hooks/queryHooks';
-import useFormattedTime from '../../hooks/useFormattedTime';
-import useMenuStyle from '../../hooks/useMenuStyle';
-import usePlayback from '../../hooks/usePlayback';
-import useRowSelect from '../../hooks/useRowSelect';
-import useToast from '../../hooks/useToast';
-import useTrackDragDrop from '../../hooks/useTrackDragDrop';
-import { RouteParams } from '../../types/interfaces';
-import Footer from '../virtuoso-components/Footer';
-import Item from '../virtuoso-components/Item';
-import List from '../virtuoso-components/List';
-import ScrollSeekPlaceholder from '../virtuoso-components/ScrollSeekPlaceholder';
 import Header from './Header';
 import Row from './Row';
+import type {
+  Library, Playlist as TPlaylist, PlaylistItem, PlayQueueItem, Track,
+} from 'hex-plex';
+import type { RouteParams } from 'types/interfaces';
 
 export interface PlaylistContext {
   drag: ConnectDragSource,
@@ -49,7 +46,7 @@ export interface PlaylistContext {
   isPlaying: boolean;
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
-  playlist: PlaylistType | undefined;
+  playlist: TPlaylist | undefined;
   playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   selectedRows: number[];
   setFilter: React.Dispatch<React.SetStateAction<string>>;

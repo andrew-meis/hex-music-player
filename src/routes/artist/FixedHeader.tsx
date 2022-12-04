@@ -2,7 +2,7 @@ import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
-import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 
 interface FixedHeaderProps {
   artist: Artist;

@@ -3,21 +3,23 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import useFormattedTime from 'hooks/useFormattedTime';
+import useQueue from 'hooks/useQueue';
+import { useQueueId } from 'queries/app-queries';
+import { usePlayerState } from 'queries/player-queries';
+import { useNowPlaying } from 'queries/plex-queries';
+import { usePlayerContext } from 'root/Player';
 import { sliderStyle } from '../../constants/style';
-import { useNowPlaying, usePlayerState, useQueueId } from '../../hooks/queryHooks';
-import useFormattedTime from '../../hooks/useFormattedTime';
-import useQueue from '../../hooks/useQueue';
-import { usePlayerContext } from '../../core/Player';
 
 const Seekbar = () => {
   const player = usePlayerContext();
   const queryClient = useQueryClient();
+  const queueId = useQueueId();
   const [displayRemaining, setDisplayRemaining] = useState(true);
   const [draggingPosition, setDraggingPosition] = useState<number>(0);
   const [isHovered, setHovered] = useState(false);
   const { data: nowPlaying } = useNowPlaying();
   const { data: playerState } = usePlayerState();
-  const { data: queueId } = useQueueId();
   const { getFormattedTime } = useFormattedTime();
   const { updateTimeline } = useQueue();
 

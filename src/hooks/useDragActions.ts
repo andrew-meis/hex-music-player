@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
-import { PlayQueueItem, Track } from 'hex-plex';
-import { usePlayerContext } from '../core/Player';
-import { useLibrary, useQueueId } from './queryHooks';
-import usePlayback from './usePlayback';
-import useQueue from './useQueue';
+import usePlayback from 'hooks/usePlayback';
+import useQueue from 'hooks/useQueue';
+import { useLibrary, useQueueId } from 'queries/app-queries';
+import { usePlayerContext } from 'root/Player';
+import type { PlayQueueItem, Track } from 'hex-plex';
 
 const useDragActions = () => {
   const library = useLibrary();
   const player = usePlayerContext();
+  const queueId = useQueueId();
   const { addToQueue, getQueue, removeFromQueue, updateQueue } = useQueue();
-  const { data: queueId } = useQueueId();
   const { playTrack, playTracks } = usePlayback();
 
   const addLast = useCallback(async (dragItem: Track | Track[]) => {

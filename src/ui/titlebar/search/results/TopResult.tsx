@@ -6,14 +6,14 @@ import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
+import usePalette, { defaultColors } from 'hooks/usePalette';
+import { useLibrary, useSettings } from 'queries/app-queries';
 import styles from 'styles/Search.module.scss';
-import { useLibrary, useSettings } from '../../../../hooks/queryHooks';
-import usePalette, { defaultColors } from '../../../../hooks/usePalette';
-import { DragActions } from '../../../../types/enums';
-import { isAlbum, isArtist, isTrack } from '../../../../types/type-guards';
-import { Result } from '../../../../types/types';
+import { DragActions } from 'types/enums';
+import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import ResultTooltip from '../tooltip/ResultTooltip';
 import TopResultButtons from './TopResultButtons';
+import type { Result } from 'types/types';
 
 const typographyStyle = {
   overflow: 'hidden',

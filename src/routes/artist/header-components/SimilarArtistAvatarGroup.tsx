@@ -1,8 +1,8 @@
 import { Avatar, AvatarGroup, SvgIcon, Tooltip, Typography } from '@mui/material';
-import { Artist, Library } from 'hex-plex';
 import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
+import type { Artist, Library } from 'hex-plex';
 
 interface SimilarArtistAvatarGroupProps {
   artist: Artist;

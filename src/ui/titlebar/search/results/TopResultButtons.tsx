@@ -3,12 +3,12 @@ import React from 'react';
 import {
   BsPlayFill, VscRadioTower, RiShuffleFill, TiArrowForward,
 } from 'react-icons/all';
+import usePlayback from 'hooks/usePlayback';
+import { useSettings } from 'queries/app-queries';
 import styles from 'styles/Search.module.scss';
-import { useSettings } from '../../../../hooks/queryHooks';
-import usePlayback from '../../../../hooks/usePlayback';
-import { PlayActions } from '../../../../types/enums';
-import { isAlbum, isArtist, isTrack } from '../../../../types/type-guards';
-import { Result } from '../../../../types/types';
+import { PlayActions } from 'types/enums';
+import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import type { Result } from 'types/types';
 
 const allButtons = [
   {

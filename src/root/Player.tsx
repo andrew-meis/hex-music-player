@@ -1,14 +1,14 @@
+import { Gapless5, LogLevel } from '@regosen/gapless-5';
+import { useQueryClient } from '@tanstack/react-query';
 import React, {
   ReactNode, useCallback, useContext, useEffect, useMemo, useRef,
 } from 'react';
-import { Gapless5, LogLevel } from '@regosen/gapless-5';
-import { PlayQueue, PlayQueueItem } from 'hex-plex';
-import { Updater, useQueryClient } from '@tanstack/react-query';
-import {
-  useCurrentQueue, useLibrary, useNowPlaying, useQueueId, useSettings,
-} from '../hooks/queryHooks';
-import useQueue from '../hooks/useQueue';
-import { PlayerState } from '../types/interfaces';
+import useQueue from 'hooks/useQueue';
+import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
+import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
+import type { Updater } from '@tanstack/react-query';
+import type { PlayQueue, PlayQueueItem } from 'hex-plex';
+import type { PlayerState } from 'types/interfaces';
 
 const playerOptions = {
   loadLimit: 2,
@@ -32,10 +32,10 @@ const Player = ({ children }: {children: ReactNode}) => {
   const loadQueue = useRef<PlayQueueItem[]>([]);
   const library = useLibrary();
   const queryClient = useQueryClient();
+  const queueId = useQueueId();
   const timelineRef = useRef(0);
   const { data: nowPlaying } = useNowPlaying();
   const { data: playQueue } = useCurrentQueue();
-  const { data: queueId } = useQueueId();
   const { data: settings } = useSettings();
   const { setQueueId, updateTimeline } = useQueue();
 

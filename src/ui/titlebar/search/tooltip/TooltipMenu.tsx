@@ -2,10 +2,10 @@ import {
   Box, Button, ButtonGroup, useTheme,
 } from '@mui/material';
 import React from 'react';
-import usePlayback from '../../../../hooks/usePlayback';
-import { isAlbum, isArtist, isTrack } from '../../../../types/type-guards';
-import { Result } from '../../../../types/types';
+import usePlayback from 'hooks/usePlayback';
+import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import { allButtons, ButtonSpecs } from '../../../../constants/buttons';
+import type { Result } from 'types/types';
 
 interface Props {
   result: Result;

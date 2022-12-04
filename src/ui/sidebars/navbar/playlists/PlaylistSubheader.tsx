@@ -2,12 +2,12 @@ import {
   Box, Collapse, InputAdornment, InputBase, ListSubheader, SvgIcon,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { parsePlaylistContainer } from 'hex-plex/dist/types/playlist';
 import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine, TiPlus } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
-import { parsePlaylistContainer } from 'hex-plex/dist/types/playlist';
-import { useCreatePlaylist } from '../../../../hooks/plexHooks';
-import useToast from '../../../../hooks/useToast';
+import { useCreatePlaylist } from 'hooks/playlistHooks';
+import useToast from 'hooks/useToast';
 
 interface PlaylistSubheaderProps {
   show: boolean;

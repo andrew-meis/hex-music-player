@@ -5,11 +5,12 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
+import useDragActions from 'hooks/useDragActions';
+import { useLibrary } from 'queries/app-queries';
+import { useCurrentQueue } from 'queries/plex-queries';
 import 'styles/queue.scss';
-import { useCurrentQueue, useLibrary } from '../../../hooks/queryHooks';
-import useDragActions from '../../../hooks/useDragActions';
-import { DragActions } from '../../../types/enums';
-import { isPlayQueueItem } from '../../../types/type-guards';
+import { DragActions } from 'types/enums';
+import { isPlayQueueItem } from 'types/type-guards';
 
 interface ItemProps {
   index: number;

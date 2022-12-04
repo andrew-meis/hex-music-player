@@ -1,16 +1,15 @@
 import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import {
+import { v4 } from 'uuid';
+import useQueue from 'hooks/useQueue';
+import { useAccount, useLibrary, useQueueId, useServer } from 'queries/app-queries';
+import { useNowPlaying } from 'queries/plex-queries';
+import { usePlayerContext } from 'root/Player';
+import { PlayActions } from 'types/enums';
+import { isPlayQueueItem } from 'types/type-guards';
+import type {
   Album, Artist, Playlist, PlayQueueItem, Track,
 } from 'hex-plex';
-import { v4 } from 'uuid';
-import { usePlayerContext } from '../core/Player';
-import { PlayActions } from '../types/enums';
-import { isPlayQueueItem } from '../types/type-guards';
-import {
-  useAccount, useLibrary, useNowPlaying, useQueueId, useServer,
-} from './queryHooks';
-import useQueue from './useQueue';
 
 export interface PlayParams {
   album?: Album;
@@ -25,12 +24,12 @@ const usePlayback = () => {
   const account = useAccount();
   const library = useLibrary();
   const player = usePlayerContext();
+  const queueId = useQueueId();
   const server = useServer();
   const {
     addToQueue, getQueue, playQueue, updateQueue, updateTimeline,
   } = useQueue();
   const { data: nowPlaying } = useNowPlaying();
-  const { data: queueId } = useQueueId();
   const { id: routeId } = useParams();
 
   const serverUri = `server://${server.clientIdentifier}/com.plexapp.plugins.library`;

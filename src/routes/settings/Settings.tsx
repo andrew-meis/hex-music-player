@@ -3,8 +3,8 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback } from 'react';
-import { useSettings } from '../../hooks/queryHooks';
-import { AppSettings } from '../../types/interfaces';
+import { useSettings } from 'queries/app-queries';
+import { IAppSettings } from 'types/interfaces';
 
 const boxStyle = {
   display: 'flex',
@@ -46,7 +46,7 @@ const switchStyle = {
 const Settings = () => {
   const queryClient = useQueryClient();
   const { data: settings } = useSettings();
-  const updateConfig = useCallback(async (key: keyof AppSettings, value: any) => {
+  const updateConfig = useCallback(async (key: keyof IAppSettings, value: any) => {
     const newSettings = structuredClone(settings);
     newSettings[key] = value;
     window.electron.writeConfig('settings', newSettings);

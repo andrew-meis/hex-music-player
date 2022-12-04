@@ -1,14 +1,14 @@
 import { Avatar, Box, Typography } from '@mui/material';
+import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Album } from 'hex-plex';
 import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import chroma from 'chroma-js';
-import Palette from '../../components/palette/Palette';
-import { useThumbnail } from '../../hooks/plexHooks';
-import { useAlbumQuery, useTopAlbums } from '../../hooks/queryHooks';
+import Palette from 'components/palette/Palette';
+import { useThumbnail } from 'hooks/plexHooks';
+import { useAlbumQuery, useTopAlbums } from 'queries/album-queries';
 
 const MotionBox = motion(Box);
 

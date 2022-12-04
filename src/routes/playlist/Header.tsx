@@ -4,10 +4,10 @@ import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
-import FilterInput from '../../components/filter-input/FilterInput';
-import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
-import { useThumbnail } from '../../hooks/plexHooks';
-import usePlayback from '../../hooks/usePlayback';
+import FilterInput from 'components/filter-input/FilterInput';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { useThumbnail } from 'hooks/plexHooks';
+import usePlayback from 'hooks/usePlayback';
 import FixedHeader from './FixedHeader';
 import { PlaylistContext } from './Playlist';
 

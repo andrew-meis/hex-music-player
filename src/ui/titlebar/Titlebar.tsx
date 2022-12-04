@@ -1,8 +1,8 @@
 import { Box, useTheme } from '@mui/material';
 import React, { useState } from 'react';
-import useQueue from '../../hooks/useQueue';
-import { usePlayerContext } from '../../core/Player';
-import { useNowPlaying } from '../../hooks/queryHooks';
+import useQueue from 'hooks/useQueue';
+import { useNowPlaying } from 'queries/plex-queries';
+import { usePlayerContext } from 'root/Player';
 import AppMenu from './menu/AppMenu';
 import Search from './search/Search';
 import TitlebarButtons from './TitlebarButtons';
@@ -10,12 +10,10 @@ import TitlebarButtons from './TitlebarButtons';
 const { platform } = window.electron.getAppInfo();
 
 interface TitlebarProps {
-  authenticated: string;
   searchContainer: React.RefObject<HTMLDivElement>;
-  setAuthenticated: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: TitlebarProps) => {
+const Titlebar = ({ searchContainer }: TitlebarProps) => {
   const player = usePlayerContext();
   const theme = useTheme();
   const [isMaximized, setMaximized] = useState(false);
@@ -52,13 +50,11 @@ const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: Titlebar
         id="window-title-menu"
         width={138}
       >
-        {authenticated === 'authenticated' && platform !== 'darwin' && (
-          <AppMenu setAuthenticated={setAuthenticated} />
+        {platform !== 'darwin' && (
+          <AppMenu />
         )}
       </Box>
-      {authenticated === 'authenticated' && (
-        <Search searchContainer={searchContainer} />
-      )}
+      <Search searchContainer={searchContainer} />
       <Box
         display="flex"
         height={50}
@@ -66,10 +62,10 @@ const Titlebar = ({ authenticated, searchContainer, setAuthenticated }: Titlebar
         justifyContent="flex-end"
         width={138}
       >
-        {authenticated === 'authenticated' && platform === 'darwin' && (
-          <AppMenu setAuthenticated={setAuthenticated} />
+        {platform === 'darwin' && (
+          <AppMenu />
         )}
-        {authenticated === 'authenticated' && platform !== 'darwin' && (
+        {platform !== 'darwin' && (
           <TitlebarButtons
             handleAppClose={handleAppClose}
             handleMaximizeToggle={handleMaximizeToggle}

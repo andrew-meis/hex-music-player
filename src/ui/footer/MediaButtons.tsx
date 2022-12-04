@@ -11,13 +11,15 @@ import {
   RiShuffleFill,
   RiStopCircleFill,
 } from 'react-icons/all';
-import { PlayQueueItem } from 'hex-plex';
-import useKeyPress from '../../hooks/useKeyPress';
+import useKeyPress from 'hooks/useKeyPress';
+import useQueue from 'hooks/useQueue';
+import { useQueueId, useSettings } from 'queries/app-queries';
+import { usePlayerState } from 'queries/player-queries';
+import { useCurrentQueue } from 'queries/plex-queries';
+import { usePlayerContext } from 'root/Player';
+import { isPlayQueueItem } from 'types/type-guards';
 import { iconButtonStyle } from '../../constants/style';
-import { useCurrentQueue, usePlayerState, useQueueId, useSettings } from '../../hooks/queryHooks';
-import useQueue from '../../hooks/useQueue';
-import { usePlayerContext } from '../../core/Player';
-import { isPlayQueueItem } from '../../types/type-guards';
+import type { PlayQueueItem } from 'hex-plex';
 
 const { platform } = window.electron.getAppInfo();
 
@@ -25,12 +27,12 @@ const MediaButtons = () => {
   const ctrlPress = useKeyPress(platform === 'darwin' ? 'Meta' : 'Control');
   const player = usePlayerContext();
   const queryClient = useQueryClient();
+  const queueId = useQueueId();
   const shuffleMode = false;
   const [disableNext, setDisableNext] = useState(false);
   const [disablePrev, setDisablePrev] = useState(false);
   const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
-  const { data: queueId } = useQueueId();
   const { data: settings } = useSettings();
   const { updateTimeline } = useQueue();
 

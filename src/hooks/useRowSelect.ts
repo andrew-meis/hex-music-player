@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
 import { isEmpty, range } from 'lodash';
+import React, { useCallback, useMemo, useState } from 'react';
 
 const useRowSelect = (initialSelect: number[], exclusions: number[] = []) => {
   const [selectedRows, setSelectedRows] = useState(initialSelect);

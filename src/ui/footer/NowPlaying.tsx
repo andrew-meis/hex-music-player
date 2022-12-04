@@ -1,8 +1,9 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import React from 'react';
-import TrackRating from '../../components/rating/TrackRating';
-import { useLibrary, useNowPlaying } from '../../hooks/queryHooks';
-import Subtext from '../../components/subtext/Subtext';
+import TrackRating from 'components/rating/TrackRating';
+import Subtext from 'components/subtext/Subtext';
+import { useLibrary } from 'queries/app-queries';
+import { useNowPlaying } from 'queries/plex-queries';
 
 const typographyStyle = {
   whiteSpace: 'nowrap',

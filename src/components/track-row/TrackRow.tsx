@@ -1,9 +1,9 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import { Library, Track } from 'hex-plex';
 import React from 'react';
-import PlayingAnimation from '../playing-animation/PlayingAnimation';
-import TrackRating from '../rating/TrackRating';
-import Subtext from '../subtext/Subtext';
+import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
+import TrackRating from 'components/rating/TrackRating';
+import Subtext from 'components/subtext/Subtext';
 
 const typographyStyle = {
   whiteSpace: 'nowrap',

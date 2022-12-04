@@ -3,7 +3,7 @@ import React from 'react';
 import {
   BsPlayFill, MdPlaylistAdd, RiShuffleFill, TiArrowForward, VscRadioTower,
 } from 'react-icons/all';
-import { PlayActions } from '../types/enums';
+import { PlayActions } from 'types/enums';
 
 export interface ButtonSpecs {
   type: 'artist' | 'album' | 'track' | 'tracks' | 'playlist';

@@ -1,7 +1,7 @@
 import { Box, List, Typography } from '@mui/material';
 import React from 'react';
-import { Result } from '../../../../types/types';
 import ResultRow from './ResultRow';
+import type { Result } from 'types/types';
 
 interface Props {
   results: Result[];

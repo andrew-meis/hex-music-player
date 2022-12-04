@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDragLayer, XYCoord } from 'react-dnd';
-import { isAlbum, isArtist, isPlayListItem, isPlayQueueItem, isTrack } from '../types/type-guards';
+import { isAlbum, isArtist, isPlayListItem, isPlayQueueItem, isTrack } from 'types/type-guards';
 
 const layerStyles: React.CSSProperties = {
   position: 'fixed',

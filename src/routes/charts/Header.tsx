@@ -1,8 +1,8 @@
-import DatePicker from 'react-datepicker';
 import {
   Box, Chip, SvgIcon, TextField, Typography,
 } from '@mui/material';
 import React from 'react';
+import DatePicker from 'react-datepicker';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { ChartsContext } from './Charts';
 

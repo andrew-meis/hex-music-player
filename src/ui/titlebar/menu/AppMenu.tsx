@@ -9,13 +9,15 @@ import {
   FiLogOut, FiMoreVertical, IoInformationCircleOutline, IoSettingsSharp,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import useMenuStyle from 'hooks/useMenuStyle';
+import useQueue from 'hooks/useQueue';
+import { appQueryKeys, useLibrary } from 'queries/app-queries';
+import { usePlayerState } from 'queries/player-queries';
+import { useNowPlaying, useUser } from 'queries/plex-queries';
+import { usePlayerContext } from 'root/Player';
 import styles from 'styles/Titlebar.module.scss';
-import { usePlayerContext } from '../../../core/Player';
-import { useLibrary, useNowPlaying, usePlayerState, useUser } from '../../../hooks/queryHooks';
-import useMenuStyle from '../../../hooks/useMenuStyle';
-import useQueue from '../../../hooks/useQueue';
-import { Config } from '../../../types/interfaces';
-import { isPlayQueueItem } from '../../../types/type-guards';
+import { isPlayQueueItem } from 'types/type-guards';
+import type { IConfig } from 'types/interfaces';
 
 const { platform } = window.electron.getAppInfo();
 
@@ -37,11 +39,7 @@ const AppMenuButton = React.forwardRef((
   </MenuButton>
 ));
 
-interface AppMenuProps {
-  setAuthenticated: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const AppMenu = ({ setAuthenticated }: AppMenuProps) => {
+const AppMenu = () => {
   const library = useLibrary();
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();
@@ -75,12 +73,11 @@ const AppMenu = ({ setAuthenticated }: AppMenuProps) => {
       await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
     }
     await player.resetApp();
-    const config = window.electron.readConfig('config') as Config;
+    const config = window.electron.readConfig('config') as IConfig;
     config.token = '';
     window.electron.writeConfig('config', config);
-    queryClient.removeQueries(['config']);
-    queryClient.removeQueries(['app']);
-    setAuthenticated('unknown');
+    queryClient.removeQueries(appQueryKeys.config);
+    queryClient.removeQueries(appQueryKeys.auth);
   };
 
   return (

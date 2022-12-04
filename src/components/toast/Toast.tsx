@@ -2,7 +2,7 @@ import { Snackbar, Typography } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import { ToastMessage } from '../../types/interfaces';
+import type { ToastMessage } from 'types/interfaces';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
   props,
@@ -37,7 +37,7 @@ const Toast = () => {
   return (
     <Snackbar
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      autoHideDuration={1000}
+      autoHideDuration={2000}
       open={open}
       sx={{ '&.MuiSnackbar-root': { bottom: '100px' } }}
       onClose={handleClose}

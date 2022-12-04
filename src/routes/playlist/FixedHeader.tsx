@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import { Playlist } from 'hex-plex';
-import PlayShuffleButton from '../../components/play-shuffle-buttons/PlayShuffleButton';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import type { Playlist } from 'hex-plex';
 
 interface FixedHeaderProps {
   playlist: Playlist;

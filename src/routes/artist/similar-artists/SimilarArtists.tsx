@@ -13,20 +13,17 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import {
-  useArtist,
-  useArtistTracks,
-  useIsPlaying,
-  useLibrary,
-  useNowPlaying,
-} from '../../../hooks/queryHooks';
-import useFormattedTime from '../../../hooks/useFormattedTime';
-import usePlayback, { PlayParams } from '../../../hooks/usePlayback';
-import { PlayActions } from '../../../types/enums';
-import { RouteParams } from '../../../types/interfaces';
-import GroupRow from './GroupRow';
+import useFormattedTime from 'hooks/useFormattedTime';
+import usePlayback, { PlayParams } from 'hooks/usePlayback';
+import { useLibrary } from 'queries/app-queries';
+import { useArtist, useArtistTracks } from 'queries/artist-queries';
+import { useIsPlaying } from 'queries/player-queries';
+import { useNowPlaying } from 'queries/plex-queries';
+import { PlayActions } from 'types/enums';
 import ArtistsRow from './ArtistsRow';
+import GroupRow from './GroupRow';
 import Header from './Header';
+import type { RouteParams } from 'types/interfaces';
 
 const Footer = () => (
   <Box

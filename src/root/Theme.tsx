@@ -1,7 +1,7 @@
+import { createTheme, ThemeProvider } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import React, { ReactNode, useMemo } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material';
-import { useSettings } from '../hooks/queryHooks';
+import { IAppSettings } from 'types/interfaces';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -16,9 +16,7 @@ declare module '@mui/material/styles' {
   }
 }
 
-const Theme = ({ children }: {children: ReactNode}) => {
-  const { data: settings } = useSettings();
-
+const Theme = ({ children, settings }: {children: ReactNode, settings: IAppSettings}) => {
   const customBackgrounds = useMemo(
     () => (settings.colorMode === 'light'
       ? { default: '#fefefe', paper: '#fdfdfd' }

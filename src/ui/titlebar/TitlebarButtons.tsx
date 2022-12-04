@@ -9,7 +9,7 @@ interface TitlebarButtonsProps {
 }
 
 const TitlebarButtons = (
-  { handleAppClose, handleMaximizeToggle, isMaximized }: TitlebarButtonsProps
+  { handleAppClose, handleMaximizeToggle, isMaximized }: TitlebarButtonsProps,
 ) => (
   <>
     <Box className={styles['minimize-button']} onClick={() => window.electron.minimize()}>

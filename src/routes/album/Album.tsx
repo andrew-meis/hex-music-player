@@ -9,23 +9,24 @@ import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { NavigateFunction, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
+import useFormattedTime from 'hooks/useFormattedTime';
+import useMenuStyle from 'hooks/useMenuStyle';
+import usePlayback from 'hooks/usePlayback';
+import useRowSelect from 'hooks/useRowSelect';
+import useTrackDragDrop from 'hooks/useTrackDragDrop';
+import { useAlbum, useAlbumTracks } from 'queries/album-queries';
+import { useLibrary } from 'queries/app-queries';
+import { useIsPlaying } from 'queries/player-queries';
+import { useNowPlaying } from 'queries/plex-queries';
+import Footer from 'routes/virtuoso-components/Footer';
+import Item from 'routes/virtuoso-components/Item';
+import ListGrouped from 'routes/virtuoso-components/ListGrouped';
+import { isTrack } from 'types/type-guards';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
-import {
-  useAlbum, useAlbumTracks, useIsPlaying, useLibrary, useNowPlaying,
-} from '../../hooks/queryHooks';
-import useFormattedTime from '../../hooks/useFormattedTime';
-import useMenuStyle from '../../hooks/useMenuStyle';
-import usePlayback from '../../hooks/usePlayback';
-import useRowSelect from '../../hooks/useRowSelect';
-import useTrackDragDrop from '../../hooks/useTrackDragDrop';
-import { RouteParams } from '../../types/interfaces';
-import { isDiscHeader, isTrack } from '../../types/type-guards';
-import Footer from '../virtuoso-components/Footer';
-import Item from '../virtuoso-components/Item';
-import ListGrouped from '../virtuoso-components/ListGrouped';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
+import type { RouteParams } from 'types/interfaces';
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <Box alignItems="center" display="flex" height={height}>
@@ -143,9 +144,6 @@ const Album = () => {
     }
     if (selectedRows.length === 1) {
       const [track] = selectedRows.map((n) => albumTracks.data[n]);
-      if (isDiscHeader(track)) {
-        return;
-      }
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }

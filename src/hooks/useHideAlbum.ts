@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Album } from 'hex-plex';
-import { Artist } from 'hex-plex/dist/types/artist';
 import { isEmpty } from 'lodash';
+import type { Album, Artist } from 'hex-plex';
 
 const useHideAlbum = () => {
   const queryClient = useQueryClient();

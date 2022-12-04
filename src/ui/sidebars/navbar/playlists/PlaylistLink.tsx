@@ -4,9 +4,9 @@ import { Playlist, PlayQueueItem, Track } from 'hex-plex';
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import { NavLink } from 'react-router-dom';
-import { useAddToPlaylist } from '../../../../hooks/plexHooks';
-import { DragActions } from '../../../../types/enums';
-import { isPlayQueueItem, isTrack } from '../../../../types/type-guards';
+import { useAddToPlaylist } from 'hooks/playlistHooks';
+import { DragActions } from 'types/enums';
+import { isPlayQueueItem, isTrack } from 'types/type-guards';
 
 const listItemStyle = {
   width: 'auto',

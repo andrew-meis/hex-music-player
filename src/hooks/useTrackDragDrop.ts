@@ -1,7 +1,7 @@
 import { Track } from 'hex-plex';
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { DragActions } from '../types/enums';
+import { DragActions } from 'types/enums';
 
 const useTrackDragDrop = ({
   hoverIndex,

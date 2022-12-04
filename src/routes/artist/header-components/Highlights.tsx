@@ -1,8 +1,8 @@
 import { Avatar, Box, Tooltip, Typography } from '@mui/material';
-import { Album, Artist, Hub, Library } from 'hex-plex';
 import { maxBy } from 'lodash';
 import React, { useMemo } from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import type { Album, Artist, Hub, Library } from 'hex-plex';
 
 interface HighlightsProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;

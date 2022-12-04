@@ -1,15 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { useCallback } from 'react';
-import {
-  Album, PlayQueue, PlayQueueItem, Track,
-} from 'hex-plex';
 import { parsePlayQueue } from 'hex-plex/dist/types/play-queue';
-import { Config } from '../types/interfaces';
+import { useCallback } from 'react';
+import useToast from 'hooks/useToast';
 import {
   useAccount, useLibrary, useQueueId, useServer,
-} from './queryHooks';
-import useToast from './useToast';
+} from 'queries/app-queries';
+import type {
+  Album, PlayQueue, PlayQueueItem, Track,
+} from 'hex-plex';
+import type { IConfig } from 'types/interfaces';
 
 const useQueue = () => {
   const account = useAccount();
@@ -17,7 +17,7 @@ const useQueue = () => {
   const queryClient = useQueryClient();
   const server = useServer();
   const toast = useToast();
-  const { data: queueId } = useQueueId();
+  const queueId = useQueueId();
 
   const addToQueue = useCallback(async (
     newTracks : Album | Track | Track[],
@@ -54,7 +54,9 @@ const useQueue = () => {
   const setQueueId = useCallback(async (id: number) => {
     const newConfig = queryClient.setQueryData(
       ['config'],
-      (oldData: Config | undefined): Config | undefined => ({ ...oldData as Config, queueId: id }),
+      (oldData: IConfig | undefined): IConfig | undefined => (
+        { ...oldData as IConfig, queueId: id }
+      ),
     );
     window.electron.writeConfig('config', newConfig);
   }, [queryClient]);

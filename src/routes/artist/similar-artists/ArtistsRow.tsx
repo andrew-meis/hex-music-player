@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
-import HighlightAlbum from './HighlightAlbum';
 import TopTracks from '../TopTracks';
+import HighlightAlbum from './HighlightAlbum';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
 const textStyle = {

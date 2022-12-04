@@ -6,12 +6,13 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { TiArrowBack } from 'react-icons/all';
 import { Virtuoso } from 'react-virtuoso';
 import 'styles/queue.scss';
-import Subtext from '../../../components/subtext/Subtext';
-import { useCurrentQueue, useLibrary, useSettings } from '../../../hooks/queryHooks';
-import useDragActions from '../../../hooks/useDragActions';
-import usePlayback from '../../../hooks/usePlayback';
-import useRowSelect from '../../../hooks/useRowSelect';
-import { DragActions } from '../../../types/enums';
+import Subtext from 'components/subtext/Subtext';
+import useDragActions from 'hooks/useDragActions';
+import usePlayback from 'hooks/usePlayback';
+import useRowSelect from 'hooks/useRowSelect';
+import { useLibrary, useSettings } from 'queries/app-queries';
+import { useCurrentQueue } from 'queries/plex-queries';
+import { DragActions } from 'types/enums';
 
 const itemStyle = {
   color: 'text.secondary',

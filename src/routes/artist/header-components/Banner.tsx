@@ -6,15 +6,15 @@ import React, { useMemo } from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { useThumbnail } from 'hooks/plexHooks';
 import styles from 'styles/ArtistHeader.module.scss';
-import PlayShuffleButton from '../../../components/play-shuffle-buttons/PlayShuffleButton';
-import { useThumbnail } from '../../../hooks/plexHooks';
-import { AppSettings } from '../../../types/interfaces';
+import { IAppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
 import FixedHeader from '../FixedHeader';
 import { thresholds } from '../Header';
 
-const getPosX = (settings: AppSettings) => {
+const getPosX = (settings: IAppSettings) => {
   let leftWidth = 300;
   let rightWidth = 0;
   if (settings.compactNav) {
@@ -29,7 +29,7 @@ const getPosX = (settings: AppSettings) => {
   return (leftWidth / 2) - (rightWidth / 2);
 };
 
-const hex2rgb = (hex: string | undefined, settings: AppSettings) => {
+const hex2rgb = (hex: string | undefined, settings: IAppSettings) => {
   if (!hex) {
     const color = settings.colorMode === 'light' ? grey['400'] : grey['600'];
     const [r, g, b] = color.match(/\w\w/g)!.map((x) => parseInt(x, 16));

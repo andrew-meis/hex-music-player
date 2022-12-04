@@ -5,7 +5,15 @@
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
       "paths": {
-        "styles/*": ["src/assets/styles/*"]
+        "components/*": ["src/components/*"],
+        "hooks/*": ["src/hooks/*"],
+        "queries/*": ["src/queries/*"],
+        "root/*": ["src/root/*"],
+        "routes/*": ["src/routes/*"],
+        "scripts/*": ["src/scripts/*"],
+        "styles/*": ["src/assets/styles/*"],
+        "types/*": ["src/types/*"],
+        "ui/*": ["src/ui/*"]
       },
     "allowJs": false,
     "skipLibCheck": true,

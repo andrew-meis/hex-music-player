@@ -14,7 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { IoIosArrowBack, IoIosArrowForward, CgSearch, MdClear } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
-import { useSearch } from '../../../hooks/queryHooks';
+import { useSearch } from 'queries/plex-queries';
 import SearchResultBox from './SearchResultBox';
 
 const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivElement>}) => {
@@ -70,8 +70,8 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
       <Box
         sx={{
           color: 'text.secondary',
-          opacity: window.history.state.idx === 0 ? 0 : 1,
-          pointerEvents: window.history.state.idx === 0 ? 'none' : 'auto',
+          // opacity: window.history.state.idx === 0 ? 0 : 1,
+          // pointerEvents: window.history.state.idx === 0 ? 'none' : 'auto',
           transition: '0.2s',
           '&:hover': {
             color: 'primary.main',
@@ -208,8 +208,8 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
       <Box
         sx={{
           color: 'text.secondary',
-          opacity: window.history.state.idx === window.history.length - 1 ? 0 : 1,
-          pointerEvents: window.history.state.idx === window.history.length - 1 ? 'none' : 'auto',
+          // opacity: window.history.state.idx === window.history.length - 1 ? 0 : 1,
+          // pointerEvents: window.history.state.idx === window.history.length - 1 ? 'none' : 'auto',
           transition: '0.2s',
           '&:hover': {
             color: 'primary.main',

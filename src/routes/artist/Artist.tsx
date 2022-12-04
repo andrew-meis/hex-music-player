@@ -2,7 +2,7 @@ import { Box, SvgIcon, useTheme } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { Palette } from 'color-thief-react';
-import { Album, Artist as ArtistType, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
+import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/all';
@@ -10,26 +10,21 @@ import {
   Location, NavigateFunction, useLocation, useNavigate, useOutletContext, useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, TopItemListProps } from 'react-virtuoso';
-import { motion } from 'framer-motion';
+import useFormattedTime from 'hooks/useFormattedTime';
+import useHideAlbum from 'hooks/useHideAlbum';
+import useMenuStyle from 'hooks/useMenuStyle';
+import usePlayback, { PlayParams } from 'hooks/usePlayback';
+import { useLibrary, useSettings } from 'queries/app-queries';
+import { useArtist, useArtistAppearances, useArtistTracks } from 'queries/artist-queries';
+import { useIsPlaying } from 'queries/player-queries';
+import { useNowPlaying } from 'queries/plex-queries';
+import { PlayActions } from 'types/enums';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
-import {
-  useArtist,
-  useArtistAppearances,
-  useArtistTracks,
-  useIsPlaying,
-  useLibrary,
-  useNowPlaying,
-  useSettings,
-} from '../../hooks/queryHooks';
-import useFormattedTime from '../../hooks/useFormattedTime';
-import useHideAlbum from '../../hooks/useHideAlbum';
-import useMenuStyle from '../../hooks/useMenuStyle';
-import usePlayback, { PlayParams } from '../../hooks/usePlayback';
-import { PlayActions } from '../../types/enums';
-import { AppSettings, RouteParams } from '../../types/interfaces';
 import AlbumsRow from './AlbumsRow';
-import Header from './Header';
 import GroupRow from './GroupRow';
+import Header from './Header';
+import type { Album, Artist as TArtist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
+import type { IAppSettings, RouteParams } from 'types/interfaces';
 
 const Footer = () => (
   <Box
@@ -58,7 +53,7 @@ const TopItemList = React
   ));
 
 interface LocationWithState extends Location {
-  state: { guid: ArtistType['guid'], title: ArtistType['title'] }
+  state: { guid: TArtist['guid'], title: TArtist['title'] }
 }
 
 const getCols = (width: number) => {
@@ -91,7 +86,7 @@ export interface ArtistRow {
   albums: Album[];
   grid: { cols: number };
   section: string;
-  artist: ArtistType;
+  artist: TArtist;
 }
 
 export interface ArtistItems {
@@ -101,7 +96,7 @@ export interface ArtistItems {
 }
 
 export interface ArtistContext {
-  artist: { albums: Album[], artist: ArtistType, hubs: Hub[] } | undefined;
+  artist: { albums: Album[], artist: TArtist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
@@ -112,9 +107,9 @@ export interface ArtistContext {
   menuTarget: number | undefined;
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
-  playArtist: (artist: ArtistType, shuffle?: boolean) => Promise<void>;
+  playArtist: (artist: TArtist, shuffle?: boolean) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
-  settings: AppSettings;
+  settings: IAppSettings;
   topTracks: Track[] | undefined;
   width: number;
 }

@@ -1,11 +1,11 @@
 import { Grid, Paper, Typography } from '@mui/material';
 import React from 'react';
 import { useWindowSize } from 'react-use';
-import { Album, Artist, Track } from 'hex-plex';
-import { Result } from '../../../types/types';
 import Results from './results/Results';
 import TopResult from './results/TopResult';
 import quotes from './search_quotes.json';
+import type { Album, Artist, Track } from 'hex-plex';
+import type { Result } from 'types/types';
 
 interface Props {
   query: string;

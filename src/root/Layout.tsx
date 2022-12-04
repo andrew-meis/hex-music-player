@@ -1,25 +1,26 @@
 import { Box, CircularProgress } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
-import Toast from '../../components/toast/Toast';
-import { usePlaylists, useSettings, useTopTracks } from '../../hooks/queryHooks';
-import Footer from '../footer/Footer';
-import MiniNavbar from '../sidebars/navbar/MiniNavbar';
-import Navbar from '../sidebars/navbar/Navbar';
-import CompactQueue from '../sidebars/queue/CompactQueue';
-import Queue from '../sidebars/queue/Queue';
+import Toast from 'components/toast/Toast';
+import { usePlaylists } from 'queries/playlist-queries';
+import { IAppSettings } from 'types/interfaces';
+import Footer from 'ui/footer/Footer';
+import MiniNavbar from 'ui/sidebars/navbar/MiniNavbar';
+import Navbar from 'ui/sidebars/navbar/Navbar';
+import CompactQueue from 'ui/sidebars/queue/CompactQueue';
+import Queue from 'ui/sidebars/queue/Queue';
+import Titlebar from 'ui/titlebar/Titlebar';
 
-const Content = () => {
+const Layout = ({ settings }: {settings: IAppSettings}) => {
   const location = useLocation();
+  const searchContainer = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
-  const { data: settings } = useSettings();
-  const { isLoading: playlistLoading } = usePlaylists();
-  const { isLoading: hotTracksLoading } = useTopTracks({ limit: 300, seconds: 60 * 60 * 24 * 90 });
+  const { isLoading } = usePlaylists();
 
-  if (playlistLoading || hotTracksLoading) {
+  if (isLoading) {
     return (
       <Box
         alignItems="center"
@@ -41,6 +42,7 @@ const Content = () => {
         id="background"
         width="100vw"
       />
+      <Titlebar searchContainer={searchContainer} />
       <Box
         display="flex"
         height="calc(100vh - 140px)"
@@ -97,4 +99,4 @@ const Content = () => {
   );
 };
 
-export default Content;
+export default Layout;
