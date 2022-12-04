@@ -11,6 +11,7 @@ export const useArtist = (artistId: Artist['id']) => {
       enabled: artistId !== -1,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
+      retry: false,
     },
   );
 };

@@ -14,6 +14,7 @@ export const useAlbum = (albumId: Album['id']) => {
     {
       refetchOnMount: true,
       refetchOnWindowFocus: false,
+      retry: false,
     },
   );
 };

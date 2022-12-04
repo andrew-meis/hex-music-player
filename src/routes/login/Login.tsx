@@ -6,7 +6,7 @@ import { Account, Client, Device, Library, ServerConnection } from 'hex-plex';
 import qs from 'qs';
 import React, { useState } from 'react';
 import { redirect, useLoaderData, useNavigate } from 'react-router-dom';
-import { appQueryKeys, defaultSettings, useSettings } from 'queries/app-queries';
+import { defaultSettings, useSettings } from 'queries/app-queries';
 import Theme from 'root/Theme';
 import initializeApp from 'scripts/initialize-app';
 import { IAppSettings, IConfig } from 'types/interfaces';
@@ -54,13 +54,14 @@ const createAuthUrl = (pinCode: string): string => {
 };
 
 export const loginLoader = async () => {
-  const auth = await initializeApp(config);
+  const newConfig = window.electron.readConfig('config') as IConfig;
+  const auth = await initializeApp(newConfig);
   const savedSettings = window.electron.readConfig('settings') as IAppSettings;
   const settings = { ...defaultSettings, ...savedSettings } as IAppSettings;
-  if (config && auth && settings) {
+  if (newConfig && auth && settings) {
     throw redirect('/');
   }
-  return { config, auth, settings };
+  return { newConfig, auth, settings };
 };
 
 const Login = () => {
@@ -69,7 +70,7 @@ const Login = () => {
   const queryClient = useQueryClient();
   const [disabled, setDisabled] = useState('');
   const [loadingButton, setLoadingButton] = useState(0);
-  const [selectedServer, setSelectedServer] = useState<Device | undefined>();
+  const [selectedServer, setSelectedServer] = useState<Device | undefined>(undefined);
   const [step, setStep] = useState('init');
   const { data: settings } = useSettings(loaderData.settings);
   const { data: pinData } = useQuery(
@@ -144,7 +145,7 @@ const Login = () => {
     },
   );
   const { data: connection } = useQuery(
-    ['connection'],
+    ['connection', selectedServer?.name],
     () => {
       const promises = selectedServer?.connections.map((conn, index) => {
         const { uri } = selectedServer.connections[index];
@@ -168,7 +169,7 @@ const Login = () => {
     },
   );
   const { data: librarySections } = useQuery(
-    ['librarySections'],
+    ['library-sections'],
     () => {
       const serverConnection = new ServerConnection(connection.uri, account);
       const library = new Library(serverConnection);
@@ -190,6 +191,7 @@ const Login = () => {
   );
 
   const finishLogin = async (key: number) => {
+    setStep('finished');
     window.electron.writeConfig('config', {
       clientId: client.identifier,
       queueId: 0,
@@ -201,9 +203,7 @@ const Login = () => {
     queryClient.removeQueries(['auth-token']);
     queryClient.removeQueries(['servers']);
     queryClient.removeQueries(['connection']);
-    queryClient.removeQueries(['librarySections']);
-    await queryClient.refetchQueries(appQueryKeys.config);
-    await queryClient.refetchQueries(appQueryKeys.auth);
+    queryClient.removeQueries(['library-sections']);
     navigate('/');
   };
 
@@ -343,7 +343,7 @@ const Login = () => {
                 </LoadingButton>
               </Box>
             )}
-            {!!librarySections && (
+            {!!librarySections && step === 'library' && (
               <Box mb="auto">
                 <Typography color="text.secondary" fontWeight={600}>
                   Select music library:

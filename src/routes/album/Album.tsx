@@ -1,5 +1,5 @@
 import { Skeleton } from '@mui/lab';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Artist, Album as AlbumType, Library, Playlist, PlayQueueItem, Track } from 'hex-plex';
@@ -197,14 +197,6 @@ const Album = () => {
 
   if (album.isLoading || albumTracks.isLoading) {
     return null;
-  }
-
-  if (!album.data || albumTracks.data!.length === 0) {
-    return (
-      <Typography color="text.primary" variant="h5">
-        Empty album!
-      </Typography>
-    );
   }
 
   return (

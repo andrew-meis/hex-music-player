@@ -1,3 +1,4 @@
+import { Box, Typography } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React from 'react';
@@ -24,6 +25,17 @@ import Playlists from 'routes/Playlists';
 import Settings from 'routes/settings/Settings';
 import Tracks from 'routes/Tracks';
 
+const ErrorElement = () => (
+  <Box alignItems="center" display="flex" flexDirection="column" height={1} justifyContent="center">
+    <Typography color="text.primary" fontFamily="TT Commons" fontWeight={700} variant="h4">
+      Oops!
+    </Typography>
+    <Typography color="text.primary">
+      An unexpected error occurred.
+    </Typography>
+  </Box>
+);
+
 const queryClient = new QueryClient();
 const router = createHashRouter([
   {
@@ -34,50 +46,62 @@ const router = createHashRouter([
       {
         path: '/',
         element: <Home />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/albums',
         element: <Albums />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/albums/:id',
         element: <Album />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/artists',
         element: <Artists />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/artists/:id',
         element: <Artist />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/artists/:id/similar',
         element: <SimilarArtists />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/charts',
         element: <Charts />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/genres',
         element: <Genres />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/playlists',
         element: <Playlists />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/playlists/:id',
         element: <Playlist />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/settings',
         element: <Settings />,
+        errorElement: <ErrorElement />,
       },
       {
         path: '/tracks',
         element: <Tracks />,
+        errorElement: <ErrorElement />,
       },
     ],
   },

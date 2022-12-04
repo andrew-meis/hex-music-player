@@ -3,7 +3,6 @@ import { grey } from '@mui/material/colors';
 import {
   Menu, MenuItem, MenuButton, MenuButtonProps,
 } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import {
   FiLogOut, FiMoreVertical, IoInformationCircleOutline, IoSettingsSharp,
@@ -11,7 +10,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import useMenuStyle from 'hooks/useMenuStyle';
 import useQueue from 'hooks/useQueue';
-import { appQueryKeys, useLibrary } from 'queries/app-queries';
+import { useLibrary } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying, useUser } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
@@ -44,7 +43,6 @@ const AppMenu = () => {
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const player = usePlayerContext();
-  const queryClient = useQueryClient();
   const theme = useTheme();
   const { data: nowPlaying } = useNowPlaying();
   const { data: playerState } = usePlayerState();
@@ -76,8 +74,7 @@ const AppMenu = () => {
     const config = window.electron.readConfig('config') as IConfig;
     config.token = '';
     window.electron.writeConfig('config', config);
-    queryClient.removeQueries(appQueryKeys.config);
-    queryClient.removeQueries(appQueryKeys.auth);
+    navigate('/login');
   };
 
   return (

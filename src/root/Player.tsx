@@ -100,6 +100,7 @@ const Player = ({ children }: {children: ReactNode}) => {
   };
 
   player.resetApp = async () => {
+    initialized.current = false;
     player.stop();
     await setQueueId(0);
     player.removeAllTracks();

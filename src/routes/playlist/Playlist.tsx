@@ -1,4 +1,4 @@
-import { SvgIcon, Typography, useTheme } from '@mui/material';
+import { SvgIcon, useTheme } from '@mui/material';
 import {
   ControlledMenu, MenuDivider, MenuItem, useMenuState,
 } from '@szhsin/react-menu';
@@ -206,14 +206,6 @@ const Playlist = () => {
 
   if (playlist.isLoading || playlistItems.isLoading) {
     return null;
-  }
-
-  if (!playlistItems.data || playlistItems.data.length === 0) {
-    return (
-      <Typography color="text.primary" variant="h5">
-        Empty playlist :/
-      </Typography>
-    );
   }
 
   return (
