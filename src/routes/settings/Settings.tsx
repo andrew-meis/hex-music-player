@@ -3,7 +3,7 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback } from 'react';
-import { useSettings } from 'queries/app-queries';
+import { appQueryKeys, useSettings } from 'queries/app-queries';
 import { IAppSettings } from 'types/interfaces';
 
 const boxStyle = {
@@ -50,7 +50,7 @@ const Settings = () => {
     const newSettings = structuredClone(settings);
     newSettings[key] = value;
     window.electron.writeConfig('settings', newSettings);
-    await queryClient.refetchQueries(['settings']);
+    await queryClient.refetchQueries(appQueryKeys.settings);
   }, [settings, queryClient]);
 
   const handleDarkModeOption = async () => {

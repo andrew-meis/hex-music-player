@@ -4,6 +4,7 @@ import { parsePlayQueue } from 'hex-plex/dist/types/play-queue';
 import { useCallback } from 'react';
 import useToast from 'hooks/useToast';
 import {
+  appQueryKeys,
   useAccount, useLibrary, useQueueId, useServer,
 } from 'queries/app-queries';
 import type {
@@ -53,7 +54,7 @@ const useQueue = () => {
 
   const setQueueId = useCallback(async (id: number) => {
     const newConfig = queryClient.setQueryData(
-      ['config'],
+      appQueryKeys.config,
       (oldData: IConfig | undefined): IConfig | undefined => (
         { ...oldData as IConfig, queueId: id }
       ),

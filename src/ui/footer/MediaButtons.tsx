@@ -13,7 +13,7 @@ import {
 } from 'react-icons/all';
 import useKeyPress from 'hooks/useKeyPress';
 import useQueue from 'hooks/useQueue';
-import { useQueueId, useSettings } from 'queries/app-queries';
+import { appQueryKeys, useQueueId, useSettings } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
@@ -61,7 +61,7 @@ const MediaButtons = () => {
     const newSettings = structuredClone(settings);
     newSettings.repeat = value;
     window.electron.writeConfig('settings', newSettings);
-    await queryClient.refetchQueries(['settings']);
+    await queryClient.refetchQueries(appQueryKeys.settings);
     if (value === 'repeat-one') {
       player.loop = true;
       player.singleMode = true;
