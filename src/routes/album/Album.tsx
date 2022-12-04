@@ -76,16 +76,16 @@ const GroupRowContent = (props: GroupRowProps) => <GroupRow {...props} />;
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Album = () => {
+  const library = useLibrary();
   // data loading
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const album = useAlbum(+id);
-  const albumTracks = useAlbumTracks(+id);
+  const album = useAlbum(+id, library);
+  const albumTracks = useAlbumTracks(+id, library);
   const counts = countBy(albumTracks.data, 'parentIndex');
   const groupCounts = Object.values(counts);
   const groups = Object.keys(counts).map((i) => +i);
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const library = useLibrary();
   const location = useLocation();
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();

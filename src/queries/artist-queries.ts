@@ -1,60 +1,56 @@
 import { useQuery } from '@tanstack/react-query';
-import { Artist } from 'hex-plex';
-import { useGetArtist, useGetArtistAppearances, useGetArtistTracks } from 'hooks/artistHooks';
+import { Library } from 'hex-plex';
+import {
+  artistAppearancesQueryFn,
+  artistQueryFn,
+  artistTracksQueryFn,
+} from 'queries/artist-query-fns';
+import { IConfig } from 'types/interfaces';
 
-export const useArtist = (artistId: Artist['id']) => {
-  const getArtist = useGetArtist();
-  return useQuery(
-    ['artist', artistId],
-    () => getArtist(artistId),
-    {
-      enabled: artistId !== -1,
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-      retry: false,
-    },
-  );
-};
+export const useArtist = (id: number, library: Library) => useQuery(
+  ['artist', id],
+  () => artistQueryFn(id, library),
+  {
+    enabled: id !== -1,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: false,
+  },
+);
 
 export const useArtistAppearances = (
-  artistId: Artist['id'],
-  artistTitle: Artist['title'],
-  artistGuid: Artist['guid'],
-) => {
-  const getArtistAppearances = useGetArtistAppearances();
-  return useQuery(
-    ['artist-appearances', artistId],
-    () => getArtistAppearances(artistId, artistTitle, artistGuid),
-    {
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-    },
-  );
-};
+  config: IConfig,
+  library: Library,
+  id: number,
+  title: string,
+  guid: string,
+) => useQuery(
+  ['artist-appearances', id],
+  () => artistAppearancesQueryFn(config, library, id, title, guid),
+  {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  },
+);
 
 export const useArtistTracks = ({
-  artistId, artistTitle, artistGuid, slice, limit,
+  config, library, id, title, guid, slice, limit,
 }: {
-  artistId: Artist['id'],
-  artistTitle: Artist['title'],
-  artistGuid: Artist['guid'],
+  config: IConfig,
+  library: Library,
+  id: number,
+  title: string,
+  guid: string,
   slice?: number,
   limit?: number,
-}) => {
-  const getArtistTracks = useGetArtistTracks();
-  return useQuery(
-    ['artist-tracks', artistId, slice],
-    () => getArtistTracks({
-      guid: artistGuid,
-      id: artistId,
-      title: artistTitle,
-      limit,
-      slice,
-    }),
-    {
-      enabled: artistId !== -1,
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-    },
-  );
-};
+}) => useQuery(
+  ['artist-tracks', id, slice],
+  () => artistTracksQueryFn({
+    config, library, id, title, guid, slice, limit,
+  }),
+  {
+    enabled: id !== -1,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  },
+);

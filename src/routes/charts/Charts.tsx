@@ -11,7 +11,7 @@ import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { useLibrary } from 'queries/app-queries';
+import { useConfig, useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useTopTracks } from 'queries/track-queries';
@@ -57,12 +57,17 @@ const Charts = () => {
   const [startDate, setStartDate] = useState(new Date()
     .setHours(0, 0, 0, 0) - (60000 * 60 * 24 * days));
   // data loading
-  const { data: topTracks, isLoading } = useTopTracks(
-    { limit: 100, start: Math.round(startDate / 1000), end: Math.round(endDate / 1000) },
-  );
+  const config = useConfig();
+  const library = useLibrary();
+  const { data: topTracks, isLoading } = useTopTracks({
+    config: config.data,
+    library,
+    limit: 100,
+    start: Math.round(startDate / 1000),
+    end: Math.round(endDate / 1000),
+  });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const library = useLibrary();
   const location = useLocation();
   const menuStyle = useMenuStyle();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });

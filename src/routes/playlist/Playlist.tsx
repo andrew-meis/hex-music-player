@@ -61,13 +61,13 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Playlist = () => {
+  const library = useLibrary();
   // data loading
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const playlist = usePlaylist(+id);
-  const playlistItems = usePlaylistItems(+id);
+  const playlist = usePlaylist(+id, library);
+  const playlistItems = usePlaylistItems(+id, library);
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const library = useLibrary();
   const location = useLocation();
   const menuStyle = useMenuStyle();
   const removeFromPlaylist = useRemoveFromPlaylist();

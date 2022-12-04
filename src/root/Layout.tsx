@@ -1,5 +1,6 @@
 import { Box, CircularProgress } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
+import { useLibrary } from 'queries/app-queries';
 import React, { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
@@ -14,11 +15,12 @@ import Queue from 'ui/sidebars/queue/Queue';
 import Titlebar from 'ui/titlebar/Titlebar';
 
 const Layout = ({ settings }: {settings: IAppSettings}) => {
+  const library = useLibrary();
   const location = useLocation();
   const searchContainer = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
-  const { isLoading } = usePlaylists();
+  const { isLoading } = usePlaylists(library);
 
   if (isLoading) {
     return (

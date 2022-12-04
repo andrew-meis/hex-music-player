@@ -21,7 +21,7 @@ export const useConfig = (initialData?: IConfig) => useQuery(
   appQueryKeys.config,
   () => window.electron.readConfig('config') as IConfig,
   {
-    initialData,
+    initialData: initialData || window.electron.readConfig('config') as IConfig,
     refetchOnMount: false,
     refetchOnReconnect: 'always',
     refetchOnWindowFocus: false,

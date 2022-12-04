@@ -14,7 +14,7 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
 import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
-import { useLibrary, useSettings } from 'queries/app-queries';
+import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import { useArtist, useArtistAppearances, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -123,20 +123,23 @@ const AlbumsRowContent = (props: RowProps) => <AlbumsRow {...props} />;
 const GroupRowContent = (props: RowProps) => <GroupRow {...props} />;
 
 const Artist = () => {
+  const config = useConfig();
+  const library = useLibrary();
   // data loading
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const artist = useArtist(+id);
-  const appearances = useArtistAppearances(+id, location.state.title, location.state.guid);
+  const artist = useArtist(+id, library);
+  const appearances = useArtistAppearances(config.data, library, +id, location.state.title, location.state.guid);
   const topTracks = useArtistTracks({
-    artistGuid: location.state.guid,
-    artistId: +id,
-    artistTitle: location.state.title,
+    config: config.data,
+    library,
+    id: +id,
+    title: location.state.title,
+    guid: location.state.guid,
     slice: 5,
   });
   // other hooks
   const hideAlbum = useHideAlbum();
-  const library = useLibrary();
   const menuSection = useRef<string | null>();
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();

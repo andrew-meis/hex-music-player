@@ -15,7 +15,7 @@ import {
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
-import { useLibrary } from 'queries/app-queries';
+import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -113,11 +113,12 @@ const ArtistsRowContent = (props: RowProps) => <ArtistsRow {...props} />;
 const GroupRowContent = (props: RowProps) => <GroupRow {...props} />;
 
 const SimilarArtists = () => {
+  const config = useConfig();
+  const library = useLibrary();
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const artist = useArtist(+id);
+  const artist = useArtist(+id, library);
 
-  const library = useLibrary();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
@@ -130,11 +131,13 @@ const SimilarArtists = () => {
   const { playSwitch } = usePlayback();
   const { width, height } = useOutletContext() as { width: number, height: number };
 
-  const openArtistQuery = useArtist(openArtist.id);
+  const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
-    artistGuid: openArtist.guid,
-    artistId: openArtist.id,
-    artistTitle: openArtist.title,
+    config: config.data,
+    library,
+    id: openArtist.id,
+    title: openArtist.title,
+    guid: openArtist.guid,
     limit: 10,
     slice: 5,
   });

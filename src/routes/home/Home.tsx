@@ -8,7 +8,8 @@ import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
 import { useThumbnail } from 'hooks/plexHooks';
-import { useAlbumQuery, useTopAlbums } from 'queries/album-queries';
+import { useAlbumSearch, useTopAlbums } from 'queries/album-queries';
+import { useConfig, useLibrary } from 'queries/app-queries';
 
 const MotionBox = motion(Box);
 
@@ -193,12 +194,21 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
 };
 
 const Home = () => {
-  const { data: newAlbums, isLoading: l1 } = useAlbumQuery({
-    'album.originallyAvailableAt>>': '-90d',
-    sort: 'originallyAvailableAt:desc',
-  });
+  const config = useConfig();
+  const library = useLibrary();
+  const { data: newAlbums, isLoading: l1 } = useAlbumSearch(
+    config.data,
+    library,
+    {
+      'album.originallyAvailableAt>>': '-90d',
+      sort: 'originallyAvailableAt:desc',
+    },
+  );
   const { data: topAlbums, isLoading: l2 } = useTopAlbums({
-    limit: 10, seconds: 60 * 60 * 24 * 30,
+    config: config.data,
+    library,
+    limit: 10,
+    seconds: 60 * 60 * 24 * 30,
   });
 
   const location = useLocation();

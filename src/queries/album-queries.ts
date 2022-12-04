@@ -1,71 +1,62 @@
 import { useQuery } from '@tanstack/react-query';
-import { Album, MediaType } from 'hex-plex';
+import { Library, MediaType } from 'hex-plex';
 import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
-import { useGetAlbum, useGetAlbumQuery } from 'hooks/albumHooks';
-import { useGetTop } from 'hooks/plexHooks';
-import { useLibrary } from 'queries/app-queries';
+import { albumQueryFn, albumSearchQueryFn, albumTracksQueryFn } from 'queries/album-query-fns';
+import { topLibraryQueryFn } from 'queries/library-query-fns';
+import { IConfig } from 'types/interfaces';
 
-export const useAlbum = (albumId: Album['id']) => {
-  const getAlbum = useGetAlbum();
-  return useQuery(
-    ['album', albumId],
-    () => getAlbum(albumId),
-    {
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-      retry: false,
-    },
-  );
-};
+export const useAlbum = (id: number, library: Library) => useQuery(
+  ['album', id],
+  () => albumQueryFn(id, library),
+  {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    retry: false,
+  },
+);
 
-export const useAlbumQuery = (query: Record<string, string>) => {
-  const getAlbumQuery = useGetAlbumQuery();
-  return useQuery(
-    ['albums', query],
-    () => getAlbumQuery(query),
-    {
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-    },
-  );
-};
+export const useAlbumSearch = (
+  config: IConfig,
+  library: Library,
+  searchParams: Record<string, string>,
+) => useQuery(
+  ['albums', searchParams],
+  () => albumSearchQueryFn(config, library, searchParams),
+  {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  },
+);
 
-export const useAlbumTracks = (albumId: Album['id']) => {
-  const library = useLibrary();
-  return useQuery(
-    ['album-tracks', albumId],
-    () => library.albumTracks(albumId).then((r) => {
-      const { tracks } = r;
-      return tracks;
-    }),
-    {
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-    },
-  );
-};
+export const useAlbumTracks = (id: number, library: Library) => useQuery(
+  ['album-tracks', id],
+  () => albumTracksQueryFn(id, library),
+  {
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  },
+);
 
 export const useTopAlbums = (
-  { limit, start, end, seconds }: { limit: number, start?: number, end?: number, seconds?: number },
-) => {
-  const library = useLibrary();
-  const type = 9;
-  const topAlbums = useGetTop({ type, limit, seconds, start, end });
-  return useQuery(
-    ['top', { type, limit, seconds, start, end }],
-    () => topAlbums().then((response) => {
-      if (!response) {
-        return undefined;
-      }
-      const { albums } = parseContainerType(MediaType.ALBUM, response.data);
-      return uniqBy(albums, 'guid');
-    }),
-    {
-      enabled: !!library,
-      keepPreviousData: true,
-      refetchInterval: 1000 * 60 * 30,
-      refetchOnWindowFocus: false,
-    },
-  );
-};
+  {
+    config, library, limit, start, end, seconds,
+  } : {
+    config: IConfig, library: Library, limit: number, start?: number, end?: number, seconds?: number
+  },
+) => useQuery(
+  ['top', { type: 9, limit, seconds, start, end }],
+  async () => {
+    const response = await topLibraryQueryFn({
+      type: 9, config, library, limit, start, end, seconds,
+    });
+    if (!response) return undefined;
+    const { albums } = parseContainerType(MediaType.ALBUM, response.data);
+    return uniqBy(albums, 'guid');
+  },
+  {
+    keepPreviousData: true,
+    refetchInterval: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+  },
+);

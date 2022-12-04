@@ -5,6 +5,7 @@ import { grey } from '@mui/material/colors';
 import {
   ControlledMenu, MenuDivider, MenuItem, useMenuState,
 } from '@szhsin/react-menu';
+import { useLibrary } from 'queries/app-queries';
 import React, { useState } from 'react';
 import {
   FaCaretDown, FaCaretRight, MdDelete, TiFolder,
@@ -50,6 +51,7 @@ const activeBox = (isActive: boolean) => ({
 
 const PlaylistLinks = () => {
   const deletePlaylist = useDeletePlaylist();
+  const library = useLibrary();
   const menuStyle = useMenuStyle();
   const toast = useToast();
   const theme = useTheme();
@@ -57,7 +59,7 @@ const PlaylistLinks = () => {
   const [menuProps, toggleMenu] = useMenuState();
   const [menuTarget, setMenuTarget] = useState<number>();
   const [open, setOpen] = useState(false);
-  const { data: playlists } = usePlaylists();
+  const { data: playlists } = usePlaylists(library);
   const { playPlaylist } = usePlayback();
 
   const handleContextMenu = (event: React.MouseEvent) => {
