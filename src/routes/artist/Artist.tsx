@@ -1,15 +1,20 @@
 import { Box, SvgIcon, useTheme } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
-import { Palette } from 'color-thief-react';
 import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/all';
 import {
-  Location, NavigateFunction, useLocation, useNavigate, useOutletContext, useParams,
+  Location,
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+  useNavigationType,
+  useOutletContext,
+  useParams,
 } from 'react-router-dom';
-import { GroupedVirtuoso, TopItemListProps } from 'react-virtuoso';
+import { Virtuoso } from 'react-virtuoso';
+import Palette from 'components/palette/Palette';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -21,7 +26,6 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { PlayActions } from 'types/enums';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import AlbumsRow from './AlbumsRow';
-import GroupRow from './GroupRow';
 import Header from './Header';
 import type { Album, Artist as TArtist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import type { IAppSettings, RouteParams } from 'types/interfaces';
@@ -34,23 +38,6 @@ const Footer = () => (
     width="89%"
   />
 );
-
-const TopItemList = React
-  .forwardRef((
-    {
-      // @ts-ignore
-      style, children, ...props
-    }: TopItemListProps,
-    listRef: React.ForwardedRef<HTMLDivElement>,
-  ) => (
-    <div
-      {...props}
-      ref={listRef}
-      style={{ ...style, position: 'relative' }}
-    >
-      {children}
-    </div>
-  ));
 
 interface LocationWithState extends Location {
   state: { guid: TArtist['guid'], title: TArtist['title'] }
@@ -81,46 +68,48 @@ export interface ArtistGroup {
   text: string;
 }
 
-export interface ArtistRow {
-  _type: string;
-  albums: Album[];
-  grid: { cols: number };
+export interface AlbumWithSection extends Album {
   section: string;
-  artist: TArtist;
 }
 
-export interface ArtistItems {
-  rows?: ArtistRow[];
-  groups?: ArtistGroup[];
-  groupCounts?: number[];
+export interface AlbumRow {
+  _type: string;
+  albums: AlbumWithSection[];
+  grid: { cols: number };
+  artist: TArtist;
 }
 
 export interface ArtistContext {
   artist: { albums: Album[], artist: TArtist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
+  filter: string;
+  filters: string[];
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   isPlaying: boolean;
-  items: ArtistItems;
   library: Library;
   menuTarget: number | undefined;
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   playArtist: (artist: TArtist, shuffle?: boolean) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+  setSort: React
+    .Dispatch<React.SetStateAction<{ by: string, order: string }>>;
   settings: IAppSettings;
+  sort: { by: string, order: string }
   topTracks: Track[] | undefined;
   width: number;
 }
 
 export interface RowProps {
   index: number;
+  item: AlbumRow;
   context: ArtistContext;
 }
 
-const AlbumsRowContent = (props: RowProps) => <AlbumsRow {...props} />;
-const GroupRowContent = (props: RowProps) => <GroupRow {...props} />;
+const RowContent = (props: RowProps) => <AlbumsRow {...props} />;
 
 const Artist = () => {
   const config = useConfig();
@@ -129,7 +118,13 @@ const Artist = () => {
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const artist = useArtist(+id, library);
-  const appearances = useArtistAppearances(config.data, library, +id, location.state.title, location.state.guid);
+  const appearances = useArtistAppearances(
+    config.data,
+    library,
+    +id,
+    location.state.title,
+    location.state.guid,
+  );
   const topTracks = useArtistTracks({
     config: config.data,
     library,
@@ -143,12 +138,13 @@ const Artist = () => {
   const menuSection = useRef<string | null>();
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const navigationType = useNavigationType();
   const theme = useTheme();
-  const topMostGroup = useRef<ArtistGroup | null>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<number | undefined>();
   const [menuProps, toggleMenu] = useMenuState();
+  const [sort, setSort] = useState({ by: 'date', order: 'asc' });
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
@@ -158,54 +154,84 @@ const Artist = () => {
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
-  const items = useMemo(() => {
+  const data = useMemo(() => {
     if (!artist.data || !appearances.data) {
-      return {};
+      return { filters: [], releases: [] };
     }
-    const rows = [];
-    const groups = [];
-    const groupCounts = [];
-    if (artist.data.albums.length > 0) {
-      let count = 0;
-      groups.push({ _type: 'subheaderText', identifier: 'albums', text: 'Albums' });
-      for (let i = 0; i < artist.data.albums.length; i += grid.cols) {
-        const row = artist.data.albums.slice(i, i + grid.cols);
-        rows.push({
-          _type: 'albums', albums: row, grid, section: 'Albums', artist: artist.data.artist,
-        });
-        count += 1;
-      }
-      groupCounts.push(count);
-    }
+    const filters: string[] = ['All Releases'];
+    const { albums } = artist.data;
+    const newAlbums = albums.map((album) => ({ ...album, section: 'Albums' }));
+    if (newAlbums.length > 0) filters.push('Albums');
+    const hubReleases = [] as Album[][];
     artist.data.hubs.forEach((hub) => {
       if (hub.type === 'album' && hub.size > 0) {
-        let count = 0;
-        const identifier = hub.hubIdentifier.substring(14);
-        groups.push({ _type: 'subheaderText', identifier, text: hub.title });
-        for (let i = 0; i < hub.items.length; i += grid.cols) {
-          const row = hub.items.slice(i, i + grid.cols);
-          rows.push({
-            _type: 'albums', albums: row, grid, section: hub.title, artist: artist.data.artist,
-          });
-          count += 1;
-        }
-        groupCounts.push(count);
+        const objs = hub.items.map((album) => ({ ...album, section: hub.title })) as Album[];
+        filters.push(hub.title);
+        hubReleases.push(objs);
       }
     });
-    if (appearances.data.length > 0) {
-      let count = 0;
-      groups.push({ _type: 'subheaderText', identifier: 'appears', text: 'Appears On' });
-      for (let i = 0; i < appearances.data.length; i += grid.cols) {
-        const row = appearances.data.slice(i, i + grid.cols);
-        rows.push({
-          _type: 'albums', albums: row, grid, section: 'Appears On', artist: artist.data.artist,
-        });
-        count += 1;
+    const appearsOn = appearances.data.map((album) => ({ ...album, section: 'Appears On' }));
+    if (appearsOn.length > 0) filters.push('Appears On');
+    const releases = [...newAlbums, ...hubReleases.flat(1), ...appearsOn];
+    if (sort.by === 'added') {
+      releases
+        .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
+      if (sort.order === 'asc') {
+        releases.reverse();
       }
-      groupCounts.push(count);
     }
-    return { rows, groups, groupCounts };
-  }, [appearances.data, artist.data, grid]);
+    if (sort.by === 'date') {
+      releases
+        .sort((a, b) => b.originallyAvailableAt.getTime() - a.originallyAvailableAt.getTime());
+      if (sort.order === 'asc') {
+        releases.reverse();
+      }
+    }
+    if (sort.by === 'played') {
+      releases
+        .sort((a, b) => b.lastViewedAt.getTime() - a.lastViewedAt.getTime());
+      if (sort.order === 'asc') {
+        releases.reverse();
+      }
+    }
+    if (sort.by === 'plays') {
+      releases.sort((a, b) => b.viewCount - a.viewCount);
+      if (sort.order === 'asc') {
+        releases.reverse();
+      }
+    }
+    if (sort.by === 'title') {
+      releases.sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }));
+      if (sort.order === 'desc') {
+        releases.reverse();
+      }
+    }
+    return {
+      filters,
+      releases: releases as AlbumWithSection[],
+    };
+  }, [appearances.data, artist.data, sort]);
+
+  const items = useMemo(() => {
+    if (!data.releases || !artist.data) {
+      return [];
+    }
+    let filtered = [] as AlbumWithSection[];
+    if (filter === 'All Releases') {
+      filtered = data.releases.filter((release) => release.section !== 'Appears On');
+    }
+    if (filter !== 'All Releases') {
+      filtered = data.releases.filter((release) => release.section === filter);
+    }
+    const rows = [];
+    for (let i = 0; i < filtered.length; i += grid.cols) {
+      const row = filtered.slice(i, i + grid.cols);
+      rows.push({
+        _type: 'albums', albums: row, grid, artist: artist.data.artist,
+      });
+    }
+    return rows;
+  }, [data.releases, artist.data, filter, grid]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -221,27 +247,23 @@ const Artist = () => {
   }, [toggleMenu]);
 
   const handleHideAlbum = useCallback(async () => {
-    if (!items || !artist.data) {
+    if (!data || !artist.data) {
       return;
     }
-    const [albumRow] = items.rows!
-      .filter((row) => row.albums.some((x) => x.id === menuTarget));
-    const album = albumRow.albums.find((y) => y.id === menuTarget);
+    const album = data.releases.find((x) => x.id === menuTarget);
     if (!album) {
       return;
     }
     await hideAlbum(artist.data.artist, album);
-  }, [artist.data, hideAlbum, items, menuTarget]);
+  }, [artist.data, data, hideAlbum, menuTarget]);
 
   const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
-    if (!items) {
+    if (!data) {
       return;
     }
-    const [albumRow] = items.rows!
-      .filter((row) => row.albums.some((x) => x.id === menuTarget));
-    const album = albumRow.albums.find((y) => y.id === menuTarget);
+    const album = data.releases.find((x) => x.id === menuTarget);
     await playSwitch(button.action, { album, shuffle: button.shuffle });
-  }, [items, menuTarget, playSwitch]);
+  }, [data, menuTarget, playSwitch]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -252,36 +274,57 @@ const Artist = () => {
     }
   };
 
+  const initialScrollTop = () => {
+    let top;
+    top = sessionStorage.getItem(id);
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    return 0;
+  };
+
+  const itemHeight = ((width * 0.89) / grid.cols) + (settings.albumText ? 70 : 0);
+
   const artistContext = useMemo(() => ({
     artist: artist.data,
+    filter,
+    filters: data.filters,
     getFormattedTime,
     grid,
     handleContextMenu,
     isPlaying,
-    items,
     library,
     menuTarget,
     navigate,
     nowPlaying,
     playArtist,
     playSwitch,
+    setFilter,
+    setSort,
     settings,
+    sort,
     topTracks: topTracks.data,
     width,
   }), [
     artist.data,
+    data,
+    filter,
     getFormattedTime,
     grid,
     handleContextMenu,
     isPlaying,
-    items,
     library,
     menuTarget,
     navigate,
     nowPlaying,
     playArtist,
     playSwitch,
+    setFilter,
+    setSort,
     settings,
+    sort,
     topTracks.data,
     width,
   ]);
@@ -292,13 +335,11 @@ const Artist = () => {
 
   return (
     <Palette
-      colorCount={artist.data.artist.genre.length + 3}
-      crossOrigin="anonymous"
-      format="hex"
+      id={+id}
       src={library.api.getAuthenticatedUrl(artist.data.artist.art || artist.data.artist.thumb)}
     >
-      {({ data: colors, loading, error }) => {
-        if (loading) {
+      {({ data: colors, isLoading, isError }) => {
+        if (isLoading || isError) {
           return null;
         }
         return (
@@ -310,33 +351,26 @@ const Artist = () => {
               key={location.pathname}
               style={{ height: '100%' }}
             >
-              <GroupedVirtuoso
+              <Virtuoso
                 className="scroll-container"
                 components={{
                   Footer,
                   Header,
-                  TopItemList,
                 }}
-                context={{ ...artistContext, colors }}
-                groupContent={(index) => GroupRowContent(
-                  { index, context: { ...artistContext, colors } },
-                )}
-                groupCounts={items.groupCounts}
-                increaseViewportBy={{ top: 0, bottom: 500 }}
+                context={{ ...artistContext, colors: Object.values(colors) as string[] }}
+                data={items}
+                fixedItemHeight={itemHeight}
+                initialScrollTop={initialScrollTop()}
                 isScrolling={handleScrollState}
-                itemContent={
-                  (index, groupIndex, item, context) => AlbumsRowContent({ index, context })
-                }
-                itemsRendered={(list) => {
-                  // @ts-ignore
-                  const renderedGroupIndices = (list).map((listEl) => listEl.groupIndex);
-                  if (topMostGroup.current !== items.groups![renderedGroupIndices[0]]) {
-                    queryClient
-                      .setQueryData(['header-text'], items.groups![renderedGroupIndices[0]]?.text);
-                    topMostGroup.current = items.groups![renderedGroupIndices[0]];
-                  }
-                }}
+                itemContent={(index, item, context) => RowContent({ index, item, context })}
                 style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+                onScroll={(e) => {
+                  const target = e.currentTarget as unknown as HTMLDivElement;
+                  sessionStorage.setItem(
+                    id,
+                    target.scrollTop as unknown as string,
+                  );
+                }}
               />
             </motion.div>
             <ControlledMenu

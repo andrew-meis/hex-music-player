@@ -300,6 +300,10 @@ select:focus-visible {
   color: white !important;
 }
 
+.szh-menu__item--type-checkbox {
+  padding-left: 2.2rem !important;
+}
+
 .szh-menu-container--itemTransition .szh-menu__item {
   transition-property: background-color;
 }

@@ -1,11 +1,12 @@
 import { Box, Tooltip, Typography } from '@mui/material';
-import { Album, Library } from 'hex-plex';
+import { Library } from 'hex-plex';
+import moment from 'moment';
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import styles from 'styles/AlbumsRow.module.scss';
 import { IAppSettings } from 'types/interfaces';
-import { RowProps } from './Artist';
+import { AlbumWithSection, RowProps } from './Artist';
 
 const textStyle = {
   color: 'text.primary',
@@ -15,26 +16,47 @@ const textStyle = {
   WebkitBoxOrient: 'vertical',
   fontFamily: 'Rubik',
   fontSize: '1rem',
-  fontWeight: 600,
   lineHeight: 1.2,
   mt: '2px',
   mx: '8px',
 };
 
+const getAdditionalText = (album: AlbumWithSection, by: string) => {
+  if (by === 'added') {
+    return moment(album.addedAt).fromNow();
+  }
+  if (by === 'date') {
+    return album.originallyAvailableAt
+      .toLocaleDateString(
+        'en-gb',
+        { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
+      );
+  }
+  if (by === 'played') {
+    return moment(album.lastViewedAt).fromNow();
+  }
+  if (by === 'plays') {
+    return (album.viewCount
+      ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
+      : 'unplayed');
+  }
+  return '';
+};
+
 interface AlbumCoverProps {
-  album: Album;
+  album: AlbumWithSection;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   library: Library;
   navigate: NavigateFunction;
   menuTarget: number | undefined;
-  section: string;
   settings: IAppSettings;
+  sort: { by: string, order: string };
   width: number;
 }
 
 const AlbumCover = ({
-  album, grid, handleContextMenu, library, menuTarget, navigate, section, settings, width,
+  album, grid, handleContextMenu, library, menuTarget, navigate, settings, sort, width,
 }: AlbumCoverProps) => {
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
@@ -60,7 +82,7 @@ const AlbumCover = ({
       <Box
         className={styles['album-box']}
         data-id={album.id}
-        data-section={section}
+        data-section={album.section}
         height={Math.floor((width * 0.89) / grid.cols) + 70}
         key={album.id}
         sx={{
@@ -85,11 +107,7 @@ const AlbumCover = ({
           {album.title}
         </Typography>
         <Typography color="text.primary" lineHeight={2} mx="8px" variant="subtitle2">
-          {album.originallyAvailableAt
-            .toLocaleDateString(
-              'en-gb',
-              { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
-            )}
+          {getAdditionalText(album, sort.by)}
         </Typography>
       </Box>
     );
@@ -99,7 +117,7 @@ const AlbumCover = ({
     <Box
       className={styles['album-box']}
       data-id={album.id}
-      data-section={section}
+      data-section={album.section}
       height={Math.floor((width * 0.89) / grid.cols)}
       key={album.id}
       width={Math.floor((width * 0.89) / grid.cols)}
@@ -127,11 +145,11 @@ const AlbumCover = ({
   );
 };
 
-const AlbumsRow = React.memo(({ index, context }: RowProps) => {
+const AlbumsRow = React.memo(({ item, context }: RowProps) => {
   const {
-    grid, handleContextMenu, items: { rows }, library, menuTarget, navigate, settings, width,
+    grid, handleContextMenu, library, menuTarget, navigate, settings, sort, width,
   } = context;
-  const { albums, section } = rows![index];
+  const { albums } = item;
   return (
     <Box
       display="flex"
@@ -148,8 +166,8 @@ const AlbumsRow = React.memo(({ index, context }: RowProps) => {
           library={library}
           menuTarget={menuTarget}
           navigate={navigate}
-          section={section}
           settings={settings}
+          sort={sort}
           width={width}
         />
       ))}

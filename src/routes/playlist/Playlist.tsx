@@ -9,7 +9,7 @@ import React, {
 import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/all';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useKey } from 'react-use';
 import { Virtuoso } from 'react-virtuoso';
 import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
@@ -70,6 +70,7 @@ const Playlist = () => {
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
   const menuStyle = useMenuStyle();
+  const navigationType = useNavigationType();
   const removeFromPlaylist = useRemoveFromPlaylist();
   const theme = useTheme();
   const toast = useToast();
@@ -172,6 +173,17 @@ const Playlist = () => {
     }
   };
 
+  const initialScrollTop = () => {
+    let top;
+    top = sessionStorage.getItem(id);
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    return 0;
+  };
+
   const playlistContext = useMemo(() => ({
     drag,
     filter,
@@ -229,6 +241,7 @@ const Playlist = () => {
           context={playlistContext}
           data={items}
           fixedItemHeight={56}
+          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ index, item, context })}
           scrollSeekConfiguration={{
@@ -238,9 +251,10 @@ const Playlist = () => {
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={items.length}
           onScroll={(e) => {
+            const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
               id,
-              (e.currentTarget as unknown as HTMLElement).scrollTop as unknown as string,
+              target.scrollTop as unknown as string,
             );
           }}
         />

@@ -4,7 +4,7 @@ import { Library, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigationType } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -70,6 +70,7 @@ const Charts = () => {
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
   const menuStyle = useMenuStyle();
+  const navigationType = useNavigationType();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
@@ -149,6 +150,17 @@ const Charts = () => {
     }
   };
 
+  const initialScrollTop = () => {
+    let top;
+    top = sessionStorage.getItem('charts');
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    return 0;
+  };
+
   const chartsContext = useMemo(() => ({
     days,
     drag,
@@ -208,6 +220,7 @@ const Charts = () => {
           context={chartsContext}
           data={isLoading ? [] : topTracks}
           fixedItemHeight={56}
+          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           scrollSeekConfiguration={{
@@ -216,6 +229,13 @@ const Charts = () => {
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={isLoading || topTracks === undefined ? 0 : topTracks.length}
+          onScroll={(e) => {
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              'charts',
+              target.scrollTop as unknown as string,
+            );
+          }}
         />
       </motion.div>
       <ControlledMenu

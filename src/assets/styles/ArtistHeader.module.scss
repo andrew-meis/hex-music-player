@@ -7,3 +7,20 @@
     background-position-x: calc(50% + var(--posX));
     background-position-y: 50px;
 }
+
+.sort-button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    &:hover {
+      background-color: transparent;
+      svg {
+        color: var(--hover);
+      }
+    }
+    &:active {
+      svg {
+        color: var(--hover);
+      }
+    }
+  }

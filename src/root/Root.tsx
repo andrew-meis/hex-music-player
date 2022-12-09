@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import React from 'react';
-import { redirect, ScrollRestoration, useLoaderData } from 'react-router-dom';
+import { redirect, useLoaderData } from 'react-router-dom';
 import {
   defaultSettings,
   useAuth, useConfig,
@@ -32,7 +32,6 @@ const Root = () => {
 
   return (
     <Theme settings={settings!}>
-      <ScrollRestoration />
       <DragLayer />
       <Player>
         <Box

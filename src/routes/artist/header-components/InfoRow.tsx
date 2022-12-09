@@ -3,7 +3,7 @@ import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import { isEmpty } from 'lodash';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import Twemoji from 'react-twemoji';
 import SimilarArtistAvatarGroup from './SimilarArtistAvatarGroup';
@@ -88,16 +88,15 @@ const InfoRow = ({ artistData, colors, library, navigate, width }: InfoRowProps)
             </Typography>
           </>
         )}
-      <Box flexWrap="wrap" height="32px" mr="8px" overflow="hidden">
+      <Box display="flex" flexWrap="wrap" gap="8px" height="32px" mr="8px" overflow="hidden">
         {artist.genre.map((genre, index) => (
           <Chip
             key={genre.id}
             label={genre.tag.toLowerCase()}
             sx={{
-              ml: index === 0 ? '0px' : '10px',
-              backgroundColor: colors ? colors[index] : 'common.grey',
+              backgroundColor: colors ? colors[index % 6] : 'common.grey',
               transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
-              color: fontColorContrast(colors ? colors[index] : 'common.grey'),
+              color: fontColorContrast(colors ? colors[index % 6] : 'common.grey'),
               '&:hover': {
                 boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)',
               },

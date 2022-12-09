@@ -1,8 +1,8 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
-import { useQuery } from '@tanstack/react-query';
+import chroma from 'chroma-js';
 import { sample } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
@@ -29,17 +29,6 @@ const getPosX = (settings: IAppSettings) => {
   return (leftWidth / 2) - (rightWidth / 2);
 };
 
-const hex2rgb = (hex: string | undefined, settings: IAppSettings) => {
-  if (!hex) {
-    const color = settings.colorMode === 'light' ? grey['400'] : grey['600'];
-    const [r, g, b] = color.match(/\w\w/g)!.map((x) => parseInt(x, 16));
-    return `${r}, ${g}, ${b}`;
-  }
-
-  const [r, g, b] = hex.match(/\w\w/g)!.map((x) => parseInt(x, 16));
-  return `${r}, ${g}, ${b}`;
-};
-
 const scale = (inputY: number, yRange: number[], xRange: number[]) => {
   const [xMin, xMax] = xRange;
   const [yMin, yMax] = yRange;
@@ -49,34 +38,23 @@ const scale = (inputY: number, yRange: number[], xRange: number[]) => {
 };
 
 interface BannerProps {
-  // eslint-disable-next-line react/require-default-props
-  context?: ArtistContext;
+  context: ArtistContext;
   tracksInView: InViewHookResponse;
 }
 
 const Banner = ({ context, tracksInView }: BannerProps) => {
   const {
-    artist: artistData, colors, library, playArtist, settings, width,
+    artist: artistData, colors, filter, library, playArtist, settings, width,
   } = context!;
   const { artist } = artistData!;
   const bannerInView = useInView({ threshold: thresholds });
   const bannerResize = scale(bannerInView.entry?.intersectionRatio || 1, [0, 1], [0, 50]);
-  const color = useMemo(() => sample(colors), [colors]);
-  const hex = useMemo(() => hex2rgb(color, settings), [color, settings]);
+  const color = useRef(sample(colors));
+  const greyColor = settings.colorMode === 'light' ? grey['400'] : grey['600'];
   const posX = useMemo(() => getPosX(settings), [settings]);
   const bannerSrc = artist.art ? library.api.getAuthenticatedUrl(artist.art) : undefined;
   const thumbSrc = artist.thumb ? library.api.getAuthenticatedUrl(artist.thumb) : undefined;
   const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
-  const headerText = useQuery(
-    ['header-text'],
-    () => '',
-    {
-      initialData: 'Albums',
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
 
   const handlePlay = () => playArtist(artist);
   const handleShuffle = () => playArtist(artist, true);
@@ -99,7 +77,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
             artist={artist}
             handlePlay={handlePlay}
             handleShuffle={handleShuffle}
-            headerText={tracksInView.inView ? 'Top Tracks' : headerText.data}
+            headerText={tracksInView.inView ? 'Top Tracks' : filter}
             thumbSrcSm={thumbSrcSm}
           />
         </Box>
@@ -117,7 +95,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
               className={styles['artist-banner']}
               style={{
                 '--img': `url(${bannerSrc})`,
-                '--color': hex,
+                '--color': chroma(color.current || greyColor).rgb(),
                 '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
                 '--posX': `${posX}px`,
                 '--grow': `${bannerResize}px`,
@@ -131,7 +109,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
               className={styles['artist-banner']}
               style={{
                 display: 'flex',
-                '--color': hex,
+                '--color': chroma(color.current || greyColor).rgb(),
                 '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0) < 0.2
                   ? 0.2
                   : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
@@ -152,7 +130,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
               className={styles['artist-banner']}
               style={{
                 display: 'flex',
-                '--color': hex,
+                '--color': chroma(color.current || greyColor).rgb(),
                 '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0) < 0.2
                   ? 0.2
                   : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),

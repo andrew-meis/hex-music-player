@@ -7,7 +7,7 @@ import { countBy } from 'lodash';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { NavigateFunction, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { NavigateFunction, useLocation, useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -89,6 +89,7 @@ const Album = () => {
   const location = useLocation();
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
@@ -165,6 +166,17 @@ const Album = () => {
     }
   };
 
+  const initialScrollTop = () => {
+    let top;
+    top = sessionStorage.getItem(id);
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    return 0;
+  };
+
   const albumContext = useMemo(() => ({
     album: album.data,
     drag,
@@ -223,6 +235,7 @@ const Album = () => {
             { context: albumContext, discNumber: groups[index] },
           )}
           groupCounts={groupCounts}
+          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, groupIndex, _item, context) => RowContent(
             { context, index, track: albumTracks.data![index] },

@@ -15,7 +15,7 @@ const ListGrouped = React
     if (testId === 'virtuoso-top-item-list') {
       return (
         <Box
-          className="list-box"
+          className="group-box"
           ref={listRef}
           style={{ ...style, maxWidth: '900px', width: '89%' }}
           sx={{ mx: 'auto' }}
