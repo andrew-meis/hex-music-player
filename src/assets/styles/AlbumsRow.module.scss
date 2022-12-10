@@ -1,18 +1,20 @@
 .album-cover {
-    background: var(--img);
-    background-size: cover;
+    align-items: center;
+    background-image: var(--img);
     background-position: center top;
+    background-size: cover;
     border-radius: 4px;
-    width: 100%;
     box-shadow: 2px 2px 6px 0 rgba(0,0,0,0.3);
-    transition: 0.2s;
     display: flex;
-    transform: scale(0.95);
+    transform: scale(0.95) translateZ(0px);
+    transition: 0.2s;
+    width: 100%;
 }
 
 .album-box {
-    cursor: pointer;
+    align-items: center;
     border-radius: 4px;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     transition: 0.2s;

@@ -53,7 +53,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
       <Fade
         in={!inView && ((entry ? entry.intersectionRatio : 1) < 1)}
         style={{ transformOrigin: 'center top' }}
-        timeout={300}
+        timeout={{ enter: 300, exit: 0 }}
       >
         <Box
           height={71}

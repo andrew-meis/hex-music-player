@@ -9,18 +9,18 @@ import HighlightAlbum from './HighlightAlbum';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
 const textStyle = {
+  bottom: '8px',
   color: 'common.white',
-  overflow: 'hidden',
   display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
   fontFamily: 'Rubik',
   fontSize: '1rem',
+  height: '20px',
   lineHeight: 1.2,
-  mx: '14px',
+  overflow: 'hidden',
   position: 'absolute',
-  bottom: '28px',
-  height: '40px',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 1,
+  wordBreak: 'break-all',
 };
 
 interface ArtistCardProps {
@@ -34,7 +34,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   const {
     grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
   } = context;
-  const imgHeight = Math.floor((width * 0.89) / grid.cols) * 1.3;
+  const imgHeight = Math.floor((width * 0.89) / grid.cols) * 0.66;
   const imgWidth = Math.floor((width * 0.89) / grid.cols);
   const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -68,7 +68,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
     <Box
       className={styles['album-box']}
       data-id={artist.id}
-      height={imgHeight}
+      height={imgHeight + 28}
       key={artist.id}
       sx={{
         contain: 'paint',
@@ -80,26 +80,15 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         bgcolor="action.selected"
         className={styles['album-cover']}
         flexDirection="column-reverse"
-        height={imgHeight - 8}
+        height={open ? imgHeight + 28 : imgHeight - 8}
         margin="4px"
         style={{
-          alignItems: 'flex-end',
           borderRadius: '32px',
           transform: open ? 'scale(1) translateZ(0px)' : '',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         width={imgWidth - 8}
       >
-        <Box
-          height="64px"
-          sx={{
-            backgroundColor: open ? 'transparent' : 'rgba(60, 60, 70, 0.6)',
-            borderBottomLeftRadius: '30px',
-            borderBottomRightRadius: '30px',
-            transition: '200ms',
-          }}
-          width={imgWidth - 8}
-        />
         {!artist.thumb && (
           <SvgIcon
             className="generic-artist"
@@ -113,7 +102,9 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         sx={{
           ...textStyle,
           opacity: open ? 0 : 1,
+          textAlign: 'center',
           transition: '200ms',
+          width: Math.floor((imgWidth - 16) * 0.95),
         }}
       >
         {artist.title}
@@ -121,8 +112,9 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       <SvgIcon
         className={open ? styles.open : ''}
         sx={{
-          bottom: '8px',
+          bottom: '28px',
           color: 'common.white',
+          filter: 'drop-shadow(0px 0px 1px rgb(0 0 0 / 0.8))',
           position: 'absolute',
           width: '100%',
         }}
@@ -156,7 +148,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
     width,
   } = context;
   const { artists } = rows![rowIndex];
-  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 1.3) - 24;
+  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 0.82) - 24;
 
   const openIndex = openCard.index;
   const caretPos = getCaretPos(grid.cols, openIndex, width);

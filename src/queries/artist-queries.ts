@@ -34,7 +34,7 @@ export const useArtistAppearances = (
 );
 
 export const useArtistTracks = ({
-  config, library, id, title, guid, slice, limit,
+  config, library, id, title, guid, slice,
 }: {
   config: IConfig,
   library: Library,
@@ -42,11 +42,10 @@ export const useArtistTracks = ({
   title: string,
   guid: string,
   slice?: number,
-  limit?: number,
 }) => useQuery(
   ['artist-tracks', id, slice],
   () => artistTracksQueryFn({
-    config, library, id, title, guid, slice, limit,
+    config, library, id, title, guid, slice,
   }),
   {
     enabled: id !== -1,

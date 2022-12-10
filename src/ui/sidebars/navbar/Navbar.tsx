@@ -4,8 +4,8 @@ import {
 import React, { useState } from 'react';
 import {
   HiMusicNote,
-  IoGlobeSharp,
   IoMdMicrophone,
+  IoMdPricetag,
   RiAlbumFill,
   TiChartLine,
 } from 'react-icons/all';
@@ -108,7 +108,7 @@ const Navbar = () => {
             {({ isActive }) => (
               <ListItem sx={isActive ? activeStyle : listStyle}>
                 <Box sx={activeBox(isActive)} />
-                <SvgIcon sx={{ mx: '8px' }}><IoGlobeSharp /></SvgIcon>
+                <SvgIcon sx={{ mx: '8px' }}><IoMdPricetag /></SvgIcon>
                 Genres
               </ListItem>
             )}

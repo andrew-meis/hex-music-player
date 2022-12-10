@@ -75,7 +75,7 @@ const SimilarArtistAvatarGroup = ({
       && (
         <Typography
           position="absolute"
-          sx={{ top: '-8px', right: '4px' }}
+          sx={{ top: '-10px', right: '4px' }}
           variant="subtitle2"
         >
           similar artists

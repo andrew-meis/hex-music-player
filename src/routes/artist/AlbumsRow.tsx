@@ -10,15 +10,16 @@ import { AlbumWithSection, RowProps } from './Artist';
 
 const textStyle = {
   color: 'text.primary',
-  overflow: 'hidden',
   display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
   fontFamily: 'Rubik',
   fontSize: '1rem',
   lineHeight: 1.2,
   mt: '2px',
   mx: '8px',
+  overflow: 'hidden',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 1,
+  wordBreak: 'break-all',
 };
 
 const typeMap = {
@@ -104,7 +105,7 @@ const AlbumCover = ({
         className={styles['album-box']}
         data-id={album.id}
         data-section={album.section}
-        height={Math.floor((width * 0.89) / grid.cols) + 70}
+        height={Math.floor((width * 0.89) / grid.cols) + 54}
         key={album.id}
         sx={{
           backgroundColor: menuTarget === album.id ? backgroundColor() : '',

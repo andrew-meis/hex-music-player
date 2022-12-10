@@ -69,7 +69,7 @@ const SortMenuButton = React.forwardRef((
           color: 'text.primary',
         },
       }}
-      width={164}
+      width={160}
     >
       <Typography>
         {getText(sort.by)}

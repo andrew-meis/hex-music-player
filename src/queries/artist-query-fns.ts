@@ -83,11 +83,10 @@ type artistTracksQueryFnParams = {
   title: string,
   guid: string,
   slice?: number,
-  limit?: number,
 }
 
 export const artistTracksQueryFn = async ({
-  config, library, id, title, guid, slice = 0, limit = 0,
+  config, library, id, title, guid, slice = 0,
 }: artistTracksQueryFnParams) => {
   const account = library.api.parent as Account;
   const params = new URLSearchParams();
@@ -101,9 +100,6 @@ export const artistTracksQueryFn = async ({
   params.append('group', 'guid');
   params.append('sort', 'viewCount:desc,originallyAvailableAt:desc');
   params.append('type', MediaType.TRACK.toString());
-  if (limit) {
-    params.append('limit', limit.toString());
-  }
   // eslint-disable-next-line prefer-template
   const url = library.api.uri
     + `/library/sections/${config?.sectionId!}`

@@ -8,7 +8,7 @@ import {
   Location,
   NavigateFunction,
   useLocation,
-  useNavigate, useNavigationType,
+  useNavigate,
   useOutletContext,
   useParams,
 } from 'react-router-dom';
@@ -36,21 +36,21 @@ const Footer = () => (
 
 const getCols = (width: number) => {
   if (width >= 1350) {
-    return 7;
-  }
-  if (width < 1350 && width >= 1100) {
     return 6;
   }
-  if (width < 1100 && width >= 850) {
+  if (width < 1350 && width >= 1100) {
     return 5;
   }
-  if (width < 850 && width >= 650) {
+  if (width < 1100 && width >= 850) {
     return 4;
   }
-  if (width < 650) {
+  if (width < 850 && width >= 650) {
     return 3;
   }
-  return 5;
+  if (width < 650) {
+    return 2;
+  }
+  return 4;
 };
 
 interface LocationWithState extends Location {
@@ -120,7 +120,6 @@ const SimilarArtists = () => {
   const artist = useArtist(+id, library);
 
   const navigate = useNavigate();
-  const navigationType = useNavigationType();
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
@@ -139,7 +138,6 @@ const SimilarArtists = () => {
     id: openArtist.id,
     title: openArtist.title,
     guid: openArtist.guid,
-    limit: 10,
     slice: 5,
   });
 
@@ -204,17 +202,6 @@ const SimilarArtists = () => {
     if (!isScrolling) {
       document.body.classList.remove('disable-hover');
     }
-  };
-
-  const initialScrollTop = () => {
-    let top;
-    top = sessionStorage.getItem(`similar-artist ${id}`);
-    if (!top) return 0;
-    top = parseInt(top, 10);
-    if (navigationType === 'POP') {
-      return top;
-    }
-    return 0;
   };
 
   const similarArtistContext = useMemo(() => ({
@@ -282,7 +269,6 @@ const SimilarArtists = () => {
           { index, context: similarArtistContext },
         )}
         groupCounts={items.groupCounts}
-        initialScrollTop={initialScrollTop()}
         isScrolling={handleScrollState}
         itemContent={
           (index, groupIndex, item, context) => ArtistsRowContent({ index, context })
@@ -298,13 +284,6 @@ const SimilarArtists = () => {
         }}
         ref={virtuoso}
         style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        onScroll={(e) => {
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `similar-artist ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
       />
     </motion.div>
   );

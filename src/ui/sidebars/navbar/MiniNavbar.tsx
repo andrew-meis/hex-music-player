@@ -5,8 +5,8 @@ import {
 import React from 'react';
 import {
   HiMusicNote,
-  IoGlobeSharp,
   IoMdMicrophone,
+  IoMdPricetag,
   IoSettingsSharp,
   RiAlbumFill,
   TbPlaylist,
@@ -88,7 +88,7 @@ const MiniNavbar = () => (
       <NavLink className="nav-link" to="/genres">
         {({ isActive }) => (
           <ListItem sx={isActive ? activeStyle : listStyle} title="Genres">
-            <SvgIcon sx={{ mx: '8px' }}><IoGlobeSharp /></SvgIcon>
+            <SvgIcon sx={{ mx: '8px' }}><IoMdPricetag /></SvgIcon>
           </ListItem>
         )}
       </NavLink>
