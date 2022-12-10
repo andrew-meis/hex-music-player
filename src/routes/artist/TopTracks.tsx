@@ -1,4 +1,4 @@
-import { Box, ClickAwayListener, Typography } from '@mui/material';
+import { Box, ClickAwayListener } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -44,12 +44,11 @@ const selectedStyle = {
 
 interface TopTracksProps {
   context: ArtistContext | SimilarArtistContext | undefined;
-  style: React.CSSProperties;
   tracks: Track[] | undefined;
 }
 
 // TODO double-click behavior
-const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
+const TopTracks = React.memo(({ context, tracks }: TopTracksProps) => {
   const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
   const menuStyle = useMenuStyle();
@@ -124,18 +123,12 @@ const TopTracks = React.memo(({ context, style, tracks }: TopTracksProps) => {
       <Box
         className="list-box"
         display="flex"
-        flex="50000 0 410px"
         flexDirection="column"
-        height={(tracks.length * 56) + 45}
+        height={tracks.length * 56}
         mr="8px"
         ref={drag}
         onDragEndCapture={handleClickAway}
       >
-        <Box color="text.primary">
-          <Typography fontFamily="TT Commons" style={style}>
-            Top Tracks
-          </Typography>
-        </Box>
         <ClickAwayListener onClickAway={handleClickAway}>
           <Box>
             {tracks.map((track, index) => {

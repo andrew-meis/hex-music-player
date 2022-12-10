@@ -1,5 +1,6 @@
 import { Box, SvgIcon, useTheme } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -94,6 +95,7 @@ export interface ArtistContext {
   nowPlaying: PlayQueueItem | undefined;
   playArtist: (artist: TArtist, shuffle?: boolean) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
+  recentFavorites: Track[] | undefined;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React
     .Dispatch<React.SetStateAction<{ by: string, order: string }>>;
@@ -139,12 +141,24 @@ const Artist = () => {
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const queryClient = useQueryClient();
+  const recentFavorites = useMemo(() => {
+    const tracks = queryClient.getQueryData<Track[]>(
+      ['top', { limit: 500, seconds: 60 * 60 * 24 * 90, type: 10 }],
+    );
+    if (tracks !== undefined) {
+      return tracks
+        .filter((track: Track) => track.grandparentId === artist.data?.artist.id)
+        .slice(0, 5);
+    }
+    return [];
+  }, [artist, queryClient]);
   const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<number | undefined>();
   const [menuProps, toggleMenu] = useMenuState();
-  const [sort, setSort] = useState({ by: 'date', order: 'asc' });
+  const [sort, setSort] = useState({ by: 'date', order: 'desc' });
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
@@ -202,6 +216,11 @@ const Artist = () => {
     }
     if (sort.by === 'title') {
       releases.sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }));
+      if (sort.order === 'desc') {
+        releases.reverse();
+      }
+    }
+    if (sort.by === 'type') {
       if (sort.order === 'desc') {
         releases.reverse();
       }
@@ -301,6 +320,7 @@ const Artist = () => {
     nowPlaying,
     playArtist,
     playSwitch,
+    recentFavorites,
     setFilter,
     setSort,
     settings,
@@ -321,6 +341,7 @@ const Artist = () => {
     nowPlaying,
     playArtist,
     playSwitch,
+    recentFavorites,
     setFilter,
     setSort,
     settings,

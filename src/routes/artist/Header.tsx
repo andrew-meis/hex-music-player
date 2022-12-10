@@ -1,7 +1,7 @@
-import { Box, Chip, SvgIcon, Theme, Typography, useTheme } from '@mui/material';
+import { Box, Chip, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
 import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
-import React from 'react';
-import { TiArrowSortedDown, TiArrowSortedUp, TiArrowUnsorted } from 'react-icons/all';
+import React, { useState } from 'react';
+import { HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import useMenuStyle from 'hooks/useMenuStyle';
 import styles from 'styles/ArtistHeader.module.scss';
@@ -11,26 +11,73 @@ import Highlights from './header-components/Highlights';
 import InfoRow from './header-components/InfoRow';
 import TopTracks from './TopTracks';
 
+const getText = (by: string) => {
+  if (by === 'added') {
+    return 'Date Added';
+  }
+  if (by === 'date') {
+    return 'Release Date';
+  }
+  if (by === 'played') {
+    return 'Last Played';
+  }
+  if (by === 'plays') {
+    return 'Playcount';
+  }
+  if (by === 'title') {
+    return 'Title';
+  }
+  if (by === 'type') {
+    return 'Release Type';
+  }
+  return '';
+};
+
+const tabStyle = (active: boolean) => ({
+  cursor: active ? 'default' : 'pointer',
+  fontFamily: 'TT Commons',
+  fontSize: '1.625rem',
+  minHeight: '45px',
+  padding: 0,
+  paddingX: '8px',
+  textTransform: 'none',
+});
+
 interface SortMenuButtonProps extends MenuButtonProps{
   open: boolean;
-  theme: Theme;
+  sort: { by: string, order: string }
 }
 
 const SortMenuButton = React.forwardRef((
-  { open, theme, onClick, onKeyDown }: SortMenuButtonProps,
+  { open, sort, onClick, onKeyDown }: SortMenuButtonProps,
   ref,
 ) => (
   <MenuButton
     className={styles['sort-button']}
     ref={ref}
-    style={{
-      '--color': theme.palette.getContrastText(theme.palette.background.default),
-      '--hover': theme.palette.action.selected,
-    } as React.CSSProperties}
     onClick={onClick}
     onKeyDown={onKeyDown}
   >
-    <SvgIcon sx={{ color: open ? 'action.selected' : 'text.primary' }}><TiArrowUnsorted /></SvgIcon>
+    <Box
+      alignItems="center"
+      color={open ? 'text.primary' : 'text.secondary'}
+      display="flex"
+      height={32}
+      justifyContent="space-between"
+      sx={{
+        '&:hover': {
+          color: 'text.primary',
+        },
+      }}
+      width={164}
+    >
+      <Typography>
+        {getText(sort.by)}
+      </Typography>
+      <SvgIcon>
+        {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+      </SvgIcon>
+    </Box>
   </MenuButton>
 ));
 
@@ -49,12 +96,36 @@ const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) =
       {label}
       {sort.by === sortKey && (
         <SvgIcon sx={{ height: '0.8em', width: '0.8em' }}>
-          {(sort.order === 'asc' ? <TiArrowSortedUp /> : <TiArrowSortedDown />)}
+          {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
         </SvgIcon>
       )}
     </Box>
   </MenuItem>
 );
+
+interface TabPanelProps {
+  // eslint-disable-next-line react/require-default-props
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+const TabPanel = (props: TabPanelProps) => {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      hidden={value !== index}
+      {...other}
+    >
+      {value === index && (
+        <Box>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+};
 
 export const thresholds = Array.from(Array(101).keys()).map((n) => n / 100);
 
@@ -64,8 +135,8 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     artist: artistData, colors, filter, filters, library, navigate, setFilter, setSort, sort, width,
   } = context!;
   const menuStyle = useMenuStyle();
-  const theme = useTheme();
   const tracksInView = useInView({ threshold: 0 });
+  const [tab, setTab] = useState(0);
 
   const handleSort = (by: string) => {
     if (sort.by === by) {
@@ -100,11 +171,43 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           navigate={navigate}
           width={width}
         />
-        <TopTracks
-          context={context}
-          style={{ fontSize: '1.625rem', paddingTop: '6px' }}
-          tracks={context!.topTracks}
-        />
+        <span style={{ height: 24, width: '100%' }} />
+        <Box
+          color="text.primary"
+          display="flex"
+          flex="50000 0 410px"
+          flexDirection="column"
+          minHeight={
+            (Math.max(context!.topTracks!.length, context!.recentFavorites!.length) * 56) + 45
+          }
+        >
+          <Tabs
+            TabIndicatorProps={{ sx: { height: 0 } }}
+            sx={{
+              minHeight: '45px',
+            }}
+            textColor="inherit"
+            value={tab}
+            onChange={(e, newValue) => setTab(newValue)}
+          >
+            <Tab disableRipple label="Top Tracks" sx={tabStyle(tab === 0)} />
+            {context!.recentFavorites!.length > 0 && (
+              <Tab disableRipple label="Recent Favorites" sx={tabStyle(tab === 1)} />
+            )}
+          </Tabs>
+          <TabPanel index={0} value={tab}>
+            <TopTracks
+              context={context}
+              tracks={context!.topTracks}
+            />
+          </TabPanel>
+          <TabPanel index={1} value={tab}>
+            <TopTracks
+              context={context}
+              tracks={context!.recentFavorites}
+            />
+          </TabPanel>
+        </Box>
         <Highlights
           artistData={artistData}
           height={context!.topTracks!.length * 56}
@@ -118,6 +221,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         display="flex"
         justifyContent="space-between"
         mx="auto"
+        pt="32px"
         width={(width * 0.89)}
       >
         <Typography
@@ -131,7 +235,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         <Menu
           transition
           align="end"
-          menuButton={({ open }) => <SortMenuButton open={open} theme={theme} />}
+          menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
           menuStyle={menuStyle}
         >
           <SortMenuItem
@@ -157,6 +261,12 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             label="Release Date"
             sort={sort}
             sortKey="date"
+          />
+          <SortMenuItem
+            handleSort={handleSort}
+            label="Release Type"
+            sort={sort}
+            sortKey="type"
           />
           <SortMenuItem
             handleSort={handleSort}

@@ -158,7 +158,10 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                   variant="subtitle2"
                   width="fit-content"
                 >
-                  {`${releaseDate} · ${album.leafCount} ${countNoun}${album.studio ? ` · ${album.studio}` : ''}`}
+                  {
+                    // eslint-disable-next-line max-len
+                    `${releaseDate} · ${album.leafCount} ${countNoun}${album.studio ? ` · ${album.studio}` : ''}`
+                  }
                 </Typography>
               </Box>
             </Box>

@@ -46,8 +46,13 @@ const Highlights = ({ artistData, height, library, navigate, width }: Highlights
 
   return (
     <Box flex={`1 0 ${measure > 280 ? 280 : measure}px`}>
-      <Box bgcolor="background.paper" color="text.primary">
-        <Typography fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
+      <Box
+        alignItems="center"
+        color="text.primary"
+        display="flex"
+        height={45}
+      >
+        <Typography fontFamily="TT Commons" fontSize="1.625rem" mb="2px">
           {card.label}
         </Typography>
       </Box>

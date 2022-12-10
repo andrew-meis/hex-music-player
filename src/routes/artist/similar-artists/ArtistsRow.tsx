@@ -254,12 +254,21 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
               <Box
                 display="flex"
               >
-                <TopTracks
-                  context={context}
-                  style={{ fontSize: '1.3rem' }}
-                  tracks={openArtistTracksQuery.data
-                    .slice(0, Math.floor((panelHeight - 77) / 56))}
-                />
+                <Box
+                  color="text.primary"
+                  display="flex"
+                  flex="50000 0 410px"
+                  flexDirection="column"
+                >
+                  <Typography fontFamily="TT Commons" fontSize="1.3rem">
+                    Top Tracks
+                  </Typography>
+                  <TopTracks
+                    context={context}
+                    tracks={openArtistTracksQuery.data
+                      .slice(0, Math.floor((panelHeight - 77) / 56))}
+                  />
+                </Box>
                 <HighlightAlbum
                   artistData={openArtistQuery.data}
                   height={panelHeight}

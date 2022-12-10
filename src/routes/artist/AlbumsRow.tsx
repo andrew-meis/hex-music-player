@@ -21,6 +21,17 @@ const textStyle = {
   mx: '8px',
 };
 
+const typeMap = {
+  Albums: 'Album',
+  'Singles & EPs': 'Single / EP',
+  Soundtracks: 'Soundtrack',
+  Compilations: 'Compilation',
+  'Live Albums': 'Live Album',
+  Demos: 'Demo',
+  Remixes: 'Remix',
+  'Appears On': 'Guest Appearance',
+};
+
 const getAdditionalText = (album: AlbumWithSection, by: string) => {
   if (by === 'added') {
     return moment(album.addedAt).fromNow();
@@ -39,6 +50,16 @@ const getAdditionalText = (album: AlbumWithSection, by: string) => {
     return (album.viewCount
       ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
       : 'unplayed');
+  }
+  if (by === 'title') {
+    // @ts-ignore
+    const text = typeMap[album.section];
+    return text.toLowerCase();
+  }
+  if (by === 'type') {
+    // @ts-ignore
+    const text = typeMap[album.section];
+    return text.toLowerCase();
   }
   return '';
 };
