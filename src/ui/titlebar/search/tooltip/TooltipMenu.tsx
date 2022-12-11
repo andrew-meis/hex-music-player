@@ -27,18 +27,12 @@ const TooltipMenu = ({ result, open, setOpen }: Props) => {
     textTransform: 'none',
     textAlign: 'right',
     padding: '6px 8px',
-    marginBottom: '1px',
     transition: 'none',
     fontSize: '0.875rem',
     height: '36px',
     '&:hover': {
       border: 'none',
-      backgroundImage: `linear-gradient(to right,
-        ${theme.palette.primary.main}ff, ${theme.palette.primary.main}cc)`,
-      color: 'white !important',
-    },
-    '&:last-child': {
-      marginBottom: '0px',
+      backgroundColor: theme.palette.action.selected,
     },
   };
 

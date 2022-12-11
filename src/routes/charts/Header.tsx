@@ -1,34 +1,50 @@
 import {
-  Box, Chip, SvgIcon, TextField, Typography,
+  Box, Chip, IconButton, SvgIcon, TextField, Typography,
 } from '@mui/material';
-import React from 'react';
-import DatePicker from 'react-datepicker';
-import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import {
+  BiHash,
+  BsCheckCircle,
+  RiHeartLine,
+  RiTimeLine,
+} from 'react-icons/all';
+import { iconButtonStyle } from '../../constants/style';
 import { ChartsContext } from './Charts';
 
 const dayOptions = [7, 30, 90, 365];
 
-const DatePickerInput = React
-  .forwardRef<HTMLInputElement>((props, ref) => {
-    // @ts-ignore
-    // eslint-disable-next-line react/prop-types
-    const { label, value, onChange, onClick } = props;
-    return (
-      <TextField
-        label={label}
-        ref={ref}
-        sx={{ position: 'relative', top: '-8px', width: '10ch' }}
-        value={value}
-        variant="standard"
-        onChange={onChange}
-        onClick={onClick}
-      />
-    );
-  });
+const textFieldStyle = {
+  position: 'relative',
+  top: '0px',
+  width: '10ch',
+  '& .MuiFormHelperText-root': {
+    whiteSpace: 'nowrap !important',
+  },
+};
 
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ChartsContext }) => {
   const { days, setDays, endDate, setEndDate, startDate, setStartDate } = context!;
+  const [end, setEnd] = useState(endDate);
+  const [start, setStart] = useState(startDate);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setStart(startDate);
+    setEnd(endDate);
+  }, [endDate, startDate]);
+
+  const handleSetDates = () => {
+    if (start.hour(0).minute(0).second(0).isBefore(end.hour(23).minute(59).second(59))) {
+      setStartDate(start.hour(0).minute(0).second(0));
+      setEndDate(end.hour(23).minute(59).second(59));
+      setDays(0);
+      setError(false);
+      return;
+    }
+    setError(true);
+  };
 
   return (
     <Box
@@ -47,7 +63,7 @@ const Header = ({ context }: { context?: ChartsContext }) => {
       <Box
         alignItems="center"
         display="flex"
-        height={44}
+        height={72}
       >
         {dayOptions.map((numberOfDays) => (
           <Chip
@@ -62,36 +78,45 @@ const Header = ({ context }: { context?: ChartsContext }) => {
           display="flex"
           ml="auto"
         >
-          <DatePicker
-            scrollableYearDropdown
-            showMonthDropdown
-            showYearDropdown
-            // @ts-ignore
-            customInput={<DatePickerInput label="start" />}
-            dropdownMode="select"
-            maxDate={new Date(endDate) || new Date()}
-            minDate={new Date(946702800000)}
-            selected={new Date(startDate)}
-            onChange={(date) => {
-              setStartDate(date!.setHours(0, 0, 0, 0));
-              setDays(0);
+          <TextField
+            error={error}
+            helperText={error ? 'Must be before end date.' : ' '}
+            label="start"
+            sx={textFieldStyle}
+            type="date"
+            value={start.toISOString().split('T')[0]}
+            variant="standard"
+            onChange={(e) => {
+              const date = moment(e.target.value).utc();
+              if (!date.isValid()) {
+                return;
+              }
+              setStart(date);
             }}
           />
-          <DatePicker
-            scrollableYearDropdown
-            showMonthDropdown
-            showYearDropdown
-            // @ts-ignore
-            customInput={<DatePickerInput label="end" />}
-            dropdownMode="select"
-            maxDate={new Date()}
-            minDate={new Date(startDate)}
-            selected={new Date(endDate)}
-            onChange={(date) => {
-              setEndDate(date!.setHours(23, 59, 59, 0));
-              setDays(0);
+          <span style={{ width: '8px' }} />
+          <TextField
+            label="end"
+            sx={textFieldStyle}
+            type="date"
+            value={end.toISOString().split('T')[0]}
+            variant="standard"
+            onChange={(e) => {
+              const date = moment(e.target.value).utc();
+              if (!date.isValid()) {
+                return;
+              }
+              setEnd(date);
             }}
           />
+          <IconButton
+            sx={iconButtonStyle}
+            onClick={handleSetDates}
+          >
+            <SvgIcon>
+              <BsCheckCircle />
+            </SvgIcon>
+          </IconButton>
         </Box>
       </Box>
       <Box

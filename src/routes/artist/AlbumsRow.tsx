@@ -175,7 +175,7 @@ const AlbumsRow = React.memo(({ item, context }: RowProps) => {
   return (
     <Box
       display="flex"
-      height={((width * 0.89) / grid.cols) + (settings.albumText ? 70 : 0)}
+      height={((width * 0.89) / grid.cols) + (settings.albumText ? 54 : 0)}
       mx="auto"
       width={(width * 0.89)}
     >

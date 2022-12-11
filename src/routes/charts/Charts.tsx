@@ -1,6 +1,7 @@
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
+import moment from 'moment';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -26,8 +27,8 @@ import Row from './Row';
 export interface ChartsContext {
   days: number;
   drag: ConnectDragSource,
-  endDate: number;
-  startDate: number;
+  endDate: moment.Moment;
+  startDate: moment.Moment;
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -37,8 +38,8 @@ export interface ChartsContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   selectedRows: number[];
-  setEndDate: React.Dispatch<React.SetStateAction<number>>;
-  setStartDate: React.Dispatch<React.SetStateAction<number>>;
+  setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
+  setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setDays: React.Dispatch<React.SetStateAction<number>>;
   topTracks: Track[] | undefined;
 }
@@ -53,9 +54,11 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
   const [days, setDays] = useState(7);
-  const [endDate, setEndDate] = useState(new Date().setHours(23, 59, 59, 0));
-  const [startDate, setStartDate] = useState(new Date()
-    .setHours(0, 0, 0, 0) - (60000 * 60 * 24 * days));
+  const [endDate, setEndDate] = useState(moment().utc()
+    .hours(23)
+    .minutes(59)
+    .seconds(59));
+  const [startDate, setStartDate] = useState(moment().utc().subtract(days, 'days'));
   // data loading
   const config = useConfig();
   const library = useLibrary();
@@ -63,8 +66,8 @@ const Charts = () => {
     config: config.data,
     library,
     limit: 100,
-    start: Math.round(startDate / 1000),
-    end: Math.round(endDate / 1000),
+    start: startDate.unix(),
+    end: endDate.unix(),
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
@@ -92,8 +95,8 @@ const Charts = () => {
     if (days === 0) {
       return;
     }
-    setStartDate(new Date().setHours(0, 0, 0, 0) - (1000 * 60 * 60 * 24 * days));
-    setEndDate(new Date().setHours(23, 59, 59, 0));
+    setStartDate(moment().subtract(days, 'days'));
+    setEndDate(moment().hours(23).minutes(59).seconds(59));
   }, [days]);
 
   useEffect(() => {

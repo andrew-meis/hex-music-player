@@ -5,7 +5,6 @@ import { grey } from '@mui/material/colors';
 import {
   ControlledMenu, MenuDivider, MenuItem, useMenuState,
 } from '@szhsin/react-menu';
-import { useLibrary } from 'queries/app-queries';
 import React, { useState } from 'react';
 import {
   FaCaretDown, FaCaretRight, MdDelete, TiFolder,
@@ -14,6 +13,7 @@ import { useDeletePlaylist } from 'hooks/playlistHooks';
 import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useToast from 'hooks/useToast';
+import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { ButtonSpecs, playlistButtons } from '../../../../constants/buttons';
 import PlaylistLink from './PlaylistLink';

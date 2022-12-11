@@ -117,6 +117,7 @@ body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   overflow: hidden;
+  user-select: none;
   width: 100vw;
   -webkit-user-select: none;
   -webkit-font-smoothing: antialiased;
@@ -137,6 +138,12 @@ img.emoji {
    width: 1em;
    margin: 0 .05em 0 .05em;
    vertical-align: -0.15em;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
 }
 
 select:focus-visible {
@@ -173,75 +180,6 @@ select:focus-visible {
 
 .active {
   text-decoration: none;
-}
-
-.react-datepicker {
-  font-family: Arimo, sans-serif;
-}
-
-.react-datepicker-wrapper {
-  margin-right: 8px;
-  width: auto;
-}
-
-.react-datepicker__close-icon {
-  padding: 0;
-}
-
-.react-datepicker__close-icon::after {
-  content: "✖";
-  height: 20px;
-  width: 20px;
-  font-size: 14px;
-  background-color: var(--menu-paper);
-  transition: background-color 300ms ease-in-out;
-}
-
-.react-datepicker__close-icon:hover::after {
-  content: "✖";
-  height: 20px;
-  width: 20px;
-  font-size: 14px;
-  background-color: var(--menu-primary);
-}
-
-.react-datepicker__current-month {
-  height: 0;
-  visibility: hidden;
-}
-
-.react-datepicker__month-select {
-  background-color: transparent;
-  border: none;
-  font-family: Arimo, sans-serif;
-  font-size: 0.95rem;
-}
-
-.react-datepicker__year-select {
-  background-color: transparent;
-  border: none;
-  font-family: Arimo, sans-serif;
-  font-size: 0.95rem;
-}
-
-.react-datepicker__year-select::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.react-datepicker__year-select::-webkit-scrollbar-track {
-  border: solid 2px transparent;
-}
-
-.react-datepicker__year-select::-webkit-scrollbar-thumb {
-  box-shadow: inset 0 0 10px 10px transparent;
-  border: solid 3px transparent;
-  border-radius: 8px;
-  min-height: 30px;
-}
-
-.react-datepicker__year-select::-webkit-scrollbar-thumb {
-  box-shadow: inset 0 0 10px 10px rgba(0, 0, 0, 0.5);
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -289,15 +227,14 @@ select:focus-visible {
   cursor: default;
   border-radius: 4px;
   font-weight: 500;
-  margin: 0 5px 1px 5px;
+  margin: 0 5px 0 5px;
   min-height: 24px;
   padding: 6px 8px;
 }
 
 .szh-menu__item--hover {
-  background-color: transparent;
-  background-image: linear-gradient(to right, var(--menu-primary), var(--menu-transparent));
-  color: white !important;
+  background-color: var(--menu-primary);
+  // color: white !important;
 }
 
 .szh-menu__item--type-checkbox {
@@ -306,6 +243,7 @@ select:focus-visible {
 
 .szh-menu-container--itemTransition .szh-menu__item {
   transition-property: background-color;
+  transition-duration: 0ms;
 }
 
 .titlebar {
@@ -316,6 +254,7 @@ select:focus-visible {
   justify-content: space-between;
   position: fixed;
   top: 0;
+  user-select: none;
   z-index: 1400;
   -webkit-app-region: drag;
   -webkit-user-select: none;

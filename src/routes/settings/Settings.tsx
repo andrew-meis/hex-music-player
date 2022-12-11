@@ -1,5 +1,5 @@
 import {
-  Box, Paper, Switch, Typography,
+  Box, MenuItem, Paper, Select, SelectChangeEvent, Switch, Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback } from 'react';
@@ -16,6 +16,7 @@ const switchStyle = {
   width: '58px',
   height: '38px',
   padding: '8px',
+  transform: 'translate(8px, 0px)',
   '& .MuiSwitch-switchBase': {
     padding: '10px',
     '&.Mui-checked': {
@@ -30,6 +31,11 @@ const switchStyle = {
     width: '18px',
     height: '18px',
     color: 'common.white',
+  },
+  '& .Mui-disabled': {
+    '& .MuiSwitch-thumb': {
+      color: 'action.selected',
+    },
   },
   '& .MuiSwitch-track': {
     backgroundColor: 'grey.500',
@@ -57,10 +63,6 @@ const Settings = () => {
     await updateConfig('colorMode', (settings.colorMode === 'light' ? 'dark' : 'light'));
   };
 
-  const handleGlassEffectOption = () => {
-    // dispatch(setOptions({ type: 'glassEffect', value: !options.glassEffect }));
-  };
-
   const handleQueueDrawerOption = async () => {
     await updateConfig('dockedQueue', !settings.dockedQueue);
   };
@@ -75,6 +77,14 @@ const Settings = () => {
 
   const handleAlbumTextOption = async () => {
     await updateConfig('albumText', !settings.albumText);
+  };
+
+  const handleAlbumSortOption = async (e: SelectChangeEvent) => {
+    await updateConfig('albumSort', { by: e.target.value, order: settings.albumSort?.order });
+  };
+
+  const handleAlbumOrderOption = async (e: SelectChangeEvent) => {
+    await updateConfig('albumSort', { by: settings.albumSort?.by, order: e.target.value });
   };
 
   return (
@@ -96,17 +106,6 @@ const Settings = () => {
           checked={settings.colorMode === 'dark'}
           sx={switchStyle}
           onChange={handleDarkModeOption}
-        />
-      </Box>
-      <Typography sx={{ fontWeight: 600 }} variant="body1">Glass Effect</Typography>
-      <Box mt={-1} sx={boxStyle}>
-        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
-          Blur the album artwork of the current track behind the application menus
-        </Typography>
-        <Switch
-          // checked={options.glassEffect}
-          sx={switchStyle}
-          onChange={handleGlassEffectOption}
         />
       </Box>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Docked Queue</Typography>
@@ -144,6 +143,7 @@ const Settings = () => {
           onChange={handleCompactNavOption}
         />
       </Box>
+      <Typography mt={1} sx={{ fontWeight: 600 }} variant="h5">Artist Page</Typography>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Album Grid Text</Typography>
       <Box mt={-1} sx={boxStyle}>
         <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
@@ -154,6 +154,88 @@ const Settings = () => {
           sx={switchStyle}
           onChange={handleAlbumTextOption}
         />
+      </Box>
+      <Typography sx={{ fontWeight: 600 }} variant="body1">Album Sorting</Typography>
+      <Box mt={-1} sx={{ ...boxStyle, height: 38 }}>
+        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+          Default album sort
+        </Typography>
+        <Typography sx={{ lineHeight: 1.1, ml: 'auto' }} variant="subtitle2">
+          by:
+        </Typography>
+        <Select
+          disableUnderline
+          MenuProps={{
+            sx: {
+              marginTop: '4px',
+            },
+          }}
+          SelectDisplayProps={{
+            style: {
+              paddingLeft: '4px',
+            },
+          }}
+          inputProps={{
+            sx: {
+              backgroundColor: 'action.disabledBackground',
+              borderRadius: '4px',
+              '&:focus': {
+                backgroundColor: 'action.disabledBackground',
+                borderRadius: '4px',
+              },
+            },
+          }}
+          sx={{
+            ml: '4px',
+            width: 130,
+          }}
+          value={settings.albumSort?.by}
+          variant="standard"
+          onChange={handleAlbumSortOption}
+        >
+          <MenuItem value="added">Date Added</MenuItem>
+          <MenuItem value="played">Last Played</MenuItem>
+          <MenuItem value="plays">Playcount</MenuItem>
+          <MenuItem value="date">Release Date</MenuItem>
+          <MenuItem value="type">Release Type</MenuItem>
+          <MenuItem value="title">Title</MenuItem>
+        </Select>
+        <Typography sx={{ lineHeight: 1.1, ml: '8px' }} variant="subtitle2">
+          order:
+        </Typography>
+        <Select
+          disableUnderline
+          MenuProps={{
+            sx: {
+              marginTop: '4px',
+            },
+          }}
+          SelectDisplayProps={{
+            style: {
+              paddingLeft: '4px',
+            },
+          }}
+          inputProps={{
+            sx: {
+              backgroundColor: 'action.disabledBackground',
+              borderRadius: '4px',
+              '&:focus': {
+                backgroundColor: 'action.disabledBackground',
+                borderRadius: '4px',
+              },
+            },
+          }}
+          sx={{
+            ml: '4px',
+            width: 120,
+          }}
+          value={settings.albumSort?.order}
+          variant="standard"
+          onChange={handleAlbumOrderOption}
+        >
+          <MenuItem value="asc">Ascending</MenuItem>
+          <MenuItem value="desc">Descending</MenuItem>
+        </Select>
       </Box>
     </Paper>
   );

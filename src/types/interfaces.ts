@@ -2,6 +2,7 @@ import { AlertColor, PaletteMode } from '@mui/material';
 import { Account, Artist, Device, Library } from 'hex-plex';
 
 export interface IAppSettings {
+  albumSort?: { by: string, order: string };
   albumText?: boolean;
   colorMode?: PaletteMode;
   compactNav?: boolean;

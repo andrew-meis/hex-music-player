@@ -158,7 +158,6 @@ const Artist = () => {
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<number | undefined>();
   const [menuProps, toggleMenu] = useMenuState();
-  const [sort, setSort] = useState({ by: 'date', order: 'desc' });
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
@@ -168,6 +167,7 @@ const Artist = () => {
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
+  const [sort, setSort] = useState(settings.albumSort!);
   const data = useMemo(() => {
     if (!artist.data || !appearances.data) {
       return { filters: [], releases: [] };
@@ -304,7 +304,7 @@ const Artist = () => {
     return 0;
   };
 
-  const itemHeight = ((width * 0.89) / grid.cols) + (settings.albumText ? 70 : 0);
+  const itemHeight = ((width * 0.89) / grid.cols) + (settings.albumText ? 54 : 0);
 
   const artistContext = useMemo(() => ({
     artist: artist.data,
@@ -384,6 +384,7 @@ const Artist = () => {
                 initialScrollTop={initialScrollTop()}
                 isScrolling={handleScrollState}
                 itemContent={(index, item, context) => RowContent({ index, item, context })}
+                overscan={500}
                 style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
                 onScroll={(e) => {
                   const target = e.currentTarget as unknown as HTMLDivElement;

@@ -34,7 +34,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   const {
     grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
   } = context;
-  const imgHeight = Math.floor((width * 0.89) / grid.cols) * 0.66;
+  const imgHeight = Math.floor((width * 0.89) / grid.cols) * 0.70;
   const imgWidth = Math.floor((width * 0.89) / grid.cols);
   const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -80,7 +80,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         bgcolor="action.selected"
         className={styles['album-cover']}
         flexDirection="column-reverse"
-        height={open ? imgHeight + 28 : imgHeight - 8}
+        height={imgHeight - 8}
         margin="4px"
         style={{
           borderRadius: '32px',
@@ -148,7 +148,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
     width,
   } = context;
   const { artists } = rows![rowIndex];
-  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 0.82) - 24;
+  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 0.70) - 24;
 
   const openIndex = openCard.index;
   const caretPos = getCaretPos(grid.cols, openIndex, width);

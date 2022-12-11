@@ -10,8 +10,7 @@ const useMenuStyle = () => {
       '--menu-border': theme.palette.border.main,
       '--menu-color': theme.palette.text.primary,
       '--menu-paper': theme.palette.background.paper,
-      '--menu-primary': theme.palette.primary.main,
-      '--menu-transparent': `${theme.palette.primary.main}cc`,
+      '--menu-primary': theme.palette.action.selected,
     } as React.CSSProperties
   ), [theme]);
 };
