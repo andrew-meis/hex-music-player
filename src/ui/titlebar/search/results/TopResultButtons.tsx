@@ -1,7 +1,7 @@
 import { Box, Button, SvgIcon } from '@mui/material';
 import React from 'react';
 import {
-  BsPlayFill, VscRadioTower, RiShuffleFill, TiArrowForward,
+  BsPlayFill, FiRadio, RiShuffleFill, TiArrowForward,
 } from 'react-icons/all';
 import usePlayback from 'hooks/usePlayback';
 import { useSettings } from 'queries/app-queries';
@@ -48,7 +48,7 @@ const allButtons = [
   },
   {
     type: 'artist',
-    icon: <SvgIcon><VscRadioTower /></SvgIcon>,
+    icon: <SvgIcon><FiRadio /></SvgIcon>,
     name: 'Artist radio',
     action: PlayActions.PLAY_ARTIST_RADIO,
     shuffle: false,

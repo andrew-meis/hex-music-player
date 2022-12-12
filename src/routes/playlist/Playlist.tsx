@@ -245,7 +245,7 @@ const Playlist = () => {
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ index, item, context })}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 400,
+            enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}

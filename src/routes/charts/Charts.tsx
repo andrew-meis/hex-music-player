@@ -1,3 +1,4 @@
+import { Theme, useTheme } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
@@ -20,11 +21,13 @@ import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
+import { IConfig } from 'types/interfaces';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
 
 export interface ChartsContext {
+  config: IConfig;
   days: number;
   drag: ConnectDragSource,
   endDate: moment.Moment;
@@ -34,6 +37,7 @@ export interface ChartsContext {
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   handleRowClick: (event: React.MouseEvent, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
+  isFetching: boolean;
   isPlaying: boolean;
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
@@ -41,6 +45,7 @@ export interface ChartsContext {
   setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setDays: React.Dispatch<React.SetStateAction<number>>;
+  theme: Theme;
   topTracks: Track[] | undefined;
 }
 
@@ -54,15 +59,19 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
   const [days, setDays] = useState(7);
-  const [endDate, setEndDate] = useState(moment().utc()
+  const [endDate, setEndDate] = useState(moment()
     .hours(23)
     .minutes(59)
     .seconds(59));
-  const [startDate, setStartDate] = useState(moment().utc().subtract(days, 'days'));
+  const [startDate, setStartDate] = useState(moment()
+    .subtract(days, 'days')
+    .hours(0)
+    .minutes(0)
+    .seconds(0));
   // data loading
   const config = useConfig();
   const library = useLibrary();
-  const { data: topTracks, isLoading } = useTopTracks({
+  const { data: topTracks, isFetching, isLoading } = useTopTracks({
     config: config.data,
     library,
     limit: 100,
@@ -74,6 +83,7 @@ const Charts = () => {
   const location = useLocation();
   const menuStyle = useMenuStyle();
   const navigationType = useNavigationType();
+  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
@@ -95,7 +105,11 @@ const Charts = () => {
     if (days === 0) {
       return;
     }
-    setStartDate(moment().subtract(days, 'days'));
+    setStartDate(moment()
+      .subtract(days, 'days')
+      .hours(0)
+      .minutes(0)
+      .seconds(0));
     setEndDate(moment().hours(23).minutes(59).seconds(59));
   }, [days]);
 
@@ -165,6 +179,7 @@ const Charts = () => {
   };
 
   const chartsContext = useMemo(() => ({
+    config: config.data,
     days,
     drag,
     endDate,
@@ -174,6 +189,7 @@ const Charts = () => {
     handleContextMenu,
     handleRowClick,
     hoverIndex,
+    isFetching,
     isPlaying,
     library,
     nowPlaying,
@@ -182,7 +198,9 @@ const Charts = () => {
     setDays,
     setEndDate,
     setStartDate,
+    theme,
   }), [
+    config,
     days,
     drag,
     endDate,
@@ -192,6 +210,7 @@ const Charts = () => {
     handleContextMenu,
     handleRowClick,
     hoverIndex,
+    isFetching,
     isPlaying,
     library,
     nowPlaying,
@@ -200,6 +219,7 @@ const Charts = () => {
     setDays,
     setEndDate,
     setStartDate,
+    theme,
   ]);
 
   return (
@@ -227,7 +247,7 @@ const Charts = () => {
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 400,
+            enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}

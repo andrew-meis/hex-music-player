@@ -3,13 +3,15 @@ import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu'
 import React, { useState } from 'react';
 import { HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
+import { Link } from 'react-router-dom';
 import useMenuStyle from 'hooks/useMenuStyle';
 import styles from 'styles/ArtistHeader.module.scss';
+import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
 import Highlights from './header-components/Highlights';
 import InfoRow from './header-components/InfoRow';
-import TopTracks from './TopTracks';
+import TrackHighlights from './TrackHighlights';
 
 const getText = (by: string) => {
   if (by === 'added') {
@@ -134,6 +136,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   const {
     artist: artistData, colors, filter, filters, library, navigate, setFilter, setSort, sort, width,
   } = context!;
+  const { artist } = artistData!;
   const menuStyle = useMenuStyle();
   const tracksInView = useInView({ threshold: 0 });
   const [tab, setTab] = useState(0);
@@ -180,7 +183,41 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           minHeight={
             (Math.max(context!.topTracks!.length, context!.recentFavorites!.length) * 56) + 45
           }
+          sx={{
+            transform: 'translateZ(0px)',
+          }}
         >
+          {tab === 0 && (
+            <Typography
+              fontFamily="TT Commons"
+              fontSize="0.9rem"
+              position="absolute"
+              sx={{
+                bottom: -24,
+                color: 'text.secondary',
+                left: 6,
+              }}
+              variant="button"
+            >
+              <Link
+                className="link"
+                state={{
+                  guid: artist.guid,
+                  title: artist.title,
+                  sort: [
+                    PlexSortKeys.PLAYCOUNT,
+                    SortOrders.DESC,
+                    ',',
+                    PlexSortKeys.RELEASE_DATE,
+                    SortOrders.DESC,
+                  ].join(''),
+                }}
+                to={`/artists/${artist.id}/tracks`}
+              >
+                See more
+              </Link>
+            </Typography>
+          )}
           <Tabs
             TabIndicatorProps={{ sx: { height: 0 } }}
             sx={{
@@ -196,13 +233,13 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             )}
           </Tabs>
           <TabPanel index={0} value={tab}>
-            <TopTracks
+            <TrackHighlights
               context={context}
               tracks={context!.topTracks}
             />
           </TabPanel>
           <TabPanel index={1} value={tab}>
-            <TopTracks
+            <TrackHighlights
               context={context}
               tracks={context!.recentFavorites}
             />

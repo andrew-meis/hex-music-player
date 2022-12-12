@@ -19,7 +19,7 @@ import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { PlayActions } from 'types/enums';
+import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import ArtistsRow from './ArtistsRow';
 import GroupRow from './GroupRow';
 import Header from './Header';
@@ -138,6 +138,13 @@ const SimilarArtists = () => {
     id: openArtist.id,
     title: openArtist.title,
     guid: openArtist.guid,
+    sort: [
+      PlexSortKeys.PLAYCOUNT,
+      SortOrders.DESC,
+      ',',
+      PlexSortKeys.RELEASE_DATE,
+      SortOrders.DESC,
+    ].join(''),
     slice: 5,
   });
 

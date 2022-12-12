@@ -1,5 +1,14 @@
 import { AlertColor, PaletteMode } from '@mui/material';
 import { Account, Artist, Device, Library } from 'hex-plex';
+import { Location } from 'react-router-dom';
+
+export interface IAppInfo {
+  appName: string;
+  appVersion: string;
+  hostname: string;
+  platform: string;
+  version: string;
+}
 
 export interface IAppSettings {
   albumSort?: { by: string, order: string };
@@ -25,14 +34,6 @@ export interface IConfig {
   token?: string;
 }
 
-export interface IAppInfo {
-  appName: string;
-  appVersion: string;
-  hostname: string;
-  platform: string;
-  version: string;
-}
-
 export interface Filter {
   artist: Artist['guid'];
   exclusions: Artist['guid'][];
@@ -50,6 +51,10 @@ export interface IElectronAPI {
   writeFilters: (key: string, value: any) => Filter[];
   updatePlaying: (key: 'playing', value: boolean) => void;
   receive: (channel: string, func: (action: { event: string }) => void) => () => void;
+}
+
+export interface LocationWithState extends Location {
+  state: { guid: string, title: string, sort: string }
 }
 
 export interface PlayerState {

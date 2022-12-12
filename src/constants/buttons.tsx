@@ -1,7 +1,7 @@
 import { SvgIcon } from '@mui/material';
 import React from 'react';
 import {
-  BsPlayFill, MdPlaylistAdd, RiShuffleFill, TiArrowForward, VscRadioTower,
+  BsPlayFill, FiRadio, MdPlaylistAdd, RiShuffleFill, TiArrowForward,
 } from 'react-icons/all';
 import { PlayActions } from 'types/enums';
 
@@ -23,7 +23,7 @@ export const allButtons: ButtonSpecs[] = [
   },
   {
     type: 'track',
-    icon: <SvgIcon sx={{ mr: '8px' }}><VscRadioTower /></SvgIcon>,
+    icon: <SvgIcon sx={{ mr: '8px' }}><FiRadio /></SvgIcon>,
     name: 'Play track radio',
     action: PlayActions.PLAY_TRACK_RADIO,
     shuffle: false,
@@ -100,7 +100,7 @@ export const allButtons: ButtonSpecs[] = [
   },
   {
     type: 'artist',
-    icon: <SvgIcon sx={{ mr: '8px' }}><VscRadioTower /></SvgIcon>,
+    icon: <SvgIcon sx={{ mr: '8px' }}><FiRadio /></SvgIcon>,
     name: 'Artist Radio',
     action: PlayActions.PLAY_ARTIST_RADIO,
     shuffle: false,

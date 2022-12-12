@@ -70,8 +70,6 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
       <Box
         sx={{
           color: 'text.secondary',
-          // opacity: window.history.state.idx === 0 ? 0 : 1,
-          // pointerEvents: window.history.state.idx === 0 ? 'none' : 'auto',
           transition: '0.2s',
           '&:hover': {
             color: 'primary.main',
@@ -208,8 +206,6 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
       <Box
         sx={{
           color: 'text.secondary',
-          // opacity: window.history.state.idx === window.history.length - 1 ? 0 : 1,
-          // pointerEvents: window.history.state.idx === window.history.length - 1 ? 'none' : 'auto',
           transition: '0.2s',
           '&:hover': {
             color: 'primary.main',

@@ -1,20 +1,19 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
-import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
+import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 
 interface FixedHeaderProps {
   artist: Artist;
   handlePlay: () => Promise<void>;
-  handleRadio: () => Promise<void>;
   handleShuffle: () => Promise<void>;
   headerText: string;
   thumbSrcSm: string;
 }
 
 const FixedHeader = ({
-  artist, handlePlay, handleRadio, handleShuffle, headerText, thumbSrcSm,
+  artist, handlePlay, handleShuffle, headerText, thumbSrcSm,
 }: FixedHeaderProps) => (
   <Box
     alignItems="center"
@@ -50,13 +49,18 @@ const FixedHeader = ({
       variant="h5"
       width={1}
     >
-      {artist.title}
+      <NavLink
+        className="link"
+        state={{ guid: artist.guid, title: artist.title }}
+        to={`/artists/${artist.id}`}
+      >
+        {artist.title}
+      </NavLink>
       &nbsp;&nbsp;»&nbsp;&nbsp;
       {headerText ? `${headerText}` : ''}
     </Typography>
     <PlayShuffleButton
       handlePlay={handlePlay}
-      handleRadio={handleRadio}
       handleShuffle={handleShuffle}
     />
   </Box>

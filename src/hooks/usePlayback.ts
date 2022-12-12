@@ -53,6 +53,7 @@ const usePlayback = () => {
   }, [playQueue, player, serverUri]);
 
   const playArtistRadio = useCallback(async (artist: Artist) => {
+    // eslint-disable-next-line max-len
     const uri = `${serverUri}/library/metadata/${artist.id}/station/${v4()}?type=10&maxDegreesOfSeparation=-1`;
     const newQueue = await playQueue(uri, false);
     player.initTracks(newQueue);
@@ -90,6 +91,7 @@ const usePlayback = () => {
   }, [playQueue, player, serverUri]);
 
   const playTrackRadio = useCallback(async (track: Track) => {
+    // eslint-disable-next-line max-len
     const uri = `${serverUri}/library/metadata/${track.id}/station/${v4()}?type=10&maxDegreesOfSeparation=-1`;
     const newQueue = await playQueue(uri, false);
     player.initTracks(newQueue);
@@ -99,6 +101,12 @@ const usePlayback = () => {
     const ids = tracks.map((track) => track.id).join(',');
     const uri = library.buildLibraryURI(account.client.identifier, `/library/metadata/${ids}`);
     const newQueue = await playQueue(uri, shuffle);
+    player.initTracks(newQueue);
+  }, [account.client.identifier, library, playQueue, player]);
+
+  const playUri = useCallback(async (uri: string, shuffle: boolean = false) => {
+    const newUri = library.buildLibraryURI(account.client.identifier, uri);
+    const newQueue = await playQueue(newUri, shuffle);
     player.initTracks(newQueue);
   }, [account.client.identifier, library, playQueue, player]);
 
@@ -240,6 +248,7 @@ const usePlayback = () => {
     playTrack,
     playTrackRadio,
     playTracks,
+    playUri,
   };
 };
 

@@ -1,11 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { Library } from 'hex-plex';
+import { Album, Artist, Hub, Library } from 'hex-plex';
 import {
   artistAppearancesQueryFn,
   artistQueryFn,
   artistTracksQueryFn,
 } from 'queries/artist-query-fns';
 import { IConfig } from 'types/interfaces';
+
+export interface ArtistQueryData {
+  albums: Album[],
+  artist: Artist,
+  hubs: Hub[],
+}
 
 export const useArtist = (id: number, library: Library) => useQuery(
   ['artist', id],
@@ -34,18 +40,19 @@ export const useArtistAppearances = (
 );
 
 export const useArtistTracks = ({
-  config, library, id, title, guid, slice,
+  config, library, id, title, guid, sort, slice,
 }: {
   config: IConfig,
   library: Library,
   id: number,
   title: string,
   guid: string,
+  sort: string,
   slice?: number,
 }) => useQuery(
-  ['artist-tracks', id, slice],
+  ['artist-tracks', id, slice, sort],
   () => artistTracksQueryFn({
-    config, library, id, title, guid, slice,
+    config, library, id, title, guid, sort, slice,
   }),
   {
     enabled: id !== -1,

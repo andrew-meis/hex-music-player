@@ -8,12 +8,12 @@ import ReactDOM from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import '@szhsin/react-menu/dist/index.css';
 import '@szhsin/react-menu/dist/transitions/slide.css';
-import 'react-datepicker/dist/react-datepicker.css';
 import 'styles/index.scss';
 import Root, { rootLoader } from 'root/Root';
 import Album from 'routes/album/Album';
 import Albums from 'routes/Albums';
 import Artist from 'routes/artist/Artist';
+import ArtistTracks from 'routes/artist/artist-tracks/ArtistTracks';
 import SimilarArtists from 'routes/artist/similar-artists/SimilarArtists';
 import Artists from 'routes/Artists';
 import Charts from 'routes/charts/Charts';
@@ -71,6 +71,11 @@ const router = createHashRouter([
       {
         path: '/artists/:id/similar',
         element: <SimilarArtists />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/artists/:id/tracks',
+        element: <ArtistTracks />,
         errorElement: <ErrorElement />,
       },
       {

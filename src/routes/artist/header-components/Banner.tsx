@@ -44,7 +44,7 @@ interface BannerProps {
 
 const Banner = ({ context, tracksInView }: BannerProps) => {
   const {
-    artist: artistData, colors, filter, library, playArtist, settings, width,
+    artist: artistData, colors, filter, library, playArtist, playArtistRadio, settings, width,
   } = context!;
   const { artist } = artistData!;
   const bannerInView = useInView({ threshold: thresholds });
@@ -58,6 +58,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
 
   const handlePlay = () => playArtist(artist);
   const handleShuffle = () => playArtist(artist, true);
+  const handleRadio = () => playArtistRadio(artist);
 
   return (
     <>
@@ -76,6 +77,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
           <FixedHeader
             artist={artist}
             handlePlay={handlePlay}
+            handleRadio={handleRadio}
             handleShuffle={handleShuffle}
             headerText={tracksInView.inView ? 'Top Tracks' : filter}
             thumbSrcSm={thumbSrcSm}
@@ -169,7 +171,11 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
           position="absolute"
           right="22px"
         >
-          <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
+          <PlayShuffleButton
+            handlePlay={handlePlay}
+            handleRadio={handleRadio}
+            handleShuffle={handleShuffle}
+          />
         </Box>
       </Box>
     </>

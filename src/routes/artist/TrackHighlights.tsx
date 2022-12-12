@@ -42,13 +42,13 @@ const selectedStyle = {
   },
 };
 
-interface TopTracksProps {
+interface TrackHighlightsProps {
   context: ArtistContext | SimilarArtistContext | undefined;
   tracks: Track[] | undefined;
 }
 
 // TODO double-click behavior
-const TopTracks = React.memo(({ context, tracks }: TopTracksProps) => {
+const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) => {
   const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
   const menuStyle = useMenuStyle();
@@ -190,4 +190,4 @@ const TopTracks = React.memo(({ context, tracks }: TopTracksProps) => {
   );
 });
 
-export default TopTracks;
+export default TrackHighlights;

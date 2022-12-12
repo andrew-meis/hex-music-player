@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
-import TopTracks from '../TopTracks';
+import TrackHighlights from '../TrackHighlights';
 import HighlightAlbum from './HighlightAlbum';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
@@ -255,7 +255,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
                   <Typography fontFamily="TT Commons" fontSize="1.3rem">
                     Top Tracks
                   </Typography>
-                  <TopTracks
+                  <TrackHighlights
                     context={context}
                     tracks={openArtistTracksQuery.data
                       .slice(0, Math.floor((panelHeight - 77) / 56))}

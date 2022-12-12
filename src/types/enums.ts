@@ -21,5 +21,19 @@ export enum PlayActions {
   PLAY_PLAYLIST_AT_TRACK,
   PLAY_TRACK,
   PLAY_TRACK_RADIO,
-  PLAY_TRACKS
+  PLAY_TRACKS,
+}
+
+export enum PlexSortKeys {
+  ALBUM_TITLE = 'album.titleSort',
+  ARTIST_TITLE = 'artist.titleSort',
+  TRACK_TITLE = 'titleSort',
+  PLAYCOUNT = 'viewCount',
+  RELEASE_DATE = 'originallyAvailableAt',
+  TRACKNUMBER = 'track.index',
+}
+
+export enum SortOrders {
+  ASC = ':asc',
+  DESC = ':desc',
 }

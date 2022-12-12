@@ -1,58 +1,33 @@
-import { Skeleton } from '@mui/lab';
-import { Box } from '@mui/material';
+import { Theme, useTheme } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Artist, Album as AlbumType, Library, Playlist, PlayQueueItem, Track } from 'hex-plex';
-import { countBy } from 'lodash';
+import { Library, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import {
-  NavigateFunction,
-  useLocation,
-  useNavigate,
-  useNavigationType,
-  useParams,
-} from 'react-router-dom';
-import { GroupedVirtuoso } from 'react-virtuoso';
+import { useLocation, useNavigationType, useParams } from 'react-router-dom';
+import { Virtuoso } from 'react-virtuoso';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { useAlbum, useAlbumTracks } from 'queries/album-queries';
-import { useLibrary } from 'queries/app-queries';
+import { useConfig, useLibrary } from 'queries/app-queries';
+import { ArtistQueryData, useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
-import ListGrouped from 'routes/virtuoso-components/ListGrouped';
-import { isTrack } from 'types/type-guards';
-import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
-import GroupRow from './GroupRow';
+import List from 'routes/virtuoso-components/List';
+import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
+import { IConfig, LocationWithState, RouteParams } from 'types/interfaces';
+import { ButtonSpecs, trackButtons, tracksButtons } from '../../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
-import type { RouteParams } from 'types/interfaces';
 
-const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
-  <Box alignItems="center" display="flex" height={height}>
-    <Box width="50px" />
-    <Box flexGrow={1} marginLeft="8px" width="50%">
-      <Skeleton variant="text" width="50%" />
-      <Skeleton variant="text" width="40%" />
-    </Box>
-    <Box mx="5px">
-      <Skeleton variant="text" width="80px" />
-    </Box>
-    <Box width="50px">
-      <Skeleton variant="text" width="50px" />
-    </Box>
-    <Box width="10px" />
-  </Box>
-);
-
-export interface AlbumContext {
-  album: {album: AlbumType, related: (Playlist | Track | AlbumType | Artist)[]} | undefined;
+export interface ArtistTracksContext {
+  artist: ArtistQueryData | undefined;
+  config: IConfig;
   drag: ConnectDragSource,
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
@@ -61,59 +36,69 @@ export interface AlbumContext {
   hoverIndex: React.MutableRefObject<number | null>;
   isPlaying: boolean;
   library: Library;
-  navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
-  playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   selectedRows: number[];
-}
-
-export interface GroupRowProps {
-  context: AlbumContext;
-  discNumber: number;
+  setSort: React.Dispatch<React.SetStateAction<string>>;
+  sort: string;
+  theme: Theme;
+  tracks: Track[] | undefined;
 }
 
 export interface RowProps {
-  context: AlbumContext;
+  context: ArtistTracksContext;
   index: number;
   track: Track;
 }
 
-const GroupRowContent = (props: GroupRowProps) => <GroupRow {...props} />;
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-const Album = () => {
+const ArtistTracks = () => {
+  const config = useConfig();
   const library = useLibrary();
+  const navigationType = useNavigationType();
   // data loading
+  const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const album = useAlbum(+id, library);
-  const albumTracks = useAlbumTracks(+id, library);
-  const counts = countBy(albumTracks.data, 'parentIndex');
-  const groupCounts = Object.values(counts);
-  const groups = Object.keys(counts).map((i) => +i);
+  const [sort, setSort] = useState(() => {
+    if (navigationType === 'POP') {
+      return (sessionStorage.getItem(`artist-tracks ${id}`)
+        ? sessionStorage.getItem(`artist-tracks ${id}`)!
+        : location.state.sort);
+    }
+    return location.state.sort;
+  });
+  const artist = useArtist(+id, library);
+  const { data: tracks, isLoading } = useArtistTracks({
+    config: config.data,
+    library,
+    id: +id,
+    title: location.state.title,
+    guid: location.state.guid,
+    sort,
+  });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const location = useLocation();
   const menuStyle = useMenuStyle();
-  const navigate = useNavigate();
-  const navigationType = useNavigationType();
+  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playAlbumAtTrack, playSwitch } = usePlayback();
-  const {
-    selectedRows, setSelectedRows, handleClickAway, handleRowClick,
-  } = useRowSelect([]);
+  const { playSwitch } = usePlayback();
+  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+
+  useEffect(() => () => sessionStorage.setItem(`artist-tracks ${id}`, sort), [id, sort]);
+
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     selectedRows,
-    tracks: albumTracks.data || [],
+    tracks: tracks || [],
   });
 
   useLayoutEffect(() => {
     setSelectedRows([]);
-  }, [id, setSelectedRows]);
+  }, [location, setSelectedRows]);
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
@@ -121,7 +106,7 @@ const Album = () => {
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-item-index');
+    const target = event.currentTarget.getAttribute('data-index');
     if (!target) {
       return;
     }
@@ -146,20 +131,17 @@ const Album = () => {
   }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!albumTracks.data) {
+    if (!tracks) {
       return;
     }
     if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => albumTracks.data[n]);
+      const [track] = selectedRows.map((n) => tracks[n]);
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }
     if (selectedRows.length > 1) {
-      const tracks = selectedRows.map((n) => albumTracks.data[n]);
-      if (tracks.every((item) => isTrack(item))) {
-        // @ts-ignore
-        await playSwitch(button.action, { tracks, shuffle: button.shuffle });
-      }
+      const selectedTracks = selectedRows.map((n) => tracks[n]);
+      await playSwitch(button.action, { tracks: selectedTracks, shuffle: button.shuffle });
     }
   };
 
@@ -174,7 +156,7 @@ const Album = () => {
 
   const initialScrollTop = () => {
     let top;
-    top = sessionStorage.getItem(id);
+    top = sessionStorage.getItem(`artist-tracks ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
@@ -183,8 +165,9 @@ const Album = () => {
     return 0;
   };
 
-  const albumContext = useMemo(() => ({
-    album: album.data,
+  const artistTracksContext = useMemo(() => ({
+    artist: artist.data,
+    config: config.data,
     drag,
     getFormattedTime,
     handleClickAway,
@@ -193,12 +176,15 @@ const Album = () => {
     hoverIndex,
     isPlaying,
     library,
-    navigate,
     nowPlaying,
-    playAlbumAtTrack,
     selectedRows,
+    setSort,
+    sort,
+    theme,
+    tracks,
   }), [
-    album.data,
+    artist.data,
+    config,
     drag,
     getFormattedTime,
     handleClickAway,
@@ -207,15 +193,13 @@ const Album = () => {
     hoverIndex,
     isPlaying,
     library,
-    navigate,
     nowPlaying,
-    playAlbumAtTrack,
     selectedRows,
+    setSort,
+    sort,
+    theme,
+    tracks,
   ]);
-
-  if (album.isLoading || albumTracks.isLoading) {
-    return null;
-  }
 
   return (
     <>
@@ -226,35 +210,31 @@ const Album = () => {
         key={location.pathname}
         style={{ height: '100%' }}
       >
-        <GroupedVirtuoso
+        <Virtuoso
           className="scroll-container"
           components={{
             Footer,
             Header,
             Item,
-            List: ListGrouped,
+            List,
             ScrollSeekPlaceholder,
           }}
-          context={albumContext}
+          context={artistTracksContext}
+          data={artist.isLoading || isLoading ? [] : tracks}
           fixedItemHeight={56}
-          groupContent={(index) => GroupRowContent(
-            { context: albumContext, discNumber: groups[index] },
-          )}
-          groupCounts={groupCounts}
           initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
-          itemContent={(index, groupIndex, _item, context) => RowContent(
-            { context, index, track: albumTracks.data![index] },
-          )}
+          itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 700,
+            enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          totalCount={isLoading || tracks === undefined ? 0 : tracks.length}
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              id,
+              `artist-tracks ${id}`,
               target.scrollTop as unknown as string,
             );
           }}
@@ -284,4 +264,4 @@ const Album = () => {
   );
 };
 
-export default Album;
+export default ArtistTracks;

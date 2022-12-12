@@ -6,7 +6,6 @@ import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/all';
 import {
-  Location,
   NavigateFunction,
   useLocation,
   useNavigate,
@@ -21,15 +20,20 @@ import useHideAlbum from 'hooks/useHideAlbum';
 import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
-import { useArtist, useArtistAppearances, useArtistTracks } from 'queries/artist-queries';
+import {
+  ArtistQueryData,
+  useArtist,
+  useArtistAppearances,
+  useArtistTracks,
+} from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { PlayActions } from 'types/enums';
+import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import AlbumsRow from './AlbumsRow';
 import Header from './Header';
-import type { Album, Artist as TArtist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
-import type { IAppSettings, RouteParams } from 'types/interfaces';
+import type { Album, Artist as TArtist, Library, PlayQueueItem, Track } from 'hex-plex';
+import type { IAppSettings, LocationWithState, RouteParams } from 'types/interfaces';
 
 const Footer = () => (
   <Box
@@ -39,10 +43,6 @@ const Footer = () => (
     width="89%"
   />
 );
-
-interface LocationWithState extends Location {
-  state: { guid: TArtist['guid'], title: TArtist['title'] }
-}
 
 const getCols = (width: number) => {
   if (width >= 1350) {
@@ -81,7 +81,7 @@ export interface AlbumRow {
 }
 
 export interface ArtistContext {
-  artist: { albums: Album[], artist: TArtist, hubs: Hub[] } | undefined;
+  artist: ArtistQueryData | undefined;
   colors: string[] | undefined;
   filter: string;
   filters: string[];
@@ -94,6 +94,7 @@ export interface ArtistContext {
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   playArtist: (artist: TArtist, shuffle?: boolean) => Promise<void>;
+  playArtistRadio: (artist: TArtist) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   recentFavorites: Track[] | undefined;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -133,6 +134,13 @@ const Artist = () => {
     id: +id,
     title: location.state.title,
     guid: location.state.guid,
+    sort: [
+      PlexSortKeys.PLAYCOUNT,
+      SortOrders.DESC,
+      ',',
+      PlexSortKeys.RELEASE_DATE,
+      SortOrders.DESC,
+    ].join(''),
     slice: 5,
   });
   // other hooks
@@ -162,7 +170,7 @@ const Artist = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
   const { getFormattedTime } = useFormattedTime();
-  const { playArtist, playSwitch } = usePlayback();
+  const { playArtist, playArtistRadio, playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
@@ -319,6 +327,7 @@ const Artist = () => {
     navigate,
     nowPlaying,
     playArtist,
+    playArtistRadio,
     playSwitch,
     recentFavorites,
     setFilter,
@@ -340,6 +349,7 @@ const Artist = () => {
     navigate,
     nowPlaying,
     playArtist,
+    playArtistRadio,
     playSwitch,
     recentFavorites,
     setFilter,
@@ -381,10 +391,10 @@ const Artist = () => {
                 context={{ ...artistContext, colors: Object.values(colors) as string[] }}
                 data={items}
                 fixedItemHeight={itemHeight}
+                increaseViewportBy={{ top: 0, bottom: 500 }}
                 initialScrollTop={initialScrollTop()}
                 isScrolling={handleScrollState}
                 itemContent={(index, item, context) => RowContent({ index, item, context })}
-                overscan={500}
                 style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
                 onScroll={(e) => {
                   const target = e.currentTarget as unknown as HTMLDivElement;
