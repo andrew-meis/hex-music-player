@@ -141,9 +141,6 @@ const SimilarArtists = () => {
     sort: [
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
-      ',',
-      PlexSortKeys.RELEASE_DATE,
-      SortOrders.DESC,
     ].join(''),
     slice: 5,
   });

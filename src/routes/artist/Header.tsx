@@ -13,28 +13,6 @@ import Highlights from './header-components/Highlights';
 import InfoRow from './header-components/InfoRow';
 import TrackHighlights from './TrackHighlights';
 
-const getText = (by: string) => {
-  if (by === 'added') {
-    return 'Date Added';
-  }
-  if (by === 'date') {
-    return 'Release Date';
-  }
-  if (by === 'played') {
-    return 'Last Played';
-  }
-  if (by === 'plays') {
-    return 'Playcount';
-  }
-  if (by === 'title') {
-    return 'Title';
-  }
-  if (by === 'type') {
-    return 'Release Type';
-  }
-  return '';
-};
-
 const tabStyle = (active: boolean) => ({
   cursor: active ? 'default' : 'pointer',
   fontFamily: 'TT Commons',
@@ -44,6 +22,15 @@ const tabStyle = (active: boolean) => ({
   paddingX: '8px',
   textTransform: 'none',
 });
+
+const sortOptions = [
+  { label: 'Date Added', sortKey: 'added' },
+  { label: 'Last Played', sortKey: 'played' },
+  { label: 'Playcount', sortKey: 'plays' },
+  { label: 'Release Date', sortKey: 'date' },
+  { label: 'Release Type', sortKey: 'type' },
+  { label: 'Title', sortKey: 'title' },
+];
 
 interface SortMenuButtonProps extends MenuButtonProps{
   open: boolean;
@@ -74,7 +61,7 @@ const SortMenuButton = React.forwardRef((
       width={160}
     >
       <Typography>
-        {getText(sort.by)}
+        {sortOptions.find((option) => option.sortKey === sort.by)!.label}
       </Typography>
       <SvgIcon>
         {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
@@ -193,7 +180,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
               fontSize="0.9rem"
               position="absolute"
               sx={{
-                bottom: -24,
+                bottom: -36,
                 color: 'text.secondary',
                 left: 6,
               }}
@@ -206,9 +193,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
                   title: artist.title,
                   sort: [
                     PlexSortKeys.PLAYCOUNT,
-                    SortOrders.DESC,
-                    ',',
-                    PlexSortKeys.RELEASE_DATE,
                     SortOrders.DESC,
                   ].join(''),
                 }}
@@ -258,7 +242,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         display="flex"
         justifyContent="space-between"
         mx="auto"
-        pt="32px"
+        pt="56px"
         width={(width * 0.89)}
       >
         <Typography
@@ -275,42 +259,15 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
           menuStyle={menuStyle}
         >
-          <SortMenuItem
-            handleSort={handleSort}
-            label="Date Added"
-            sort={sort}
-            sortKey="added"
-          />
-          <SortMenuItem
-            handleSort={handleSort}
-            label="Last Played"
-            sort={sort}
-            sortKey="played"
-          />
-          <SortMenuItem
-            handleSort={handleSort}
-            label="Playcount"
-            sort={sort}
-            sortKey="plays"
-          />
-          <SortMenuItem
-            handleSort={handleSort}
-            label="Release Date"
-            sort={sort}
-            sortKey="date"
-          />
-          <SortMenuItem
-            handleSort={handleSort}
-            label="Release Type"
-            sort={sort}
-            sortKey="type"
-          />
-          <SortMenuItem
-            handleSort={handleSort}
-            label="Title"
-            sort={sort}
-            sortKey="title"
-          />
+          {sortOptions.map((option) => (
+            <SortMenuItem
+              handleSort={handleSort}
+              key={option.sortKey}
+              label={option.label}
+              sort={sort}
+              sortKey={option.sortKey}
+            />
+          ))}
         </Menu>
       </Box>
       <Box
@@ -327,14 +284,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             color={filter === group ? 'primary' : 'default'}
             key={group}
             label={group}
-            sx={{
-              fontFamily: 'Arimo',
-              fontSize: '0.9rem',
-              transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
-              '&:hover': {
-                boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)',
-              },
-            }}
+            sx={{ fontSize: '0.9rem' }}
             onClick={() => setFilter(group)}
           />
         ))}

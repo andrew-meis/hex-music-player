@@ -1,6 +1,10 @@
-import { Avatar, Box, Button, Fade, SvgIcon, Typography } from '@mui/material';
+import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
+import React from 'react';
 import {
   BiHash,
+  HiArrowSmDown,
+  HiArrowSmUp,
   IoMdMicrophone,
   RiHeartLine,
   RiTimeLine,
@@ -9,23 +13,110 @@ import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';
+import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
-import { PlexSortKeys, SortOrders } from 'types/enums';
+import styles from 'styles/ArtistHeader.module.scss';
+import { PlexSortKeys } from 'types/enums';
 import { ArtistTracksContext } from './ArtistTracks';
 import FixedHeader from './FixedHeader';
+
+const sortOptions = [
+  { label: 'Album', sortKey: PlexSortKeys.ALBUM_TITLE },
+  { label: 'Artist', sortKey: PlexSortKeys.ARTIST_TITLE },
+  { label: 'Playcount', sortKey: PlexSortKeys.PLAYCOUNT },
+  { label: 'Release Date', sortKey: PlexSortKeys.RELEASE_DATE },
+  { label: 'Title', sortKey: PlexSortKeys.TRACK_TITLE },
+];
+
+interface SortMenuButtonProps extends MenuButtonProps{
+  open: boolean;
+  sort: string;
+}
+
+const SortMenuButton = React.forwardRef((
+  { open, sort, onClick, onKeyDown }: SortMenuButtonProps,
+  ref,
+) => {
+  const [by, order] = sort.split(':');
+  return (
+    <MenuButton
+      className={styles['sort-button']}
+      ref={ref}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+    >
+      <Box
+        alignItems="center"
+        color={open ? 'text.primary' : 'text.secondary'}
+        display="flex"
+        height={32}
+        justifyContent="space-between"
+        sx={{
+          '&:hover': {
+            color: 'text.primary',
+          },
+        }}
+        width={160}
+      >
+        <Typography>
+          {sortOptions.find((option) => option.sortKey === by)!.label}
+        </Typography>
+        <SvgIcon>
+          {(order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+        </SvgIcon>
+      </Box>
+    </MenuButton>
+  );
+});
+
+interface SortMenuItemProps {
+  handleSort: (sortKey: string) => void
+  label: string;
+  sort: string;
+  sortKey: string;
+}
+
+const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) => {
+  const [by, order] = sort.split(':');
+  return (
+    <MenuItem
+      onClick={() => handleSort(sortKey)}
+    >
+      <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
+        {label}
+        {by === sortKey && (
+          <SvgIcon sx={{ height: '0.8em', width: '0.8em' }}>
+            {(order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+          </SvgIcon>
+        )}
+      </Box>
+    </MenuItem>
+  );
+};
 
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistTracksContext }) => {
   const {
-    artist: artistData, setSort,
+    artist: artistData, setSort, sort,
   } = context!;
   const { artist } = artistData!;
+  const menuStyle = useMenuStyle();
   const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
   const { playArtist } = usePlayback();
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   const handlePlay = () => playArtist(artist);
   const handleShuffle = () => playArtist(artist, true);
+
+  const handleSort = (sortKey: string) => {
+    const [by, order] = sort.split(':');
+    if (by === sortKey) {
+      const newOrder = (order === 'asc' ? 'desc' : 'asc');
+      setSort([by, newOrder].join(':'));
+      return;
+    }
+    setSort([sortKey, order].join(':'));
+  };
 
   return (
     <>
@@ -45,7 +136,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
             artist={artist}
             handlePlay={handlePlay}
             handleShuffle={handleShuffle}
-            headerText="Tracks"
+            headerText="All Tracks"
             thumbSrcSm={thumbSrcSm}
           />
         </Box>
@@ -94,7 +185,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               {artist.title}
             </NavLink>
             &nbsp;&nbsp;»&nbsp;&nbsp;
-            Tracks
+            All Tracks
           </Typography>
           <PlayShuffleButton
             handlePlay={handlePlay}
@@ -102,18 +193,26 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           />
         </Box>
         <Box
-          height={70}
+          alignItems="flex-start"
+          display="flex"
+          justifyContent="flex-end"
         >
-          <Button
-            onClick={() => setSort(
-              [
-                PlexSortKeys.ALBUM_TITLE,
-                SortOrders.ASC,
-              ].join(''),
-            )}
+          <Menu
+            transition
+            align="end"
+            menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
+            menuStyle={menuStyle}
           >
-            Sort by album title
-          </Button>
+            {sortOptions.map((option) => (
+              <SortMenuItem
+                handleSort={handleSort}
+                key={option.sortKey}
+                label={option.label}
+                sort={sort}
+                sortKey={option.sortKey}
+              />
+            ))}
+          </Menu>
         </Box>
         <Box
           alignItems="flex-start"

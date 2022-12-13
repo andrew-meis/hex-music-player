@@ -66,12 +66,12 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
   return (
     <AnimatePresence custom={difference} initial={false}>
       {difference >= -2 && difference <= 2 && (
-        <Palette id={album.id} src={thumbSrc}>
+        <Palette src={album.thumb} url={thumbSrc}>
           {({ data: colors, isLoading, error }) => {
             if (isLoading || error || !colors) {
               return null;
             }
-            const contrastBool = chroma.contrast(colors.vibrant, 'black') > 4.5;
+            // const contrastBool = chroma.contrast(colors.vibrant, 'black') > 4.5;
             const gradStart = chroma(colors.vibrant).brighten().css();
             const gradEndOne = chroma(colors.vibrant).alpha(0.6).css();
             const gradEndTwo = chroma(colors.vibrant).css();

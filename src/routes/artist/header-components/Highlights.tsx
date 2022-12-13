@@ -45,7 +45,7 @@ const Highlights = ({ artistData, height, library, navigate, width }: Highlights
   }
 
   return (
-    <Box flex={`1 0 ${measure > 280 ? 280 : measure}px`}>
+    <Box flex={`1 0 ${measure > 280 ? 280 : measure}px`} ml="8px">
       <Box
         alignItems="center"
         color="text.primary"

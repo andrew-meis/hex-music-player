@@ -8,16 +8,16 @@ import React from 'react';
 import usePalette, { PaletteState } from 'hooks/usePalette';
 
 export interface PaletteProps {
-  id: number;
   src: string;
+  url: string;
   children(palette: QueryObserverRefetchErrorResult<PaletteState, unknown>
     | QueryObserverSuccessResult<PaletteState, unknown>
     | QueryObserverLoadingErrorResult<PaletteState, unknown>
     | QueryObserverLoadingResult<PaletteState, unknown>): React.ReactNode;
 }
 
-const Palette = ({ id, src, children }: PaletteProps) => {
-  const palette = usePalette(id, src);
+const Palette = ({ src, url, children }: PaletteProps) => {
+  const palette = usePalette(src, url);
 
   return <>{children(palette)}</>;
 };

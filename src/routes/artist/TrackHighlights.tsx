@@ -125,7 +125,6 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
         display="flex"
         flexDirection="column"
         height={tracks.length * 56}
-        mr="8px"
         ref={drag}
         onDragEndCapture={handleClickAway}
       >

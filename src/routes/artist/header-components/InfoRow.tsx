@@ -1,4 +1,5 @@
 import { Box, Chip, Typography } from '@mui/material';
+import chroma from 'chroma-js';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub, Library } from 'hex-plex';
@@ -89,20 +90,23 @@ const InfoRow = ({ artistData, colors, library, navigate, width }: InfoRowProps)
           </>
         )}
       <Box display="flex" flexWrap="wrap" gap="8px" height="32px" mr="8px" overflow="hidden">
-        {artist.genre.map((genre, index) => (
-          <Chip
-            key={genre.id}
-            label={genre.tag.toLowerCase()}
-            sx={{
-              backgroundColor: colors ? colors[index % 6] : 'common.grey',
-              transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
-              color: fontColorContrast(colors ? colors[index % 6] : 'common.grey'),
-              '&:hover': {
-                boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)',
-              },
-            }}
-          />
-        ))}
+        {artist.genre.map((genre, index) => {
+          const color = colors ? colors[index % 6] : 'common.grey';
+          return (
+            <Chip
+              key={genre.id}
+              label={genre.tag.toLowerCase()}
+              sx={{
+                backgroundColor: color,
+                transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
+                color: fontColorContrast(color),
+                '&:hover': {
+                  boxShadow: `inset 0 0 0 1000px ${chroma(color).brighten()}`,
+                },
+              }}
+            />
+          );
+        })}
       </Box>
       <SimilarArtistAvatarGroup
         artist={artist}

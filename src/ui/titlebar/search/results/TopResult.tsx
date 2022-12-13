@@ -67,7 +67,7 @@ const TopResult = ({ topResult, setOpen }: Props) => {
       },
     )
     : '';
-  const { data: palette, isError } = usePalette(topResult.id, thumbSrc);
+  const { data: palette, isError } = usePalette(topResult.thumb, thumbSrc);
 
   const [, drag, dragPreview] = useDrag(() => ({
     type: getDragType(topResult.type),

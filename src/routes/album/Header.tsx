@@ -101,7 +101,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
               </Box>
               <Typography sx={titleStyle} variant="h4">{album.title}</Typography>
               <Box alignItems="center" display="flex" height={32}>
-                <Palette id={album.id} src={thumbSrc}>
+                <Palette src={album.thumb} url={thumbSrc}>
                   {({ data: colors, isLoading }) => {
                     if (isLoading) {
                       return null;

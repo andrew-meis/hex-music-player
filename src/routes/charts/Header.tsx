@@ -62,7 +62,7 @@ const Header = ({ context }: { context?: ChartsContext }) => {
     if (newStart.isBefore(newEnd)) {
       setStartDate(newStart);
       setEndDate(newEnd);
-      if ((diff === 7 || 30 || 90 || 365) && newEnd.isSame(moment(), 'day')) {
+      if (dayOptions.includes(diff) && newEnd.isSame(moment(), 'day')) {
         setDays(diff);
       } else {
         setDays(0);

@@ -24,9 +24,9 @@ const FixedHeader = ({
     display="flex"
     height={70}
     marginX="auto"
-    maxWidth="1600px"
+    maxWidth="888px"
     paddingX="6px"
-    width="89%"
+    width="calc(89% - 12px)"
   >
     <Avatar
       alt={artist.title}

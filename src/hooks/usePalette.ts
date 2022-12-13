@@ -20,9 +20,9 @@ export const defaultColors: PaletteState = {
   lightMuted: '#cccccc',
 };
 
-const usePalette = (id: number, src: string) => useQuery(
-  ['palette', id],
-  () => Vibrant.from(`${src}&extra=1`)
+const usePalette = (src: string, url: string) => useQuery(
+  ['palette', src],
+  () => Vibrant.from(`${url}&extra=1`)
     .getPalette((err: any, palette: any) => palette),
   {
     keepPreviousData: true,

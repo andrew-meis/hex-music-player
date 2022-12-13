@@ -137,9 +137,6 @@ const Artist = () => {
     sort: [
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
-      ',',
-      PlexSortKeys.RELEASE_DATE,
-      SortOrders.DESC,
     ].join(''),
     slice: 5,
   });
@@ -366,8 +363,8 @@ const Artist = () => {
 
   return (
     <Palette
-      id={+id}
-      src={library.api.getAuthenticatedUrl(artist.data.artist.art || artist.data.artist.thumb)}
+      src={artist.data.artist.art || artist.data.artist.thumb}
+      url={library.api.getAuthenticatedUrl(artist.data.artist.art || artist.data.artist.thumb)}
     >
       {({ data: colors, isLoading, isError }) => {
         if (isLoading || isError) {

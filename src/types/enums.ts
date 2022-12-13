@@ -29,7 +29,7 @@ export enum PlexSortKeys {
   ARTIST_TITLE = 'artist.titleSort',
   TRACK_TITLE = 'titleSort',
   PLAYCOUNT = 'viewCount',
-  RELEASE_DATE = 'originallyAvailableAt',
+  RELEASE_DATE = 'album.originallyAvailableAt',
   TRACKNUMBER = 'track.index',
 }
 
