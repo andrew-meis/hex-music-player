@@ -1,12 +1,12 @@
 import {
-  Box, Chip, CircularProgress, Fade, IconButton, SvgIcon, TextField, Typography,
+  Box, Chip, Fade, IconButton, SvgIcon, TextField, Typography,
 } from '@mui/material';
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   BiHash,
-  FiCheckCircle,
   RiHeartLine,
+  RiRefreshLine,
   RiTimeLine,
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
@@ -32,6 +32,8 @@ const Header = ({ context }: { context?: ChartsContext }) => {
   const {
     config, days, isFetching, setDays, endDate, setEndDate, startDate, setStartDate, theme,
   } = context!;
+  const endInput = useRef<HTMLInputElement>();
+  const startInput = useRef<HTMLInputElement>();
   const [end, setEnd] = useState(endDate);
   const [start, setStart] = useState(startDate);
   const [error, setError] = useState(false);
@@ -55,7 +57,10 @@ const Header = ({ context }: { context?: ChartsContext }) => {
   const handlePlay = () => playUri(uri);
   const handleShuffle = () => playUri(uri, true);
 
-  const handleSetDates = () => {
+  const handleSetDates = (event: React.FormEvent) => {
+    event.preventDefault();
+    startInput.current?.blur();
+    endInput.current?.blur();
     const newStart = start.hour(0).minute(0).second(0);
     const newEnd = end.hour(23).minute(59).second(59);
     const diff = newEnd.diff(newStart, 'days');
@@ -134,12 +139,15 @@ const Header = ({ context }: { context?: ChartsContext }) => {
             ))}
           </Box>
           <Box
+            component="form"
             display="flex"
             ml="auto"
+            onSubmit={handleSetDates}
           >
             <TextField
               error={error}
               helperText={error ? 'Must be before end date.' : ' '}
+              inputRef={startInput}
               label="start"
               sx={textFieldStyle}
               type="date"
@@ -157,6 +165,7 @@ const Header = ({ context }: { context?: ChartsContext }) => {
               &nbsp;&nbsp;–&nbsp;&nbsp;
             </Typography>
             <TextField
+              inputRef={endInput}
               label="end"
               sx={textFieldStyle}
               type="date"
@@ -178,19 +187,24 @@ const Header = ({ context }: { context?: ChartsContext }) => {
                   height: 32,
                   width: 32,
                 }}
-                onClick={handleSetDates}
+                type="submit"
               >
                 <SvgIcon>
-                  <FiCheckCircle />
+                  <RiRefreshLine />
                 </SvgIcon>
               </IconButton>
             )}
             {isFetching && (
-              <CircularProgress
-                disableShrink
-                size={24}
-                sx={{ alignSelf: 'center', color: 'text.secondary', padding: '4px' }}
-              />
+              <SvgIcon
+                sx={{
+                  alignSelf: 'center',
+                  animation: 'spin 1.4s linear infinite',
+                  color: 'text.secondary',
+                  padding: '4px',
+                }}
+              >
+                <RiRefreshLine />
+              </SvgIcon>
             )}
           </Box>
         </Box>

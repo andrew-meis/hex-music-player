@@ -2,7 +2,7 @@ import { Theme, useTheme } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -58,16 +58,26 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Charts = () => {
-  const [days, setDays] = useState(7);
-  const [endDate, setEndDate] = useState(moment()
-    .hours(23)
-    .minutes(59)
-    .seconds(59));
-  const [startDate, setStartDate] = useState(moment()
-    .subtract(days, 'days')
-    .hours(0)
-    .minutes(0)
-    .seconds(0));
+  const navigationType = useNavigationType();
+  const savedState = JSON.parse(sessionStorage.getItem('charts-state') || '{}');
+  const [days, setDays] = useState(() => {
+    if (navigationType === 'POP' && Object.keys(savedState).length > 0) {
+      return savedState.days as number;
+    }
+    return 7;
+  });
+  const [endDate, setEndDate] = useState(() => {
+    if (navigationType === 'POP' && Object.keys(savedState).length > 0) {
+      return moment(savedState.endDate) as Moment;
+    }
+    return moment().hours(23).minutes(59).seconds(59);
+  });
+  const [startDate, setStartDate] = useState(() => {
+    if (navigationType === 'POP' && Object.keys(savedState).length > 0) {
+      return moment(savedState.startDate) as Moment;
+    }
+    return moment().hours(0).minutes(0).seconds(0);
+  });
   // data loading
   const config = useConfig();
   const library = useLibrary();
@@ -82,7 +92,6 @@ const Charts = () => {
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
   const menuStyle = useMenuStyle();
-  const navigationType = useNavigationType();
   const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
@@ -96,6 +105,14 @@ const Charts = () => {
     selectedRows,
     tracks: topTracks || [],
   });
+
+  useEffect(
+    () => () => sessionStorage.setItem(
+      'charts-state',
+      JSON.stringify({ days, endDate, startDate }),
+    ),
+    [days, endDate, startDate],
+  );
 
   useLayoutEffect(() => {
     setSelectedRows([]);

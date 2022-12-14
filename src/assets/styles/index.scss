@@ -110,6 +110,13 @@
        url('../../fonts/TTCommons/ttcommons-700.woff') format('woff')
 }
 
+@keyframes spin { 
+  100% { 
+      -webkit-transform: rotate(360deg); 
+      transform:rotate(360deg); 
+  } 
+}
+
 body {
   height: 100vh;
   margin: 0;
