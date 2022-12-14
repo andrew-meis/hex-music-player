@@ -37,20 +37,25 @@ export const useNowPlaying = () => {
   );
 };
 
-export const useSearch = ({ query }: {query: string}) => {
+export const useSearch = ({
+  query, onSuccess,
+}: {
+  query: string, onSuccess: (data: Result[]) => void,
+}) => {
   const library = useLibrary();
-  return useQuery<Result[]>(
+  return useQuery(
     ['search', query],
     async () => {
       const response = await library.searchAll(query, 10);
       return response.hubs
         .filter((hub) => hub.type === 'artist' || hub.type === 'album' || hub.type === 'track')
         .map((option) => option.items)
-        .flat();
+        .flat() as Result[];
     },
     {
-      enabled: !!library && query.length > 1,
+      enabled: query.length > 1,
       keepPreviousData: true,
+      onSuccess,
       refetchOnWindowFocus: false,
     },
   );

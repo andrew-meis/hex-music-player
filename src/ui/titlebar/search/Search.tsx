@@ -1,6 +1,5 @@
 import {
   Box,
-  CircularProgress,
   ClickAwayListener,
   Fade,
   IconButton,
@@ -11,30 +10,50 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import { IoIosArrowBack, IoIosArrowForward, CgSearch, MdClear } from 'react-icons/all';
+import {
+  IoIosArrowBack,
+  IoIosArrowForward,
+  CgSearch,
+  MdClear,
+  RiRefreshLine,
+} from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
 import { useSearch } from 'queries/plex-queries';
+import { Result } from 'types/types';
 import SearchResultBox from './SearchResultBox';
 
-const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivElement>}) => {
+const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivElement>}) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const searchInput = useRef<HTMLInputElement>(null);
+  const [display, setDisplay] = useState('history');
   const [input, setInput] = useState('');
   const [inputDebounced, setInputDebounced] = useState('');
   const [inputHover, setInputHover] = useState(false);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-  const { data: searchResults } = useSearch({ query: inputDebounced });
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const onSuccess = (data: Result[]) => {
+    setSearchHistory((prev) => [input, ...prev]);
+    if (data.length === 0) {
+      setDisplay('no-results');
+      setLoading(false);
+      return;
+    }
+    setDisplay('results');
+    setLoading(false);
+  };
+  const searchResults = useSearch({ query: inputDebounced, onSuccess });
 
   useDebounce(() => {
     setInputDebounced(input);
-    setLoading(false);
   }, 500, [input]);
 
   useEffect(() => {
-    if (input.length === 0) {
+    if (input.length <= 1) {
+      setDisplay('history');
+      setLoading(false);
       queryClient.setQueriesData(['search'], []);
       return;
     }
@@ -47,6 +66,7 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
   };
 
   const handleClear = () => {
+    setDisplay('history');
     queryClient.setQueriesData(['search'], []);
     setInput('');
     searchInput.current?.focus();
@@ -95,6 +115,7 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
         >
           <Paper
             component="form"
+            elevation={3}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -150,12 +171,16 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
             </IconButton>
             )}
             {loading && (
-            <CircularProgress
-              size={24}
-              sx={{
-                my: 'auto', color: 'text.secondary', position: 'absolute', right: '8px',
-              }}
-            />
+              <SvgIcon
+                sx={{
+                  alignSelf: 'center',
+                  animation: 'spin 1.4s linear infinite',
+                  color: 'text.secondary',
+                  padding: '7px',
+                }}
+              >
+                <RiRefreshLine />
+              </SvgIcon>
             )}
           </Paper>
           <Portal container={searchContainer.current}>
@@ -163,8 +188,13 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
               <Box
                 bgcolor="transparent"
                 border="1px solid"
-                borderColor="primary.main"
+                borderColor="border.main"
                 borderRadius="4px"
+                boxShadow={`
+                  0px 5px 5px -3px rgb(0 0 0 / 20%),
+                  0px 8px 10px 1px rgb(0 0 0 / 14%),
+                  0px 3px 14px 2px rgb(0 0 0 / 12%)
+                `}
                 display="table"
                 id="search-container"
                 left={0}
@@ -181,21 +211,24 @@ const Search = ({ searchContainer }: {searchContainer: React.RefObject<HTMLDivEl
               >
                 <Box
                   boxShadow="none !important"
-                  component={Paper}
+                  component={(props) => (<Paper elevation={3} {...props} />)}
                 >
                   <Box
                     borderBottom="1px solid"
                     borderColor="border.main"
                     boxShadow="none !important"
-                    component={Paper}
+                    component={(props) => (<Paper elevation={3} {...props} />)}
                     height={38}
                     marginX="auto"
                     width="95%"
                   />
                   <SearchResultBox
-                    query={inputDebounced}
-                    results={searchResults}
+                    display={display}
+                    searchHistory={searchHistory}
+                    searchResults={searchResults}
+                    setInput={setInput}
                     setOpen={setOpen}
+                    setSearchHistory={setSearchHistory}
                   />
                 </Box>
               </Box>

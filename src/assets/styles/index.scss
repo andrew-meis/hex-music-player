@@ -157,6 +157,14 @@ select:focus-visible {
   outline: none;
 }
 
+.box > svg {
+  opacity: 0;
+}
+
+.box:hover > svg {
+  opacity: 1;
+}
+
 .disable-hover {
   .list-box {
     pointer-events: none;
