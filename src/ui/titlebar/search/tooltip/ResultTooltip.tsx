@@ -26,16 +26,28 @@ const ResultTooltip = ({
         tooltip: {
           sx: {
             width: '152px',
-            left: '-4px',
+            left: '-2px',
             padding: '5px 5px',
-            background: theme.palette.background.paper,
-            border: 'solid 1px',
-            borderColor: 'border.main',
+            backgroundColor: theme.palette.background.paper,
+            backgroundImage: theme.palette.mode === 'light'
+              ? ''
+              : `linear-gradient(
+                  ${theme.palette.action.disabledBackground},
+                  ${theme.palette.action.disabledBackground}
+                )`,
+            boxShadow:
+              `0px 5px 5px -3px rgb(0 0 0 / 20%),
+               0px 8px 10px 1px rgb(0 0 0 / 14%),
+               0px 3px 14px 2px rgb(0 0 0 / 12%)`,
             '& .MuiTooltip-arrow': {
               '&::before': {
-                background: theme.palette.background.paper,
-                border: 'solid 1px',
-                borderColor: 'border.main',
+                backgroundColor: theme.palette.background.paper,
+                backgroundImage: theme.palette.mode === 'light'
+                  ? ''
+                  : `linear-gradient(
+                      ${theme.palette.action.disabledBackground},
+                      ${theme.palette.action.disabledBackground}
+                    )`,
               },
             },
           },

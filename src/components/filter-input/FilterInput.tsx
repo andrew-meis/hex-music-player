@@ -33,11 +33,19 @@ const FilterInput = ({ filter, setFilter }: FilterInputProps) => {
         sx={{
           display: 'flex',
           color: 'text.main',
+          height: '32px',
           transform: 'translateZ(0px)',
+          transition: 'width 500ms',
+          width: open ? '202px' : '32px',
         }}
         title={open ? '' : 'Filter'}
       >
-        <Collapse in={open} orientation="horizontal" sx={{ position: 'absolute', right: 0 }}>
+        <Collapse
+          in={open}
+          orientation="horizontal"
+          sx={{ position: 'absolute', right: 0 }}
+          timeout={{ enter: 300, exit: 500 }}
+        >
           <Fade
             in={open}
             timeout={{ enter: 300, exit: 500 }}
@@ -75,15 +83,25 @@ const FilterInput = ({ filter, setFilter }: FilterInputProps) => {
           </Fade>
         </Collapse>
         <Fade appear={false} in={!open} timeout={{ enter: 500, exit: 300 }}>
-          <IconButton size="small" onClick={handleClick}>
+          <IconButton
+            size="small"
+            sx={{
+              color: filter === ''
+                ? 'text.secondary'
+                : 'primary.main',
+              '&:hover': {
+                backgroundColor: 'transparent',
+                color: 'text.primary',
+              },
+            }}
+            onClick={handleClick}
+          >
             <SvgIcon
               sx={{
-                color: filter === ''
-                  ? 'text.secondary'
-                  : 'primary.main',
                 height: '18px',
                 width: '18px',
               }}
+              viewBox="0 2 24 24"
             >
               <FiFilter />
             </SvgIcon>

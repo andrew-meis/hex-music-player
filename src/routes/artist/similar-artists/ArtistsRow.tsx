@@ -10,7 +10,7 @@ import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
 const textStyle = {
   bottom: '8px',
-  color: 'common.white',
+  color: 'text.primary',
   display: '-webkit-box',
   fontFamily: 'Rubik',
   fontSize: '1rem',

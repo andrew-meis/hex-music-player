@@ -29,6 +29,7 @@ export interface ArtistTracksContext {
   artist: ArtistQueryData | undefined;
   config: IConfig;
   drag: ConnectDragSource,
+  filter: string;
   getFormattedTime: (inMs: number) => string;
   handleClickAway: () => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
@@ -38,10 +39,10 @@ export interface ArtistTracksContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   selectedRows: number[];
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React.Dispatch<React.SetStateAction<string>>;
   sort: string;
   theme: Theme;
-  tracks: Track[] | undefined;
 }
 
 export interface RowProps {
@@ -81,6 +82,7 @@ const ArtistTracks = () => {
   const menuStyle = useMenuStyle();
   const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -90,10 +92,20 @@ const ArtistTracks = () => {
 
   useEffect(() => () => sessionStorage.setItem(`artist-tracks ${id}`, sort), [id, sort]);
 
+  let items: Track[] = [];
+  if (tracks) {
+    items = tracks.filter(
+      (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
+      || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
+      || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
+      || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
+    );
+  }
+
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     selectedRows,
-    tracks: tracks || [],
+    tracks: items || [],
   });
 
   useLayoutEffect(() => {
@@ -131,16 +143,16 @@ const ArtistTracks = () => {
   }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!tracks) {
+    if (!items) {
       return;
     }
     if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => tracks[n]);
+      const [track] = selectedRows.map((n) => items[n]);
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }
     if (selectedRows.length > 1) {
-      const selectedTracks = selectedRows.map((n) => tracks[n]);
+      const selectedTracks = selectedRows.map((n) => items[n]);
       await playSwitch(button.action, { tracks: selectedTracks, shuffle: button.shuffle });
     }
   };
@@ -169,6 +181,7 @@ const ArtistTracks = () => {
     artist: artist.data,
     config: config.data,
     drag,
+    filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -178,14 +191,15 @@ const ArtistTracks = () => {
     library,
     nowPlaying,
     selectedRows,
+    setFilter,
     setSort,
     sort,
     theme,
-    tracks,
   }), [
     artist.data,
     config,
     drag,
+    filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -195,10 +209,10 @@ const ArtistTracks = () => {
     library,
     nowPlaying,
     selectedRows,
+    setFilter,
     setSort,
     sort,
     theme,
-    tracks,
   ]);
 
   return (
@@ -220,7 +234,7 @@ const ArtistTracks = () => {
             ScrollSeekPlaceholder,
           }}
           context={artistTracksContext}
-          data={artist.isLoading || isLoading ? [] : tracks}
+          data={artist.isLoading || isLoading ? [] : items}
           fixedItemHeight={56}
           initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
@@ -230,7 +244,7 @@ const ArtistTracks = () => {
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={isLoading || tracks === undefined ? 0 : tracks.length}
+          totalCount={isLoading || tracks === undefined ? 0 : items.length}
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(

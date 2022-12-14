@@ -8,12 +8,11 @@ interface FixedHeaderProps {
   artist: Artist;
   handlePlay: () => Promise<void>;
   handleShuffle: () => Promise<void>;
-  headerText: string;
   thumbSrcSm: string;
 }
 
 const FixedHeader = ({
-  artist, handlePlay, handleShuffle, headerText, thumbSrcSm,
+  artist, handlePlay, handleShuffle, thumbSrcSm,
 }: FixedHeaderProps) => (
   <Box
     alignItems="center"
@@ -56,8 +55,7 @@ const FixedHeader = ({
       >
         {artist.title}
       </NavLink>
-      &nbsp;&nbsp;»&nbsp;&nbsp;
-      {headerText ? `${headerText}` : ''}
+      &nbsp;&nbsp;»&nbsp;&nbsp;All Tracks
     </Typography>
     <PlayShuffleButton
       handlePlay={handlePlay}

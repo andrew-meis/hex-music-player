@@ -4,6 +4,7 @@ import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { IConfig } from 'types/interfaces';
+import { trackHistoryQueryFn } from './track-query-fns';
 
 // eslint-disable-next-line import/prefer-default-export
 export const useTopTracks = (
@@ -25,6 +26,22 @@ export const useTopTracks = (
   {
     keepPreviousData: true,
     refetchInterval: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+  },
+);
+
+export const useTrackHistory = (
+  {
+    config, library, id, days,
+  } : {
+    config: IConfig, library: Library, id: number, days: number
+  },
+) => useQuery(
+  ['history', { id, days }],
+  () => trackHistoryQueryFn(config, library, id, days),
+  {
+    initialData: [],
+    keepPreviousData: true,
     refetchOnWindowFocus: false,
   },
 );

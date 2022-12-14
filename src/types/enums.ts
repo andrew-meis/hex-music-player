@@ -25,10 +25,15 @@ export enum PlayActions {
 }
 
 export enum PlexSortKeys {
+  ADDED_AT = 'album.addedAt',
   ALBUM_TITLE = 'album.titleSort',
   ARTIST_TITLE = 'artist.titleSort',
   TRACK_TITLE = 'titleSort',
+  DURATION = 'duration',
+  LAST_PLAYED = 'lastViewedAt',
   PLAYCOUNT = 'viewCount',
+  POPULARITY = 'ratingCount',
+  RATING = 'userRating',
   RELEASE_DATE = 'album.originallyAvailableAt',
   TRACKNUMBER = 'track.index',
 }

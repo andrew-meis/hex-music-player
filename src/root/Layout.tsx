@@ -1,12 +1,11 @@
 import { Box, CircularProgress } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
 import Toast from 'components/toast/Toast';
-import { useConfig, useLibrary } from 'queries/app-queries';
+import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
-import { useTopTracks } from 'queries/track-queries';
 import { IAppSettings } from 'types/interfaces';
 import Footer from 'ui/footer/Footer';
 import MiniNavbar from 'ui/sidebars/navbar/MiniNavbar';
@@ -16,18 +15,14 @@ import Queue from 'ui/sidebars/queue/Queue';
 import Titlebar from 'ui/titlebar/Titlebar';
 
 const Layout = ({ settings }: {settings: IAppSettings}) => {
-  const config = useConfig();
   const library = useLibrary();
   const location = useLocation();
   const searchContainer = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
   const playlists = usePlaylists(library);
-  const recentFavorites = useTopTracks({
-    config: config.data, library, limit: 500, seconds: 60 * 60 * 24 * 90,
-  });
 
-  if (playlists.isLoading || recentFavorites.isLoading) {
+  if (playlists.isLoading) {
     return (
       <Box
         alignItems="center"
@@ -44,7 +39,7 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
   return (
     <>
       <Box
-        bgcolor="action.hover"
+        bgcolor={settings.colorMode === 'light' ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.04)'}
         height="100vh"
         id="background"
         width="100vw"
@@ -84,7 +79,7 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
           zIndex={800}
         >
           <Box height={1} maxWidth={1600} mx="auto" ref={ref}>
-            <AnimatePresence exitBeforeEnter>
+            <AnimatePresence mode="wait">
               <Outlet context={{ width, height }} key={location.pathname} />
             </AnimatePresence>
           </Box>

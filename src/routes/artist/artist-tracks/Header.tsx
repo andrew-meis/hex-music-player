@@ -11,6 +11,7 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
+import FilterInput from 'components/filter-input/FilterInput';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -23,7 +24,12 @@ import FixedHeader from './FixedHeader';
 const sortOptions = [
   { label: 'Album', sortKey: PlexSortKeys.ALBUM_TITLE },
   { label: 'Artist', sortKey: PlexSortKeys.ARTIST_TITLE },
+  { label: 'Date Added', sortKey: PlexSortKeys.ADDED_AT },
+  { label: 'Duration', sortKey: PlexSortKeys.DURATION },
+  { label: 'Last Played', sortKey: PlexSortKeys.LAST_PLAYED },
   { label: 'Playcount', sortKey: PlexSortKeys.PLAYCOUNT },
+  { label: 'Popularity', sortKey: PlexSortKeys.POPULARITY },
+  { label: 'Rating', sortKey: PlexSortKeys.RATING },
   { label: 'Release Date', sortKey: PlexSortKeys.RELEASE_DATE },
   { label: 'Title', sortKey: PlexSortKeys.TRACK_TITLE },
 ];
@@ -47,10 +53,12 @@ const SortMenuButton = React.forwardRef((
     >
       <Box
         alignItems="center"
+        borderRadius="4px"
         color={open ? 'text.primary' : 'text.secondary'}
         display="flex"
         height={32}
         justifyContent="space-between"
+        paddingX="2px"
         sx={{
           '&:hover': {
             color: 'text.primary',
@@ -58,10 +66,10 @@ const SortMenuButton = React.forwardRef((
         }}
         width={160}
       >
-        <Typography>
+        <Typography ml="6px">
           {sortOptions.find((option) => option.sortKey === by)!.label}
         </Typography>
-        <SvgIcon>
+        <SvgIcon style={{ marginRight: '2px' }}>
           {(order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
         </SvgIcon>
       </Box>
@@ -97,7 +105,7 @@ const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) =
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistTracksContext }) => {
   const {
-    artist: artistData, setSort, sort,
+    artist: artistData, filter, setFilter, setSort, sort,
   } = context!;
   const { artist } = artistData!;
   const menuStyle = useMenuStyle();
@@ -136,7 +144,6 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
             artist={artist}
             handlePlay={handlePlay}
             handleShuffle={handleShuffle}
-            headerText="All Tracks"
             thumbSrcSm={thumbSrcSm}
           />
         </Box>
@@ -155,6 +162,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           height={70}
           marginX="auto"
           maxWidth="1600px"
+          paddingX="6px"
         >
           <Avatar
             alt={artist.title}
@@ -184,35 +192,12 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
             >
               {artist.title}
             </NavLink>
-            &nbsp;&nbsp;»&nbsp;&nbsp;
-            All Tracks
+            &nbsp;&nbsp;»&nbsp;&nbsp;All Tracks
           </Typography>
           <PlayShuffleButton
             handlePlay={handlePlay}
             handleShuffle={handleShuffle}
           />
-        </Box>
-        <Box
-          alignItems="flex-start"
-          display="flex"
-          justifyContent="flex-end"
-        >
-          <Menu
-            transition
-            align="end"
-            menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
-            menuStyle={menuStyle}
-          >
-            {sortOptions.map((option) => (
-              <SortMenuItem
-                handleSort={handleSort}
-                key={option.sortKey}
-                label={option.label}
-                sort={sort}
-                sortKey={option.sortKey}
-              />
-            ))}
-          </Menu>
         </Box>
         <Box
           alignItems="flex-start"
@@ -236,9 +221,27 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               width: '50%',
               flexGrow: 1,
               display: 'flex',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
             }}
-          />
+          >
+            <Menu
+              transition
+              align="end"
+              menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
+              menuStyle={menuStyle}
+            >
+              {sortOptions.map((option) => (
+                <SortMenuItem
+                  handleSort={handleSort}
+                  key={option.sortKey}
+                  label={option.label}
+                  sort={sort}
+                  sortKey={option.sortKey}
+                />
+              ))}
+            </Menu>
+            <FilterInput filter={filter} setFilter={setFilter} />
+          </Box>
           <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
             <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
               <RiHeartLine />

@@ -1,6 +1,5 @@
 import { Box, SvgIcon, useTheme } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -28,6 +27,7 @@ import {
 } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { useTrackHistory } from 'queries/track-queries';
 import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import AlbumsRow from './AlbumsRow';
@@ -140,24 +140,18 @@ const Artist = () => {
     ].join(''),
     slice: 5,
   });
+  const recentFavorites = useTrackHistory({
+    config: config.data,
+    library,
+    id: +id,
+    days: 90,
+  });
   // other hooks
   const hideAlbum = useHideAlbum();
   const menuSection = useRef<string | null>();
   const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const queryClient = useQueryClient();
-  const recentFavorites = useMemo(() => {
-    const tracks = queryClient.getQueryData<Track[]>(
-      ['top', { limit: 500, seconds: 60 * 60 * 24 * 90, type: 10 }],
-    );
-    if (tracks !== undefined) {
-      return tracks
-        .filter((track: Track) => track.grandparentId === artist.data?.artist.id)
-        .slice(0, 5);
-    }
-    return [];
-  }, [artist, queryClient]);
   const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
@@ -326,7 +320,7 @@ const Artist = () => {
     playArtist,
     playArtistRadio,
     playSwitch,
-    recentFavorites,
+    recentFavorites: recentFavorites.data.slice(0, 5),
     setFilter,
     setSort,
     settings,
@@ -348,7 +342,7 @@ const Artist = () => {
     playArtist,
     playArtistRadio,
     playSwitch,
-    recentFavorites,
+    recentFavorites.data,
     setFilter,
     setSort,
     settings,
@@ -357,7 +351,7 @@ const Artist = () => {
     width,
   ]);
 
-  if (isEmpty(items) || !artist.data || !topTracks.data) {
+  if (isEmpty(items) || !artist.data || !topTracks.data || !recentFavorites.data) {
     return null;
   }
 
