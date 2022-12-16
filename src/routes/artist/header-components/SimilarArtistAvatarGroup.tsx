@@ -1,32 +1,65 @@
-import { Avatar, AvatarGroup, SvgIcon, Tooltip, Typography } from '@mui/material';
-import React from 'react';
-import { IoMdMicrophone } from 'react-icons/all';
-import { NavigateFunction } from 'react-router-dom';
+import { Avatar, AvatarGroup, Box, SvgIcon, Tooltip, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
+import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
+import { Link, NavigateFunction } from 'react-router-dom';
 import type { Artist, Library } from 'hex-plex';
+
+const iconMotion = {
+  hover: {
+    x: [0, 4, 0],
+    transition: {
+      duration: 0.4,
+      type: 'tween',
+    },
+  },
+};
+
+const MotionSvg = motion(SvgIcon);
+const MotionTypography = motion(Typography);
 
 interface SimilarArtistAvatarGroupProps {
   artist: Artist;
   library: Library;
+  maxList: number;
   navigate: NavigateFunction;
   similarArtists: Artist[];
+  width: number;
 }
 
 const SimilarArtistAvatarGroup = ({
-  artist, library, navigate, similarArtists,
+  artist, library, maxList, navigate, similarArtists, width,
 }: SimilarArtistAvatarGroupProps) => (
-  <>
+  <Box display="flex" flexDirection="column" margin="auto" width={width * 0.89}>
+    <MotionTypography
+      color="text.primary"
+      fontFamily="TT Commons"
+      fontSize="1.625rem"
+      whileHover="hover"
+      width="fit-content"
+    >
+      <Link
+        className="link"
+        to={`/artists/${artist.id}/similar`}
+      >
+        Similar Artists
+        <MotionSvg variants={iconMotion} viewBox="0 -5 24 24">
+          <BiChevronRight />
+        </MotionSvg>
+      </Link>
+    </MotionTypography>
     <AvatarGroup
       componentsProps={{
         additionalAvatar: { onClick: () => navigate(`/artists/${artist.id}/similar`) },
       }}
-      max={similarArtists.length < 5 ? similarArtists.length - 1 : 5}
+      max={similarArtists.length < maxList + 1 ? similarArtists.length - 1 : maxList + 1}
       sx={{
-        marginLeft: 'auto',
+        justifyContent: 'flex-end',
+        marginTop: '12px',
         '& .MuiAvatar-root': {
           border: 'none',
           cursor: 'pointer',
-          height: 54,
-          width: 54,
+          height: 59,
+          width: 59,
           transform: 'scale(0.95)',
           transition: '0.2s',
           '&:hover': { transform: 'scale(1) translateZ(0px)' },
@@ -71,17 +104,7 @@ const SimilarArtistAvatarGroup = ({
         );
       })}
     </AvatarGroup>
-    {similarArtists
-      && (
-        <Typography
-          position="absolute"
-          sx={{ top: '-10px', right: '4px' }}
-          variant="subtitle2"
-        >
-          similar artists
-        </Typography>
-      )}
-  </>
+  </Box>
 );
 
 export default SimilarArtistAvatarGroup;

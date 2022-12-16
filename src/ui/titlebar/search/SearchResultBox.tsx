@@ -38,6 +38,7 @@ const roundRobin = ([a = None, ...rest]): Result[] =>
     : isEmpty(a)
       ? roundRobin(rest)
     // inductive: some non-empty `a`
+    // @ts-ignore
       : [head(a), ...roundRobin([...rest, tail(a)])]);
 
 const SearchResultBox = ({

@@ -5,6 +5,7 @@ import {
   IconButton,
   InputBase,
   Paper,
+  PaperProps,
   Portal,
   SvgIcon,
 } from '@mui/material';
@@ -117,10 +118,11 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
             component="form"
             elevation={3}
             sx={{
-              display: 'flex',
               alignItems: 'center',
-              width: '100%',
+              borderRadius: '12px',
               boxShadow: 'none',
+              display: 'flex',
+              width: '100%',
             }}
             onMouseEnter={() => setInputHover(true)}
             onMouseLeave={() => setInputHover(false)}
@@ -189,7 +191,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
                 bgcolor="transparent"
                 border="1px solid"
                 borderColor="border.main"
-                borderRadius="4px"
+                borderRadius="12px"
                 boxShadow={`
                   0px 5px 5px -3px rgb(0 0 0 / 20%),
                   0px 8px 10px 1px rgb(0 0 0 / 14%),
@@ -203,6 +205,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
                 position="absolute"
                 right={0}
                 sx={{
+                  contain: 'paint',
                   transform: 'scale(1,1) !important',
                 }}
                 top={4}
@@ -211,13 +214,13 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               >
                 <Box
                   boxShadow="none !important"
-                  component={(props) => (<Paper elevation={3} {...props} />)}
+                  component={(props: PaperProps) => (<Paper elevation={3} {...props} />)}
                 >
                   <Box
                     borderBottom="1px solid"
                     borderColor="border.main"
                     boxShadow="none !important"
-                    component={(props) => (<Paper elevation={3} {...props} />)}
+                    component={(props: PaperProps) => (<Paper elevation={3} {...props} />)}
                     height={38}
                     marginX="auto"
                     width="95%"

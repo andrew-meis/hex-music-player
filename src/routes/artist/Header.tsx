@@ -1,7 +1,9 @@
 import { Box, Chip, SvgIcon, Tab, Tabs, Typography } from '@mui/material';
 import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
-import React, { useState } from 'react';
-import { HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
+import { motion } from 'framer-motion';
+import { Artist } from 'hex-plex';
+import React, { useMemo, useState } from 'react';
+import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -9,19 +11,22 @@ import styles from 'styles/ArtistHeader.module.scss';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
-import Highlights from './header-components/Highlights';
 import InfoRow from './header-components/InfoRow';
+import SimilarArtistAvatarGroup from './header-components/SimilarArtistAvatarGroup';
 import TrackHighlights from './TrackHighlights';
 
-const tabStyle = (active: boolean) => ({
-  cursor: active ? 'default' : 'pointer',
-  fontFamily: 'TT Commons',
-  fontSize: '1.625rem',
-  minHeight: '45px',
-  padding: 0,
-  paddingX: '8px',
-  textTransform: 'none',
-});
+const iconMotion = {
+  hover: {
+    x: [0, 4, 0],
+    transition: {
+      duration: 0.4,
+      type: 'tween',
+    },
+  },
+};
+
+const MotionSvg = motion(SvgIcon);
+const MotionTypography = motion(Typography);
 
 const sortOptions = [
   { label: 'Date Added', sortKey: 'added' },
@@ -92,6 +97,22 @@ const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) =
   </MenuItem>
 );
 
+const TabChip = ({ active, label } : { active: boolean, label: string }) => (
+  <Chip
+    color={active ? 'primary' : 'default'}
+    label={label}
+    sx={{
+      // cursor: active ? 'default' : 'pointer',
+      fontSize: '0.9rem',
+      fontWeight: 400,
+      marginRight: '8px',
+      padding: 0,
+      textTransform: 'none',
+    }}
+    onClick={() => {}}
+  />
+);
+
 interface TabPanelProps {
   // eslint-disable-next-line react/require-default-props
   children?: React.ReactNode;
@@ -124,9 +145,24 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     artist: artistData, colors, filter, filters, library, navigate, setFilter, setSort, sort, width,
   } = context!;
   const { artist } = artistData!;
+  const maxList = Math.max(context!.topTracks!.length, context!.recentFavorites!.length);
   const menuStyle = useMenuStyle();
   const tracksInView = useInView({ threshold: 0 });
   const [tab, setTab] = useState(0);
+  const similarArtists = useMemo(() => {
+    const similar = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
+    const sonicSimilar = artistData?.hubs
+      .find((hub) => hub.hubIdentifier === 'external.artist.similar.sonically');
+    let array = [];
+    if (similar && similar.items.length > 0) {
+      array.push(...similar.items);
+    }
+    if (sonicSimilar && sonicSimilar.items.length > 0) {
+      array.push(...sonicSimilar.items);
+    }
+    array = [...new Map(array.map((item) => [item.id, item])).values()];
+    return array as Artist[];
+  }, [artistData]);
 
   const handleSort = (by: string) => {
     if (sort.by === by) {
@@ -157,63 +193,62 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         <InfoRow
           artistData={artistData}
           colors={colors}
-          library={library}
-          navigate={navigate}
-          width={width}
         />
-        <span style={{ height: 24, width: '100%' }} />
+        <Box sx={{ height: 24, width: '100%' }} />
         <Box
           color="text.primary"
           display="flex"
           flex="50000 0 410px"
           flexDirection="column"
           minHeight={
-            (Math.max(context!.topTracks!.length, context!.recentFavorites!.length) * 56) + 45
+            (maxList * 56) + 95
           }
           sx={{
             transform: 'translateZ(0px)',
           }}
         >
-          {tab === 0 && (
-            <Typography
-              fontFamily="TT Commons"
-              fontSize="0.9rem"
-              position="absolute"
-              sx={{
-                bottom: -36,
-                color: 'text.secondary',
-                left: 6,
+          <MotionTypography
+            color="text.primary"
+            fontFamily="TT Commons"
+            fontSize="1.625rem"
+            whileHover="hover"
+            width="fit-content"
+          >
+            <Link
+              className="link"
+              state={{
+                guid: artist.guid,
+                title: artist.title,
+                sort: [
+                  PlexSortKeys.PLAYCOUNT,
+                  SortOrders.DESC,
+                ].join(''),
               }}
-              variant="button"
+              to={`/artists/${artist.id}/tracks`}
             >
-              <Link
-                className="link"
-                state={{
-                  guid: artist.guid,
-                  title: artist.title,
-                  sort: [
-                    PlexSortKeys.PLAYCOUNT,
-                    SortOrders.DESC,
-                  ].join(''),
-                }}
-                to={`/artists/${artist.id}/tracks`}
-              >
-                See more
-              </Link>
-            </Typography>
-          )}
+              All Tracks
+              <MotionSvg variants={iconMotion} viewBox="0 -5 24 24">
+                <BiChevronRight />
+              </MotionSvg>
+            </Link>
+          </MotionTypography>
           <Tabs
             TabIndicatorProps={{ sx: { height: 0 } }}
-            sx={{
-              minHeight: '45px',
-            }}
-            textColor="inherit"
+            textColor="primary"
             value={tab}
             onChange={(e, newValue) => setTab(newValue)}
           >
-            <Tab disableRipple label="Top Tracks" sx={tabStyle(tab === 0)} />
+            <Tab
+              disableRipple
+              label={<TabChip active={tab === 0} label="Top Tracks" />}
+              sx={{ cursor: 'default', height: 56, padding: 0 }}
+            />
             {context!.recentFavorites!.length > 0 && (
-              <Tab disableRipple label="Recent Favorites" sx={tabStyle(tab === 1)} />
+              <Tab
+                disableRipple
+                label={<TabChip active={tab === 1} label="Recent Favorites" />}
+                sx={{ cursor: 'default', height: 56, padding: 0 }}
+              />
             )}
           </Tabs>
           <TabPanel index={0} value={tab}>
@@ -229,29 +264,35 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             />
           </TabPanel>
         </Box>
-        <Highlights
-          artistData={artistData}
-          height={context!.topTracks!.length * 56}
+      </Box>
+      <Box sx={{ height: 24, width: '100%' }} />
+      {similarArtists.length > 0 && (
+        <SimilarArtistAvatarGroup
+          artist={artist}
           library={library}
+          maxList={maxList}
           navigate={navigate}
+          similarArtists={similarArtists}
           width={width}
         />
-      </Box>
+      )}
+      <Box sx={{ height: 24, width: '100%' }} />
       <Box
         alignItems="flex-end"
         display="flex"
         justifyContent="space-between"
         mx="auto"
-        pt="56px"
         width={(width * 0.89)}
       >
         <Typography
           color="text.primary"
           fontFamily="TT Commons"
           fontSize="1.625rem"
-          pt="6px"
         >
-          Discography
+          Discography&nbsp;&nbsp;&nbsp;
+          <SvgIcon style={{ position: 'relative', left: -18, top: 6 }}>
+            <BiChevronRight />
+          </SvgIcon>
         </Typography>
         <Menu
           transition

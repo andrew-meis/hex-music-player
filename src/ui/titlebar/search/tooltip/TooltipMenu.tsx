@@ -50,6 +50,7 @@ const TooltipMenu = ({ result, open, setOpen }: Props) => {
     if (isTrack(result)) {
       await playSwitch(button.action, { track: result, shuffle: button.shuffle });
     }
+    document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
     setOpen(!open);
   };
 
