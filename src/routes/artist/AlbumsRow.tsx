@@ -1,8 +1,9 @@
-import { Box, Tooltip, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Library } from 'hex-plex';
 import moment from 'moment';
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import Tooltip from 'components/tooltip/Tooltip';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import styles from 'styles/AlbumsRow.module.scss';
 import { IAppSettings } from 'types/interfaces';
@@ -150,7 +151,7 @@ const AlbumCover = ({
         enterDelay={500}
         enterNextDelay={300}
         key={album.id}
-        title={<Typography color="common.white" textAlign="center">{album.title}</Typography>}
+        title={album.title}
       >
         <Box
           className={styles['album-cover']}

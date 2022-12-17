@@ -1,10 +1,11 @@
-import { Box, Chip, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, Typography } from '@mui/material';
 import chroma from 'chroma-js';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import Twemoji from 'react-twemoji';
+import Tooltip from 'components/tooltip/Tooltip';
 
 interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
@@ -30,16 +31,9 @@ const InfoRow = ({ artistData, colors }: InfoRowProps) => {
             <>
               {artist.country.map((country) => (
                 <Tooltip
-                  arrow
-                  enterDelay={500}
-                  enterNextDelay={300}
                   key={country.id}
                   placement="right"
-                  title={(
-                    <Typography color="common.white" textAlign="center">
-                      {country.tag}
-                    </Typography>
-                  )}
+                  title={country.tag}
                 >
                   <Box fontSize="2.5rem" width="min-content">
                     <Twemoji>{flag(country.tag)}</Twemoji>

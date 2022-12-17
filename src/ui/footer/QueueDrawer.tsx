@@ -1,6 +1,7 @@
 import { Drawer, IconButton, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { BsViewList } from 'react-icons/all';
+import Tooltip from 'components/tooltip/Tooltip';
 import { useSettings } from 'queries/app-queries';
 import Queue from 'ui/sidebars/queue/Queue';
 import { iconButtonStyle } from '../../constants/style';
@@ -16,6 +17,17 @@ const drawerStyle = {
   '&::-webkit-scrollbar': {
     display: 'none',
   },
+};
+
+const popperProps = {
+  modifiers: [
+    {
+      name: 'offset',
+      options: {
+        offset: [0, 0],
+      },
+    },
+  ],
 };
 
 const QueueDrawer = () => {
@@ -41,45 +53,51 @@ const QueueDrawer = () => {
 
   return (
     <>
-      <IconButton
-        disableRipple
-        size="small"
-        sx={{
-          ...iconButtonStyle,
-          display: settings.dockedQueue ? 'none' : 'inherit',
-          width: '30px',
-          height: '30px',
-          position: 'absolute',
-          right: '147px',
-          color: open ? 'primary.main' : 'text.secondary',
-          '&:hover': {
-            backgroundColor: 'transparent',
-            color: open ? 'primary.light' : 'text.primary',
-          },
-        }}
-        onClick={handleDrawerOpen}
+      <Tooltip
+        PopperProps={popperProps}
+        placement="top"
+        title="Queue"
       >
-        <SvgIcon
+        <IconButton
+          disableRipple
+          size="small"
           sx={{
+            ...iconButtonStyle,
+            display: settings.dockedQueue ? 'none' : 'inherit',
+            width: '30px',
+            height: '30px',
             position: 'absolute',
-            width: '0.9em',
-            height: '0.9em',
+            right: '147px',
+            color: open ? 'primary.main' : 'text.secondary',
+            '&:hover': {
+              backgroundColor: 'transparent',
+              color: open ? 'primary.light' : 'text.primary',
+            },
           }}
-          viewBox="0 6 24 24"
+          onClick={handleDrawerOpen}
         >
-          <BsViewList />
-        </SvgIcon>
-        <SvgIcon
-          sx={{
-            position: 'absolute',
-            width: '0.9em',
-            height: '0.9em',
-          }}
-          viewBox="0 -17 24 23"
-        >
-          <BsViewList />
-        </SvgIcon>
-      </IconButton>
+          <SvgIcon
+            sx={{
+              position: 'absolute',
+              width: '0.9em',
+              height: '0.9em',
+            }}
+            viewBox="0 6 24 24"
+          >
+            <BsViewList />
+          </SvgIcon>
+          <SvgIcon
+            sx={{
+              position: 'absolute',
+              width: '0.9em',
+              height: '0.9em',
+            }}
+            viewBox="0 -17 24 23"
+          >
+            <BsViewList />
+          </SvgIcon>
+        </IconButton>
+      </Tooltip>
       <Drawer
         PaperProps={{
           square: false,

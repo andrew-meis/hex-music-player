@@ -9,8 +9,7 @@
   "main": "dist/electron/main/index.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
-    "rehex": "yarn add file:./../hex-plex --force"
+    "build": "tsc && vite build && electron-builder"
   },
   "engines": {
     "node": "^14.18.0 || >=16.0.0"

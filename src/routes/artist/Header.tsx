@@ -220,7 +220,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
                 guid: artist.guid,
                 title: artist.title,
                 sort: [
-                  PlexSortKeys.PLAYCOUNT,
+                  PlexSortKeys.RELEASE_DATE,
                   SortOrders.DESC,
                 ].join(''),
               }}
@@ -263,6 +263,32 @@ const Header = ({ context }: { context?: ArtistContext }) => {
               tracks={context!.recentFavorites}
             />
           </TabPanel>
+          <Typography
+            color="text.secondary"
+            fontFamily="TT Commons"
+            fontSize="0.9rem"
+            position="absolute"
+            sx={{
+              right: 4,
+              top: 55,
+            }}
+            variant="button"
+          >
+            <Link
+              className="link"
+              state={{
+                guid: artist.guid,
+                title: artist.title,
+                sort: [
+                  PlexSortKeys.PLAYCOUNT,
+                  SortOrders.DESC,
+                ].join(''),
+              }}
+              to={tab === 0 ? `/artists/${artist.id}/tracks` : `/artists/${artist.id}/recent`}
+            >
+              See More
+            </Link>
+          </Typography>
         </Box>
       </Box>
       <Box sx={{ height: 24, width: '100%' }} />
@@ -270,7 +296,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         <SimilarArtistAvatarGroup
           artist={artist}
           library={library}
-          maxList={maxList}
           navigate={navigate}
           similarArtists={similarArtists}
           width={width}

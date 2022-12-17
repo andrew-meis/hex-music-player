@@ -92,6 +92,16 @@ const useQueue = () => {
     return parsePlayQueue(response.data);
   }, [library, queueId]);
 
+  const toggleShuffle = useCallback(async (action: 'shuffle' | 'unshuffle') => {
+    let response;
+    if (action === 'shuffle') {
+      response = await library.shufflePlayQueue(queueId);
+      return response;
+    }
+    response = await library.unshufflePlayQueue(queueId);
+    return response;
+  }, [library, queueId]);
+
   const updateQueue = useCallback(async (queue: PlayQueue) => {
     queryClient.setQueryData(['play-queue', queueId], queue);
   }, [queryClient, queueId]);
@@ -116,6 +126,7 @@ const useQueue = () => {
     getQueue,
     playQueue,
     removeFromQueue,
+    toggleShuffle,
     updateQueue,
     updateTimeline,
   };

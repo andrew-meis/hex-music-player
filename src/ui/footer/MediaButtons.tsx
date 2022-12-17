@@ -1,6 +1,6 @@
 import { Box, IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   IoPlaySkipBack,
   IoPlaySkipForward,
@@ -11,6 +11,7 @@ import {
   RiShuffleFill,
   RiStopCircleFill,
 } from 'react-icons/all';
+import Tooltip from 'components/tooltip/Tooltip';
 import useKeyPress from 'hooks/useKeyPress';
 import useQueue from 'hooks/useQueue';
 import { appQueryKeys, useQueueId, useSettings } from 'queries/app-queries';
@@ -23,18 +24,28 @@ import type { PlayQueueItem } from 'hex-plex';
 
 const { platform } = window.electron.getAppInfo();
 
+const popperProps = {
+  modifiers: [
+    {
+      name: 'offset',
+      options: {
+        offset: [0, -8],
+      },
+    },
+  ],
+};
+
 const MediaButtons = () => {
   const ctrlPress = useKeyPress(platform === 'darwin' ? 'Meta' : 'Control');
   const player = usePlayerContext();
   const queryClient = useQueryClient();
   const queueId = useQueueId();
-  const shuffleMode = false;
   const [disableNext, setDisableNext] = useState(false);
   const [disablePrev, setDisablePrev] = useState(false);
   const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
-  const { updateTimeline } = useQueue();
+  const { toggleShuffle, updateQueue, updateTimeline } = useQueue();
 
   let currentIndex: number;
   let nowPlaying: PlayQueueItem | boolean = false;
@@ -55,6 +66,16 @@ const MediaButtons = () => {
       return <RiPauseCircleFill />;
     }
     return <RiPlayCircleFill />;
+  };
+
+  const getPlayText = () => {
+    if (!!nowPlaying && ctrlPress) {
+      return 'Stop';
+    }
+    if (playerState.isPlaying) {
+      return 'Pause';
+    }
+    return 'Play';
   };
 
   const handleRepeat = useCallback(async (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => {
@@ -242,8 +263,16 @@ const MediaButtons = () => {
     return () => removeEventListener();
   }, [onEvent]);
 
-  const handleShuffle = () => {
-    console.log('shuffle button');
+  const handleShuffle = async () => {
+    if (playQueue?.shuffled) {
+      const newQueue = await toggleShuffle('unshuffle');
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+      return;
+    }
+    const newQueue = await toggleShuffle('shuffle');
+    player.updateTracks(newQueue, 'update');
+    await updateQueue(newQueue);
   };
 
   return (
@@ -255,102 +284,151 @@ const MediaButtons = () => {
         height: '40%',
       }}
     >
-      <IconButton
-        disableRipple
-        disabled={!nowPlaying}
-        size="small"
-        sx={{
-          ...iconButtonStyle,
-          color: shuffleMode ? 'primary.main' : 'text.secondary',
-          '&:hover': {
-            backgroundColor: 'transparent',
-            color: shuffleMode ? 'primary.main' : 'text.primary',
-          },
-        }}
-        onClick={handleShuffle}
+      <Tooltip
+        PopperProps={popperProps}
+        placement="top"
+        title="Shuffle"
       >
-        <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiShuffleFill /></SvgIcon>
-      </IconButton>
-      <span style={{ width: 5 }} />
-      <IconButton
-        disableRipple
-        disabled={queueId === 0 || disablePrev}
-        size="small"
-        sx={iconButtonStyle}
-        onClick={handlePrev}
-      >
-        <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipBack /></SvgIcon>
-      </IconButton>
-      <IconButton
-        disableRipple
-        disabled={queueId === 0}
-        sx={{
-          ...iconButtonStyle,
-          '&:active': { transform: 'scale(0.93)' },
-        }}
-        onClick={handlePlayPause}
-      >
-        <SvgIcon sx={{ width: '1.7em', height: '1.7em' }}>
-          {getPlayIcon()}
-        </SvgIcon>
-      </IconButton>
-      <IconButton
-        disableRipple
-        disabled={queueId === 0 || disableNext || !nextTrack}
-        size="small"
-        sx={iconButtonStyle}
-        onClick={handleNext}
-      >
-        <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipForward /></SvgIcon>
-      </IconButton>
-      <span style={{ width: 5 }} />
-      {settings.repeat === 'repeat-none'
-        && (
+        <span>
           <IconButton
             disableRipple
-            size="small"
-            sx={{ ...iconButtonStyle }}
-            onClick={() => handleRepeat('repeat-all')}
-          >
-            <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeat2Fill /></SvgIcon>
-          </IconButton>
-        )}
-      {settings.repeat === 'repeat-all'
-        && (
-          <IconButton
-            disableRipple
+            disabled={!nowPlaying || !playQueue?.allowShuffle}
             size="small"
             sx={{
               ...iconButtonStyle,
-              color: 'primary.main',
+              color: playQueue?.shuffled ? 'primary.main' : 'text.secondary',
               '&:hover': {
                 backgroundColor: 'transparent',
-                color: 'primary.main',
+                color: playQueue?.shuffled ? 'primary.main' : 'text.primary',
               },
             }}
-            onClick={() => handleRepeat('repeat-one')}
+            onClick={handleShuffle}
           >
-            <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeat2Fill /></SvgIcon>
+            <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiShuffleFill /></SvgIcon>
           </IconButton>
-        )}
-      {settings.repeat === 'repeat-one'
-        && (
+        </span>
+      </Tooltip>
+      <span style={{ width: 5 }} />
+      <Tooltip
+        PopperProps={popperProps}
+        placement="top"
+        title="Previous"
+      >
+        <span>
           <IconButton
             disableRipple
+            disabled={queueId === 0 || disablePrev}
             size="small"
+            sx={iconButtonStyle}
+            onClick={handlePrev}
+          >
+            <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipBack /></SvgIcon>
+          </IconButton>
+        </span>
+      </Tooltip>
+      <Tooltip
+        PopperProps={{
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [0, -12],
+              },
+            },
+          ],
+        }}
+        placement="top"
+        title={getPlayText()}
+      >
+        <span>
+          <IconButton
+            disableRipple
+            disabled={queueId === 0}
             sx={{
               ...iconButtonStyle,
-              color: 'primary.main',
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: 'primary.main',
-              },
+              '&:active': { transform: 'scale(0.93)' },
             }}
-            onClick={() => handleRepeat('repeat-none')}
+            onClick={handlePlayPause}
           >
-            <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeatOneFill /></SvgIcon>
+            <SvgIcon sx={{ width: '1.7em', height: '1.7em' }}>
+              {getPlayIcon()}
+            </SvgIcon>
           </IconButton>
-        )}
+        </span>
+      </Tooltip>
+      <Tooltip
+        PopperProps={popperProps}
+        placement="top"
+        title="Next"
+      >
+        <span>
+          <IconButton
+            disableRipple
+            disabled={queueId === 0 || disableNext || !nextTrack}
+            size="small"
+            sx={iconButtonStyle}
+            onClick={handleNext}
+          >
+            <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipForward /></SvgIcon>
+          </IconButton>
+        </span>
+      </Tooltip>
+      <span style={{ width: 5 }} />
+      <Tooltip
+        PopperProps={popperProps}
+        placement="top"
+        title="Repeat"
+      >
+        <span>
+          {settings.repeat === 'repeat-none'
+            && (
+              <IconButton
+                disableRipple
+                size="small"
+                sx={{ ...iconButtonStyle }}
+                onClick={() => handleRepeat('repeat-all')}
+              >
+                <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeat2Fill /></SvgIcon>
+              </IconButton>
+            )}
+          {settings.repeat === 'repeat-all'
+            && (
+              <IconButton
+                disableRipple
+                size="small"
+                sx={{
+                  ...iconButtonStyle,
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: 'primary.main',
+                  },
+                }}
+                onClick={() => handleRepeat('repeat-one')}
+              >
+                <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeat2Fill /></SvgIcon>
+              </IconButton>
+            )}
+          {settings.repeat === 'repeat-one'
+            && (
+              <IconButton
+                disableRipple
+                size="small"
+                sx={{
+                  ...iconButtonStyle,
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: 'primary.main',
+                  },
+                }}
+                onClick={() => handleRepeat('repeat-none')}
+              >
+                <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiRepeatOneFill /></SvgIcon>
+              </IconButton>
+            )}
+        </span>
+      </Tooltip>
     </Box>
   );
 };

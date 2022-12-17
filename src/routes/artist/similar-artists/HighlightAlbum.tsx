@@ -1,8 +1,9 @@
-import { Avatar, Box, Tooltip, Typography } from '@mui/material';
+import { Avatar, Box, Typography } from '@mui/material';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import { maxBy } from 'lodash';
 import React, { useMemo } from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import Tooltip from 'components/tooltip/Tooltip';
 
 interface HighlightAlbumProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
@@ -71,15 +72,8 @@ const HighlightAlbum = ({ artistData, height, library, navigate, width }: Highli
         onClick={() => navigate(`/albums/${card.id}`)}
       >
         <Tooltip
-          arrow
-          enterDelay={500}
-          enterNextDelay={300}
           key={card.id}
-          title={(
-            <Typography color="common.white" textAlign="center">
-              {card.title}
-            </Typography>
-          )}
+          title={card.title}
         >
           <Avatar
             alt={card.title}

@@ -20,6 +20,7 @@ import Charts from 'routes/charts/Charts';
 import Genres from 'routes/Genres';
 import Home from 'routes/home/Home';
 import Login, { loginLoader } from 'routes/login/Login';
+import LyricsComponent from 'routes/lyrics/LyricsComponent';
 import Playlist from 'routes/playlist/Playlist';
 import Playlists from 'routes/Playlists';
 import Settings from 'routes/settings/Settings';
@@ -43,6 +44,10 @@ const router = createHashRouter([
     element: <Root />,
     loader: rootLoader,
     children: [
+      {
+        path: '*',
+        element: <ErrorElement />,
+      },
       {
         path: '/',
         element: <Home />,
@@ -81,6 +86,11 @@ const router = createHashRouter([
       {
         path: '/charts',
         element: <Charts />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/lyrics',
+        element: <LyricsComponent />,
         errorElement: <ErrorElement />,
       },
       {

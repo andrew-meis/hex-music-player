@@ -4580,14 +4580,14 @@ __metadata:
 
 "hex-plex@file:./../hex-plex::locator=hex-music-player%40workspace%3A.":
   version: 0.1.1
-  resolution: "hex-plex@file:./../hex-plex#./../hex-plex::hash=05701d&locator=hex-music-player%40workspace%3A."
+  resolution: "hex-plex@file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A."
   dependencies:
     "@zwolf/prism": 2.8.0
     fast-xml-parser: ^4.0.9
     ky: 0.18.0
     normalizr: 3.6.0
     uuid: 7.0.2
-  checksum: e5f303779320d2acf5c783b1384aecdf0c578fc8db99fb5a76fed225f9a31ea1c1895c6d6f5dc5f2f15c85fdc5a3a0969a23979a71cf9526e89c987516218554
+  checksum: def85174b9d75c17facdaefc7212f0342fd1a9ba9ca00f31e74fa0e92bcbacc7ea265eb10cad1bae64cd89ef6fca2bf294c184e8d209db532a6ffd646e9a7945
   languageName: node
   linkType: hard
 

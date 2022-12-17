@@ -1,7 +1,8 @@
-import { Avatar, AvatarGroup, Box, SvgIcon, Tooltip, Typography } from '@mui/material';
+import { Avatar, AvatarGroup, Box, SvgIcon, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
 import { Link, NavigateFunction } from 'react-router-dom';
+import Tooltip from 'components/tooltip/Tooltip';
 import type { Artist, Library } from 'hex-plex';
 
 const iconMotion = {
@@ -20,14 +21,13 @@ const MotionTypography = motion(Typography);
 interface SimilarArtistAvatarGroupProps {
   artist: Artist;
   library: Library;
-  maxList: number;
   navigate: NavigateFunction;
   similarArtists: Artist[];
   width: number;
 }
 
 const SimilarArtistAvatarGroup = ({
-  artist, library, maxList, navigate, similarArtists, width,
+  artist, library, navigate, similarArtists, width,
 }: SimilarArtistAvatarGroupProps) => (
   <Box display="flex" flexDirection="column" margin="auto" width={width * 0.89}>
     <MotionTypography
@@ -51,7 +51,7 @@ const SimilarArtistAvatarGroup = ({
       componentsProps={{
         additionalAvatar: { onClick: () => navigate(`/artists/${artist.id}/similar`) },
       }}
-      max={similarArtists.length < maxList + 1 ? similarArtists.length - 1 : maxList + 1}
+      max={similarArtists.length < 6 ? similarArtists.length - 1 : 6}
       sx={{
         justifyContent: 'flex-end',
         marginTop: '12px',
@@ -74,15 +74,8 @@ const SimilarArtistAvatarGroup = ({
           );
         return (
           <Tooltip
-            arrow
-            enterDelay={500}
-            enterNextDelay={300}
             key={similarArtist.id}
-            title={(
-              <Typography color="common.white" textAlign="center">
-                {similarArtist.title}
-              </Typography>
-            )}
+            title={similarArtist.title}
           >
             <Avatar
               alt={similarArtist.title}
