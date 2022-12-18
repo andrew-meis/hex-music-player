@@ -14,6 +14,7 @@ import Album from 'routes/album/Album';
 import Albums from 'routes/Albums';
 import Artist from 'routes/artist/Artist';
 import ArtistTracks from 'routes/artist/subroutes/artist-tracks/ArtistTracks';
+import RecentFavorites from 'routes/artist/subroutes/recent-favorites/RecentFavorites';
 import SimilarArtists from 'routes/artist/subroutes/similar-artists/SimilarArtists';
 import Artists from 'routes/Artists';
 import Charts from 'routes/charts/Charts';
@@ -71,6 +72,11 @@ const router = createHashRouter([
       {
         path: '/artists/:id',
         element: <Artist />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/artists/:id/recent',
+        element: <RecentFavorites />,
         errorElement: <ErrorElement />,
       },
       {

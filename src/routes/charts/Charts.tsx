@@ -1,10 +1,9 @@
 import { Theme, useTheme } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Library, PlayQueueItem, Track } from 'hex-plex';
+import { Track } from 'hex-plex';
 import moment, { Moment } from 'moment';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
@@ -21,32 +20,24 @@ import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { IConfig } from 'types/interfaces';
+import { IConfig, IVirtuosoContext } from 'types/interfaces';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
 
-export interface ChartsContext {
+export interface ChartsContext extends IVirtuosoContext {
   config: IConfig;
   days: number;
-  drag: ConnectDragSource,
   endDate: moment.Moment;
   startDate: moment.Moment;
-  getFormattedTime: (inMs: number) => string;
-  handleClickAway: () => void;
-  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleRowClick: (event: React.MouseEvent, index: number) => void;
-  hoverIndex: React.MutableRefObject<number | null>;
   isFetching: boolean;
-  isPlaying: boolean;
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  selectedRows: number[];
+  playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setDays: React.Dispatch<React.SetStateAction<number>>;
   theme: Theme;
   topTracks: Track[] | undefined;
+  uri: string;
 }
 
 export interface RowProps {
@@ -98,7 +89,7 @@ const Charts = () => {
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playSwitch } = usePlayback();
+  const { playSwitch, playUri } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
@@ -195,6 +186,18 @@ const Charts = () => {
     return 0;
   };
 
+  const uri = useMemo(() => {
+    const uriParams = {
+      type: 10,
+      librarySectionID: config.data.sectionId,
+      'viewedAt>': startDate.unix(),
+      'viewedAt<': endDate.unix(),
+      limit: 101,
+      accountID: 1,
+    };
+    return `/library/all/top?${new URLSearchParams(uriParams as any).toString()}`;
+  }, [config.data, endDate, startDate]);
+
   const chartsContext = useMemo(() => ({
     config: config.data,
     days,
@@ -210,12 +213,14 @@ const Charts = () => {
     isPlaying,
     library,
     nowPlaying,
-    topTracks,
+    playUri,
     selectedRows,
     setDays,
     setEndDate,
     setStartDate,
     theme,
+    topTracks,
+    uri,
   }), [
     config,
     days,
@@ -231,12 +236,14 @@ const Charts = () => {
     isPlaying,
     library,
     nowPlaying,
-    topTracks,
+    playUri,
     selectedRows,
     setDays,
     setEndDate,
     setStartDate,
     theme,
+    topTracks,
+    uri,
   ]);
 
   return (

@@ -36,8 +36,15 @@ const selectedStyle = {
 
 const Row = React.memo(({ context, index, track }: RowProps) => {
   const {
-    getFormattedTime, handleRowClick, hoverIndex, isPlaying, library,
-    nowPlaying, selectedRows,
+    getFormattedTime,
+    handleRowClick,
+    hoverIndex,
+    isPlaying,
+    library,
+    nowPlaying,
+    playUri,
+    selectedRows,
+    uri,
   } = context;
   const playing = nowPlaying?.track.id === track.id;
   const selected = selectedRows.includes(index);
@@ -45,7 +52,7 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
   const selDown = selected && selectedRows.includes(index + 1);
 
   const handleDoubleClick = async () => {
-    console.log('Row.tsx');
+    await playUri(uri, false, track.key);
   };
 
   const handleMouseEnter = () => {

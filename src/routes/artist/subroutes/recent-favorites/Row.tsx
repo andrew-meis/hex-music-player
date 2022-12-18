@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import React from 'react';
 import TrackRow from 'components/track-row/TrackRow';
-import { RowProps } from './ArtistTracks';
+import { RowProps } from './RecentFavorites';
 
 const itemStyle = {
   borderRadius: '4px',

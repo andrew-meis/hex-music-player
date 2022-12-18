@@ -83,11 +83,12 @@ type artistTracksQueryFnParams = {
   title: string,
   guid: string,
   sort: string,
+  removeDupes?: boolean,
   slice?: number,
 }
 
 export const artistTracksQueryFn = async ({
-  config, library, id, title, guid, sort, slice = 0,
+  config, library, id, title, guid, sort, removeDupes = true, slice = 0,
 }: artistTracksQueryFnParams) => {
   const account = library.api.parent as Account;
   const params = new URLSearchParams();
@@ -98,7 +99,7 @@ export const artistTracksQueryFn = async ({
   params.append('or', '1');
   params.append('track.artist', title);
   params.append('pop', '1');
-  params.append('group', 'guid');
+  if (removeDupes) params.append('group', 'guid');
   params.append('sort', sort);
   params.append('type', MediaType.TRACK.toString());
   // eslint-disable-next-line prefer-template

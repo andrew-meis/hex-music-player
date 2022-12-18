@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import React, {
   useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
 } from 'react';
-import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/all';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
@@ -30,25 +29,13 @@ import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlacehol
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
-import type {
-  Library, Playlist as TPlaylist, PlaylistItem, PlayQueueItem, Track,
-} from 'hex-plex';
-import type { RouteParams } from 'types/interfaces';
+import type { Playlist as TPlaylist, PlaylistItem, Track } from 'hex-plex';
+import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
-export interface PlaylistContext {
-  drag: ConnectDragSource,
+export interface PlaylistContext extends IVirtuosoContext {
   filter: string;
-  getFormattedTime: (inMs: number) => string;
-  handleClickAway: () => void;
-  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleRowClick: (event: React.MouseEvent, index: number) => void;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
   playlist: TPlaylist | undefined;
   playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
-  selectedRows: number[];
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }
 

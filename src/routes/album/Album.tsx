@@ -2,10 +2,9 @@ import { Skeleton } from '@mui/lab';
 import { Box } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Artist, Album as AlbumType, Library, Playlist, PlayQueueItem, Track } from 'hex-plex';
+import { Artist, Album as TAlbum, Playlist, Track } from 'hex-plex';
 import { countBy } from 'lodash';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ConnectDragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import {
   NavigateFunction,
@@ -32,7 +31,7 @@ import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/button
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
-import type { RouteParams } from 'types/interfaces';
+import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <Box alignItems="center" display="flex" height={height}>
@@ -51,18 +50,9 @@ const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   </Box>
 );
 
-export interface AlbumContext {
-  album: {album: AlbumType, related: (Playlist | Track | AlbumType | Artist)[]} | undefined;
-  drag: ConnectDragSource,
-  getFormattedTime: (inMs: number) => string;
-  handleClickAway: () => void;
-  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleRowClick: (event: React.MouseEvent, index: number) => void;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  library: Library;
+export interface AlbumContext extends IVirtuosoContext {
+  album: {album: TAlbum, related: (Playlist | Track | TAlbum | Artist)[]} | undefined;
   navigate: NavigateFunction;
-  nowPlaying: PlayQueueItem | undefined;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   selectedRows: number[];
 }

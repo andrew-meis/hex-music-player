@@ -11,7 +11,6 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import usePlayback from 'hooks/usePlayback';
 import { iconButtonStyle } from '../../constants/style';
 import { ChartsContext } from './Charts';
 import FixedHeader from './FixedHeader';
@@ -30,14 +29,22 @@ const textFieldStyle = {
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ChartsContext }) => {
   const {
-    config, days, isFetching, setDays, endDate, setEndDate, startDate, setStartDate, theme,
+    days,
+    isFetching,
+    playUri,
+    setDays,
+    endDate,
+    setEndDate,
+    startDate,
+    setStartDate,
+    theme,
+    uri,
   } = context!;
   const endInput = useRef<HTMLInputElement>();
   const startInput = useRef<HTMLInputElement>();
   const [end, setEnd] = useState(endDate);
   const [start, setStart] = useState(startDate);
   const [error, setError] = useState(false);
-  const { playUri } = usePlayback();
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   useEffect(() => {
@@ -45,15 +52,6 @@ const Header = ({ context }: { context?: ChartsContext }) => {
     setEnd(endDate);
   }, [endDate, startDate]);
 
-  const uriParams = {
-    type: 10,
-    librarySectionID: config.sectionId,
-    'viewedAt>': startDate.unix(),
-    'viewedAt<': endDate.unix(),
-    limit: 101,
-    accountID: 1,
-  };
-  const uri = `/library/all/top?${new URLSearchParams(uriParams as any).toString()}`;
   const handlePlay = () => playUri(uri);
   const handleShuffle = () => playUri(uri, true);
 

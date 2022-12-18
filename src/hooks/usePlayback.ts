@@ -97,16 +97,24 @@ const usePlayback = () => {
     player.initTracks(newQueue);
   }, [playQueue, player, serverUri]);
 
-  const playTracks = useCallback(async (tracks: Track[], shuffle: boolean = false) => {
+  const playTracks = useCallback(async (
+    tracks: Track[],
+    shuffle: boolean = false,
+    key: string = '',
+  ) => {
     const ids = tracks.map((track) => track.id).join(',');
     const uri = library.buildLibraryURI(account.client.identifier, `/library/metadata/${ids}`);
-    const newQueue = await playQueue(uri, shuffle);
+    const newQueue = await playQueue(uri, shuffle, key);
     player.initTracks(newQueue);
   }, [account.client.identifier, library, playQueue, player]);
 
-  const playUri = useCallback(async (uri: string, shuffle: boolean = false) => {
+  const playUri = useCallback(async (
+    uri: string,
+    shuffle: boolean = false,
+    key: string = '',
+  ) => {
     const newUri = library.buildLibraryURI(account.client.identifier, uri);
-    const newQueue = await playQueue(newUri, shuffle);
+    const newQueue = await playQueue(newUri, shuffle, key);
     player.initTracks(newQueue);
   }, [account.client.identifier, library, playQueue, player]);
 

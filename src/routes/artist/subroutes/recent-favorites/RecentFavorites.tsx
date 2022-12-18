@@ -12,9 +12,10 @@ import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { ArtistQueryData, useArtist, useArtistTracks } from 'queries/artist-queries';
+import { ArtistQueryData, useArtist } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { useTrackHistory } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
@@ -24,50 +25,37 @@ import { ButtonSpecs, trackButtons, tracksButtons } from '../../../../constants/
 import Header from './Header';
 import Row from './Row';
 
-export interface ArtistTracksContext extends IVirtuosoContext {
+export interface RecentFavoritesContext extends IVirtuosoContext {
   artist: ArtistQueryData | undefined;
   config: IConfig;
   filter: string;
   items: Track[];
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<string>>;
-  sort: string;
   theme: Theme;
 }
 
 export interface RowProps {
-  context: ArtistTracksContext;
+  context: RecentFavoritesContext;
   index: number;
   track: Track;
 }
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-const ArtistTracks = () => {
+const RecentFavorites = () => {
   const config = useConfig();
   const library = useLibrary();
   const navigationType = useNavigationType();
   // data loading
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const [sort, setSort] = useState(() => {
-    if (navigationType === 'POP') {
-      return (sessionStorage.getItem(`artist-tracks ${id}`)
-        ? sessionStorage.getItem(`artist-tracks ${id}`)!
-        : location.state.sort);
-    }
-    return location.state.sort;
-  });
   const artist = useArtist(+id, library);
-  const { data: tracks, isLoading } = useArtistTracks({
+  const { data: tracks, isLoading } = useTrackHistory({
     config: config.data,
     library,
     id: +id,
-    title: location.state.title,
-    guid: location.state.guid,
-    removeDupes: false,
-    sort,
+    days: 90,
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
@@ -81,8 +69,6 @@ const ArtistTracks = () => {
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch, playTracks } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
-
-  useEffect(() => () => sessionStorage.setItem(`artist-tracks ${id}`, sort), [id, sort]);
 
   let items: Track[] = useMemo(() => [], []);
   if (tracks) {
@@ -160,7 +146,7 @@ const ArtistTracks = () => {
 
   const initialScrollTop = () => {
     let top;
-    top = sessionStorage.getItem(`artist-tracks-scroll ${id}`);
+    top = sessionStorage.getItem(`recent-favorites ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
@@ -169,7 +155,7 @@ const ArtistTracks = () => {
     return 0;
   };
 
-  const artistTracksContext = useMemo(() => ({
+  const recentFavoritesContext = useMemo(() => ({
     artist: artist.data,
     config: config.data,
     drag,
@@ -186,8 +172,6 @@ const ArtistTracks = () => {
     playTracks,
     selectedRows,
     setFilter,
-    setSort,
-    sort,
     theme,
   }), [
     artist.data,
@@ -199,15 +183,13 @@ const ArtistTracks = () => {
     handleContextMenu,
     handleRowClick,
     hoverIndex,
-    items,
     isPlaying,
+    items,
     library,
     nowPlaying,
     playTracks,
     selectedRows,
     setFilter,
-    setSort,
-    sort,
     theme,
   ]);
 
@@ -229,7 +211,7 @@ const ArtistTracks = () => {
             List,
             ScrollSeekPlaceholder,
           }}
-          context={artistTracksContext}
+          context={recentFavoritesContext}
           data={artist.isLoading || isLoading ? [] : items}
           fixedItemHeight={56}
           initialScrollTop={initialScrollTop()}
@@ -244,7 +226,7 @@ const ArtistTracks = () => {
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              `artist-tracks-scroll ${id}`,
+              `recent-favorites ${id}`,
               target.scrollTop as unknown as string,
             );
           }}
@@ -274,4 +256,4 @@ const ArtistTracks = () => {
   );
 };
 
-export default ArtistTracks;
+export default RecentFavorites;

@@ -1,3 +1,5 @@
+/* eslint-disable consistent-return */
+/* eslint-disable import/no-extraneous-dependencies */
 // @ts-nocheck
 import { contextBridge, ipcRenderer } from 'electron';
 
