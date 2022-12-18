@@ -1,5 +1,5 @@
 import { Box, Chip, Typography } from '@mui/material';
-import { MenuItem } from '@szhsin/react-menu';
+import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
@@ -13,9 +13,10 @@ interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
   refreshMetadata: (id: number) => Promise<void>
+  refreshPage: () => void;
 }
 
-const InfoRow = ({ artistData, colors, refreshMetadata }: InfoRowProps) => {
+const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowProps) => {
   const { artist } = artistData!;
 
   return (
@@ -26,7 +27,6 @@ const InfoRow = ({ artistData, colors, refreshMetadata }: InfoRowProps) => {
       flex="1 0 100%"
       height="71px"
       justifyContent="space-between"
-      sx={{ translate: '0px' }}
     >
       <Box
         alignItems="center"
@@ -100,6 +100,10 @@ const InfoRow = ({ artistData, colors, refreshMetadata }: InfoRowProps) => {
         <ActionMenu
           align="end"
         >
+          <MenuItem onClick={() => refreshPage()}>
+            Reload Page
+          </MenuItem>
+          <MenuDivider />
           <MenuItem onClick={() => refreshMetadata(artist.id)}>
             Refresh Metadata
           </MenuItem>
