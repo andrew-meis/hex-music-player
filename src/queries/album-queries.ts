@@ -4,10 +4,11 @@ import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
 import { albumQueryFn, albumSearchQueryFn, albumTracksQueryFn } from 'queries/album-query-fns';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
+import { QueryKeys } from 'types/enums';
 import { IConfig } from 'types/interfaces';
 
 export const useAlbum = (id: number, library: Library) => useQuery(
-  ['album', id],
+  [QueryKeys.ALBUM, id],
   () => albumQueryFn(id, library),
   {
     refetchOnMount: true,
@@ -21,7 +22,7 @@ export const useAlbumSearch = (
   library: Library,
   searchParams: Record<string, string>,
 ) => useQuery(
-  ['albums', searchParams],
+  [QueryKeys.ALBUMS, searchParams],
   () => albumSearchQueryFn(config, library, searchParams),
   {
     refetchOnMount: true,
@@ -30,7 +31,7 @@ export const useAlbumSearch = (
 );
 
 export const useAlbumTracks = (id: number, library: Library) => useQuery(
-  ['album-tracks', id],
+  [QueryKeys.ALBUM_TRACKS, id],
   () => albumTracksQueryFn(id, library),
   {
     refetchOnMount: true,
@@ -45,7 +46,7 @@ export const useTopAlbums = (
     config: IConfig, library: Library, limit: number, start?: number, end?: number, seconds?: number
   },
 ) => useQuery(
-  ['top', { type: 9, limit, seconds, start, end }],
+  [QueryKeys.TOP, { type: 9, limit, seconds, start, end }],
   async () => {
     const response = await topLibraryQueryFn({
       type: 9, config, library, limit, start, end, seconds,

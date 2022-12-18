@@ -9,6 +9,7 @@ import { useQueueId } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
+import { QueryKeys } from 'types/enums';
 import { sliderStyle } from '../../constants/style';
 
 const Seekbar = () => {
@@ -33,7 +34,7 @@ const Seekbar = () => {
   ) => {
     player.setPosition(newValue as number);
     queryClient.setQueryData(
-      ['player-state'],
+      [QueryKeys.PLAYER_STATE],
       () => ({ ...playerState, position: newValue }),
     );
     if (nowPlaying) {

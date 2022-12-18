@@ -38,6 +38,26 @@ export enum PlexSortKeys {
   TRACKNUMBER = 'track.index',
 }
 
+export enum QueryKeys {
+  ALBUM = 'album',
+  ALBUM_TRACKS = 'album-tracks',
+  ALBUMS = 'albums',
+  ARTIST = 'artist',
+  ARTIST_APPEARANCES = 'artist-appearances',
+  ARTIST_TRACKS = 'artist-tracks',
+  HISTORY = 'history',
+  LYRICS = 'lyrics',
+  PALETTE = 'palette',
+  PLAYER_STATE= 'player-state',
+  PLAYLIST = 'playlist',
+  PLAYLISTS = 'playlists',
+  PLAYQUEUE = 'play-queue',
+  SEARCH = 'search',
+  TOAST = 'toast',
+  TOP = 'top',
+  USER = 'user',
+}
+
 export enum SortOrders {
   ASC = ':asc',
   DESC = ':desc',

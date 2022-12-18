@@ -14,6 +14,7 @@ import {
 } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import Palette from 'components/palette/Palette';
+import { useLibraryMaintenance } from 'hooks/plexHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -97,6 +98,7 @@ export interface ArtistContext {
   playArtistRadio: (artist: TArtist) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   recentFavorites: Track[] | undefined;
+  refreshMetadata: (id: number) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React
     .Dispatch<React.SetStateAction<{ by: string, order: string }>>;
@@ -162,6 +164,7 @@ const Artist = () => {
   const { data: settings } = useSettings();
   const { getFormattedTime } = useFormattedTime();
   const { playArtist, playArtistRadio, playSwitch } = usePlayback();
+  const { refreshMetadata } = useLibraryMaintenance();
   const { width } = useOutletContext() as { width: number };
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
@@ -321,6 +324,7 @@ const Artist = () => {
     playArtistRadio,
     playSwitch,
     recentFavorites: recentFavorites.data.slice(0, 5),
+    refreshMetadata,
     setFilter,
     setSort,
     settings,
@@ -343,6 +347,7 @@ const Artist = () => {
     playArtistRadio,
     playSwitch,
     recentFavorites.data,
+    refreshMetadata,
     setFilter,
     setSort,
     settings,

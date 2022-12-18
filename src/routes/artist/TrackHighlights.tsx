@@ -9,7 +9,7 @@ import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 import { ArtistContext } from './Artist';
-import { SimilarArtistContext } from './similar-artists/SimilarArtists';
+import { SimilarArtistContext } from './subroutes/similar-artists/SimilarArtists';
 
 const itemStyle = {
   borderRadius: '4px',

@@ -3,15 +3,15 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { BsDot } from 'react-icons/all';
 import { useLibrary } from 'queries/app-queries';
+import { QueryKeys } from 'types/enums';
 
-// TODO all query keys should be refactored to include their main focus (e.g. track, album)
 const invalidateTrackQueries = async (queryClient: QueryClient) => {
-  await queryClient.invalidateQueries(['album-tracks']);
-  await queryClient.invalidateQueries(['artist-tracks']);
-  await queryClient.invalidateQueries(['play-queue']);
-  await queryClient.invalidateQueries(['playlist']);
-  await queryClient.invalidateQueries(['top-tracks']);
-  await queryClient.invalidateQueries(['top']);
+  await queryClient.invalidateQueries([QueryKeys.ALBUM_TRACKS]);
+  await queryClient.invalidateQueries([QueryKeys.ARTIST_TRACKS]);
+  await queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES]);
+  await queryClient.invalidateQueries([QueryKeys.PLAYLIST]);
+  await queryClient.invalidateQueries([QueryKeys.PLAYQUEUE]);
+  await queryClient.invalidateQueries([QueryKeys.TOP]);
 };
 
 interface TrackRatingProps {

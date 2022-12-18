@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Playlist, PlaylistItem } from 'hex-plex';
 import useToast from 'hooks/useToast';
 import { useLibrary, useServer } from 'queries/app-queries';
+import { QueryKeys } from 'types/enums';
 
 export const useAddToPlaylist = () => {
   const library = useLibrary();
@@ -15,7 +16,8 @@ export const useAddToPlaylist = () => {
       `server://${server.clientIdentifier}/com.plexapp.plugins.library${key}`,
     );
     if (response.MediaContainer.leafCountAdded > 0) {
-      await queryClient.refetchQueries(['playlist', id]);
+      await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
+      await queryClient.refetchQueries([QueryKeys.PLAYLIST, id]);
       toast({ type: 'success', text: 'Added to playlist' });
     }
     if (!response || response.MediaContainer.leafCountAdded === 0) {
@@ -47,7 +49,7 @@ export const useDeletePlaylist = () => {
   const toast = useToast();
   return async (id: number) => {
     await library.deletePlaylist(id);
-    await queryClient.refetchQueries(['playlists']);
+    await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
     toast({ type: 'error', text: 'Deleted playlist' });
   };
 };
@@ -58,7 +60,8 @@ export const useRemoveFromPlaylist = () => {
   const toast = useToast();
   return async (playlistId: Playlist['id'], itemId: PlaylistItem['id']) => {
     await library.removeFromPlaylist(playlistId, itemId);
-    await queryClient.refetchQueries(['playlist', playlistId]);
+    await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
+    await queryClient.refetchQueries([QueryKeys.PLAYLIST, playlistId]);
     toast({ type: 'error', text: 'Removed from playlist' });
   };
 };

@@ -1,18 +1,21 @@
 import { Box, Chip, Typography } from '@mui/material';
+import { MenuItem } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import Twemoji from 'react-twemoji';
+import ActionMenu from 'components/action-menu/ActionMenu';
 import Tooltip from 'components/tooltip/Tooltip';
 
 interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
+  refreshMetadata: (id: number) => Promise<void>
 }
 
-const InfoRow = ({ artistData, colors }: InfoRowProps) => {
+const InfoRow = ({ artistData, colors, refreshMetadata }: InfoRowProps) => {
   const { artist } = artistData!;
 
   return (
@@ -25,7 +28,13 @@ const InfoRow = ({ artistData, colors }: InfoRowProps) => {
       justifyContent="space-between"
       sx={{ translate: '0px' }}
     >
-      <Box width={120}>
+      <Box
+        alignItems="center"
+        display="flex"
+        justifyContent="flex-start"
+        maxWidth={180}
+        minWidth={180}
+      >
         {!isEmpty(artist.country)
           && (
             <>
@@ -40,7 +49,18 @@ const InfoRow = ({ artistData, colors }: InfoRowProps) => {
                   </Box>
                 </Tooltip>
               ))}
+              <Typography flexShrink={0} mx="8px">
+                ┊
+              </Typography>
             </>
+          )}
+        {artist.viewCount > 0
+          && (
+            <Typography textAlign="right">
+              {artist.viewCount}
+              {' '}
+              {artist.viewCount === 1 ? 'play' : 'plays'}
+            </Typography>
           )}
       </Box>
       <Box
@@ -69,15 +89,21 @@ const InfoRow = ({ artistData, colors }: InfoRowProps) => {
           );
         })}
       </Box>
-      <Box flexShrink={0} width={120}>
-        {artist.viewCount > 0
-          && (
-            <Typography textAlign="right">
-              {artist.viewCount}
-              {' '}
-              {artist.viewCount === 1 ? 'play' : 'plays'}
-            </Typography>
-          )}
+      <Box
+        alignItems="center"
+        display="flex"
+        flexShrink={0}
+        justifyContent="flex-end"
+        maxWidth={180}
+        minWidth={180}
+      >
+        <ActionMenu
+          align="end"
+        >
+          <MenuItem onClick={() => refreshMetadata(artist.id)}>
+            Refresh Metadata
+          </MenuItem>
+        </ActionMenu>
       </Box>
     </Box>
   );

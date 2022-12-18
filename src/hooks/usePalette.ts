@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 // @ts-ignore
 import Vibrant from 'node-vibrant/dist/vibrant';
+import { QueryKeys } from 'types/enums';
 
 export interface PaletteState {
   vibrant: string;
@@ -21,7 +22,7 @@ export const defaultColors: PaletteState = {
 };
 
 const usePalette = (src: string, url: string) => useQuery(
-  ['palette', src],
+  [QueryKeys.PALETTE, src],
   () => Vibrant.from(`${url}&extra=1`)
     .getPalette((err: any, palette: any) => palette),
   {

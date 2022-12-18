@@ -24,6 +24,9 @@ export const trackHistoryQueryFn = async (
     },
   );
   const response = await axios.get(url);
+  if (response.data.MediaContainer.size === 0) {
+    return [];
+  }
   const keys = response.data.MediaContainer.Metadata.map((record: Track) => record.ratingKey);
   const counts = countBy(keys, Math.floor);
   const { tracks } = await library.tracks(

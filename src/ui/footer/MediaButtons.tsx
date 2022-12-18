@@ -18,6 +18,7 @@ import { appQueryKeys, useQueueId, useSettings } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
+import { QueryKeys } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
 import { iconButtonStyle } from '../../constants/style';
 import type { PlayQueueItem } from 'hex-plex';
@@ -107,15 +108,15 @@ const MediaButtons = () => {
       if (isPlayQueueItem(nextTrack)) {
         await updateTimeline(nextTrack.id, 'playing', 0, nextTrack.track);
       }
-      await queryClient.refetchQueries(['play-queue', queueId]);
-      const newQueue = queryClient.getQueryData(['play-queue', queueId]);
+      await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
+      const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
       player.next();
       if (!playerState.isPlaying) {
         player.play();
       }
       player.updateTracks(newQueue, 'next');
       queryClient.setQueryData(
-        ['player-state'],
+        [QueryKeys.PLAYER_STATE],
         () => {
           if (isPlayQueueItem(nextTrack)) {
             return ({ duration: nextTrack.track.duration, isPlaying: true, position: 0 });
@@ -163,7 +164,7 @@ const MediaButtons = () => {
         );
       }
       queryClient.setQueryData(
-        ['player-state'],
+        [QueryKeys.PLAYER_STATE],
         () => ({ ...playerState, position: 0 }),
       );
       setDisablePrev(false);
@@ -177,11 +178,11 @@ const MediaButtons = () => {
         await updateTimeline(prevTrack.id, 'playing', 0, prevTrack.track);
         player.startTimer(prevTrack);
       }
-      await queryClient.refetchQueries(['play-queue', queueId]);
-      const newQueue = queryClient.getQueryData(['play-queue', queueId]);
+      await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
+      const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
       player.updateTracks(newQueue, 'prev');
       queryClient.setQueryData(
-        ['player-state'],
+        [QueryKeys.PLAYER_STATE],
         () => {
           if (isPlayQueueItem(prevTrack)) {
             return ({ ...playerState, duration: prevTrack.track.duration, position: 0 });
@@ -218,7 +219,7 @@ const MediaButtons = () => {
         updateTimeline(nowPlaying.id, 'paused', playerState.position, nowPlaying.track);
       }
       queryClient.setQueryData(
-        ['player-state'],
+        [QueryKeys.PLAYER_STATE],
         () => ({ ...playerState, isPlaying: false }),
       );
     }
@@ -229,7 +230,7 @@ const MediaButtons = () => {
         player.startTimer(nowPlaying);
       }
       queryClient.setQueryData(
-        ['player-state'],
+        [QueryKeys.PLAYER_STATE],
         () => ({ ...playerState, isPlaying: true }),
       );
     }

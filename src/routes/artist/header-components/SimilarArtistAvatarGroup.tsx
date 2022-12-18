@@ -1,22 +1,10 @@
-import { Avatar, AvatarGroup, Box, SvgIcon, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
+import { Avatar, AvatarGroup, Box, SvgIcon } from '@mui/material';
 import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
 import { Link, NavigateFunction } from 'react-router-dom';
+import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
+import { iconMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';
 import type { Artist, Library } from 'hex-plex';
-
-const iconMotion = {
-  hover: {
-    x: [0, 4, 0],
-    transition: {
-      duration: 0.4,
-      type: 'tween',
-    },
-  },
-};
-
-const MotionSvg = motion(SvgIcon);
-const MotionTypography = motion(Typography);
 
 interface SimilarArtistAvatarGroupProps {
   artist: Artist;

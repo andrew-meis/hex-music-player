@@ -1,46 +1,24 @@
 import { Avatar, Box, SvgIcon, useTheme } from '@mui/material';
 import { grey } from '@mui/material/colors';
-import {
-  Menu, MenuItem, MenuButton, MenuButtonProps,
-} from '@szhsin/react-menu';
+import { MenuItem } from '@szhsin/react-menu';
 import React from 'react';
 import {
-  FiLogOut, FiMoreVertical, IoInformationCircleOutline, IoSettingsSharp,
+  FiLogOut, IoInformationCircleOutline, IoSettingsSharp,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
-import useMenuStyle from 'hooks/useMenuStyle';
+import ActionMenu from 'components/action-menu/ActionMenu';
 import useQueue from 'hooks/useQueue';
 import { useLibrary } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying, useUser } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
-import styles from 'styles/Titlebar.module.scss';
 import { isPlayQueueItem } from 'types/type-guards';
 import type { IConfig } from 'types/interfaces';
 
 const { platform } = window.electron.getAppInfo();
 
-interface AppMenuButtonProps extends MenuButtonProps{
-  open: boolean;
-}
-
-const AppMenuButton = React.forwardRef((
-  { open, onClick, onKeyDown }: AppMenuButtonProps,
-  ref,
-) => (
-  <MenuButton
-    className={styles['menu-button']}
-    ref={ref}
-    onClick={onClick}
-    onKeyDown={onKeyDown}
-  >
-    <SvgIcon sx={{ color: open ? 'action.selected' : 'text.primary' }}><FiMoreVertical /></SvgIcon>
-  </MenuButton>
-));
-
 const AppMenu = () => {
   const library = useLibrary();
-  const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const player = usePlayerContext();
   const theme = useTheme();
@@ -70,7 +48,7 @@ const AppMenu = () => {
       player.clearTimer();
       await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
     }
-    await player.resetApp();
+    player.resetApp();
     const config = window.electron.readConfig('config') as IConfig;
     config.token = '';
     window.electron.writeConfig('config', config);
@@ -78,17 +56,14 @@ const AppMenu = () => {
   };
 
   return (
-    <Menu
-      transition
+    <ActionMenu
       align={platform === 'darwin' ? 'end' : 'start'}
-      menuButton={({ open }) => <AppMenuButton open={open} />}
-      menuStyle={{
-        ...menuStyle,
+      offsetX={platform === 'darwin' ? -6 : 6}
+      style={{
         fontSize: '1rem',
         minWidth: '198px',
         '--menu-grey': theme.palette.mode === 'light' ? grey['100'] : grey['800'],
       } as React.CSSProperties}
-      offsetX={platform === 'darwin' ? -6 : 6}
     >
       <Box
         alignItems="center"
@@ -125,7 +100,7 @@ const AppMenu = () => {
         <SvgIcon sx={{ mr: '8px' }}><FiLogOut /></SvgIcon>
         Logout
       </MenuItem>
-    </Menu>
+    </ActionMenu>
   );
 };
 

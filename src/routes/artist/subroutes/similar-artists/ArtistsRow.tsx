@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
-import TrackHighlights from '../TrackHighlights';
+import TrackHighlights from '../../TrackHighlights';
 import HighlightAlbum from './HighlightAlbum';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
 

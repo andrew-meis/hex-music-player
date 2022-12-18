@@ -85,21 +85,3 @@
     }
   }
 }
-
-.menu-button {
-  @extend %button-box;
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  &:hover {
-    background-color: transparent;
-    svg {
-      color: var(--hover);
-    }
-  }
-  &:active {
-    svg {
-      color: var(--hover);
-    }
-  }
-}

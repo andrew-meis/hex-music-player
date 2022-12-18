@@ -7,6 +7,7 @@ import {
   appQueryKeys,
   useAccount, useLibrary, useQueueId, useServer,
 } from 'queries/app-queries';
+import { QueryKeys } from 'types/enums';
 import type {
   Album, PlayQueue, PlayQueueItem, Track,
 } from 'hex-plex';
@@ -103,7 +104,7 @@ const useQueue = () => {
   }, [library, queueId]);
 
   const updateQueue = useCallback(async (queue: PlayQueue) => {
-    queryClient.setQueryData(['play-queue', queueId], queue);
+    queryClient.setQueryData([QueryKeys.PLAYQUEUE, queueId], queue);
   }, [queryClient, queueId]);
 
   const updateTimeline = useCallback((

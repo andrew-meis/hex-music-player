@@ -2,6 +2,7 @@ import { Snackbar, Typography } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
+import { QueryKeys } from 'types/enums';
 import type { ToastMessage } from 'types/interfaces';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
@@ -13,7 +14,7 @@ const Toast = () => {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const { data: message } = useQuery<ToastMessage>(
-    ['toast'],
+    [QueryKeys.TOAST],
     () => ({ type: undefined, text: '' }),
     {
       initialData: { type: undefined, text: '' },
@@ -31,7 +32,7 @@ const Toast = () => {
 
   const handleClose = () => {
     setOpen(false);
-    setTimeout(() => queryClient.refetchQueries(['toast']), 300);
+    setTimeout(() => queryClient.refetchQueries([QueryKeys.TOAST]), 300);
   };
 
   return (

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import useQueue from 'hooks/useQueue';
 import { useAccount, useLibrary, useQueueId } from 'queries/app-queries';
+import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 
 export const useCurrentQueue = () => {
@@ -8,7 +9,7 @@ export const useCurrentQueue = () => {
   const queueId = useQueueId();
   const { getQueue } = useQueue();
   return useQuery(
-    ['play-queue', queueId],
+    [QueryKeys.PLAYQUEUE, queueId],
     () => getQueue(),
     {
       enabled: queueId !== 0 && !!library,
@@ -23,7 +24,7 @@ export const useNowPlaying = () => {
   const queueId = useQueueId();
   const { getQueue } = useQueue();
   return useQuery(
-    ['play-queue', queueId],
+    [QueryKeys.PLAYQUEUE, queueId],
     () => getQueue(),
     {
       enabled: queueId !== 0 && !!library,
@@ -44,7 +45,7 @@ export const useSearch = ({
 }) => {
   const library = useLibrary();
   return useQuery(
-    ['search', query],
+    [QueryKeys.SEARCH, query],
     async () => {
       const response = await library.searchAll(query, 10);
       return response.hubs
@@ -64,7 +65,7 @@ export const useSearch = ({
 export const useUser = () => {
   const account = useAccount();
   return useQuery(
-    ['user'],
+    [QueryKeys.USER],
     () => account.info(),
     {
       enabled: !!account,

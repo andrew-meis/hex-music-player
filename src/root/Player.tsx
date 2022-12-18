@@ -6,6 +6,7 @@ import React, {
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
+import { QueryKeys } from 'types/enums';
 import type { Updater } from '@tanstack/react-query';
 import type { PlayQueue, PlayQueueItem } from 'hex-plex';
 import type { PlayerState } from 'types/interfaces';
@@ -104,9 +105,9 @@ const Player = ({ children }: {children: ReactNode}) => {
     player.stop();
     await setQueueId(0);
     player.removeAllTracks();
-    queryClient.removeQueries(['play-queue']);
+    queryClient.removeQueries([QueryKeys.PLAYQUEUE]);
     queryClient.setQueryData(
-      ['player-state'],
+      [QueryKeys.PLAYER_STATE],
       () => ({ duration: 0, isPlaying: false, position: 0 }),
     );
   };
@@ -158,9 +159,9 @@ const Player = ({ children }: {children: ReactNode}) => {
       await updateTimeline(nowPlaying.id, 'stopped', nowPlaying.track.duration, nowPlaying.track);
       await setQueueId(0);
       player.removeAllTracks();
-      queryClient.removeQueries(['play-queue']);
+      queryClient.removeQueries([QueryKeys.PLAYQUEUE]);
       queryClient.setQueryData(
-        ['player-state'],
+        [QueryKeys.PLAYER_STATE],
         () => ({ duration: 0, isPlaying: false, position: 0 }),
       );
     }
@@ -171,7 +172,7 @@ const Player = ({ children }: {children: ReactNode}) => {
       if (nowPlaying && settings.repeat === 'repeat-one') {
         await updateTimeline(nowPlaying.id, 'playing', 0, nowPlaying.track);
         queryClient.setQueryData(
-          ['player-state'],
+          [QueryKeys.PLAYER_STATE],
           () => ({ duration: nowPlaying.track.duration, isPlaying: true, position: 0 }),
         );
         return;
@@ -185,11 +186,11 @@ const Player = ({ children }: {children: ReactNode}) => {
       if (nowPlaying) {
         await updateTimeline(nowPlaying.id, 'stopped', nowPlaying.track.duration, nowPlaying.track);
         await updateTimeline(next.id, 'playing', 0, next.track);
-        await queryClient.refetchQueries(['play-queue', queueId]);
-        const newQueue = queryClient.getQueryData(['play-queue', queueId]);
+        await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
+        const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
         player.updateTracks(newQueue, 'next');
         queryClient.setQueryData(
-          ['player-state'],
+          [QueryKeys.PLAYER_STATE],
           () => ({ duration: next.track.duration, isPlaying: true, position: 0 }),
         );
         await startTimer(next);
@@ -199,7 +200,7 @@ const Player = ({ children }: {children: ReactNode}) => {
 
   player.onload = async () => {
     queryClient.setQueryData(
-      ['player-state'],
+      [QueryKeys.PLAYER_STATE],
       (
         current: Updater<PlayerState, PlayerState> | undefined,
       ) => ({ ...current, duration: player.currentLength(), position: player.getPosition() }),
@@ -220,7 +221,7 @@ const Player = ({ children }: {children: ReactNode}) => {
   player.onplay = () => {
     window.electron.updatePlaying('playing', true);
     queryClient.setQueryData(
-      ['player-state'],
+      [QueryKeys.PLAYER_STATE],
       (
         current: Updater<PlayerState, PlayerState> | undefined,
       ) => ({ ...current, isPlaying: true }),
@@ -230,7 +231,7 @@ const Player = ({ children }: {children: ReactNode}) => {
   player.onpause = () => {
     window.electron.updatePlaying('playing', false);
     queryClient.setQueryData(
-      ['player-state'],
+      [QueryKeys.PLAYER_STATE],
       (
         current: Updater<PlayerState, PlayerState> | undefined,
       ) => ({ ...current, isPlaying: false }),

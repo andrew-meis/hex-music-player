@@ -21,7 +21,7 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { IConfig, LocationWithState, RouteParams } from 'types/interfaces';
-import { ButtonSpecs, trackButtons, tracksButtons } from '../../../constants/buttons';
+import { ButtonSpecs, trackButtons, tracksButtons } from '../../../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
 

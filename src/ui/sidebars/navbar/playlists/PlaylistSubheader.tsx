@@ -8,6 +8,7 @@ import { RiSendPlaneLine, TiPlus } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
+import { QueryKeys } from 'types/enums';
 
 interface PlaylistSubheaderProps {
   show: boolean;
@@ -29,7 +30,7 @@ const PlaylistSubheader = ({ show, setShow }: PlaylistSubheaderProps) => {
     if (response.status === 200) {
       const newPlaylist = parsePlaylistContainer(response.data);
       setShow(false);
-      await queryClient.refetchQueries(['playlists']);
+      await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
       navigate(`/playlists/${newPlaylist.playlists[0].id}`);
       toast({ type: 'success', text: 'Playlist created' });
     }

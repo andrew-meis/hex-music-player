@@ -3,6 +3,7 @@ import { Library, MediaType } from 'hex-plex';
 import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
+import { QueryKeys } from 'types/enums';
 import { IConfig } from 'types/interfaces';
 import { trackHistoryQueryFn } from './track-query-fns';
 
@@ -14,7 +15,7 @@ export const useTopTracks = (
     config: IConfig, library: Library, limit: number, start?: number, end?: number, seconds?: number
   },
 ) => useQuery(
-  ['top', { type: 10, limit, seconds, start, end }],
+  [QueryKeys.TOP, { type: 10, limit, seconds, start, end }],
   async () => {
     const response = await topLibraryQueryFn({
       type: 10, config, library, limit, start, end, seconds,
@@ -37,7 +38,7 @@ export const useTrackHistory = (
     config: IConfig, library: Library, id: number, days: number
   },
 ) => useQuery(
-  ['history', { id, days }],
+  [QueryKeys.HISTORY, { id, days }],
   () => trackHistoryQueryFn(config, library, id, days),
   {
     initialData: [],

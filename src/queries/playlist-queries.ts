@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Library } from 'hex-plex';
+import { QueryKeys } from 'types/enums';
 
 export const usePlaylists = (library: Library) => useQuery(
-  ['playlists'],
+  [QueryKeys.PLAYLISTS],
   () => library.playlists({ playlistType: 'audio' }),
   {
     refetchOnMount: false,
@@ -11,7 +12,7 @@ export const usePlaylists = (library: Library) => useQuery(
 );
 
 export const usePlaylist = (id: number, library: Library) => useQuery(
-  ['playlists'],
+  [QueryKeys.PLAYLISTS],
   () => library.playlists({ playlistType: 'audio' }),
   {
     refetchOnMount: true,
@@ -20,7 +21,7 @@ export const usePlaylist = (id: number, library: Library) => useQuery(
 );
 
 export const usePlaylistItems = (id: number, library: Library) => useQuery(
-  ['playlist', id],
+  [QueryKeys.PLAYLIST, id],
   () => library.playlistTracks(id),
   {
     staleTime: 5 * 60 * 1000,

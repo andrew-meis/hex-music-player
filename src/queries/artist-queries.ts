@@ -5,6 +5,7 @@ import {
   artistQueryFn,
   artistTracksQueryFn,
 } from 'queries/artist-query-fns';
+import { QueryKeys } from 'types/enums';
 import { IConfig } from 'types/interfaces';
 
 export interface ArtistQueryData {
@@ -14,7 +15,7 @@ export interface ArtistQueryData {
 }
 
 export const useArtist = (id: number, library: Library) => useQuery(
-  ['artist', id],
+  [QueryKeys.ARTIST, id],
   () => artistQueryFn(id, library),
   {
     enabled: id !== -1,
@@ -31,7 +32,7 @@ export const useArtistAppearances = (
   title: string,
   guid: string,
 ) => useQuery(
-  ['artist-appearances', id],
+  [QueryKeys.ARTIST_APPEARANCES, id],
   () => artistAppearancesQueryFn(config, library, id, title, guid),
   {
     refetchOnMount: true,
@@ -50,7 +51,7 @@ export const useArtistTracks = ({
   sort: string,
   slice?: number,
 }) => useQuery(
-  ['artist-tracks', id, slice, sort],
+  [QueryKeys.ARTIST_TRACKS, id, slice, sort],
   () => artistTracksQueryFn({
     config, library, id, title, guid, sort, slice,
   }),

@@ -6,6 +6,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { QueryKeys } from 'types/enums';
 
 interface LyricsContainer {
   Lyrics: Lyrics[];
@@ -53,7 +54,7 @@ const LyricsComponent = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { data: playerState } = usePlayerState();
   const { data: lyrics } = useQuery(
-    ['lyrics', nowPlaying?.id],
+    [QueryKeys.LYRICS, nowPlaying?.id],
     async () => {
       const url = library.api.getAuthenticatedUrl(
         `${nowPlaying?.track.media[0].parts[0].streams[1].key}`,

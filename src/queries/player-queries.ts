@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRef } from 'react';
 import { usePlayerContext } from 'root/Player';
+import { QueryKeys } from 'types/enums';
 
 export const usePlayerState = () => {
   const prevPlayState = useRef<boolean>(false);
   const player = usePlayerContext();
   return useQuery(
-    ['player-state'],
+    [QueryKeys.PLAYER_STATE],
     () => ({
       duration: player.currentLength(),
       isPlaying: player.isPlaying() || prevPlayState.current,
@@ -37,7 +38,7 @@ export const usePlayerState = () => {
 export const useIsPlaying = () => {
   const player = usePlayerContext();
   return useQuery(
-    ['player-state'],
+    [QueryKeys.PLAYER_STATE],
     () => ({
       duration: player.currentLength(),
       isPlaying: player.isPlaying(),

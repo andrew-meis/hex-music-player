@@ -21,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
 import { useSearch } from 'queries/plex-queries';
+import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import SearchResultBox from './SearchResultBox';
 
@@ -55,7 +56,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     if (input.length <= 1) {
       setDisplay('history');
       setLoading(false);
-      queryClient.setQueriesData(['search'], []);
+      queryClient.setQueriesData([QueryKeys.SEARCH], []);
       return;
     }
     setLoading(true);
@@ -68,7 +69,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
 
   const handleClear = () => {
     setDisplay('history');
-    queryClient.setQueriesData(['search'], []);
+    queryClient.setQueriesData([QueryKeys.SEARCH], []);
     setInput('');
     searchInput.current?.focus();
   };
