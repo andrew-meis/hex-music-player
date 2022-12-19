@@ -1,10 +1,27 @@
 import axios from 'axios';
 import { Library, Track } from 'hex-plex';
+import { parseTrackContainer } from 'hex-plex/dist/types/track';
 import { countBy } from 'lodash';
 import moment from 'moment';
 import { IConfig } from 'types/interfaces';
 
-// eslint-disable-next-line import/prefer-default-export
+export const similarTracksQueryFn = async (
+  library: Library,
+  track: Track,
+) => {
+  const url = library.api.getAuthenticatedUrl(
+    `/library/metadata/${track.id}/nearest`,
+    {
+      excludeGrandparentID: track.grandparentId,
+      limit: 100,
+      maxDistance: 0.25,
+      sort: 'distance',
+    },
+  );
+  const response = await axios.get(url);
+  return parseTrackContainer(response.data).tracks;
+};
+
 export const trackHistoryQueryFn = async (
   config: IConfig,
   library: Library,

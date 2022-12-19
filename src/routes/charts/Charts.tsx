@@ -1,5 +1,5 @@
 import { Theme, useTheme } from '@mui/material';
-import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Track } from 'hex-plex';
 import moment, { Moment } from 'moment';
@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
+import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
@@ -21,7 +22,7 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { IConfig, IVirtuosoContext } from 'types/interfaces';
-import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
+import { ButtonSpecs } from '../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
 
@@ -124,6 +125,16 @@ const Charts = () => {
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
+
+  const getTrackId = useCallback(() => {
+    if (!topTracks) {
+      return 0;
+    }
+    if (selectedRows.length === 1) {
+      return topTracks[selectedRows[0]].id;
+    }
+    return 0;
+  }, [selectedRows, topTracks]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -285,26 +296,15 @@ const Charts = () => {
           }}
         />
       </motion.div>
-      <ControlledMenu
-        {...menuProps}
-        portal
+      <TrackMenu
         anchorPoint={anchorPoint}
+        handleMenuSelection={handleMenuSelection}
+        id={getTrackId()}
+        menuProps={menuProps}
         menuStyle={menuStyle}
-        onClose={() => toggleMenu(false)}
-      >
-        {selectedRows.length === 1 && trackButtons.map((button: ButtonSpecs) => (
-          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
-            {button.icon}
-            {button.name}
-          </MenuItem>
-        ))}
-        {selectedRows.length > 1 && tracksButtons.map((button: ButtonSpecs) => (
-          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
-            {button.icon}
-            {button.name}
-          </MenuItem>
-        ))}
-      </ControlledMenu>
+        selectedRows={selectedRows}
+        toggleMenu={toggleMenu}
+      />
     </>
   );
 };

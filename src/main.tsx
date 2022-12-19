@@ -25,6 +25,7 @@ import LyricsComponent from 'routes/lyrics/LyricsComponent';
 import Playlist from 'routes/playlist/Playlist';
 import Playlists from 'routes/Playlists';
 import Settings from 'routes/settings/Settings';
+import SimilarTracks from 'routes/track/subroutes/similar-tracks/SimilarTracks';
 import Tracks from 'routes/Tracks';
 
 const ErrorElement = () => (
@@ -122,6 +123,11 @@ const router = createHashRouter([
       {
         path: '/tracks',
         element: <Tracks />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/tracks/:id/similar',
+        element: <SimilarTracks />,
         errorElement: <ErrorElement />,
       },
     ],

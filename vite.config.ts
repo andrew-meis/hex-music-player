@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable no-param-reassign */
 import { rmSync } from 'fs';
 import path from 'path';
 import react from '@vitejs/plugin-react';
@@ -16,6 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       components: path.join(__dirname, 'src/components'),
+      constants: path.join(__dirname, 'src/constants'),
       hooks: path.join(__dirname, 'src/hooks'),
       queries: path.join(__dirname, 'src/queries'),
       root: path.join(__dirname, 'src/root'),

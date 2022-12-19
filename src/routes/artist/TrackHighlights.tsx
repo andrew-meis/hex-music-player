@@ -1,13 +1,14 @@
 import { Box, ClickAwayListener } from '@mui/material';
-import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { useMenuState } from '@szhsin/react-menu';
 import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+import TrackMenu from 'components/track-menu/TrackMenu';
 import TrackRow from 'components/track-row/TrackRow';
 import useMenuStyle from 'hooks/useMenuStyle';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
+import { ButtonSpecs } from '../../constants/buttons';
 import { ArtistContext } from './Artist';
 import { SimilarArtistContext } from './subroutes/similar-artists/SimilarArtists';
 
@@ -64,6 +65,16 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
+
+  const getTrackId = useCallback(() => {
+    if (!tracks) {
+      return 0;
+    }
+    if (selectedRows.length === 1) {
+      return tracks[selectedRows[0]].id;
+    }
+    return 0;
+  }, [selectedRows, tracks]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -165,26 +176,15 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
           </Box>
         </ClickAwayListener>
       </Box>
-      <ControlledMenu
-        {...menuProps}
-        portal
+      <TrackMenu
         anchorPoint={anchorPoint}
+        handleMenuSelection={handleMenuSelection}
+        id={getTrackId()}
+        menuProps={menuProps}
         menuStyle={menuStyle}
-        onClose={() => toggleMenu(false)}
-      >
-        {selectedRows.length === 1 && trackButtons.map((button: ButtonSpecs) => (
-          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
-            {button.icon}
-            {button.name}
-          </MenuItem>
-        ))}
-        {selectedRows.length > 1 && tracksButtons.map((button: ButtonSpecs) => (
-          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
-            {button.icon}
-            {button.name}
-          </MenuItem>
-        ))}
-      </ControlledMenu>
+        selectedRows={selectedRows}
+        toggleMenu={toggleMenu}
+      />
     </>
   );
 });

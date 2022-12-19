@@ -1,13 +1,29 @@
 import { useQuery } from '@tanstack/react-query';
-import { Library, MediaType } from 'hex-plex';
+import { Library, MediaType, Track } from 'hex-plex';
 import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
 import { IConfig } from 'types/interfaces';
-import { trackHistoryQueryFn } from './track-query-fns';
+import { similarTracksQueryFn, trackHistoryQueryFn } from './track-query-fns';
 
-// eslint-disable-next-line import/prefer-default-export
+export const useSimilarTracks = (
+  {
+    library, track,
+  } : {
+    library: Library, track: Track | undefined,
+  },
+) => useQuery(
+  [QueryKeys.SIMILAR_TRACKS, track?.id],
+  () => similarTracksQueryFn(library, track!),
+  {
+    enabled: !!track,
+    initialData: [],
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
+  },
+);
+
 export const useTopTracks = (
   {
     config, library, limit, start, end, seconds,
@@ -28,6 +44,21 @@ export const useTopTracks = (
     keepPreviousData: true,
     refetchInterval: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
+  },
+);
+
+export const useTrack = (
+  {
+    library, id,
+  } : {
+    library: Library, id: number,
+  },
+) => useQuery(
+  [QueryKeys.TRACK, id],
+  () => library.track(id),
+  {
+    refetchOnWindowFocus: false,
+    select: (data) => data.tracks[0],
   },
 );
 

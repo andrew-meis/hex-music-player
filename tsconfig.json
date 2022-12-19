@@ -5,6 +5,7 @@
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
       "paths": {
+        "constants/*": ["src/constants/*"],
         "components/*": ["src/components/*"],
         "hooks/*": ["src/hooks/*"],
         "queries/*": ["src/queries/*"],

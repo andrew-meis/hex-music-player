@@ -1,93 +1,92 @@
-import { SvgIcon, useTheme } from '@mui/material';
-import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { Theme, useTheme } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import React, {
-  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
-} from 'react';
+import { Track } from 'hex-plex';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { MdDelete } from 'react-icons/all';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { useKey } from 'react-use';
 import { Virtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
-import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
+import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
-import useToast from 'hooks/useToast';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { useLibrary } from 'queries/app-queries';
+import { useConfig, useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
-import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { useSimilarTracks, useTrack } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { ButtonSpecs } from '../../constants/buttons';
+import { IConfig, IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
-import type { Playlist as TPlaylist, PlaylistItem, Track } from 'hex-plex';
-import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
-export interface PlaylistContext extends IVirtuosoContext {
+export interface SimilarTracksContext extends IVirtuosoContext {
+  config: IConfig;
+  currentTrack: Track | undefined;
   filter: string;
-  playlist: TPlaylist | undefined;
-  playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
+  items: Track[];
+  playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  theme: Theme;
 }
 
 export interface RowProps {
+  context: SimilarTracksContext;
   index: number;
-  item: PlaylistItem;
-  context: PlaylistContext;
+  track: Track;
 }
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-const Playlist = () => {
+const SimilarTracks = () => {
+  const config = useConfig();
   const library = useLibrary();
+  const navigationType = useNavigationType();
   // data loading
+  const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const playlist = usePlaylist(+id, library);
-  const playlistItems = usePlaylistItems(+id, library);
+  const currentTrack = useTrack({ id: +id, library });
+  const { data: tracks, isLoading } = useSimilarTracks({
+    library,
+    track: currentTrack.data,
+  });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const location = useLocation();
   const menuStyle = useMenuStyle();
-  const navigationType = useNavigationType();
-  const removeFromPlaylist = useRemoveFromPlaylist();
   const theme = useTheme();
-  const toast = useToast();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playPlaylistAtTrack, playSwitch } = usePlayback();
+  const { playSwitch, playTracks } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
-  let items: PlaylistItem[] = useMemo(() => [], []);
-  if (playlistItems.data) {
-    items = playlistItems.data.filter(
-      (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
+  let items: Track[] = useMemo(() => [], []);
+  if (tracks) {
+    items = tracks.filter(
+      (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
+      || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
+      || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
+      || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
     );
   }
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     selectedRows,
-    tracks: items.map((item) => item.track),
+    tracks: items || [],
   });
 
   useLayoutEffect(() => {
     setSelectedRows([]);
-  }, [id, setSelectedRows]);
+  }, [location, setSelectedRows]);
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
@@ -95,7 +94,7 @@ const Playlist = () => {
 
   const getTrackId = useCallback(() => {
     if (selectedRows.length === 1) {
-      return items[selectedRows[0]].track.id;
+      return items[selectedRows[0]].id;
     }
     return 0;
   }, [items, selectedRows]);
@@ -131,31 +130,15 @@ const Playlist = () => {
       return;
     }
     if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => items[n].track);
+      const [track] = selectedRows.map((n) => items[n]);
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }
     if (selectedRows.length > 1) {
-      const tracks = selectedRows.map((n) => items[n].track);
-      await playSwitch(button.action, { tracks, shuffle: button.shuffle });
+      const selectedTracks = selectedRows.map((n) => items[n]);
+      await playSwitch(button.action, { tracks: selectedTracks, shuffle: button.shuffle });
     }
   };
-
-  const handleRemove = async () => {
-    if (!items) {
-      return;
-    }
-    if (playlist.data!.smart) {
-      toast({ type: 'error', text: 'Cannot edit smart playlist' });
-      return;
-    }
-    const selectedItems = selectedRows.map((n) => items[n]);
-    setSelectedRows([]);
-    selectedItems.forEach(async (item) => {
-      await removeFromPlaylist(item.playlistId, item.id);
-    });
-  };
-  useKey('Delete', handleRemove, { event: 'keyup' }, [selectedRows]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -168,7 +151,7 @@ const Playlist = () => {
 
   const initialScrollTop = () => {
     let top;
-    top = sessionStorage.getItem(id);
+    top = sessionStorage.getItem(`similar-tracks ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
@@ -177,7 +160,9 @@ const Playlist = () => {
     return 0;
   };
 
-  const playlistContext = useMemo(() => ({
+  const similarTracksContext = useMemo(() => ({
+    config: config.data,
+    currentTrack: currentTrack.data,
     drag,
     filter,
     getFormattedTime,
@@ -186,13 +171,16 @@ const Playlist = () => {
     handleRowClick,
     hoverIndex,
     isPlaying,
+    items,
     library,
     nowPlaying,
-    playlist: playlist.data,
-    playPlaylistAtTrack,
+    playTracks,
     selectedRows,
     setFilter,
+    theme,
   }), [
+    config,
+    currentTrack.data,
     drag,
     filter,
     getFormattedTime,
@@ -201,15 +189,16 @@ const Playlist = () => {
     handleRowClick,
     hoverIndex,
     isPlaying,
+    items,
     library,
     nowPlaying,
-    playlist.data,
-    playPlaylistAtTrack,
+    playTracks,
     selectedRows,
     setFilter,
+    theme,
   ]);
 
-  if (playlist.isLoading || playlistItems.isLoading) {
+  if (currentTrack.isLoading || isLoading) {
     return null;
   }
 
@@ -231,22 +220,22 @@ const Playlist = () => {
             List,
             ScrollSeekPlaceholder,
           }}
-          context={playlistContext}
-          data={items}
+          context={similarTracksContext}
+          data={currentTrack.isLoading || isLoading ? [] : items}
           fixedItemHeight={56}
           initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
-          itemContent={(index, item, context) => RowContent({ index, item, context })}
+          itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={items.length}
+          totalCount={isLoading || tracks === undefined ? 0 : items.length}
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              id,
+              `similar-tracks ${id}`,
               target.scrollTop as unknown as string,
             );
           }}
@@ -260,25 +249,9 @@ const Playlist = () => {
         menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
-      >
-        {!playlist.data!.smart && (
-        <>
-          <MenuDivider />
-          <MenuItem
-            style={{
-              '--menu-primary': theme.palette.error.main,
-              '--menu-transparent': `${theme.palette.error.main}cc`,
-            } as React.CSSProperties}
-            onClick={handleRemove}
-          >
-            <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>
-            Remove
-          </MenuItem>
-        </>
-        )}
-      </TrackMenu>
+      />
     </>
   );
 };
 
-export default Playlist;
+export default SimilarTracks;
