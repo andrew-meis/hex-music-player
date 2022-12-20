@@ -1,39 +1,9 @@
 import { Box } from '@mui/material';
 import React from 'react';
 import TrackRow from 'components/track-row/TrackRow';
+import { rowStyle, selectBorderRadius, selectedStyle } from 'constants/style';
 import { RowProps } from './Album';
 import 'styles/track.scss';
-
-const itemStyle = {
-  borderRadius: '4px',
-  color: 'text.secondary',
-  '&:hover': {
-    color: 'text.primary',
-    backgroundColor: 'action.hover',
-  },
-};
-
-const selectBorderRadius = (selUp: boolean, selDown: boolean) => {
-  if (selUp && selDown) {
-    return '0';
-  }
-  if (selUp) {
-    return '0 0 4px 4px';
-  }
-  if (selDown) {
-    return '4px 4px 0 0';
-  }
-  return '4px';
-};
-
-const selectedStyle = {
-  ...itemStyle,
-  backgroundColor: 'action.selected',
-  color: 'text.primary',
-  '&:hover': {
-    backgroundColor: 'action.selected',
-  },
-};
 
 const Row = React.memo(({ context, index, track }: RowProps) => {
   const {
@@ -62,7 +32,7 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
       height={56}
       sx={selected
         ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-        : { ...itemStyle }}
+        : { ...rowStyle }}
       onClick={(event) => handleRowClick(event, index)}
       onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}

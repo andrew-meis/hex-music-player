@@ -1,23 +1,50 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import { Library, Track } from 'hex-plex';
-import React from 'react';
+import moment from 'moment';
 import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
+import { typographyStyle } from 'constants/style';
+import { PlexSortKeys } from 'types/enums';
 
-const typographyStyle = {
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-  overflow: 'hidden',
-  lineHeight: 1.3,
+const getMetaText = (metaText: string, track: Track, originallyAvailableAt?: Date) => {
+  if (track.globalViewCount) {
+    return `${track.globalViewCount} ${track.globalViewCount > 1 ? 'plays' : 'play'}`;
+  }
+  if (metaText === PlexSortKeys.ADDED_AT) {
+    if (!track.lastViewedAt) return 'unplayed';
+    return moment(track.addedAt).fromNow();
+  }
+  if (metaText === PlexSortKeys.LAST_PLAYED) {
+    if (!track.lastViewedAt) return 'unplayed';
+    return moment(track.lastViewedAt).fromNow();
+  }
+  if (metaText === PlexSortKeys.POPULARITY) {
+    return track.ratingCount
+      ? `${track.ratingCount.toLocaleString()} ${track.ratingCount > 1 ? 'listeners' : 'listener'}`
+      : 'no listeners';
+  }
+  if (metaText === PlexSortKeys.RELEASE_DATE) {
+    return moment(originallyAvailableAt).format('DD MMM YYYY');
+  }
+  return track.viewCount
+    ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`
+    : 'unplayed';
 };
+
+interface TrackRowOptions {
+  metaText: string;
+  originallyAvailableAt: Date;
+  showAlbumTitle: boolean;
+  showArtwork: boolean;
+}
 
 interface TrackRowProps {
   getFormattedTime: (inMs: number) => string;
   index: number;
   isPlaying: boolean;
   library: Library;
-  options: { showAlbumTitle: boolean, showArtwork: boolean };
+  options: TrackRowOptions;
   playing: boolean;
   track: Track;
 }
@@ -60,34 +87,49 @@ const TrackRow = ({
       }}
       width={0.5}
     >
-      <Typography
-        color="text.primary"
-        fontFamily="Rubik"
-        fontSize="0.95rem"
-        fontWeight={playing ? 600 : 'inherit'}
-        sx={typographyStyle}
+      <Box
+        alignItems="baseline"
+        display="flex"
+        height={20}
+        justifyContent="space-between"
       >
-        {track.title}
-      </Typography>
-      <Typography fontSize="0.875rem" sx={typographyStyle}>
-        <Subtext showAlbum={options.showAlbumTitle} track={track} />
-      </Typography>
-    </Box>
-    <Box flexShrink={0} mx="5px">
-      <TrackRating
-        id={track.id}
-        userRating={track.userRating}
-      />
-      <Typography fontSize="0.95rem" textAlign="right">
-        {
-          // eslint-disable-next-line no-nested-ternary
-          track.globalViewCount
-            ? `${track.globalViewCount} ${track.globalViewCount > 1 ? 'plays' : 'play'}`
-            : track.viewCount
-              ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`
-              : 'unplayed'
-        }
-      </Typography>
+        <Typography
+          color="text.primary"
+          fontFamily="Rubik"
+          fontSize="0.95rem"
+          fontWeight={playing ? 600 : 'inherit'}
+          sx={typographyStyle}
+        >
+          {track.title}
+        </Typography>
+        <Box
+          marginLeft="8px"
+        >
+          <TrackRating
+            id={track.id}
+            userRating={track.userRating}
+          />
+        </Box>
+      </Box>
+      <Box
+        alignItems="center"
+        display="flex"
+        height={20}
+        justifyContent="space-between"
+      >
+        <Typography fontSize="0.875rem" sx={typographyStyle}>
+          <Subtext showAlbum={options.showAlbumTitle} track={track} />
+        </Typography>
+        <Typography
+          flexShrink={0}
+          fontSize="0.875rem"
+          marginLeft="8px"
+          minWidth={80}
+          textAlign="right"
+        >
+          {getMetaText(options.metaText, track, options.originallyAvailableAt)}
+        </Typography>
+      </Box>
     </Box>
     <Box
       sx={{

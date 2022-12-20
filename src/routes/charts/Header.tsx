@@ -11,7 +11,7 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import { iconButtonStyle } from '../../constants/style';
+import { iconButtonStyle } from 'constants/style';
 import { ChartsContext } from './Charts';
 import FixedHeader from './FixedHeader';
 

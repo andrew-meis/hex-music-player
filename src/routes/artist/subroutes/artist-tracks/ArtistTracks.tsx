@@ -1,7 +1,7 @@
 import { Theme, useTheme } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Track } from 'hex-plex';
+import { Album, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
@@ -13,7 +13,12 @@ import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { ArtistQueryData, useArtist, useArtistTracks } from 'queries/artist-queries';
+import {
+  ArtistQueryData,
+  useArtist,
+  useArtistAppearances,
+  useArtistTracks,
+} from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
@@ -26,6 +31,7 @@ import Header from './Header';
 import Row from './Row';
 
 export interface ArtistTracksContext extends IVirtuosoContext {
+  albums: Album[];
   artist: ArtistQueryData | undefined;
   config: IConfig;
   filter: string;
@@ -61,6 +67,13 @@ const ArtistTracks = () => {
     return location.state.sort;
   });
   const artist = useArtist(+id, library);
+  const appearances = useArtistAppearances(
+    config.data,
+    library,
+    +id,
+    location.state.title,
+    location.state.guid,
+  );
   const { data: tracks, isLoading } = useArtistTracks({
     config: config.data,
     library,
@@ -84,6 +97,18 @@ const ArtistTracks = () => {
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
   useEffect(() => () => sessionStorage.setItem(`artist-tracks ${id}`, sort), [id, sort]);
+
+  const albums: Album[] = useMemo(() => {
+    const newAlbums = [];
+    if (artist.data && appearances.data) {
+      newAlbums.push(...artist.data.albums);
+      artist.data.hubs.forEach((hub) => {
+        if (hub.type === 'album') newAlbums.push(...hub.items as Album[]);
+      });
+      newAlbums.push(...appearances.data);
+    }
+    return newAlbums;
+  }, [appearances.data, artist.data]);
 
   let items: Track[] = useMemo(() => [], []);
   if (tracks) {
@@ -178,6 +203,7 @@ const ArtistTracks = () => {
   };
 
   const artistTracksContext = useMemo(() => ({
+    albums,
     artist: artist.data,
     config: config.data,
     drag,
@@ -198,6 +224,7 @@ const ArtistTracks = () => {
     sort,
     theme,
   }), [
+    albums,
     artist.data,
     config,
     drag,
@@ -238,7 +265,7 @@ const ArtistTracks = () => {
             ScrollSeekPlaceholder,
           }}
           context={artistTracksContext}
-          data={artist.isLoading || isLoading ? [] : items}
+          data={artist.isLoading || appearances.isLoading || isLoading ? [] : items}
           fixedItemHeight={56}
           initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}

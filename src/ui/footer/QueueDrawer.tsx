@@ -2,9 +2,9 @@ import { Drawer, IconButton, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { BsViewList } from 'react-icons/all';
 import Tooltip from 'components/tooltip/Tooltip';
+import { iconButtonStyle } from 'constants/style';
 import { useSettings } from 'queries/app-queries';
 import Queue from 'ui/sidebars/queue/Queue';
-import { iconButtonStyle } from '../../constants/style';
 
 const drawerStyle = {
   width: '294px',

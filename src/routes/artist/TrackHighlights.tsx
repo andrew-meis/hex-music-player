@@ -5,43 +5,13 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import TrackRow from 'components/track-row/TrackRow';
+import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import useMenuStyle from 'hooks/useMenuStyle';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { ButtonSpecs } from '../../constants/buttons';
 import { ArtistContext } from './Artist';
 import { SimilarArtistContext } from './subroutes/similar-artists/SimilarArtists';
-
-const itemStyle = {
-  borderRadius: '4px',
-  color: 'text.secondary',
-  '&:hover': {
-    color: 'text.primary',
-    backgroundColor: 'action.hover',
-  },
-};
-
-const selectBorderRadius = (selUp: boolean, selDown: boolean) => {
-  if (selUp && selDown) {
-    return '0';
-  }
-  if (selUp) {
-    return '0 0 4px 4px';
-  }
-  if (selDown) {
-    return '4px 4px 0 0';
-  }
-  return '4px';
-};
-
-const selectedStyle = {
-  ...itemStyle,
-  backgroundColor: 'action.selected',
-  color: 'text.primary',
-  '&:hover': {
-    backgroundColor: 'action.selected',
-  },
-};
 
 interface TrackHighlightsProps {
   context: ArtistContext | SimilarArtistContext | undefined;
@@ -156,7 +126,7 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
                   key={track.id}
                   sx={selected
                     ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-                    : { ...itemStyle }}
+                    : { ...rowStyle }}
                   onClick={(event) => handleRowClick(event, index)}
                   onContextMenu={handleContextMenu}
                   onMouseEnter={handleMouseEnter}

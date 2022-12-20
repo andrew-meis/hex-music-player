@@ -1,6 +1,5 @@
 import { Rating, SvgIcon } from '@mui/material';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
 import { BsDot } from 'react-icons/all';
 import { useLibrary } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';

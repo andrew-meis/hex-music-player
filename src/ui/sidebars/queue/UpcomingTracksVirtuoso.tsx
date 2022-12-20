@@ -7,6 +7,7 @@ import { RiCloseFill } from 'react-icons/all';
 import { Virtuoso } from 'react-virtuoso';
 import 'styles/queue.scss';
 import Subtext from 'components/subtext/Subtext';
+import { selectedStyle, selectBorderRadius, rowStyle, typographyStyle } from 'constants/style';
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
 import useQueue from 'hooks/useQueue';
@@ -16,44 +17,6 @@ import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 import { DragActions } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
-
-const itemStyle = {
-  color: 'text.secondary',
-  '&:hover': {
-    borderRadius: '4px',
-    color: 'text.primary',
-    backgroundColor: 'action.hover',
-  },
-};
-
-const selectBorderRadius = (selUp: boolean, selDown: boolean) => {
-  if (selUp && selDown) {
-    return '0';
-  }
-  if (selUp) {
-    return '0 0 4px 4px';
-  }
-  if (selDown) {
-    return '4px 4px 0 0';
-  }
-  return '4px';
-};
-
-const selectedStyle = {
-  ...itemStyle,
-  backgroundColor: 'action.selected',
-  color: 'text.primary',
-  '&:hover': {
-    backgroundColor: 'action.selected',
-  },
-};
-
-const typographyStyle = {
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-  overflow: 'hidden',
-  lineHeight: 1.3,
-};
 
 export interface UpcomingTracksContext {
   dropIndex: React.MutableRefObject<number | null>;
@@ -121,7 +84,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       height={54}
       sx={selected
         ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-        : { ...itemStyle }}
+        : { ...rowStyle }}
       onClick={(event) => handleRowClick(event, index)}
       onDoubleClick={handleDoubleClick}
       onDragEnter={() => {

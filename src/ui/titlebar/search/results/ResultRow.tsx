@@ -15,7 +15,7 @@ import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import ResultTooltip from '../tooltip/ResultTooltip';
 import type { Result } from 'types/types';
 
-const itemStyle = {
+const resultStyle = {
   display: 'flex',
   alignItems: 'center',
   height: '56px',
@@ -180,7 +180,7 @@ const ResultRow = ({
       style={{
         '--background': `${theme.palette.action.hover}`,
       } as CSSProperties}
-      sx={itemStyle}
+      sx={resultStyle}
       onClick={handleClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
