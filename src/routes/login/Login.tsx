@@ -68,7 +68,6 @@ const Login = () => {
   const loaderData = useLoaderData() as Awaited<ReturnType<typeof loginLoader>>;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [disabled, setDisabled] = useState('');
   const [loadingButton, setLoadingButton] = useState(0);
   const [selectedServer, setSelectedServer] = useState<Device | undefined>(undefined);
   const [step, setStep] = useState('init');
@@ -116,7 +115,6 @@ const Login = () => {
       onSuccess: (data) => {
         if (data) {
           setLoadingButton(0);
-          setDisabled('login');
           setStep('server');
         }
       },
@@ -181,7 +179,6 @@ const Login = () => {
       enabled: !!connection,
       onSuccess: () => {
         setLoadingButton(0);
-        setDisabled('all');
         setStep('library');
       },
       refetchOnMount: false,
@@ -191,7 +188,6 @@ const Login = () => {
   );
 
   const finishLogin = async (key: number) => {
-    setStep('finished');
     window.electron.writeConfig('config', {
       clientId: client.identifier,
       queueId: 0,
@@ -199,11 +195,13 @@ const Login = () => {
       serverName: selectedServer?.name,
       token: account.authToken,
     });
-    queryClient.removeQueries(['auth-url']);
-    queryClient.removeQueries(['auth-token']);
-    queryClient.removeQueries(['servers']);
-    queryClient.removeQueries(['connection']);
-    queryClient.removeQueries(['library-sections']);
+    setTimeout(() => {
+      queryClient.removeQueries(['auth-url']);
+      queryClient.removeQueries(['auth-token']);
+      queryClient.removeQueries(['servers']);
+      queryClient.removeQueries(['connection']);
+      queryClient.removeQueries(['library-sections']);
+    }, 5000);
     navigate('/');
   };
 
@@ -243,12 +241,11 @@ const Login = () => {
               borderRadius="4px"
               display="flex"
               justifyContent="center"
-              marginBottom={step === 'init' ? '120px' : '12px'}
+              marginBottom="auto"
               marginTop="16px"
               paddingX="16px"
               sx={{
                 backgroundColor: 'primary.main',
-                transition: 'margin 300ms ease-in',
               }}
               width={1}
             >
@@ -269,104 +266,113 @@ const Login = () => {
                 Hex Music Player
               </Typography>
             </Box>
-            {pinData && (
-              <LoadingButton
-                disabled={disabled === 'login' || disabled === 'all'}
-                href={createAuthUrl(pinData.code)}
-                loading={loadingButton === 1}
-                rel="noreferrer"
-                size="large"
-                sx={{
-                  mb: step === 'init' || step === 'server' ? '60px' : '12px',
-                  transition: 'margin 300ms ease-in',
-                  width: 200,
-                }}
-                target="_blank"
-                variant="contained"
-                onClick={() => setLoadingButton(1)}
-              >
-                <Typography
-                  color={loadingButton === 1 ? '' : 'background.default'}
-                  textTransform="none"
+            {pinData && !authToken && (
+              <Fade appear exit in>
+                <Box
+                  position="absolute"
+                  sx={{
+                    transform: 'translateY(32px)',
+                  }}
+                  top="40%"
                 >
-                  Login to Plex
-                </Typography>
-              </LoadingButton>
+                  <LoadingButton
+                    href={createAuthUrl(pinData.code)}
+                    loading={loadingButton === 1}
+                    rel="noreferrer"
+                    size="large"
+                    sx={{
+                      width: 200,
+                    }}
+                    target="_blank"
+                    variant="contained"
+                    onClick={() => setLoadingButton(1)}
+                  >
+                    <Typography
+                      color={loadingButton === 1 ? '' : 'background.default'}
+                      textTransform="none"
+                    >
+                      Login to Plex
+                    </Typography>
+                  </LoadingButton>
+                </Box>
+              </Fade>
             )}
             {!!servers && selectedServer === undefined && (
-              <Box mb={step === 'server' ? 'auto' : '12px'}>
-                <Typography color="text.secondary" fontWeight={600}>
-                  Select server:
-                </Typography>
-                <ButtonGroup orientation="vertical" variant="outlined">
-                  {servers.devices.map((server) => (
-                    <LoadingButton
-                      disabled={disabled === 'all'}
-                      key={server.id}
-                      loading={loadingButton === 2}
-                      size="large"
-                      sx={{
-                        width: 200,
-                      }}
-                      variant="outlined"
-                      onClick={() => {
-                        setSelectedServer(server);
-                        setLoadingButton(2);
-                      }}
-                    >
-                      <Typography textTransform="none">
-                        {server.name}
-                      </Typography>
-                    </LoadingButton>
-                  ))}
-                </ButtonGroup>
-              </Box>
-            )}
-            {!!servers && selectedServer !== undefined && (
-              <Box mb={step === 'server' ? 'auto' : '12px'}>
-                <Typography color="text.secondary" fontWeight={600}>
-                  Select server:
-                </Typography>
-                <LoadingButton
-                  disabled={disabled === 'all'}
-                  key={selectedServer.id}
-                  loading={loadingButton === 2}
-                  size="large"
-                  sx={{
-                    width: 200,
-                  }}
-                  variant="outlined"
+              <Fade appear exit in>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  position="absolute"
+                  top="40%"
                 >
-                  <Typography textTransform="none">
-                    {selectedServer.name}
+                  <Typography
+                    color="text.primary"
+                    fontSize="0.8rem"
+                    lineHeight={2.501}
+                    variant="overline"
+                  >
+                    Select server:
                   </Typography>
-                </LoadingButton>
-              </Box>
-            )}
-            {!!librarySections && step === 'library' && (
-              <Box mb="auto">
-                <Typography color="text.secondary" fontWeight={600}>
-                  Select music library:
-                </Typography>
-                <ButtonGroup orientation="vertical" variant="outlined">
-                  {librarySections
-                    .map((section) => (
+                  <ButtonGroup orientation="vertical" variant="outlined">
+                    {servers.devices.map((server) => (
                       <LoadingButton
-                        key={section.uuid}
+                        key={server.id}
+                        loading={loadingButton === 2}
                         size="large"
                         sx={{
                           width: 200,
                         }}
                         variant="outlined"
-                        onClick={() => finishLogin(section.id)}
+                        onClick={() => {
+                          setSelectedServer(server);
+                          setLoadingButton(2);
+                        }}
                       >
                         <Typography textTransform="none">
-                          {section.title}
+                          {server.name}
                         </Typography>
                       </LoadingButton>
                     ))}
-                </ButtonGroup>
-              </Box>
+                  </ButtonGroup>
+                </Box>
+              </Fade>
+            )}
+            {!!librarySections && step === 'library' && (
+              <Fade appear exit in>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  position="absolute"
+                  top="40%"
+                >
+                  <Typography
+                    color="text.primary"
+                    fontSize="0.8rem"
+                    lineHeight={2.501}
+                    variant="overline"
+                  >
+                    Select music library:
+                  </Typography>
+                  <ButtonGroup orientation="vertical" variant="outlined">
+                    {librarySections
+                      .map((section) => (
+                        <LoadingButton
+                          key={section.uuid}
+                          size="large"
+                          sx={{
+                            width: 200,
+                          }}
+                          variant="outlined"
+                          onClick={() => finishLogin(section.id)}
+                        >
+                          <Typography textTransform="none">
+                            {section.title}
+                          </Typography>
+                        </LoadingButton>
+                      ))}
+                  </ButtonGroup>
+                </Box>
+              </Fade>
             )}
           </Box>
         </Fade>

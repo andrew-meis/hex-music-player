@@ -32,7 +32,7 @@ const initializeApp = async (config: IConfig) => {
     }
     const promises = server?.connections.map((conn, index) => {
       const { uri } = server.connections[index];
-      return axios.get(`${uri}/servers?X-Plex-Token=${server.accessToken}`, {
+      return axios.get(`${uri}?X-Plex-Token=${server.accessToken}`, {
         timeout: 10000,
         data: conn,
       });
@@ -40,7 +40,8 @@ const initializeApp = async (config: IConfig) => {
     if (promises) {
       const connection: Connection = await Promise.race(promises)
         .then((r) => JSON.parse(r.config.data));
-      const serverConnection = new ServerConnection(connection.uri, account);
+      const newAccount = new Account(client, server.accessToken);
+      const serverConnection = new ServerConnection(connection.uri, newAccount);
       const library = new Library(serverConnection);
       return { account, server, library } as IAuth;
     }
