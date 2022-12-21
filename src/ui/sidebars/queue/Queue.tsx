@@ -2,7 +2,7 @@ import {
   Box, Slide, SvgIcon, Typography,
 } from '@mui/material';
 import React, { useRef } from 'react';
-import { MdChevronLeft, MdChevronRight } from 'react-icons/all';
+import { BiChevronLeft, BiChevronRight } from 'react-icons/all';
 import PreviousTracksVirtuoso from './PreviousTracksVirtuoso';
 import UpcomingTracksVirtuoso from './UpcomingTracksVirtuoso';
 
@@ -44,7 +44,7 @@ const Queue = ({ index, setIndex }: QueueProps) => {
               }}
               onClick={() => setIndex(0)}
             >
-              <MdChevronLeft />
+              <BiChevronLeft />
             </SvgIcon>
             <Typography fontSize="1.5rem" fontWeight={600} mr="8px">Queue</Typography>
           </Box>
@@ -86,7 +86,7 @@ const Queue = ({ index, setIndex }: QueueProps) => {
               }}
               onClick={() => setIndex(1)}
             >
-              <MdChevronRight />
+              <BiChevronRight />
             </SvgIcon>
           </Box>
           <PreviousTracksVirtuoso />

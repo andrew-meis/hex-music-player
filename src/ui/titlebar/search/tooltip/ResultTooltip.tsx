@@ -2,7 +2,7 @@ import {
   SvgIcon, Tooltip, useTheme, Zoom,
 } from '@mui/material';
 import React from 'react';
-import { MdKeyboardArrowRight } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/all';
 import TooltipMenu from './TooltipMenu';
 import type { Result } from 'types/types';
 
@@ -75,7 +75,7 @@ const ResultTooltip = ({
       }}
     >
       <SvgIcon sx={{ color, height: '48px' }}>
-        <MdKeyboardArrowRight />
+        <BiChevronRight />
       </SvgIcon>
     </Tooltip>
   );

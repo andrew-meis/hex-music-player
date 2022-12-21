@@ -4,46 +4,15 @@ import { Playlist, PlayQueueItem, Track } from 'hex-plex';
 import React from 'react';
 import { useDrop } from 'react-dnd';
 import { NavLink } from 'react-router-dom';
+import {
+  navlistBoxStyle,
+  navlistActiveBox,
+  navlistTypeActiveStyle,
+  navlistTypeStyle,
+} from 'constants/style';
 import { useAddToPlaylist } from 'hooks/playlistHooks';
 import { DragActions } from 'types/enums';
 import { isPlayQueueItem, isTrack } from 'types/type-guards';
-
-const listItemStyle = {
-  width: 'auto',
-  py: 0,
-  px: 0,
-  mr: '10px',
-  color: 'text.secondary',
-  '&:hover': {
-    color: 'text.primary',
-  },
-};
-
-const textStyle = {
-  WebkitLineClamp: 1,
-  display: '-webkit-box',
-  overflow: 'hidden',
-  WebkitBoxOrient: 'vertical',
-  fontSize: '0.92rem',
-  py: '0px',
-  lineHeight: '1.9rem',
-  letterSpacing: '0.01rem',
-};
-
-const activeStyle = {
-  ...textStyle,
-  color: 'text.primary',
-  fontWeight: 700,
-};
-
-const activeBox = (isActive: boolean) => ({
-  width: '4px',
-  height: '18px',
-  marginLeft: isActive ? '4px' : '0px',
-  marginRight: isActive ? '4px' : '0px',
-  backgroundColor: isActive ? 'primary.main' : 'transparent',
-  borderRadius: '2px',
-});
 
 interface PlaylistLinkProps {
   handleContextMenu: (event: React.MouseEvent) => void;
@@ -96,18 +65,18 @@ const PlaylistLink = ({
         {({ isActive }) => (
           <ListItem
             sx={{
-              ...listItemStyle,
+              ...navlistBoxStyle,
               ml: playlist.smart ? '34px' : '12px',
               border: '1px solid',
               borderColor: isOver ? 'tomato' : 'transparent',
               borderRadius: '4px',
             }}
           >
-            <Box sx={activeBox(isActive)} />
+            <Box sx={navlistActiveBox(isActive)} />
             <Typography
               sx={isActive || (menuState === 'open' && menuTarget === playlist.id)
-                ? activeStyle
-                : textStyle}
+                ? navlistTypeActiveStyle
+                : navlistTypeStyle}
             >
               {playlist.title}
             </Typography>

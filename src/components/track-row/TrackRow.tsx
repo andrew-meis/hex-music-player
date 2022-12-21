@@ -7,7 +7,11 @@ import Subtext from 'components/subtext/Subtext';
 import { typographyStyle } from 'constants/style';
 import { PlexSortKeys } from 'types/enums';
 
-const getMetaText = (metaText: string, track: Track, originallyAvailableAt?: Date) => {
+const getMetaText = (
+  metaText: string | undefined,
+  track: Track,
+  originallyAvailableAt: Date | undefined,
+) => {
   if (track.globalViewCount) {
     return `${track.globalViewCount} ${track.globalViewCount > 1 ? 'plays' : 'play'}`;
   }
@@ -33,8 +37,8 @@ const getMetaText = (metaText: string, track: Track, originallyAvailableAt?: Dat
 };
 
 interface TrackRowOptions {
-  metaText: string;
-  originallyAvailableAt: Date;
+  metaText?: string;
+  originallyAvailableAt?: Date;
   showAlbumTitle: boolean;
   showArtwork: boolean;
 }
@@ -127,7 +131,7 @@ const TrackRow = ({
           minWidth={80}
           textAlign="right"
         >
-          {getMetaText(options.metaText, track, options.originallyAvailableAt)}
+          {getMetaText(options?.metaText, track, options?.originallyAvailableAt)}
         </Typography>
       </Box>
     </Box>
