@@ -8,6 +8,7 @@ import { isEmpty } from 'lodash';
 import emoji from 'react-easy-emoji';
 import ActionMenu from 'components/action-menu/ActionMenu';
 import Tooltip from 'components/tooltip/Tooltip';
+import useRestoreAlbums from 'hooks/useRestoreAlbums';
 
 interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
@@ -18,6 +19,10 @@ interface InfoRowProps {
 
 const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowProps) => {
   const { artist } = artistData!;
+
+  const filters = window.electron.readFilters('filters');
+  const hasHiddenReleases = filters.findIndex((obj) => obj.artist === artist.guid) !== -1;
+  const restoreAlbums = useRestoreAlbums();
 
   return (
     <Box
@@ -103,6 +108,11 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowPr
           <MenuItem onClick={() => refreshPage()}>
             Reload Page
           </MenuItem>
+          {hasHiddenReleases && (
+            <MenuItem onClick={() => restoreAlbums(artist)}>
+              Restore Hidden
+            </MenuItem>
+          )}
           <MenuDivider />
           <MenuItem onClick={() => refreshMetadata(artist.id)}>
             Refresh Metadata

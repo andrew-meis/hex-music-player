@@ -198,7 +198,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
           bgcolor="common.contrastGrey"
           border="1px solid"
           borderColor="border.main"
-          borderRadius="24px"
+          borderRadius="12px"
           height={panelHeight}
           margin="auto"
           maxHeight={380}

@@ -278,6 +278,8 @@ const Artist = () => {
     if (!album) {
       return;
     }
+    const appearanceCount = data.releases.filter((x) => x.section === 'Appears On').length;
+    if (appearanceCount === 1) setFilter('All Releases');
     await hideAlbum(artist.data.artist, album);
   }, [artist.data, data, hideAlbum, menuTarget]);
 

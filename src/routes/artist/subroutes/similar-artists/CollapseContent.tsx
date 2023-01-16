@@ -100,7 +100,7 @@ const CollapseContent = ({ context, panelHeight }: CollapseContentProps) => {
           <TrackHighlights
             context={context}
             tracks={openArtistTracksQuery.data!
-              .slice(0, Math.floor((panelHeight - 57) / 56))}
+              .slice(0, Math.floor((panelHeight - 85) / 56))}
           />
         )}
         {panelContent === 'albums' && (
