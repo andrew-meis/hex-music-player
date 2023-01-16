@@ -1,11 +1,9 @@
 import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
-import React, { useState } from 'react';
+import React from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
-import { NavLink } from 'react-router-dom';
 import styles from 'styles/AlbumsRow.module.scss';
-import TrackHighlights from '../../TrackHighlights';
-import HighlightAlbum from './HighlightAlbum';
+import CollapseContent from './CollapseContent';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
 const textStyle = {
@@ -132,23 +130,22 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
 };
 
 const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
-  const [open, setOpen] = useState(false);
   const {
     grid,
     height,
     items: { rows },
-    library,
-    navigate,
+    open,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
+    setOpen,
     setOpenArtist,
     virtuoso,
     width,
   } = context;
   const { artists } = rows![rowIndex];
-  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 0.70) - 24;
+  const panelHeight = height - 72 - (Math.floor((width * 0.89) / grid.cols) * 0.70) - 40;
 
   const openIndex = openCard.index;
   const caretPos = getCaretPos(grid.cols, openIndex, width);
@@ -227,49 +224,10 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
             width={18}
           />
           {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
-            <Box
-              margin="auto"
-              width="calc(100% - 36px)"
-            >
-              <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
-                <NavLink
-                  className="link"
-                  state={{
-                    guid: openArtistQuery.data.artist.guid,
-                    title: openArtistQuery.data.artist.title,
-                  }}
-                  to={`/artists/${openArtist.id}`}
-                >
-                  {openArtistQuery.data.artist.title}
-                </NavLink>
-              </Typography>
-              <Box
-                display="flex"
-              >
-                <Box
-                  color="text.primary"
-                  display="flex"
-                  flex="50000 0 410px"
-                  flexDirection="column"
-                >
-                  <Typography fontFamily="TT Commons" fontSize="1.3rem">
-                    Top Tracks
-                  </Typography>
-                  <TrackHighlights
-                    context={context}
-                    tracks={openArtistTracksQuery.data
-                      .slice(0, Math.floor((panelHeight - 77) / 56))}
-                  />
-                </Box>
-                <HighlightAlbum
-                  artistData={openArtistQuery.data}
-                  height={panelHeight}
-                  library={library}
-                  navigate={navigate}
-                  width={width}
-                />
-              </Box>
-            </Box>
+            <CollapseContent
+              context={context}
+              panelHeight={panelHeight}
+            />
           )}
         </Box>
       </Collapse>

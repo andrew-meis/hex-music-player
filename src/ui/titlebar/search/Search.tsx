@@ -32,7 +32,6 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
   const [display, setDisplay] = useState('history');
   const [input, setInput] = useState('');
   const [inputDebounced, setInputDebounced] = useState('');
-  const [inputHover, setInputHover] = useState(false);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
@@ -125,8 +124,6 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               display: 'flex',
               width: '100%',
             }}
-            onMouseEnter={() => setInputHover(true)}
-            onMouseLeave={() => setInputHover(false)}
           >
             <IconButton
               disableRipple
@@ -156,22 +153,22 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               onChange={handleChange}
               onFocus={handleFocus}
             />
-            {inputHover && input.length !== 0 && !loading && (
-            <IconButton
-              disableRipple
-              sx={{
-                m: '2px',
-                p: '5px',
-                color: 'text.secondary',
-                '&:hover': {
-                  backgroundColor: 'transparent',
-                  color: 'text.primary',
-                },
-              }}
-              onClick={handleClear}
-            >
-              <SvgIcon><MdClear /></SvgIcon>
-            </IconButton>
+            {input.length !== 0 && !loading && (
+              <IconButton
+                disableRipple
+                sx={{
+                  m: '2px',
+                  p: '5px',
+                  color: 'text.secondary',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: 'text.primary',
+                  },
+                }}
+                onClick={handleClear}
+              >
+                <SvgIcon><MdClear /></SvgIcon>
+              </IconButton>
             )}
             {loading && (
               <SvgIcon

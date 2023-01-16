@@ -140,13 +140,6 @@ img {
   image-rendering: -webkit-optimize-contrast;
 }
 
-img.emoji {
-   height: 1em;
-   width: 1em;
-   margin: 0 .05em 0 .05em;
-   vertical-align: -0.15em;
-}
-
 input[type="date"]::-webkit-inner-spin-button,
 input[type="date"]::-webkit-calendar-picker-indicator {
     display: none;

@@ -92,13 +92,17 @@ export interface SimilarArtistContext {
   library: Library;
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
+  open: boolean;
   openArtist: OpenArtist;
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
   openArtistTracksQuery: UseQueryResult<Track[]>;
   openCard: {row: number, index: number};
+  panelContent: 'tracks' | 'albums';
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
   setOpenCard: React.Dispatch<React.SetStateAction<{row: number, index: number}>>;
+  setPanelContent: React.Dispatch<React.SetStateAction<'tracks' | 'albums'>>;
   thumbSrc: string;
   virtuoso: React.RefObject<GroupedVirtuosoHandle>;
   width: number;
@@ -123,8 +127,10 @@ const SimilarArtists = () => {
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
+  const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
+  const [panelContent, setPanelContent] = useState<'tracks' | 'albums'>('tracks');
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
@@ -218,13 +224,17 @@ const SimilarArtists = () => {
     library,
     navigate,
     nowPlaying,
+    open,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
+    panelContent,
     playSwitch,
+    setOpen,
     setOpenArtist,
     setOpenCard,
+    setPanelContent,
     thumbSrc,
     virtuoso,
     width,
@@ -238,13 +248,17 @@ const SimilarArtists = () => {
     library,
     navigate,
     nowPlaying,
+    open,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
+    panelContent,
     playSwitch,
+    setOpen,
     setOpenArtist,
     setOpenCard,
+    setPanelContent,
     thumbSrc,
     virtuoso,
     width,

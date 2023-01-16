@@ -5,7 +5,7 @@ import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
-import Twemoji from 'react-twemoji';
+import emoji from 'react-easy-emoji';
 import ActionMenu from 'components/action-menu/ActionMenu';
 import Tooltip from 'components/tooltip/Tooltip';
 
@@ -44,8 +44,8 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowPr
                   placement="right"
                   title={country.tag}
                 >
-                  <Box fontSize="2.5rem" width="min-content">
-                    <Twemoji>{flag(country.tag)}</Twemoji>
+                  <Box display="flex" fontSize="2.5rem" width="min-content">
+                    {emoji(flag(country.tag))}
                   </Box>
                 </Tooltip>
               ))}
