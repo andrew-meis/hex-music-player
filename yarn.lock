@@ -825,68 +825,68 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@motionone/animation@npm:^10.13.1":
-  version: 10.14.0
-  resolution: "@motionone/animation@npm:10.14.0"
+"@motionone/animation@npm:^10.15.1":
+  version: 10.15.1
+  resolution: "@motionone/animation@npm:10.15.1"
   dependencies:
-    "@motionone/easing": ^10.14.0
-    "@motionone/types": ^10.14.0
-    "@motionone/utils": ^10.14.0
+    "@motionone/easing": ^10.15.1
+    "@motionone/types": ^10.15.1
+    "@motionone/utils": ^10.15.1
     tslib: ^2.3.1
-  checksum: 664f7f036418e3604bdcb267636ed21057a2036a21cdff90f9fa49b62e788cdfc3149f6f9a27e9530ebfbee3a39d6e7dcd73adaa95d16af25bfcf1e01bd95cbb
+  checksum: 75b7a1e6c47c27073a578eb5559ea0a6e7075862c72e1eb1598403c8c2725f596a95b0369514c9e72f3c7439a9845c468b85a14d4e500df48e09d01b0739d4a7
   languageName: node
   linkType: hard
 
-"@motionone/dom@npm:10.13.1":
-  version: 10.13.1
-  resolution: "@motionone/dom@npm:10.13.1"
+"@motionone/dom@npm:^10.15.3":
+  version: 10.15.5
+  resolution: "@motionone/dom@npm:10.15.5"
   dependencies:
-    "@motionone/animation": ^10.13.1
-    "@motionone/generators": ^10.13.1
-    "@motionone/types": ^10.13.0
-    "@motionone/utils": ^10.13.1
+    "@motionone/animation": ^10.15.1
+    "@motionone/generators": ^10.15.1
+    "@motionone/types": ^10.15.1
+    "@motionone/utils": ^10.15.1
     hey-listen: ^1.0.8
     tslib: ^2.3.1
-  checksum: cbf7e9f4f23eb6dc0ae7fb7d19b4ad9c3fab51b161c9ad309dbe7e50de676002ffad35d5123d610d3a9d2bdc717cfbc79909facc32fbf2ca871287861bca6e6d
+  checksum: 2453fe3df6a2b4b339d075bcd598bda1eee1926ba0ad881edfd154362b0992c91f31c08d83c469c7e8cb8bf8ebc0ed5530972673cf5c74d99e46e3772cf5f1cb
   languageName: node
   linkType: hard
 
-"@motionone/easing@npm:^10.14.0":
-  version: 10.14.0
-  resolution: "@motionone/easing@npm:10.14.0"
+"@motionone/easing@npm:^10.15.1":
+  version: 10.15.1
+  resolution: "@motionone/easing@npm:10.15.1"
   dependencies:
-    "@motionone/utils": ^10.14.0
+    "@motionone/utils": ^10.15.1
     tslib: ^2.3.1
-  checksum: c845b7a445d6dbfb6d9d830fe8c88050345988fb6e423e63c1962506995e99efe899d6e7b14a8960b7df27aa279dfdfb02202a20de01bc65dcbd416ec2315d37
+  checksum: cf7cfcf9917525d892334c58282425aafc69d9ab9004c190bfa7cf91317a680e8143f227adc79557424e7f26cdf8478dcbb2ae467e744cebc58195d6f0b8153a
   languageName: node
   linkType: hard
 
-"@motionone/generators@npm:^10.13.1":
-  version: 10.14.0
-  resolution: "@motionone/generators@npm:10.14.0"
+"@motionone/generators@npm:^10.15.1":
+  version: 10.15.1
+  resolution: "@motionone/generators@npm:10.15.1"
   dependencies:
-    "@motionone/types": ^10.14.0
-    "@motionone/utils": ^10.14.0
+    "@motionone/types": ^10.15.1
+    "@motionone/utils": ^10.15.1
     tslib: ^2.3.1
-  checksum: 14cb500441f7b19dd84672c00ebeda0380fa151922118ac7e1bd13bf7b7b6bd87f876454863f3acf0849bb9c7b83a496eb0fba8f7b4d720f99bf5fa2121f056f
+  checksum: 0eb6797a64d536bb5c26628343d6594a2ebc45c3c447b8ce442b4ac3a41be847b860ac009bda7968fc7d339d2ee49b18bfe36306c5dd99cf17c7d84c82de93f3
   languageName: node
   linkType: hard
 
-"@motionone/types@npm:^10.13.0, @motionone/types@npm:^10.14.0":
-  version: 10.14.0
-  resolution: "@motionone/types@npm:10.14.0"
-  checksum: 2fbd65f925c786b190d99867010960ffb458beda5f9b5499eeb0822094871ecbeded1aae917c194b605d80f0c56a55a13ff1e0fa4f6bad3ad8ff32fe5a3201dc
+"@motionone/types@npm:^10.15.1":
+  version: 10.15.1
+  resolution: "@motionone/types@npm:10.15.1"
+  checksum: 98091f7dca257508d94d1080678c433da39a814e8e58aaa742212bf6c2a5b5e2120a6251a06e3ea522219ce6d1b6eb6aa2cab224b803fe52789033d8398ef0aa
   languageName: node
   linkType: hard
 
-"@motionone/utils@npm:^10.13.1, @motionone/utils@npm:^10.14.0":
-  version: 10.14.0
-  resolution: "@motionone/utils@npm:10.14.0"
+"@motionone/utils@npm:^10.15.1":
+  version: 10.15.1
+  resolution: "@motionone/utils@npm:10.15.1"
   dependencies:
-    "@motionone/types": ^10.14.0
+    "@motionone/types": ^10.15.1
     hey-listen: ^1.0.8
     tslib: ^2.3.1
-  checksum: eb4c0a50e458ba7e7944dba7d0b063665744fed60aef9b4670bbc26fe02bed43f26595e9515f8ca6e4899ff5f31e7d81708feb42c16bf6e91c871d310085bc48
+  checksum: 6ef13cd6637ec87c340e5536f849f8c40d30cc90139a3856d11cd70d78e3740f8815b0e63564fefd23c05a060da7a0ea5395390549606ed8801a7b832b74e04e
   languageName: node
   linkType: hard
 
@@ -1301,10 +1301,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.0.4":
-  version: 1.0.4
-  resolution: "@remix-run/router@npm:1.0.4"
-  checksum: db6b1e111fb6e7e22c3d274bd6cef3054a0a989245894fde5735efd9cb46d18511e528e813ff50bcbdd7eda1c559f4e76e9d0c54396624e33396168d80b09c42
+"@remix-run/router@npm:1.2.1":
+  version: 1.2.1
+  resolution: "@remix-run/router@npm:1.2.1"
+  checksum: 71c947f83e130bf006226332aca395f626ad599b6d35dfe936f6a8f139cf37278bc1b36bce38c30f6062724402358296329f31c385b11ae59b13b76a2716d701
   languageName: node
   linkType: hard
 
@@ -1315,16 +1315,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@szhsin/react-menu@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@szhsin/react-menu@npm:3.3.0"
+"@szhsin/react-menu@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@szhsin/react-menu@npm:3.3.1"
   dependencies:
     prop-types: ^15.7.2
     react-transition-state: ^1.1.5
   peerDependencies:
     react: ">=16.14.0"
     react-dom: ">=16.14.0"
-  checksum: 10b9c4bce191481e719d46e32f6bc79b5b5b21eab54e567a94210a0c17f679493ae857d609d5d04918975c9aebec82ede32ade775a81c8aed948a3823aa76a3e
+  checksum: d9f052ff27b30d202267e00a0d38d84a3a09c8a38ad0f5f4d5397b50788fff1eea05351acfb27c2348a74755a50cf1a0f8fd27c8ce8f71d02e7142423b11b8c7
   languageName: node
   linkType: hard
 
@@ -1346,33 +1346,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.19.1":
-  version: 4.19.1
-  resolution: "@tanstack/query-core@npm:4.19.1"
-  checksum: a54a613d5b7abe2bba352fa26228bee0589eb8116bf482760dbe39474202b08cfc3899100e478f0bd1ae1a7bd60dcda0634c04bec56a98346763d32bc7720b54
+"@tanstack/query-core@npm:4.22.0":
+  version: 4.22.0
+  resolution: "@tanstack/query-core@npm:4.22.0"
+  checksum: d24c13f8e21b65380230055a6673ae670aca5ee550c2f9a24b89fd3ac5243b465bb25f61b29da8ca285fc7fb0f4c2f8add3864f742eafac5131e777f3e52767a
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^4.19.1":
-  version: 4.19.1
-  resolution: "@tanstack/react-query-devtools@npm:4.19.1"
+"@tanstack/react-query-devtools@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "@tanstack/react-query-devtools@npm:4.22.0"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.7.0
     superjson: ^1.10.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.19.1
+    "@tanstack/react-query": 4.22.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 0c40e7b55d06600ff8a2448f8679e52657f22f05ae397ccee83842ee9ce6dcd681f41bd33606adc6590535bb868561dce3da631233c339701fffa602ec1e381c
+  checksum: 458cbc23e00f8e798022bb22d42fcb833f8b3ffd69d7d99d78d050b77dbe34cde264f18d41e6372c72264de4550fbf3e2947ee2581cb10fb5b3aa90d9f92f6e4
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^4.19.1":
-  version: 4.19.1
-  resolution: "@tanstack/react-query@npm:4.19.1"
+"@tanstack/react-query@npm:^4.22.0":
+  version: 4.22.0
+  resolution: "@tanstack/react-query@npm:4.22.0"
   dependencies:
-    "@tanstack/query-core": 4.19.1
+    "@tanstack/query-core": 4.22.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1383,7 +1383,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: cce8b51c5cbaff007efb2fc54c5e03a2191e363626226903c345ae9baf0d48a36fc322383e24aff4f12250e672da67d3ceaa9819bbb16ace98a5c7bdff098a61
+  checksum: b146774b44a79dd5a6412d981ce04790e66da5a36f907a03c85c36f50a38fb4e4dfbfca7b1561c86b39fb0df1c0c1ae0a0ef2930c06b444da3f430b9bad450f1
   languageName: node
   linkType: hard
 
@@ -1908,24 +1908,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@virtuoso.dev/react-urx@npm:^0.2.12":
-  version: 0.2.13
-  resolution: "@virtuoso.dev/react-urx@npm:0.2.13"
-  dependencies:
-    "@virtuoso.dev/urx": ^0.2.13
-  peerDependencies:
-    react: ">=16"
-  checksum: 173e91c21f6a8cd506ad3b72af10656897fe1951124ed9eeb1fd85575534993bea2f97cba3f81c08ae1e88a2613df348e2c80d0ceecb3021f8c8c8fe0e053ee2
-  languageName: node
-  linkType: hard
-
-"@virtuoso.dev/urx@npm:^0.2.12, @virtuoso.dev/urx@npm:^0.2.13":
-  version: 0.2.13
-  resolution: "@virtuoso.dev/urx@npm:0.2.13"
-  checksum: 682a99cf40ccc429241268dd37495cd1ed4695ae58b5a1169c75df1630d5dc3fd8eb3aaa655f71c37f39ba9c23c0aaf4401b76d8a986986d1a38a422d596a6ba
-  languageName: node
-  linkType: hard
-
 "@vitejs/plugin-react@npm:^2.0.1":
   version: 2.2.0
   resolution: "@vitejs/plugin-react@npm:2.2.0"
@@ -2284,14 +2266,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "axios@npm:1.2.0"
+"axios@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "axios@npm:1.2.3"
   dependencies:
     follow-redirects: ^1.15.0
     form-data: ^4.0.0
     proxy-from-env: ^1.1.0
-  checksum: f08ce214e957dfde45b837f8d3c7861424608fb7df32faa638835e338782a9f4c0b05074e92e0e8dcca3a1e6250112fbbe1b15a6b21104da633d84745bbb79cc
+  checksum: 52802a1e317e8a6fd2c014aa06a6978ea8381142c98e91f2be5e9e213b77b541451e588e17a3d6db2d6e76faea82911239ca4981d7af959d67fb66018dab3ac9
   languageName: node
   linkType: hard
 
@@ -3961,7 +3943,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^4.0.12, fast-xml-parser@npm:^4.0.9":
+"fast-xml-parser@npm:^4.0.13":
+  version: 4.0.13
+  resolution: "fast-xml-parser@npm:4.0.13"
+  dependencies:
+    strnum: ^1.0.5
+  bin:
+    fxparser: src/cli/cli.js
+  checksum: 55c8b483f609258ada626898ff394d3bc983f56f868941d89c0ec22395e89364ce2d3068c1e15695019a520c21fa1166fc576a6d7339e99c9ffdc657402e777f
+  languageName: node
+  linkType: hard
+
+"fast-xml-parser@npm:^4.0.9":
   version: 4.0.12
   resolution: "fast-xml-parser@npm:4.0.12"
   dependencies:
@@ -4093,32 +4086,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^7.6.18":
-  version: 7.6.18
-  resolution: "framer-motion@npm:7.6.18"
+"framer-motion@npm:^8.4.6":
+  version: 8.4.6
+  resolution: "framer-motion@npm:8.4.6"
   dependencies:
     "@emotion/is-prop-valid": ^0.8.2
-    "@motionone/dom": 10.13.1
-    framesync: 6.1.2
+    "@motionone/dom": ^10.15.3
     hey-listen: ^1.0.8
-    style-value-types: 5.1.2
-    tslib: 2.4.0
+    tslib: ^2.4.0
   peerDependencies:
     react: ^18.0.0
     react-dom: ^18.0.0
   dependenciesMeta:
     "@emotion/is-prop-valid":
       optional: true
-  checksum: b09b1d6edfa687fa5ac0c41cd45aab7a9ea83f1b6c4c910faa9b9aa74867da3bab86d09d6aea48fb445562abfda361a98924be2bd39a4b9075a102e8179578cc
-  languageName: node
-  linkType: hard
-
-"framesync@npm:6.1.2":
-  version: 6.1.2
-  resolution: "framesync@npm:6.1.2"
-  dependencies:
-    tslib: 2.4.0
-  checksum: 250dec78c351b087a47558b8bcf85a91a878507a73f05c095f7728617d40432b8ca0cb21deee98026d582c67610e961f83e535990035f6c9902e721580daff76
+  checksum: 243bdca426736ab1804c38a20b9a371dd6f0cc264d5f6a60fa76fd95195a94d3646a7a42e85163fcca057e512371048cdebba44c0b4ee4142bc7fee8fe7faad9
   languageName: node
   linkType: hard
 
@@ -4516,9 +4498,9 @@ __metadata:
     "@mui/material": ^5.10.16
     "@popmotion/popcorn": ^0.4.4
     "@regosen/gapless-5": ^1.3.16
-    "@szhsin/react-menu": ^3.3.0
-    "@tanstack/react-query": ^4.19.1
-    "@tanstack/react-query-devtools": ^4.19.1
+    "@szhsin/react-menu": ^3.3.1
+    "@tanstack/react-query": ^4.22.0
+    "@tanstack/react-query-devtools": ^4.22.0
     "@types/chroma-js": ^2.1.4
     "@types/lodash": ^4.14.191
     "@types/qs": ^6.9.7
@@ -4529,7 +4511,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.45.0
     "@typescript-eslint/parser": ^5.45.0
     "@vitejs/plugin-react": ^2.0.1
-    axios: ^1.2.0
+    axios: ^1.2.3
     chroma-js: ^2.4.2
     country-emoji: ^1.5.6
     electron: ^22.0.0
@@ -4542,10 +4524,10 @@ __metadata:
     eslint-plugin-jsx-a11y: ^6.6.1
     eslint-plugin-react: ^7.30.1
     eslint-plugin-react-hooks: ^4.6.0
-    fast-xml-parser: ^4.0.12
+    fast-xml-parser: ^4.0.13
     font-color-contrast: ^11.1.0
-    framer-motion: ^7.6.18
-    hex-plex: "file:./../hex-plex"
+    framer-motion: ^8.4.6
+    hex-plex: "file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A."
     lodash: ^4.17.21
     moment: ^2.29.4
     node-vibrant: ^3.2.1-alpha.1
@@ -4556,11 +4538,11 @@ __metadata:
     react-dom: ^18.2.0
     react-easy-emoji: ^1.8.1
     react-icons: ^4.7.1
-    react-intersection-observer: ^9.4.0
-    react-router-dom: ^6.4.4
+    react-intersection-observer: ^9.4.1
+    react-router-dom: ^6.6.2
     react-textfit: ^1.1.1
     react-use: ^17.4.0
-    react-virtuoso: ^3.1.5
+    react-virtuoso: ^4.0.3
     sass: ^1.54.4
     typescript: ^4.7.4
     uuid: ^9.0.0
@@ -4569,7 +4551,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"hex-plex@file:./../hex-plex::locator=hex-music-player%40workspace%3A.":
+"hex-plex@file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A.":
   version: 0.1.1
   resolution: "hex-plex@file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A."
   dependencies:
@@ -6232,7 +6214,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-intersection-observer@npm:^9.4.0":
+"react-intersection-observer@npm:^9.4.1":
   version: 9.4.1
   resolution: "react-intersection-observer@npm:9.4.1"
   peerDependencies:
@@ -6262,27 +6244,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.4.4":
-  version: 6.4.4
-  resolution: "react-router-dom@npm:6.4.4"
+"react-router-dom@npm:^6.6.2":
+  version: 6.6.2
+  resolution: "react-router-dom@npm:6.6.2"
   dependencies:
-    "@remix-run/router": 1.0.4
-    react-router: 6.4.4
+    "@remix-run/router": 1.2.1
+    react-router: 6.6.2
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 95f31ae84979b404db7483309e1063fbf724046103dc8b7be7e6df79f7b81e4e63dcdb587f11d8be38e3aaf62b71f9e0d83344ef8d8c5e962de7819c793de781
+  checksum: e0ee89a2b3768d2eb406ecefedfa24b55428145359b4138f6d38b8a99b60a4f275418910f4cdb12c069ed0237711acced3787b0c7febfa6568d7ea9cd624ff3b
   languageName: node
   linkType: hard
 
-"react-router@npm:6.4.4":
-  version: 6.4.4
-  resolution: "react-router@npm:6.4.4"
+"react-router@npm:6.6.2":
+  version: 6.6.2
+  resolution: "react-router@npm:6.6.2"
   dependencies:
-    "@remix-run/router": 1.0.4
+    "@remix-run/router": 1.2.1
   peerDependencies:
     react: ">=16.8"
-  checksum: d82cc8b8bdf10e02e07d089f9d82987fa161c2f07583c973126f5f8a052c02b3d2339891ddbda1738f877755a407e2c35f0dc1ac52aaa1d2c853774d19753ea7
+  checksum: 5960d774bb3a8f697a57ee2e82a3eb0a300b7186a62b27e02773c94f1682e59435bd876d6162a08cc8daf27cac72aaab66d348fcc4d8f59240a63a911cf0050b
   languageName: node
   linkType: hard
 
@@ -6359,16 +6341,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^3.1.5":
-  version: 3.1.5
-  resolution: "react-virtuoso@npm:3.1.5"
-  dependencies:
-    "@virtuoso.dev/react-urx": ^0.2.12
-    "@virtuoso.dev/urx": ^0.2.12
+"react-virtuoso@npm:^4.0.3":
+  version: 4.0.3
+  resolution: "react-virtuoso@npm:4.0.3"
   peerDependencies:
     react: ">=16 || >=17 || >= 18"
     react-dom: ">=16 || >=17 || >= 18"
-  checksum: c6dd6921e73ec1f88ae99c0eb002df24cdd73eb9154d71be43ea957b613ca9e976d6b0625b78f25a4dafc415ac680c6de576466847887d1da57bb3313cce7ec8
+  checksum: 828ec62afc4804d1e37373af57eedbbaf61e42e6fa5ab8dd8e6738c41ce607fa0efa403e976c13e340b369562929fc735eddc39166e102aa9732aa26d2547168
   languageName: node
   linkType: hard
 
@@ -7071,16 +7050,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"style-value-types@npm:5.1.2":
-  version: 5.1.2
-  resolution: "style-value-types@npm:5.1.2"
-  dependencies:
-    hey-listen: ^1.0.8
-    tslib: 2.4.0
-  checksum: 262d89aa3131d9076f8699cb38119740beadff901732c5f71bd3a34fcc398246a398d74057ca4ed3c06aeb44d8c5022839f6203a9a1bc7fdde2965674e3eaa31
-  languageName: node
-  linkType: hard
-
 "style-value-types@npm:^3.1.7":
   version: 3.2.0
   resolution: "style-value-types@npm:3.2.0"
@@ -7262,13 +7231,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.4.0":
-  version: 2.4.0
-  resolution: "tslib@npm:2.4.0"
-  checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
-  languageName: node
-  linkType: hard
-
 "tslib@npm:^1.10.0, tslib@npm:^1.8.1":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -7276,7 +7238,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.1":
+"tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0":
   version: 2.4.1
   resolution: "tslib@npm:2.4.1"
   checksum: 19480d6e0313292bd6505d4efe096a6b31c70e21cf08b5febf4da62e95c265c8f571f7b36fcc3d1a17e068032f59c269fab3459d6cd3ed6949eafecf64315fca

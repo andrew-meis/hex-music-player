@@ -7,10 +7,11 @@ import styles from 'styles/Common.module.scss';
 
 interface ActionMenuButtonProps extends MenuButtonProps{
   open: boolean;
+  width: number;
 }
 
 const ActionMenuButton = React.forwardRef((
-  { open, onClick, onKeyDown }: ActionMenuButtonProps,
+  { open, width, onClick, onKeyDown }: ActionMenuButtonProps,
   ref,
 ) => (
   <MenuButton
@@ -30,7 +31,7 @@ const ActionMenuButton = React.forwardRef((
           color: 'text.primary',
         },
       }}
-      width={32}
+      width={width}
     >
       <SvgIcon>
         <FiMoreVertical />
@@ -42,14 +43,15 @@ const ActionMenuButton = React.forwardRef((
 interface ActionMenuProps extends MenuProps {
   // eslint-disable-next-line react/require-default-props
   style?: React.CSSProperties;
+  width: number;
 }
 
-const ActionMenu = ({ children, style, ...props }: Omit<ActionMenuProps, 'menuButton'>) => {
+const ActionMenu = ({ children, style, width, ...props }: Omit<ActionMenuProps, 'menuButton'>) => {
   const menuStyle = useMenuStyle();
   return (
     <Menu
       transition
-      menuButton={({ open }) => <ActionMenuButton open={open} />}
+      menuButton={({ open }) => <ActionMenuButton open={open} width={width} />}
       menuStyle={{ ...menuStyle, ...style }}
       {...props}
     >

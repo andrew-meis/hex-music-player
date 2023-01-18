@@ -6,11 +6,12 @@ const Item = React
     {
       // @ts-ignore
       style, children, context, ...props
-    }: ItemProps,
+    }: ItemProps<any>,
     itemRef: React.ForwardedRef<HTMLDivElement>,
   ) => (
     <div
       {...props}
+      className="virtuoso-item"
       ref={itemRef}
       style={style}
       onContextMenu={(event) => context.handleContextMenu(event)}

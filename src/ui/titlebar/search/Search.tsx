@@ -88,7 +88,9 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
       margin="auto"
       sx={{ WebkitAppRegion: 'no-drag' }}
     >
-      <Box
+      <IconButton
+        disableRipple
+        size="small"
         sx={{
           color: 'text.secondary',
           transition: '0.2s',
@@ -104,7 +106,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
         <SvgIcon>
           <IoIosArrowBack />
         </SvgIcon>
-      </Box>
+      </IconButton>
       <ClickAwayListener mouseEvent="onMouseDown" onClickAway={handleClickAway}>
         <Box
           height={40}
@@ -237,7 +239,9 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
           </Portal>
         </Box>
       </ClickAwayListener>
-      <Box
+      <IconButton
+        disableRipple
+        size="small"
         sx={{
           color: 'text.secondary',
           transition: '0.2s',
@@ -253,7 +257,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
         <SvgIcon>
           <IoIosArrowForward />
         </SvgIcon>
-      </Box>
+      </IconButton>
     </Box>
   );
 };

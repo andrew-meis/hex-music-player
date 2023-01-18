@@ -104,6 +104,7 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowPr
       >
         <ActionMenu
           align="end"
+          width={16}
         >
           <MenuItem onClick={() => refreshPage()}>
             Reload Page

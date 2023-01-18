@@ -26,7 +26,7 @@ const Theme = ({ children, settings }: {children: ReactNode, settings: IAppSetti
 
   const customText = useMemo(
     () => (settings.colorMode === 'light'
-      ? { primary: 'rgba(0, 0, 0, 0.95)', secondary: 'rgba(0, 0, 0, 0.7)' }
+      ? { primary: 'rgba(0, 0, 0, 1)', secondary: 'rgba(0, 0, 0, 0.85)' }
       : {}),
     [settings],
   );

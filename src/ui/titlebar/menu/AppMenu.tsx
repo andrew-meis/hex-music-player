@@ -116,6 +116,7 @@ const AppMenu = () => {
           minWidth: '198px',
           '--menu-grey': theme.palette.mode === 'light' ? grey['100'] : grey['800'],
         } as React.CSSProperties}
+        width={32}
       >
         <MenuItem
           style={{

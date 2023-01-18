@@ -4,8 +4,12 @@ import { Artist } from 'hex-plex';
 import React, { useMemo } from 'react';
 import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
+import { Link } from 'react-router-dom';
+import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
+import { iconMotion } from 'components/motion-components/motion-variants';
 import useMenuStyle from 'hooks/useMenuStyle';
 import styles from 'styles/ArtistHeader.module.scss';
+import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
 import InfoRow from './header-components/InfoRow';
@@ -175,16 +179,32 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         mx="auto"
         width={(width * 0.89)}
       >
-        <Typography
+        <MotionTypography
           color="text.primary"
           fontFamily="TT Commons"
           fontSize="1.625rem"
+          marginRight="auto"
+          whileHover="hover"
+          width="fit-content"
         >
-          Discography&nbsp;&nbsp;&nbsp;
-          <SvgIcon style={{ position: 'relative', left: -18, top: 6 }}>
-            <BiChevronRight />
-          </SvgIcon>
-        </Typography>
+          <Link
+            className="link"
+            state={{
+              guid: artist.guid,
+              title: artist.title,
+              sort: [
+                PlexSortKeys.RELEASE_DATE,
+                SortOrders.DESC,
+              ].join(''),
+            }}
+            to={`/artists/${artist.id}/discography`}
+          >
+            Discography
+            <MotionSvg variants={iconMotion} viewBox="0 -5 24 24">
+              <BiChevronRight />
+            </MotionSvg>
+          </Link>
+        </MotionTypography>
         <Menu
           transition
           align="end"

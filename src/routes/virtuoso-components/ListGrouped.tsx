@@ -2,6 +2,7 @@ import { Box, ClickAwayListener } from '@mui/material';
 import React from 'react';
 import { ListProps } from 'react-virtuoso';
 import mergeRefs from 'scripts/merge-refs';
+import { IVirtuosoContext } from 'types/interfaces';
 
 const ListGrouped = React
   .forwardRef((
@@ -9,6 +10,7 @@ const ListGrouped = React
     { style, children, context, 'data-test-id': testId }: ListProps,
     listRef: React.ForwardedRef<HTMLDivElement>,
   ) => {
+    const { drag, handleClickAway, hoverIndex, selectedRows } = context as IVirtuosoContext;
     if (!context) {
       return null;
     }
@@ -17,28 +19,41 @@ const ListGrouped = React
         <Box
           className="group-box"
           ref={listRef}
-          style={{ ...style, maxWidth: '900px', width: '89%' }}
-          sx={{ mx: 'auto' }}
+          style={style}
+          sx={{ maxWidth: '900px', mx: 'auto', width: '89%' }}
         >
           {children}
         </Box>
       );
     }
     return (
-      <ClickAwayListener onClickAway={context.handleClickAway}>
+      <ClickAwayListener onClickAway={handleClickAway}>
         <Box
           className="list-box"
-          ref={mergeRefs(context.drag, listRef)}
-          style={{ ...style, maxWidth: '900px', width: '89%' }}
-          sx={{ mx: 'auto' }}
+          ref={mergeRefs(drag, listRef)}
+          style={style}
+          sx={{ maxWidth: '900px', mx: 'auto', width: '89%' }}
           onDragEndCapture={() => {
-            context.handleClickAway();
-            document.querySelectorAll('.track-row')
-              .forEach((node) => node.classList.remove('track-row-dragging'));
+            document.querySelectorAll('div.virtuoso-item')
+              .forEach((node) => node.classList.remove('non-dragged-item', 'dragged-item'));
+            handleClickAway();
           }}
           onDragStartCapture={() => {
-            document.querySelectorAll('.track-row')
-              .forEach((node) => node.classList.add('track-row-dragging'));
+            if (hoverIndex.current === null) {
+              return;
+            }
+            document.querySelectorAll('div.virtuoso-item')
+              .forEach((node) => node.classList.add('non-dragged-item'));
+            if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
+              const draggedNodes = selectedRows.map((row) => document
+                .querySelector(`div.virtuoso-item[data-item-index='${row}'`));
+              draggedNodes
+                .forEach((node) => node?.classList.add('dragged-item'));
+            } else {
+              const draggedNode = document
+                .querySelector(`div.virtuoso-item[data-item-index='${hoverIndex.current}'`);
+              draggedNode?.classList.add('dragged-item');
+            }
           }}
         >
           {children}

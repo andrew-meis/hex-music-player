@@ -270,3 +270,23 @@ select:focus-visible {
 .titlebar-nodrag {
   -webkit-app-region: no-drag;
 }
+
+.non-dragged-track {
+  background-color: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+.dragged-track {
+  background-color: var(--item-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+.non-dragged-item > * {
+  background-color: transparent !important;
+  color: var(--text-secondary) !important;
+}
+
+.dragged-item > * {
+  background-color: var(--item-bg) !important;
+  color: var(--text-primary) !important;
+}

@@ -107,7 +107,28 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
         flexDirection="column"
         height={tracks.length * 56}
         ref={drag}
-        onDragEndCapture={handleClickAway}
+        onDragEndCapture={() => {
+          document.querySelectorAll('div.track-row')
+            .forEach((node) => node.classList.remove('non-dragged-track', 'dragged-track'));
+          handleClickAway();
+        }}
+        onDragStartCapture={() => {
+          if (hoverIndex.current === null) {
+            return;
+          }
+          document.querySelectorAll('div.track-row')
+            .forEach((node) => node.classList.add('non-dragged-track'));
+          if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
+            const draggedNodes = selectedRows.map((row) => document
+              .querySelector(`div.track-row[data-item-index='${row}'`));
+            draggedNodes
+              .forEach((node) => node?.classList.add('dragged-track'));
+          } else {
+            const draggedNode = document
+              .querySelector(`div.track-row[data-item-index='${hoverIndex.current}'`);
+            draggedNode?.classList.add('dragged-track');
+          }
+        }}
       >
         <ClickAwayListener onClickAway={handleClickAway}>
           <Box>
@@ -119,6 +140,7 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
               return (
                 <Box
                   alignItems="center"
+                  className="track-row"
                   color="text.secondary"
                   data-item-index={index}
                   display="flex"
