@@ -271,22 +271,12 @@ select:focus-visible {
   -webkit-app-region: no-drag;
 }
 
-.non-dragged-track {
+.non-dragged-track, .non-dragged-item > * {
   background-color: transparent !important;
   color: var(--text-secondary) !important;
 }
 
-.dragged-track {
-  background-color: var(--item-bg) !important;
-  color: var(--text-primary) !important;
-}
-
-.non-dragged-item > * {
-  background-color: transparent !important;
-  color: var(--text-secondary) !important;
-}
-
-.dragged-item > * {
+.dragged-track, .dragged-item > * {
   background-color: var(--item-bg) !important;
   color: var(--text-primary) !important;
 }

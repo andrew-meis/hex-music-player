@@ -39,7 +39,7 @@ const SimilarArtistAvatarGroup = ({
       componentsProps={{
         additionalAvatar: { onClick: () => navigate(`/artists/${artist.id}/similar`) },
       }}
-      max={similarArtists.length < 6 ? similarArtists.length - 1 : 6}
+      max={8}
       sx={{
         justifyContent: 'flex-end',
         marginTop: '12px',

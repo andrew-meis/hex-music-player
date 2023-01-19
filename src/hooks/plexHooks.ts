@@ -13,6 +13,19 @@ const invalidateMetadataQueries = async (queryClient: QueryClient) => {
   await queryClient.invalidateQueries([QueryKeys.TOP]);
 };
 
+export const useUploadArt = () => {
+  const library = useLibrary();
+
+  const uploadArt = useCallback(async (id: number, data: string | ArrayBuffer | null) => {
+    const url = library.api.getAuthenticatedUrl(
+      `/library/metadata/${id}/arts`,
+    );
+    await axios.post(url, data);
+  }, [library]);
+
+  return { uploadArt };
+};
+
 export const useLibraryMaintenance = () => {
   const library = useLibrary();
   const queryClient = useQueryClient();

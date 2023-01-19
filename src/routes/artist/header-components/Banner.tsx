@@ -3,11 +3,12 @@ import { grey } from '@mui/material/colors';
 import chroma from 'chroma-js';
 import { sample } from 'lodash';
 import React, { useMemo, useRef } from 'react';
+import { FileWithPath, useDropzone } from 'react-dropzone';
 import { IoMdMicrophone } from 'react-icons/all';
 import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import { useThumbnail } from 'hooks/plexHooks';
+import { useThumbnail, useUploadArt } from 'hooks/plexHooks';
 import styles from 'styles/ArtistHeader.module.scss';
 import { IAppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
@@ -44,7 +45,8 @@ interface BannerProps {
 
 const Banner = ({ context, tracksInView }: BannerProps) => {
   const {
-    artist: artistData, colors, filter, library, playArtist, playArtistRadio, settings, width,
+    artist: artistData, colors, filter, library,
+    playArtist, playArtistRadio, refreshPage, settings, width,
   } = context!;
   const { artist } = artistData!;
   const bannerInView = useInView({ threshold: thresholds });
@@ -55,6 +57,26 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
   const bannerSrc = artist.art ? library.api.getAuthenticatedUrl(artist.art) : undefined;
   const thumbSrc = artist.thumb ? library.api.getAuthenticatedUrl(artist.thumb) : undefined;
   const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
+  const { uploadArt } = useUploadArt();
+  const { getRootProps, getInputProps, isDragAccept } = useDropzone({
+    accept: { 'image/*': [] },
+    noClick: true,
+    onDrop: (files: FileWithPath[]) => {
+      if (files.length === 0) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.addEventListener('load', (event) => {
+        uploadArt(artist.id, event.target!.result).then(() => refreshPage());
+      });
+      reader.readAsArrayBuffer(files[0]);
+    },
+  });
+  const style = useMemo(() => ({
+    borderWidth: '2px',
+    borderStyle: 'dashed',
+    borderColor: isDragAccept ? 'green' : 'transparent',
+  }), [isDragAccept]);
 
   const handlePlay = () => playArtist(artist);
   const handleShuffle = () => playArtist(artist, true);
@@ -176,6 +198,15 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
             handleRadio={handleRadio}
             handleShuffle={handleShuffle}
           />
+        </Box>
+        <Box
+          {...getRootProps({ className: 'dropzone', style })}
+          height="calc(40vh - 4px)"
+          minHeight={386}
+          position="absolute"
+          width="calc(100% - 4px)"
+        >
+          <input {...getInputProps()} />
         </Box>
       </Box>
     </>
