@@ -1,4 +1,4 @@
-import { Box, Chip, Typography } from '@mui/material';
+import { Box, Chip, SvgIcon, Typography } from '@mui/material';
 import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import { flag } from 'country-emoji';
@@ -6,6 +6,7 @@ import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import emoji from 'react-easy-emoji';
+import { SiMusicbrainz, TbBrandLastfm, TbExternalLink } from 'react-icons/all';
 import ActionMenu from 'components/action-menu/ActionMenu';
 import Tooltip from 'components/tooltip/Tooltip';
 import useRestoreAlbums from 'hooks/useRestoreAlbums';
@@ -19,6 +20,7 @@ interface InfoRowProps {
 
 const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowProps) => {
   const { artist } = artistData!;
+  const mbid = (artist.mbid[0].id as unknown as string).slice(7);
 
   const filters = window.electron.readFilters('filters');
   const hasHiddenReleases = filters.findIndex((obj) => obj.artist === artist.guid) !== -1;
@@ -103,7 +105,9 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowPr
         minWidth={180}
       >
         <ActionMenu
-          align="end"
+          arrow
+          align="center"
+          direction="left"
           width={16}
         >
           <MenuItem onClick={() => refreshPage()}>
@@ -117,6 +121,25 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowPr
           <MenuDivider />
           <MenuItem onClick={() => refreshMetadata(artist.id)}>
             Refresh Metadata
+          </MenuItem>
+          <MenuDivider />
+          <MenuItem href={`https://fanart.tv/artist/${mbid}`} target="_blank">
+            fanart.tv
+            <SvgIcon sx={{ height: '0.9em', ml: 'auto', width: '0.9em' }}>
+              <TbExternalLink />
+            </SvgIcon>
+          </MenuItem>
+          <MenuItem href={`https://www.last.fm/music/${artist.title}`} target="_blank">
+            last.fm
+            <SvgIcon sx={{ height: '0.9em', ml: 'auto', width: '0.9em' }}>
+              <TbBrandLastfm />
+            </SvgIcon>
+          </MenuItem>
+          <MenuItem href={`https://musicbrainz.org/artist/${mbid}`} target="_blank">
+            MusicBrainz
+            <SvgIcon sx={{ height: '0.8em', ml: 'auto', width: '0.8em' }}>
+              <SiMusicbrainz />
+            </SvgIcon>
           </MenuItem>
         </ActionMenu>
       </Box>

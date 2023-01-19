@@ -226,6 +226,11 @@ select:focus-visible {
   }
 }
 
+.szh-menu__arrow {
+  background-color: var(--menu-paper);
+  background-image: linear-gradient(var(--menu-gradient), var(--menu-gradient));
+}
+
 .szh-menu__divider {
   background-color: var(--menu-border);
   margin: 5px 10px;
@@ -238,6 +243,11 @@ select:focus-visible {
   margin: 0 5px 0 5px;
   min-height: 24px;
   padding: 6px 8px;
+}
+
+.szh-menu__item--anchor {
+  color: inherit;
+  text-decoration: none;
 }
 
 .szh-menu__item--hover {
