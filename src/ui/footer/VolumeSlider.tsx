@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { IoVolumeLow, IoVolumeMedium, IoVolumeOff } from 'react-icons/all';
 import { iconButtonStyle, sliderStyle } from 'constants/style';
 import { usePlayerState } from 'queries/player-queries';
+import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 
 const VolumeSlider = () => {
@@ -10,14 +11,22 @@ const VolumeSlider = () => {
   const [isHovered, setHovered] = useState(false);
   const [volume, setVolume] = useState(50);
   const [prevVolume, setPrevVolume] = useState(0);
+  const { data: nowPlaying } = useNowPlaying();
   const { data: playerState } = usePlayerState();
 
   useEffect(() => {
     if (player.currentSource() === undefined) {
       return;
     }
+    if (nowPlaying?.track.media[0].parts[0].streams[0].gain) {
+      const decibelLevel = 20 * Math.log10(volume / 100);
+      const applyTrackGain = decibelLevel + (+nowPlaying.track.media[0].parts[0].streams[0].gain);
+      const gainLevel = 10 ** (applyTrackGain / 20);
+      player.setVolume(gainLevel);
+      return;
+    }
     player.setVolume(volume / 150);
-  }, [player, playerState.isPlaying, volume]);
+  }, [nowPlaying, player, playerState.isPlaying, volume]);
 
   const handleVolumeChange = (event: Event, newVolume: number | number[]) => {
     setVolume(newVolume as number);
