@@ -82,16 +82,25 @@ export interface AlbumRow {
   artist: TArtist;
 }
 
+export interface Measurements {
+  CARD_HEIGHT: number;
+  CARD_WIDTH: number;
+  COVER_HEIGHT: number;
+  COVER_WIDTH: number;
+  ROW_HEIGHT: number;
+  ROW_WIDTH: number;
+}
+
 export interface ArtistContext {
   artist: ArtistQueryData | undefined;
   colors: string[] | undefined;
   filter: string;
   filters: string[];
   getFormattedTime: (inMs: number) => string;
-  grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   isPlaying: boolean;
   library: Library;
+  measurements: Measurements;
   menuTarget: number | undefined;
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
@@ -255,7 +264,7 @@ const Artist = () => {
       });
     }
     return rows;
-  }, [data.releases, artist.data, filter, grid]);
+  }, [data, artist, filter, grid]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -311,7 +320,14 @@ const Artist = () => {
     return 0;
   };
 
-  const itemHeight = ((width * 0.89) / grid.cols) + (settings.albumText ? 54 : 0);
+  const measurements = useMemo(() => ({
+    CARD_HEIGHT: Math.floor((width * 0.89) / grid.cols),
+    CARD_WIDTH: Math.floor((width * 0.89) / grid.cols),
+    COVER_HEIGHT: Math.floor((width * 0.89) / grid.cols) - 8,
+    COVER_WIDTH: Math.floor((width * 0.89) / grid.cols) - 8,
+    ROW_HEIGHT: (Math.floor((width * 0.89) / grid.cols) + (settings.albumText ? 54 : 0)),
+    ROW_WIDTH: (Math.floor((width * 0.89) / grid.cols)) * grid.cols,
+  }), [grid, settings, width]);
 
   const refreshPage = useCallback(() => {
     queryClient.invalidateQueries([QueryKeys.ARTIST]);
@@ -325,10 +341,10 @@ const Artist = () => {
     filter,
     filters: data.filters,
     getFormattedTime,
-    grid,
     handleContextMenu,
     isPlaying,
     library,
+    measurements,
     menuTarget,
     navigate,
     nowPlaying,
@@ -349,10 +365,10 @@ const Artist = () => {
     data,
     filter,
     getFormattedTime,
-    grid,
     handleContextMenu,
     isPlaying,
     library,
+    measurements,
     menuTarget,
     navigate,
     nowPlaying,
@@ -400,7 +416,7 @@ const Artist = () => {
                 }}
                 context={{ ...artistContext, colors: Object.values(colors) as string[] }}
                 data={items}
-                fixedItemHeight={itemHeight}
+                fixedItemHeight={measurements.ROW_HEIGHT}
                 increaseViewportBy={{ top: 0, bottom: 500 }}
                 initialScrollTop={initialScrollTop()}
                 isScrolling={handleScrollState}

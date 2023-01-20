@@ -7,7 +7,7 @@ import Tooltip from 'components/tooltip/Tooltip';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import styles from 'styles/AlbumsRow.module.scss';
 import { IAppSettings } from 'types/interfaces';
-import { AlbumWithSection, RowProps } from './Artist';
+import { AlbumWithSection, Measurements, RowProps } from './Artist';
 
 const textStyle = {
   color: 'text.primary',
@@ -68,18 +68,17 @@ const getAdditionalText = (album: AlbumWithSection, by: string) => {
 
 interface AlbumCoverProps {
   album: AlbumWithSection;
-  grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   library: Library;
-  navigate: NavigateFunction;
+  measurements: Measurements;
   menuTarget: number | undefined;
+  navigate: NavigateFunction;
   settings: IAppSettings;
   sort: { by: string, order: string };
-  width: number;
 }
 
 const AlbumCover = ({
-  album, grid, handleContextMenu, library, menuTarget, navigate, settings, sort, width,
+  album, handleContextMenu, library, measurements, menuTarget, navigate, settings, sort,
 }: AlbumCoverProps) => {
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
@@ -106,25 +105,25 @@ const AlbumCover = ({
         className={styles['album-box']}
         data-id={album.id}
         data-section={album.section}
-        height={Math.floor((width * 0.89) / grid.cols) + 54}
+        height={measurements.ROW_HEIGHT}
         key={album.id}
         sx={{
           backgroundColor: menuTarget === album.id ? backgroundColor() : '',
           '&:hover': { backgroundColor: backgroundColor() },
         }}
-        width={Math.floor((width * 0.89) / grid.cols)}
+        width={measurements.CARD_WIDTH}
         onClick={() => navigate(`/albums/${album.id}`)}
         onContextMenu={handleContextMenu}
       >
         <Box
           className={styles['album-cover']}
-          height={Math.floor((width * 0.89) / grid.cols) - 8}
+          height={measurements.COVER_HEIGHT}
           margin="4px"
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
           sx={{ transform: menuTarget === album.id ? 'scale(1) translateZ(0px)' : '' }}
-          width={Math.floor((width * 0.89) / grid.cols) - 8}
+          width={measurements.COVER_WIDTH}
         />
         <Typography sx={textStyle}>
           {album.title}
@@ -141,13 +140,24 @@ const AlbumCover = ({
       className={styles['album-box']}
       data-id={album.id}
       data-section={album.section}
-      height={Math.floor((width * 0.89) / grid.cols)}
+      height={measurements.ROW_HEIGHT}
+      justifyContent="center"
       key={album.id}
-      width={Math.floor((width * 0.89) / grid.cols)}
+      width={measurements.CARD_WIDTH}
       onContextMenu={handleContextMenu}
     >
       <Tooltip
         arrow
+        PopperProps={{
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [0, -5],
+              },
+            },
+          ],
+        }}
         enterDelay={500}
         enterNextDelay={300}
         key={album.id}
@@ -155,12 +165,12 @@ const AlbumCover = ({
       >
         <Box
           className={styles['album-cover']}
-          height={Math.floor((width * 0.89) / grid.cols)}
-          margin="2px"
+          height={measurements.COVER_HEIGHT}
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
           sx={{ transform: menuTarget === album.id ? 'scale(1) translateZ(0px)' : '' }}
+          width={measurements.COVER_WIDTH}
           onClick={() => navigate(`/albums/${album.id}`)}
         />
       </Tooltip>
@@ -170,28 +180,27 @@ const AlbumCover = ({
 
 const AlbumsRow = React.memo(({ item, context }: RowProps) => {
   const {
-    grid, handleContextMenu, library, menuTarget, navigate, settings, sort, width,
+    handleContextMenu, library, measurements, menuTarget, navigate, settings, sort,
   } = context;
   const { albums } = item;
   return (
     <Box
       display="flex"
-      height={((width * 0.89) / grid.cols) + (settings.albumText ? 54 : 0)}
+      height={measurements.ROW_HEIGHT}
       mx="auto"
-      width={(width * 0.89)}
+      width={measurements.ROW_WIDTH}
     >
       {albums!.map((album) => (
         <AlbumCover
           album={album}
-          grid={grid}
           handleContextMenu={handleContextMenu}
           key={album.id}
           library={library}
+          measurements={measurements}
           menuTarget={menuTarget}
           navigate={navigate}
           settings={settings}
           sort={sort}
-          width={width}
         />
       ))}
     </Box>
