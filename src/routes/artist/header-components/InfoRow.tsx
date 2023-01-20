@@ -11,6 +11,15 @@ import ActionMenu from 'components/action-menu/ActionMenu';
 import Tooltip from 'components/tooltip/Tooltip';
 import useRestoreAlbums from 'hooks/useRestoreAlbums';
 
+const countryMapper = (country: string) => {
+  switch (country) {
+    case 'Republic of Korea':
+      return 'South Korea';
+    default:
+      return country;
+  }
+};
+
 interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
@@ -52,7 +61,7 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage }: InfoRowPr
                   title={country.tag}
                 >
                   <Box display="flex" fontSize="2.5rem" width="min-content">
-                    {emoji(flag(country.tag))}
+                    {emoji(flag(countryMapper(country.tag)))}
                   </Box>
                 </Tooltip>
               ))}
