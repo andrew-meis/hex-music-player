@@ -1,7 +1,7 @@
 import { SvgIcon } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, MenuState } from '@szhsin/react-menu';
 import React from 'react';
-import { TbWaveSawTool } from 'react-icons/all';
+import { TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 
@@ -54,6 +54,14 @@ const TrackMenu = ({
       {selectedRows.length === 1 && (
         <>
           <MenuDivider />
+          <MenuItem
+            onClick={() => {
+              if (id !== 0) navigate(`/tracks/${id}`);
+            }}
+          >
+            <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
+            Track information
+          </MenuItem>
           <MenuItem
             onClick={() => {
               if (id !== 0) navigate(`/tracks/${id}/similar`);

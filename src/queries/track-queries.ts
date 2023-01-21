@@ -5,7 +5,23 @@ import { uniqBy } from 'lodash';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
 import { IConfig } from 'types/interfaces';
-import { similarTracksQueryFn, trackHistoryQueryFn } from './track-query-fns';
+import { recentTracksQueryFn, similarTracksQueryFn, trackHistoryQueryFn } from './track-query-fns';
+
+export const useRecentTracks = (
+  {
+    config, library, id, days,
+  } : {
+    config: IConfig, library: Library, id: number, days: number
+  },
+) => useQuery(
+  [QueryKeys.RECENT_TRACKS, { id, days }],
+  () => recentTracksQueryFn(config, library, id, days),
+  {
+    initialData: [],
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
+  },
+);
 
 export const useSimilarTracks = (
   {
@@ -64,13 +80,13 @@ export const useTrack = (
 
 export const useTrackHistory = (
   {
-    config, library, id, days,
+    config, library, id,
   } : {
-    config: IConfig, library: Library, id: number, days: number
+    config: IConfig, library: Library, id: number,
   },
 ) => useQuery(
-  [QueryKeys.HISTORY, { id, days }],
-  () => trackHistoryQueryFn(config, library, id, days),
+  [QueryKeys.HISTORY, { id }],
+  () => trackHistoryQueryFn(config, library, id),
   {
     initialData: [],
     keepPreviousData: true,

@@ -29,7 +29,7 @@ import {
 } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { useTrackHistory } from 'queries/track-queries';
+import { useRecentTracks } from 'queries/track-queries';
 import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import AlbumsRow from './AlbumsRow';
@@ -153,7 +153,7 @@ const Artist = () => {
     ].join(''),
     slice: 5,
   });
-  const recentFavorites = useTrackHistory({
+  const recentTracks = useRecentTracks({
     config: config.data,
     library,
     id: +id,
@@ -351,7 +351,7 @@ const Artist = () => {
     playArtist,
     playArtistRadio,
     playSwitch,
-    recentFavorites: recentFavorites.data.slice(0, 5),
+    recentFavorites: recentTracks.data.slice(0, 5),
     refreshMetadata,
     refreshPage,
     setFilter,
@@ -375,7 +375,7 @@ const Artist = () => {
     playArtist,
     playArtistRadio,
     playSwitch,
-    recentFavorites.data,
+    recentTracks.data,
     refreshMetadata,
     refreshPage,
     setFilter,
@@ -386,7 +386,7 @@ const Artist = () => {
     width,
   ]);
 
-  if (isEmpty(items) || !artist.data || !topTracks.data || !recentFavorites.data) {
+  if (isEmpty(items) || !artist.data || !topTracks.data || !recentTracks.data) {
     return null;
   }
 

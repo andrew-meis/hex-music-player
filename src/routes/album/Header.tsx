@@ -79,7 +79,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
             }}
             variant="rounded"
           />
-          <Box alignItems="center" display="flex" flexGrow={1} mb="10px">
+          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="10px">
             <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
               <Box display="flex" height={18}>
                 {[...album.format, ...album.subformat].map((item, index, { length }) => {
@@ -120,7 +120,6 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                           transition: 'box-shadow 200ms ease-in',
                           '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
                         }}
-                        // TODO add artist link state
                         onClick={() => navigate(
                           `/artists/${album.parentId}`,
                           { state: { guid: album.parentGuid, title: album.parentTitle } },

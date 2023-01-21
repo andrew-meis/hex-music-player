@@ -1,6 +1,5 @@
-import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
+import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { Playlist } from 'hex-plex';
-import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
@@ -70,22 +69,28 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
             }}
             variant="rounded"
           />
-          <Box alignItems="center" display="flex" flexGrow={1} mb="10px">
+          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="10px">
             <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
+              <Box display="flex" height={18}>
+                <Typography variant="subtitle2">
+                  playlist
+                </Typography>
+              </Box>
               <Typography
                 sx={titleStyle}
                 variant="h4"
               >
                 {playlist.title}
               </Typography>
-              <Box alignItems="center" display="flex" height={32}>
-                <Chip
-                  color="primary"
-                  label="playlist"
-                  sx={{ height: '28px', color: 'common.black' }}
-                />
+              <Box alignItems="flex-end" display="flex" height={25}>
                 <Typography
-                  ml="10px"
+                  sx={{
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 1,
+                    WebkitBoxOrient: 'vertical',
+                  }}
+                  variant="subtitle2"
                   width="fit-content"
                 >
                   {`${playlist.leafCount} ${countNoun}`}

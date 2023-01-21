@@ -53,6 +53,7 @@ export enum QueryKeys {
   PLAYLIST = 'playlist',
   PLAYLISTS = 'playlists',
   PLAYQUEUE = 'play-queue',
+  RECENT_TRACKS = 'recent-tracks',
   SEARCH = 'search',
   SIMILAR_TRACKS = 'similar-tracks',
   TOAST = 'toast',

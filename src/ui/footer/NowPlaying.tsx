@@ -1,5 +1,5 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import React from 'react';
+import { NavLink } from 'react-router-dom';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
 import { useLibrary } from 'queries/app-queries';
@@ -60,7 +60,13 @@ const NowPlaying = () => {
           color: 'text.primary',
         }}
         >
-          {nowPlaying.track.title}
+          <NavLink
+            className="link"
+            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
+            to={`/tracks/${nowPlaying.track.id}`}
+          >
+            {nowPlaying.track.title}
+          </NavLink>
         </Typography>
         <Typography sx={{ ...typographyStyle, fontSize: '0.875rem', color: 'text.secondary' }}>
           <Subtext showAlbum track={nowPlaying.track} />
