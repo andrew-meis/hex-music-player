@@ -1,6 +1,6 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import { grey } from '@mui/material/colors';
-import React, { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { IAppSettings } from 'types/interfaces';
 
 declare module '@mui/material/styles' {

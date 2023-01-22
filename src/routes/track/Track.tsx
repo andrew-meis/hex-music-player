@@ -35,7 +35,7 @@ const Track = () => {
 
   return (
     <Palette
-      src={track.parentThumb}
+      id={track.parentThumb}
       url={library.api.getAuthenticatedUrl(track.parentThumb)}
     >
       {({ data: colors, isLoading, isError }) => {

@@ -56,7 +56,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
   const posX = useMemo(() => getPosX(settings), [settings]);
   const bannerSrc = artist.art ? library.api.getAuthenticatedUrl(artist.art) : undefined;
   const thumbSrc = artist.thumb ? library.api.getAuthenticatedUrl(artist.thumb) : undefined;
-  const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
+  const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { uploadArt } = useUploadArt();
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     accept: { 'image/*': [] },

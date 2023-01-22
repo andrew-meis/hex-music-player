@@ -86,7 +86,8 @@ const AlbumCover = ({
       url: album.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
     },
   );
-  const { data: palette, isError } = usePalette(album.thumb, thumbSrc);
+  const thumbUrl = library.api.getAuthenticatedUrl(album.thumb);
+  const { data: palette, isError } = usePalette(album.thumb, thumbUrl);
 
   const backgroundColor = () => {
     if (isError || !palette) {

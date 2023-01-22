@@ -25,8 +25,8 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
   const { playPlaylist } = usePlayback();
   const { width } = useOutletContext() as { width: number };
   const countNoun = playlist!.leafCount > 1 || playlist!.leafCount === 0 ? 'tracks' : 'track';
-  const thumbSrc = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 300);
-  const thumbSrcSm = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 100);
+  const [thumbSrc] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 300);
+  const [thumbSrcSm] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 100);
   const { ref, inView, entry } = useInView({
     threshold: [0.99, 0],
   });

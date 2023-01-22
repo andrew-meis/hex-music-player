@@ -43,7 +43,8 @@ export const useLibraryMaintenance = () => {
 
 export const useThumbnail = (src: string, size: number) => {
   const library = useLibrary();
-  return library.api.getAuthenticatedUrl(
+  const url = library.api.getAuthenticatedUrl(src);
+  const thumb = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
       url: src || 'none',
@@ -53,4 +54,5 @@ export const useThumbnail = (src: string, size: number) => {
       upscale: 1,
     },
   );
+  return [thumb, url];
 };

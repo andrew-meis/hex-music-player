@@ -15,7 +15,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
     artist: artistData, filter, items, playTracks, setFilter,
   } = context!;
   const { artist } = artistData!;
-  const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
+  const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   const handlePlay = () => playTracks(items);

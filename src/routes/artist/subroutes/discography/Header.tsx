@@ -108,7 +108,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
   } = context!;
   const { artist } = artistData!;
   const menuStyle = useMenuStyle();
-  const thumbSrcSm = useThumbnail(artist.thumb || 'none', 100);
+  const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   const handlePlay = () => playTracks(items);

@@ -60,13 +60,13 @@ interface ItemProps {
 
 const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
   const navigate = useNavigate();
-  const parentThumbSrc = useThumbnail(album.parentThumb, 100);
-  const thumbSrc = useThumbnail(album.thumb, 500);
+  const [parentThumbSrc] = useThumbnail(album.parentThumb, 100);
+  const [thumbSrc, thumbUrl] = useThumbnail(album.thumb, 500);
   const difference = activeIndex - index;
   return (
     <AnimatePresence custom={difference} initial={false}>
       {difference >= -2 && difference <= 2 && (
-        <Palette src={album.thumb} url={thumbSrc}>
+        <Palette id={album.thumb} url={thumbUrl}>
           {({ data: colors, isLoading, error }) => {
             if (isLoading || error || !colors) {
               return null;

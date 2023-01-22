@@ -14,7 +14,7 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
     currentTrack, filter, items, playTracks, setFilter,
   } = context!;
   const track = currentTrack!;
-  const thumbSrcSm = useThumbnail(track.thumb || 'none', 100);
+  const [thumbSrcSm] = useThumbnail(track.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   const handlePlay = () => playTracks(items);

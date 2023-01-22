@@ -392,7 +392,7 @@ const Artist = () => {
 
   return (
     <Palette
-      src={artist.data.artist.art || artist.data.artist.thumb}
+      id={artist.data.artist.art || artist.data.artist.thumb}
       url={library.api.getAuthenticatedUrl(artist.data.artist.art || artist.data.artist.thumb)}
     >
       {({ data: colors, isLoading, isError }) => {

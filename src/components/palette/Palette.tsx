@@ -8,7 +8,7 @@ import React from 'react';
 import usePalette, { PaletteState } from 'hooks/usePalette';
 
 export interface PaletteProps {
-  src: string;
+  id: string;
   url: string;
   children(palette: QueryObserverRefetchErrorResult<PaletteState, unknown>
     | QueryObserverSuccessResult<PaletteState, unknown>
@@ -16,8 +16,8 @@ export interface PaletteProps {
     | QueryObserverLoadingResult<PaletteState, unknown>): React.ReactNode;
 }
 
-const Palette = ({ src, url, children }: PaletteProps) => {
-  const palette = usePalette(src, url);
+const Palette = ({ id, url, children }: PaletteProps) => {
+  const palette = usePalette(id, url);
 
   return <>{children(palette)}</>;
 };

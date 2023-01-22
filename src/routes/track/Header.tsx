@@ -24,10 +24,10 @@ interface HeaderProps {
 
 const Header = ({ colors, track }: HeaderProps) => {
   const navigate = useNavigate();
-  const grandparentThumbSrc = useThumbnail(track.grandparentThumb || 'none', 100);
-  const thumbSrc = useThumbnail(track.parentThumb || 'none', 300);
+  const [grandparentThumbSrc] = useThumbnail(track.grandparentThumb || 'none', 100);
+  const [thumbSrc] = useThumbnail(track.parentThumb || 'none', 300);
   const { getFormattedTime } = useFormattedTime();
-  // const thumbSrcSm = useThumbnail(track.parentThumb || 'none', 100);
+  // const [thumbSrcSm] = useThumbnail(track.parentThumb || 'none', 100);
 
   return (
     <Box

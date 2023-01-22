@@ -22,8 +22,8 @@ export const defaultColors: PaletteState = {
   lightMuted: '#917a07',
 };
 
-const usePalette = (src: string, url: string) => useQuery(
-  [QueryKeys.PALETTE, src],
+const usePalette = (id: string, url: string) => useQuery(
+  [QueryKeys.PALETTE, id],
   async () => {
     let data;
     try {

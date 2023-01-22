@@ -67,7 +67,8 @@ const TopResult = ({ topResult, setOpen }: Props) => {
       },
     )
     : '';
-  const { data: palette, isError } = usePalette(topResult.thumb, thumbSrc);
+  const thumbUrl = library.api.getAuthenticatedUrl(topResult.thumb);
+  const { data: palette, isError } = usePalette(topResult.thumb, thumbUrl);
 
   const [, drag, dragPreview] = useDrag(() => ({
     type: getDragType(topResult.type),

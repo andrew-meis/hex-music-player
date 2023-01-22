@@ -32,9 +32,9 @@ const Header = ({ context }: { context?: AlbumContext }) => {
   const { width } = useOutletContext() as { width: number };
   // calculated values
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
-  const parentThumbSrc = useThumbnail(album.parentThumb || 'none', 100);
-  const thumbSrc = useThumbnail(album.thumb || 'none', 300);
-  const thumbSrcSm = useThumbnail(album.thumb || 'none', 100);
+  const [parentThumbSrc] = useThumbnail(album.parentThumb || 'none', 100);
+  const [thumbSrc, thumbUrl] = useThumbnail(album.thumb || 'none', 300);
+  const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
   const releaseDate = album.originallyAvailableAt
     .toLocaleDateString(
       'en-gb',
@@ -101,7 +101,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
               </Box>
               <Typography sx={titleStyle} variant="h4">{album.title}</Typography>
               <Box alignItems="center" display="flex" height={32}>
-                <Palette src={album.thumb} url={thumbSrc}>
+                <Palette id={album.thumb} url={thumbUrl}>
                   {({ data: colors, isLoading }) => {
                     if (isLoading) {
                       return null;
