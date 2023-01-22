@@ -23,8 +23,7 @@ const Graph = ({ activeColor, data, scale, setActiveColor, total }: GraphProps) 
     height={21}
   >
     {data.map((item, index, array) => (
-      // eslint-disable-next-line react/no-array-index-key
-      <React.Fragment key={index}>
+      <React.Fragment key={item.value[0].unix()}>
         {activeColor?.index === index && (
           <Typography
             color="text.secondary"

@@ -16,7 +16,7 @@ import { useConfig, useLibrary } from 'queries/app-queries';
 import { ArtistQueryData, useArtist } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { useTrackHistory } from 'queries/track-queries';
+import { useRecentTracks } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
@@ -52,7 +52,7 @@ const RecentFavorites = () => {
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const artist = useArtist(+id, library);
-  const { data: tracks, isLoading } = useTrackHistory({
+  const { data: tracks, isLoading } = useRecentTracks({
     config: config.data,
     library,
     id: +id,

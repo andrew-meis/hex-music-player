@@ -1,14 +1,14 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
+import moment from 'moment';
+import { useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useTrack, useTrackHistory } from 'queries/track-queries';
 import { RouteParams } from 'types/interfaces';
+import Graphs from './Graphs';
 import Header from './Header';
-import MonthGraph from './MonthGraph';
-import WeekGraph from './WeekGraph';
-import YearGraph from './YearGraph';
 
 const Track = () => {
   const config = useConfig();
@@ -24,6 +24,10 @@ const Track = () => {
     library,
     id: +id,
   });
+  const moments = useMemo(
+    () => trackHistory.map((obj) => moment.unix(obj.viewedAt)),
+    [trackHistory],
+  );
 
   if (!track || !trackHistory) {
     return null;
@@ -51,26 +55,9 @@ const Track = () => {
                 colors={colors}
                 track={track}
               />
-              <Typography
-                color="text.primary"
-                fontFamily="TT Commons"
-                fontSize="1.625rem"
-              >
-                Playback Statistics
-              </Typography>
-              <YearGraph
+              <Graphs
                 colors={colors}
-                trackHistory={trackHistory}
-              />
-              <Box mt="32px" />
-              <MonthGraph
-                colors={colors}
-                trackHistory={trackHistory}
-              />
-              <Box mt="32px" />
-              <WeekGraph
-                colors={colors}
-                trackHistory={trackHistory}
+                moments={moments}
               />
             </Box>
           </motion.div>
