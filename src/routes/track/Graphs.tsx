@@ -63,9 +63,13 @@ const Graphs = ({ colors, moments }: GraphsProps) => {
         const day2 = b.key as keyof typeof daysSort;
         return daysSort[day1] - daysSort[day2];
       });
+    const colorPairs = Object.values(colors)
+      .flatMap((v, i) => Object.values(colors).slice(i + 1).map((w) => [v, w]));
+    const differentColors = colorPairs.map((pair) => chroma.deltaE(pair[0], pair[1]));
+    const maxIndex = differentColors.reduce((iMax, x, i, arr) => (x > arr[iMax] ? i : iMax), 0);
     const scale = chroma
-      .scale([colors.vibrant, colors.lightVibrant])
-      .mode('hsl')
+      .scale(colorPairs[maxIndex])
+      .mode('lch')
       .colors(Math.max(years.length, months.length, days.length));
     return { years, months, days, scale };
   }, [colors, moments]);
