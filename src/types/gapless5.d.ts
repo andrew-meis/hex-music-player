@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 declare module '@regosen/gapless-5' {
     export class Gapless5 {
       constructor(options?: {}, deprecated?: {});

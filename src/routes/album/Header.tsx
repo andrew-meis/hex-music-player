@@ -2,6 +2,7 @@ import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import { Album } from 'hex-plex';
+import moment from 'moment';
 import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
@@ -35,11 +36,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
   const [parentThumbSrc] = useThumbnail(album.parentThumb || 'none', 100);
   const [thumbSrc, thumbUrl] = useThumbnail(album.thumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
-  const releaseDate = album.originallyAvailableAt
-    .toLocaleDateString(
-      'en-gb',
-      { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
-    );
+  const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
 
   const handlePlay = () => playAlbum(album as Album);
   const handleShuffle = () => playAlbum(album as Album, true);

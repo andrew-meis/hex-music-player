@@ -29,7 +29,7 @@ const getMetaText = (
       : 'no listeners';
   }
   if (metaText === PlexSortKeys.RELEASE_DATE) {
-    return moment(originallyAvailableAt).format('DD MMM YYYY');
+    return moment.utc(originallyAvailableAt).format('DD MMM YYYY');
   }
   return track.viewCount
     ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`

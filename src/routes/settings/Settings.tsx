@@ -1,8 +1,19 @@
 import {
-  Box, MenuItem, Paper, Select, SelectChangeEvent, Switch, Typography,
+  Box,
+  IconButton,
+  Input,
+  InputAdornment,
+  MenuItem,
+  Paper,
+  Select,
+  SelectChangeEvent,
+  SvgIcon,
+  Switch,
+  Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
+import { BiPaste } from 'react-icons/all';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
 import { IAppSettings } from 'types/interfaces';
 
@@ -50,6 +61,7 @@ const switchStyle = {
 };
 
 const Settings = () => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { data: settings } = useSettings();
   const updateConfig = useCallback(async (key: keyof IAppSettings, value: any) => {
@@ -87,6 +99,14 @@ const Settings = () => {
     await updateConfig('albumSort', { by: settings.albumSort?.by, order: e.target.value });
   };
 
+  const pasteText = async () => {
+    const text = await navigator.clipboard.readText();
+    if (text.length === 32 && !!inputRef.current) {
+      inputRef.current.value = text;
+      await updateConfig('apiKey', text);
+    }
+  };
+
   return (
     <Paper
       elevation={0}
@@ -109,8 +129,8 @@ const Settings = () => {
         />
       </Box>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Docked Queue</Typography>
-      <Box mt={-1} sx={boxStyle}>
-        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+      <Box mt={-1.5} sx={boxStyle}>
+        <Typography variant="subtitle2">
           Keep the queue displayed on the right side of the window
         </Typography>
         <Switch
@@ -121,8 +141,8 @@ const Settings = () => {
         />
       </Box>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Compact Queue</Typography>
-      <Box mt={-1} sx={boxStyle}>
-        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+      <Box mt={-1.5} sx={boxStyle}>
+        <Typography variant="subtitle2">
           Use a smaller version of the queue toolbar
         </Typography>
         <Switch
@@ -133,8 +153,8 @@ const Settings = () => {
         />
       </Box>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Compact Navigation</Typography>
-      <Box mt={-1} sx={boxStyle}>
-        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+      <Box mt={-1.5} sx={boxStyle}>
+        <Typography variant="subtitle2">
           Use a smaller version of the navigation sidebar
         </Typography>
         <Switch
@@ -145,8 +165,8 @@ const Settings = () => {
       </Box>
       <Typography mt={1} sx={{ fontWeight: 600 }} variant="h5">Artist Page</Typography>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Album Grid Text</Typography>
-      <Box mt={-1} sx={boxStyle}>
-        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+      <Box mt={-1.5} sx={boxStyle}>
+        <Typography variant="subtitle2">
           Always show album title in album grid views
         </Typography>
         <Switch
@@ -156,11 +176,11 @@ const Settings = () => {
         />
       </Box>
       <Typography sx={{ fontWeight: 600 }} variant="body1">Album Sorting</Typography>
-      <Box mt={-1} sx={{ ...boxStyle, height: 38 }}>
-        <Typography sx={{ lineHeight: 1.1 }} variant="subtitle2">
+      <Box mt={-1.5} sx={{ ...boxStyle, height: 38 }}>
+        <Typography variant="subtitle2">
           Default album sort
         </Typography>
-        <Typography sx={{ lineHeight: 1.1, ml: 'auto' }} variant="subtitle2">
+        <Typography sx={{ ml: 'auto' }} variant="subtitle2">
           by:
         </Typography>
         <Select
@@ -200,7 +220,7 @@ const Settings = () => {
           <MenuItem value="type">Release Type</MenuItem>
           <MenuItem value="title">Title</MenuItem>
         </Select>
-        <Typography sx={{ lineHeight: 1.1, ml: '8px' }} variant="subtitle2">
+        <Typography sx={{ ml: '8px' }} variant="subtitle2">
           order:
         </Typography>
         <Select
@@ -236,6 +256,36 @@ const Settings = () => {
           <MenuItem value="asc">Ascending</MenuItem>
           <MenuItem value="desc">Descending</MenuItem>
         </Select>
+      </Box>
+      <Typography mt={1} sx={{ fontWeight: 600 }} variant="h5">Last.fm Integration</Typography>
+      <Typography sx={{ fontWeight: 600 }} variant="body1">API Key</Typography>
+      <Box mt={-1.5} sx={{ ...boxStyle, height: '38px' }}>
+        <Typography variant="subtitle2">
+          Paste your last.fm API key here
+        </Typography>
+        <Input
+          disabled
+          endAdornment={(
+            <InputAdornment position="end">
+              <IconButton
+                disableRipple
+                edge="end"
+                onClick={pasteText}
+              >
+                <SvgIcon>
+                  <BiPaste />
+                </SvgIcon>
+              </IconButton>
+            </InputAdornment>
+          )}
+          inputProps={{
+            style: {
+              width: '32ch',
+            },
+          }}
+          inputRef={inputRef}
+          value={settings.apiKey || ''}
+        />
       </Box>
     </Paper>
   );

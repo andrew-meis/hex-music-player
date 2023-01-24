@@ -39,11 +39,7 @@ const getAdditionalText = (album: AlbumWithSection, by: string) => {
     return moment(album.addedAt).fromNow();
   }
   if (by === 'date') {
-    return album.originallyAvailableAt
-      .toLocaleDateString(
-        'en-gb',
-        { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' },
-      );
+    return moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
   }
   if (by === 'played') {
     return moment(album.lastViewedAt).fromNow();

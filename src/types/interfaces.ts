@@ -15,6 +15,7 @@ export interface IAppInfo {
 export interface IAppSettings {
   albumSort?: { by: string, order: string };
   albumText?: boolean;
+  apiKey?: string;
   colorMode?: PaletteMode;
   compactNav?: boolean;
   compactQueue?: boolean,
