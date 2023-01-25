@@ -1,19 +1,7 @@
 import axios from 'axios';
-import { LastFmCorrection, LastFmTrack } from 'types/lastfm-interfaces';
+import { LastFmSearchResult, LastFmTrack } from 'types/lastfm-interfaces';
 
 const LASTFM_ROOT = 'https://ws.audioscrobbler.com/2.0/';
-
-const getCorrection = async (apikey: string, artist: string, title: string) => {
-  const params = new URLSearchParams();
-  params.append('method', 'track.getCorrection');
-  params.append('api_key', apikey);
-  params.append('artist', artist);
-  params.append('track', title);
-  params.append('format', 'json');
-  const url = `${LASTFM_ROOT}?${params.toString()}`;
-  const response = await axios.get(url);
-  return response.data.corrections.correction.track as LastFmCorrection;
-};
 
 const getInfo = async (apikey: string, artist: string, title: string) => {
   const params = new URLSearchParams();
@@ -40,13 +28,30 @@ const getSimilar = async (apikey: string, artist: string, title: string) => {
   return response.data.similartracks.track as LastFmTrack[];
 };
 
-export const lastfmSimilarQueryFn = async (artist: string, title: string, apikey?: string) => {
-  const similar = await getSimilar(apikey!, artist, title);
+const search = async (apikey: string, artist: string, title: string) => {
+  const params = new URLSearchParams();
+  params.append('method', 'track.search');
+  params.append('api_key', apikey);
+  params.append('artist', artist);
+  params.append('track', title);
+  params.append('limit', '1');
+  params.append('format', 'json');
+  const url = `${LASTFM_ROOT}?${params.toString()}`;
+  const response = await axios.get(url);
+  return response.data.results.trackmatches.track[0] as LastFmSearchResult;
+};
+
+export const lastfmSearchQueryFn = async (artist?: string, title?: string, apikey?: string) => {
+  const result = await search(apikey!, artist!, title!);
+  return result;
+};
+
+export const lastfmSimilarQueryFn = async (artist?: string, title?: string, apikey?: string) => {
+  const similar = await getSimilar(apikey!, artist!, title!);
   return similar;
 };
 
-export const lastfmTrackQueryFn = async (apikey?: string, artist?: string, title?: string) => {
-  const correction = await getCorrection(apikey!, artist!, title!);
-  const track = await getInfo(apikey!, correction.artist.name, correction.name);
-  return { track, correction };
+export const lastfmTrackQueryFn = async (artist?: string, title?: string, apikey?: string) => {
+  const track = await getInfo(apikey!, artist!, title!);
+  return track;
 };

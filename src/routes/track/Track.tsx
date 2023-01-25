@@ -1,12 +1,12 @@
 import { Box } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import moment from 'moment';
 import { useMemo } from 'react';
 import { useLocation, useOutletContext, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
+import { useAlbumQuick } from 'queries/album-queries';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
-import { useLastfmTrack } from 'queries/last-fm-queries';
+import { useLastfmSearch, useLastfmTrack } from 'queries/last-fm-queries';
 import { useTrack, useTrackHistory } from 'queries/track-queries';
 import { RouteParams } from 'types/interfaces';
 import Graphs from './Graphs';
@@ -29,28 +29,26 @@ const Track = () => {
     library,
     id: +id,
   });
-  const { data: lastfmInfo } = useLastfmTrack({
+  const { data: lastfmSearch } = useLastfmSearch({
     apikey: settings?.apiKey,
     artist: track?.grandparentTitle,
     title: track?.title,
   });
-  const { data: album } = useQuery(
-    ['album-quick', track?.parentId],
-    () => library.album(track!.parentId),
-    {
-      enabled: !!track?.parentId,
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-      select: (data) => data.albums[0],
-    },
-  );
+  const { data: lastfmTrack } = useLastfmTrack({
+    apikey: settings?.apiKey,
+    artist: lastfmSearch?.artist,
+    title: lastfmSearch?.name,
+  });
+  const { data: album } = useAlbumQuick(library, track?.parentId);
   const { width } = useOutletContext() as { width: number };
   const moments = useMemo(
-    () => trackHistory.map((obj) => moment.unix(obj.viewedAt)),
+    () => trackHistory
+      .map((obj) => moment.unix(obj.viewedAt)),
+    // trackHistory.filter((date) => date.format('YYYY') === '2017')
     [trackHistory],
   );
 
-  if (!track || !trackHistory || !lastfmInfo || !album) {
+  if (!track || !trackHistory || !lastfmTrack || !album) {
     return null;
   }
 
@@ -86,7 +84,7 @@ const Track = () => {
                 />
                 <Info
                   album={album}
-                  lastfmTrack={lastfmInfo.track}
+                  lastfmTrack={lastfmTrack}
                   track={track}
                 />
                 {track.viewCount > 0 && (
@@ -101,7 +99,8 @@ const Track = () => {
                 <Box height={48} width={1} />
                 <Similar
                   apikey={settings.apiKey}
-                  correction={lastfmInfo.correction}
+                  artist={lastfmSearch?.artist}
+                  title={lastfmSearch?.name}
                   width={Math.min(width * 0.89, 900)}
                 />
               </Box>

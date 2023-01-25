@@ -40,6 +40,7 @@ export enum PlexSortKeys {
 
 export enum QueryKeys {
   ALBUM = 'album',
+  ALBUM_QUICK = 'album-quick',
   ALBUM_TRACKS = 'album-tracks',
   ALBUMS = 'albums',
   ARTIST = 'artist',
@@ -47,6 +48,9 @@ export enum QueryKeys {
   ARTIST_TRACKS = 'artist-tracks',
   ARTISTS = 'artists',
   HISTORY = 'history',
+  LASTFM_SEARCH = 'lastfm-search',
+  LASTFM_SIMILAR = 'lastfm-similar',
+  LASTFM_TRACK = 'lastfm-track',
   LYRICS = 'lyrics',
   PALETTE = 'palette',
   PLAYER_STATE= 'player-state',

@@ -19,7 +19,7 @@ const FixedHeader = ({ thumbSrcSm, track }: FixedHeaderProps) => (
     marginX="auto"
     maxWidth="900px"
     paddingX="6px"
-    width={1}
+    width="calc(100% - 12px)"
   >
     <Avatar
       alt={track.title}

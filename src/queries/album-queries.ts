@@ -17,6 +17,17 @@ export const useAlbum = (id: number, library: Library) => useQuery(
   },
 );
 
+export const useAlbumQuick = (library: Library, id?: number) => useQuery(
+  [QueryKeys.ALBUM_QUICK, id],
+  () => library.album(id!),
+  {
+    enabled: !!id,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    select: (data) => data.albums[0],
+  },
+);
+
 export const useAlbumSearch = (
   config: IConfig,
   library: Library,

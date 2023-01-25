@@ -10,7 +10,7 @@ const Subtext = ({ track, showAlbum }: {track: Track, showAlbum: boolean}) => (
       style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
       to={`/artists/${track.grandparentId}`}
     >
-      { track.originalTitle ? track.originalTitle : track.grandparentTitle }
+      {track.originalTitle ? track.originalTitle : track.grandparentTitle}
     </NavLink>
     {showAlbum
       && (
@@ -21,7 +21,7 @@ const Subtext = ({ track, showAlbum }: {track: Track, showAlbum: boolean}) => (
             style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
             to={`/albums/${track.parentId}`}
           >
-            { track.parentTitle }
+            {track.parentTitle}
           </NavLink>
         </>
       )}

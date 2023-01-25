@@ -14,7 +14,6 @@ import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useLastfmSimilar } from 'queries/last-fm-queries';
 import { useSearch } from 'queries/plex-queries';
 import { PlayActions } from 'types/enums';
-import { LastFmCorrection } from 'types/lastfm-interfaces';
 
 interface MenuItemsProps {
   artist: string;
@@ -126,11 +125,12 @@ const toTitleCase = (text: string) => {
 
 interface SimilarProps {
   apikey: string | undefined;
-  correction: LastFmCorrection;
+  artist: string | undefined;
+  title: string | undefined;
   width: number | undefined;
 }
 
-const Similar = ({ apikey, correction, width }: SimilarProps) => {
+const Similar = ({ apikey, artist, title, width }: SimilarProps) => {
   const cols = throttle(() => getCols(width || 900), 300, { leading: true })();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -138,8 +138,8 @@ const Similar = ({ apikey, correction, width }: SimilarProps) => {
   const { playSwitch } = usePlayback();
   const { data: similarTracks, isLoading } = useLastfmSimilar({
     apikey,
-    artist: correction.artist.name,
-    title: correction.name,
+    artist,
+    title,
   });
 
   const CARD_WIDTH = useMemo(() => {
@@ -178,7 +178,7 @@ const Similar = ({ apikey, correction, width }: SimilarProps) => {
     );
   }
 
-  if (!similarTracks || similarTracks.length === 0) {
+  if (!similarTracks || similarTracks.length === 0 || !artist || !title) {
     return (
       <>
         <Typography

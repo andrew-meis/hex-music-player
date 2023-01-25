@@ -4,13 +4,6 @@ export interface LastFmArtist {
   url: string;
 }
 
-export interface LastFmCorrection {
-  name: string;
-  mbid: string;
-  url: string;
-  artist: LastFmArtist;
-}
-
 export interface LastFmStreamable {
   '#text': string;
   fulltrack: string;
@@ -47,6 +40,16 @@ export interface LastFmWiki {
   published: string;
   summary: string;
   content: string;
+}
+
+export interface LastFmSearchResult {
+  artist: string;
+  image: LastFmImage[];
+  listeners: string;
+  mbid: string;
+  name: string;
+  streamable: string;
+  url: string;
 }
 
 export interface LastFmTrack {

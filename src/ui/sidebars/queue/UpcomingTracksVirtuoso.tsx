@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiCloseFill } from 'react-icons/all';
+import { NavLink } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import 'styles/queue.scss';
 import Subtext from 'components/subtext/Subtext';
@@ -117,7 +118,13 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
           fontSize="0.95rem"
           sx={{ ...typographyStyle }}
         >
-          {track.title}
+          <NavLink
+            className="link"
+            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
+            to={`/tracks/${track.id}`}
+          >
+            {track.title}
+          </NavLink>
         </Typography>
         <Typography
           color="text.secondary"

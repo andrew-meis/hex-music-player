@@ -1,6 +1,7 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import { Library, Track } from 'hex-plex';
 import moment from 'moment';
+import { NavLink } from 'react-router-dom';
 import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
@@ -104,7 +105,13 @@ const TrackRow = ({
           fontWeight={playing ? 600 : 'inherit'}
           sx={typographyStyle}
         >
-          {track.title}
+          <NavLink
+            className="link"
+            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
+            to={`/tracks/${track.id}`}
+          >
+            {track.title}
+          </NavLink>
         </Typography>
         <Box
           marginLeft="8px"
