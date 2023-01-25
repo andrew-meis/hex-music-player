@@ -153,6 +153,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           colors={colors}
           refreshMetadata={refreshMetadata}
           refreshPage={refreshPage}
+          width={width}
         />
         <Box sx={{ height: 24, width: '100%' }} />
         <TrackTabs

@@ -1,18 +1,18 @@
 import { Box, CircularProgress, Grid, SvgIcon, Typography } from '@mui/material';
-import { MenuDivider, MenuItem } from '@szhsin/react-menu';
-import { AnimateSharedLayout } from 'framer-motion';
+import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { AnimatePresence, AnimateSharedLayout } from 'framer-motion';
 import { Track } from 'hex-plex';
 import { throttle } from 'lodash';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
-import ActionMenu from 'components/action-menu/ActionMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { ButtonSpecs, trackButtons } from 'constants/buttons';
 import { typographyStyle } from 'constants/style';
-import usePlayback, { PlayParams } from 'hooks/usePlayback';
+import useMenuStyle from 'hooks/useMenuStyle';
+import { PlayParams } from 'hooks/usePlayback';
 import { useLastfmSimilar } from 'queries/last-fm-queries';
-import { useSearch } from 'queries/plex-queries';
+import { useSearch, useSearchTracks } from 'queries/plex-queries';
 import { PlayActions } from 'types/enums';
 
 interface MenuItemsProps {
@@ -23,36 +23,57 @@ interface MenuItemsProps {
 }
 
 const MenuItems = ({ artist, navigate, playSwitch, title }: MenuItemsProps) => {
-  const { data, isLoading } = useSearch({
-    query: [artist, title].join(' '),
+  const searchTitle = title
+    .split(' (with')
+    .join(' (feat')
+    .split(' (ft')
+    .join(' (feat')
+    .split(' (feat')[0];
+  const { data: tracks, isLoading } = useSearchTracks({
+    artist,
+    sectionId: 6,
+    title: searchTitle,
+  });
+  const { data: results, isLoading: resultsLoading } = useSearch({
+    query: `${artist} ${searchTitle}`.split(' ').filter((t) => t.length > 1).join(' '),
     onSuccess: () => {},
   });
   const matchingTrack = useMemo(() => {
-    if (!data || data.length === 0) return undefined;
-    const tracks = data.filter((result) => result.type === 'track');
-    if (!tracks || tracks.length === 0) return undefined;
-    const nameMatch = tracks?.find((track) => {
-      const lastfmTitle = title.replace(/["'’“”]/g, '').toLowerCase();
-      const plexTitle = track.title.replace(/["'’“”]/g, '').toLowerCase();
-      return lastfmTitle === plexTitle;
-    });
-    if (nameMatch) return nameMatch as Track;
-    const partialMatch = tracks
-      ?.find((track) => {
+    if (tracks && results) {
+      const allTracks = [
+        ...tracks,
+        ...results.filter((result) => result.type === 'track'),
+      ] as Track[];
+      if (allTracks.length === 0) return undefined;
+      const nameMatch = allTracks?.find((track) => {
+        const lastfmTitle = title.replace(/["'’“”]/g, '').toLowerCase();
+        const plexTitle = track.title.replace(/["'’“”]/g, '').toLowerCase();
+        return lastfmTitle === plexTitle;
+      });
+      if (nameMatch) return nameMatch;
+      const alphanumericMatch = allTracks?.find((track) => {
+        const lastfmTitle = title.replace(/\W+/g, ' ').trim().toLowerCase();
+        const plexTitle = track.title.replace(/\W+/g, ' ').trim().toLowerCase();
+        return lastfmTitle === plexTitle;
+      });
+      if (alphanumericMatch) return alphanumericMatch;
+      const partialMatch = allTracks?.find((track) => {
         const lastfmTitle = title.replace(/["'’“”]/g, '').toLowerCase();
         const plexTitle = track.title.replace(/["'’“”]/g, '').toLowerCase();
         return lastfmTitle.includes(plexTitle);
       });
-    if (partialMatch) return partialMatch as Track;
+      if (partialMatch) return partialMatch;
+      return undefined;
+    }
     return undefined;
-  }, [data, title]);
+  }, [results, tracks, title]);
 
-  if (isLoading) {
+  if (isLoading || resultsLoading) {
     return (
       <Box
         alignItems="center"
         display="flex"
-        height={26}
+        height={24}
         justifyContent="center"
       >
         ...searching...
@@ -65,7 +86,7 @@ const MenuItems = ({ artist, navigate, playSwitch, title }: MenuItemsProps) => {
       <Box
         alignItems="center"
         display="flex"
-        height={26}
+        height={24}
         justifyContent="center"
       >
         ...no match found...
@@ -118,7 +139,12 @@ const toTitleCase = (text: string) => {
   const newText = text
     .split(' ')
     .filter((n) => n)
-    .map(([h, ...t]) => h.toUpperCase() + t.join('').toLowerCase())
+    .map(([h, ...t]) => {
+      if (h === '(' || h === '[') {
+        return h + t[0] + t.slice(1).join('').toLowerCase();
+      }
+      return h.toUpperCase() + t.join('').toLowerCase();
+    })
     .join(' ');
   return newText;
 };
@@ -126,16 +152,20 @@ const toTitleCase = (text: string) => {
 interface SimilarProps {
   apikey: string | undefined;
   artist: string | undefined;
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   title: string | undefined;
   width: number | undefined;
 }
 
-const Similar = ({ apikey, artist, title, width }: SimilarProps) => {
+const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => {
   const cols = throttle(() => getCols(width || 900), 300, { leading: true })();
+  const hoverIndex = useRef(0);
+  const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { playSwitch } = usePlayback();
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { data: similarTracks, isLoading } = useLastfmSimilar({
     apikey,
     artist,
@@ -227,30 +257,58 @@ const Similar = ({ apikey, artist, title, width }: SimilarProps) => {
         overflow="hidden"
         ref={scrollRef}
       >
-        {similarTracks.map((track) => (
+        {similarTracks.map((track, index) => (
           <Grid item color="text.secondary" key={track.url} width={CARD_WIDTH}>
             <Box
+              alignItems="center"
               borderRadius="4px"
               display="flex"
               height={40}
               mb="4px"
               mr="4px"
-              paddingLeft="10px"
-              paddingRight="4px"
+              paddingX="12px"
               paddingY="8px"
               sx={{
-                backgroundColor: 'action.hover',
+                backgroundColor: menuProps.state === 'open' && hoverIndex.current === index
+                  ? 'action.selected'
+                  : 'action.hover',
+                cursor: 'pointer',
                 '&:hover': {
                   backgroundColor: 'action.selected',
-                  '& > button': {
-                    opacity: 1,
-                  },
-                },
-                '& > button': {
-                  opacity: 0,
                 },
               }}
+              onClick={(e) => {
+                if (hoverIndex.current === index && menuProps.state === 'closing') {
+                  return;
+                }
+                hoverIndex.current = index;
+                setAnchorPoint({
+                  x: e.currentTarget.getBoundingClientRect().x,
+                  y: e.currentTarget.getBoundingClientRect().y + 28,
+                });
+                toggleMenu(true);
+              }}
+              onMouseEnter={() => {
+                if (menuProps.state === 'open' || menuProps.state === 'opening') return;
+                hoverIndex.current = index;
+              }}
             >
+              <AnimatePresence>
+                {(menuProps.state === 'open' || menuProps.state === 'opening')
+                  && hoverIndex.current === index
+                  && (
+                    <MotionBox
+                      animate={{ opacity: 1, x: 0 }}
+                      bgcolor="primary.main"
+                      borderRadius="2px"
+                      exit={{ opacity: 0 }}
+                      height={28}
+                      initial={{ opacity: 0, x: -10 }}
+                      mr="8px"
+                      width={4}
+                    />
+                  )}
+              </AnimatePresence>
               <Box width={0.9}>
                 <Typography
                   color="text.primary"
@@ -264,25 +322,28 @@ const Similar = ({ apikey, artist, title, width }: SimilarProps) => {
                   {track.artist.name}
                 </Typography>
               </Box>
-              <ActionMenu
-                arrow
-                portal
-                align="center"
-                direction="right"
-                offsetX={2}
-                width={16}
-              >
-                <MenuItems
-                  artist={track.artist.name}
-                  navigate={navigate}
-                  playSwitch={playSwitch}
-                  title={track.name}
-                />
-              </ActionMenu>
             </Box>
           </Grid>
         ))}
       </Grid>
+      <ControlledMenu
+        {...menuProps}
+        arrow
+        portal
+        align="center"
+        anchorPoint={anchorPoint}
+        direction="left"
+        menuStyle={menuStyle}
+        offsetX={-10}
+        onClose={() => toggleMenu(false)}
+      >
+        <MenuItems
+          artist={similarTracks[hoverIndex.current].artist.name}
+          navigate={navigate}
+          playSwitch={playSwitch}
+          title={similarTracks[hoverIndex.current].name}
+        />
+      </ControlledMenu>
       <AnimateSharedLayout>
         <Box
           alignItems="center"

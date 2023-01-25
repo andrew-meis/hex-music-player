@@ -1,6 +1,8 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
+import { useQuery } from '@tanstack/react-query';
 import chroma from 'chroma-js';
+import { motion } from 'framer-motion';
 import { sample } from 'lodash';
 import React, { useMemo, useRef } from 'react';
 import { FileWithPath, useDropzone } from 'react-dropzone';
@@ -14,6 +16,13 @@ import { IAppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
 import FixedHeader from '../FixedHeader';
 import { thresholds } from '../Header';
+
+const getMeta = (url: string) => new Promise((resolve, reject) => {
+  const img = new Image();
+  img.onload = () => resolve(img);
+  img.onerror = () => reject();
+  img.src = url;
+});
 
 const getPosX = (settings: IAppSettings) => {
   let leftWidth = 300;
@@ -57,6 +66,16 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
   const bannerSrc = artist.art ? library.api.getAuthenticatedUrl(artist.art) : undefined;
   const thumbSrc = artist.thumb ? library.api.getAuthenticatedUrl(artist.thumb) : undefined;
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
+  const { data: bannerDimensions } = useQuery(
+    ['banner-dimensions', artist.id],
+    async () => {
+      const img = await getMeta(bannerSrc!) as HTMLImageElement;
+      return { height: img.height, width: img.width };
+    },
+    {
+      enabled: !!artist.art,
+    },
+  );
   const { uploadArt } = useUploadArt();
   const { getRootProps, getInputProps, isDragAccept } = useDropzone({
     accept: { 'image/*': [] },
@@ -81,6 +100,15 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
   const handlePlay = () => playArtist(artist);
   const handleShuffle = () => playArtist(artist, true);
   const handleRadio = () => playArtistRadio(artist);
+
+  const growAdjustment = useMemo(() => {
+    if (!bannerDimensions) return 0;
+    const renderedImageRatio = bannerDimensions.width / (width + 50);
+    const renderedImageHeight = bannerDimensions.height / renderedImageRatio;
+    const adjustmentRatio = Math.max(document.body.clientHeight * 0.4, 390) / renderedImageHeight;
+    const desiredImageWidth = (width + 50) * adjustmentRatio;
+    return Math.max(desiredImageWidth - (width + 50), 0);
+  }, [bannerDimensions, width]);
 
   return (
     <>
@@ -113,16 +141,19 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
         minHeight={390}
         ref={bannerInView.ref}
       >
-        {artist.art
+        {artist.art && bannerDimensions
           && (
-            <span
+            <motion.div
+              animate={{ opacity: 1 }}
               className={styles['artist-banner']}
+              initial={{ opacity: 0 }}
               style={{
                 '--img': `url(${bannerSrc})`,
                 '--color': chroma(color.current || greyColor).rgb(),
                 '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
                 '--posX': `${posX}px`,
                 '--grow': `${bannerResize}px`,
+                '--adjustment': `${growAdjustment}px`,
                 '--width': width > 1600 ? '1600px' : `${width}px`,
               } as React.CSSProperties}
             />
@@ -192,6 +223,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
           marginBottom="12px"
           position="absolute"
           right="22px"
+          zIndex={2000}
         >
           <PlayShuffleButton
             handlePlay={handlePlay}

@@ -334,6 +334,7 @@ const Artist = () => {
     queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES]);
     queryClient.invalidateQueries([QueryKeys.ALBUM_TRACKS]);
     queryClient.invalidateQueries([QueryKeys.HISTORY]);
+    queryClient.invalidateQueries([QueryKeys.PALETTE]);
   }, [queryClient]);
 
   const artistContext = useMemo(() => ({

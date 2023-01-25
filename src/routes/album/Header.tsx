@@ -143,7 +143,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                   }}
                 </Palette>
               </Box>
-              <Box alignItems="flex-end" display="flex" height={25}>
+              <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
                 <Typography
                   sx={{
                     overflow: 'hidden',

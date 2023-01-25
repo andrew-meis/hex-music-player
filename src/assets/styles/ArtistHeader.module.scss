@@ -3,7 +3,7 @@
     box-shadow: inset 0 0 0 50vw rgba(var(--color), var(--alpha));
     height: 100%;
     width: 100%;
-    background-size: calc(var(--width) + var(--grow));
+    background-size: calc(var(--width) + var(--grow) + var(--adjustment));
     background-position-x: calc(50% + var(--posX));
     background-position-y: 50px;
 }

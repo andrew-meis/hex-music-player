@@ -1,12 +1,18 @@
-import { Avatar, Box, Fade, Typography } from '@mui/material';
+import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import { Track } from 'hex-plex';
+import { TbWaveSawTool } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
+import ActionMenu from 'components/action-menu/ActionMenu';
 import TrackRating from 'components/rating/TrackRating';
+import { ButtonSpecs, trackButtons } from 'constants/buttons';
 import { useThumbnail } from 'hooks/plexHooks';
 import { PaletteState } from 'hooks/usePalette';
+import { PlayParams } from 'hooks/usePlayback';
+import { PlayActions } from 'types/enums';
 import FixedHeader from './FixedHeader';
 
 const titleStyle = {
@@ -21,10 +27,11 @@ const titleStyle = {
 
 interface HeaderProps {
   colors: PaletteState;
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   track: Track;
 }
 
-const Header = ({ colors, track }: HeaderProps) => {
+const Header = ({ colors, playSwitch, track }: HeaderProps) => {
   const navigate = useNavigate();
   const [grandparentThumbSrc] = useThumbnail(track.grandparentThumb || 'none', 100);
   const [thumbSrc] = useThumbnail(track.parentThumb || 'none', 300);
@@ -113,9 +120,8 @@ const Header = ({ colors, track }: HeaderProps) => {
                 </Typography>
               </Box>
             </Box>
-            <Box alignItems="flex-end" display="flex" height={25}>
+            <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
               <Typography variant="subtitle2">
-                &nbsp;
                 {track.media[0].audioCodec.toUpperCase()}
                 &nbsp;
               </Typography>
@@ -138,6 +144,32 @@ const Header = ({ colors, track }: HeaderProps) => {
               </Box>
             </Box>
           </Box>
+        </Box>
+        <Box mb="5px">
+          <ActionMenu
+            arrow
+            portal
+            align="center"
+            direction="left"
+            width={16}
+          >
+            {trackButtons.map((button: ButtonSpecs) => (
+              <MenuItem
+                key={button.name}
+                onClick={() => playSwitch(button.action, {
+                  track, shuffle: button.shuffle,
+                })}
+              >
+                {button.icon}
+                {button.name}
+              </MenuItem>
+            ))}
+            <MenuDivider />
+            <MenuItem onClick={() => navigate(`/tracks/${track.id}/similar`)}>
+              <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
+              Similar tracks
+            </MenuItem>
+          </ActionMenu>
         </Box>
       </Box>
     </>

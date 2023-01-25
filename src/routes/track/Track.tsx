@@ -4,6 +4,7 @@ import moment from 'moment';
 import { useMemo } from 'react';
 import { useLocation, useOutletContext, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
+import usePlayback from 'hooks/usePlayback';
 import { useAlbumQuick } from 'queries/album-queries';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import { useLastfmSearch, useLastfmTrack } from 'queries/last-fm-queries';
@@ -40,6 +41,7 @@ const Track = () => {
     title: lastfmSearch?.name,
   });
   const { data: album } = useAlbumQuick(library, track?.parentId);
+  const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
   const moments = useMemo(
     () => trackHistory
@@ -80,6 +82,7 @@ const Track = () => {
               <Box maxWidth="900px" mx="auto" pb="48px" width="89%">
                 <Header
                   colors={colors}
+                  playSwitch={playSwitch}
                   track={track}
                 />
                 <Info
@@ -89,7 +92,7 @@ const Track = () => {
                 />
                 {track.viewCount > 0 && (
                   <>
-                    <Box height={32} width={1} />
+                    <Box height={24} width={1} />
                     <Graphs
                       colors={colors}
                       moments={moments}
@@ -100,6 +103,7 @@ const Track = () => {
                 <Similar
                   apikey={settings.apiKey}
                   artist={lastfmSearch?.artist}
+                  playSwitch={playSwitch}
                   title={lastfmSearch?.name}
                   width={Math.min(width * 0.89, 900)}
                 />

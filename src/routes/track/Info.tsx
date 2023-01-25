@@ -40,7 +40,7 @@ interface InfoRowProps {
 const InfoRow = ({ data, title }: InfoRowProps) => (
   <>
     <Typography color="text.secondary" variant="subtitle2">{title}</Typography>
-    <Typography bottom="4px" fontStyle="italic" position="relative">
+    <Typography bottom="4px" position="relative">
       {data}
     </Typography>
   </>
