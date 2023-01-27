@@ -45,12 +45,15 @@ const GroupHeaderContainer: ComponentType<TopItemListProps> = ({
 
 export interface ArtistDiscographyContext extends IVirtuosoContext {
   artist: ArtistQueryData | undefined;
+  filter: string;
+  filters: string[];
   groupCounts: number[];
   groups: AlbumWithSection[];
   playAlbum: (album: Album, shuffle?: boolean) => Promise<void>;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   playArtist: (artist: Artist, shuffle?: boolean) => Promise<void>;
   playArtistRadio: (artist: Artist) => Promise<void>;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
   topmostGroup: React.MutableRefObject<number>;
 }
 
@@ -97,6 +100,7 @@ const Discography = () => {
   const queryClient = useQueryClient();
   const topmostGroup = useRef<number>(0);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [filter, setFilter] = useState('All Releases');
   const [menuProps, toggleMenu] = useMenuState();
   const [scrollRef, setScrollRef] = useState<HTMLDivElement>();
   const { data: isPlaying } = useIsPlaying();
@@ -106,38 +110,47 @@ const Discography = () => {
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
   const GROUP_ROW_HEIGHT = 200;
 
-  const releases: AlbumWithSection[] = useMemo(() => {
+  const [releases, filters]: [releases: AlbumWithSection[], filters: string[] ] = useMemo(() => {
     if (!artist.data || !appearances.data) {
-      return [];
+      return [[], []];
     }
-    const filters: string[] = ['All Releases'];
+    const newFilters: string[] = ['All Releases'];
     const { albums } = artist.data;
     const newAlbums = albums.map((album) => ({ ...album, section: 'Albums' }));
-    if (newAlbums.length > 0) filters.push('Albums');
+    if (newAlbums.length > 0) newFilters.push('Albums');
     const hubReleases = [] as Album[][];
     artist.data.hubs.forEach((hub) => {
       if (hub.type === 'album' && hub.size > 0) {
         const objs = hub.items.map((album) => ({ ...album, section: hub.title })) as Album[];
-        filters.push(hub.title);
+        newFilters.push(hub.title);
         hubReleases.push(objs);
       }
     });
     const appearsOn = appearances.data.map((album) => ({ ...album, section: 'Appears On' }));
-    if (appearsOn.length > 0) filters.push('Appears On');
+    if (appearsOn.length > 0) newFilters.push('Appears On');
     const all = [...newAlbums, ...hubReleases.flat(1), ...appearsOn];
-    return all as AlbumWithSection[];
+    return [all as AlbumWithSection[], newFilters];
   }, [appearances.data, artist.data]);
 
-  let items: Track[] = useMemo(() => [], []);
-  let groupCounts: number[] = useMemo(() => [], []);
-  let groups: AlbumWithSection[] = useMemo(() => [], []);
-  if (tracks) {
-    items = tracks;
-    groups = releases
-      .sort((a, b) => b.originallyAvailableAt.getTime() - a.originallyAvailableAt.getTime());
-    groupCounts = groups
-      .map((album) => items.filter((track) => track.parentId === album.id).length);
-  }
+  const { items, groupCounts, groups } = useMemo(() => {
+    if (!tracks) return { items: [], groupCounts: [], groups: [] };
+    let newItems = tracks;
+    let newGroups: AlbumWithSection[] = [];
+    if (filter === 'All Releases') {
+      newGroups = releases.filter((release) => release.section !== 'Appears On');
+      const newGroupsIds = newGroups.map((album) => album.id);
+      newItems = newItems.filter((item) => newGroupsIds.includes(item.parentId));
+    }
+    if (filter !== 'All Releases') {
+      newGroups = releases.filter((release) => release.section === filter);
+      const newGroupsIds = newGroups.map((album) => album.id);
+      newItems = newItems.filter((item) => newGroupsIds.includes(item.parentId));
+    }
+    newGroups.sort((a, b) => b.originallyAvailableAt.getTime() - a.originallyAvailableAt.getTime());
+    const newGroupCounts = newGroups
+      .map((album) => newItems.filter((track) => track.parentId === album.id).length);
+    return { items: newItems, groupCounts: newGroupCounts, groups: newGroups };
+  }, [filter, releases, tracks]);
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
@@ -218,6 +231,8 @@ const Discography = () => {
   const artistDiscographyContext = useMemo(() => ({
     artist: artist.data,
     drag,
+    filter,
+    filters,
     getFormattedTime,
     groupCounts,
     groups,
@@ -233,10 +248,13 @@ const Discography = () => {
     playArtist,
     playArtistRadio,
     selectedRows,
+    setFilter,
     topmostGroup,
   }), [
     artist.data,
     drag,
+    filter,
+    filters,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
@@ -252,6 +270,7 @@ const Discography = () => {
     playArtist,
     playArtistRadio,
     selectedRows,
+    setFilter,
     topmostGroup,
   ]);
 

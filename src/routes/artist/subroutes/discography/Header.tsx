@@ -1,9 +1,13 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
+import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
-import { IoMdMicrophone } from 'react-icons/all';
+import React from 'react';
+import { FaCaretDown, FaCaretUp, IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';
+import useMenuStyle from 'hooks/useMenuStyle';
+import styles from 'styles/ArtistHeader.module.scss';
 import { ArtistDiscographyContext } from './Discography';
 import { GroupRowHeader } from './GroupRow';
 
@@ -16,12 +20,67 @@ const titleStyle = {
   fontWeight: 600,
 };
 
+interface FilterMenuButtonProps extends MenuButtonProps{
+  filter: string;
+  open: boolean;
+}
+
+const FilterMenuButton = React.forwardRef((
+  { filter, open, onClick, onKeyDown }: FilterMenuButtonProps,
+  ref,
+) => (
+  <MenuButton
+    className={styles['sort-button']}
+    ref={ref}
+    onClick={onClick}
+    onKeyDown={onKeyDown}
+  >
+    <Box
+      alignItems="center"
+      color={open ? 'text.primary' : 'text.secondary'}
+      display="flex"
+      height={32}
+      justifyContent="space-between"
+      sx={{
+        '&:hover': {
+          color: 'text.primary',
+        },
+      }}
+      width={160}
+    >
+      <Typography>
+        {filter}
+      </Typography>
+      <SvgIcon sx={{ height: 16, width: 16 }}>
+        {(open ? <FaCaretUp /> : <FaCaretDown />)}
+      </SvgIcon>
+    </Box>
+  </MenuButton>
+));
+
+interface FilterMenuItemProps {
+  label: string;
+  setFilter: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const FilterMenuItem = ({ label, setFilter }: FilterMenuItemProps) => (
+  <MenuItem
+    onClick={() => setFilter(label)}
+  >
+    <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
+      {label}
+    </Box>
+  </MenuItem>
+);
+
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
   const {
-    artist: artistData, groupCounts, groups, playAlbum, playArtist, playArtistRadio, topmostGroup,
+    artist: artistData, filter, filters, groupCounts, groups,
+    playAlbum, playArtist, playArtistRadio, setFilter, topmostGroup,
   } = context!;
   const { artist } = artistData!;
+  const menuStyle = useMenuStyle();
   const trackLength = groupCounts[topmostGroup.current];
 
   const { data: atTop } = useQuery(
@@ -77,14 +136,46 @@ const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
         height={1}
         marginX="auto"
         maxWidth={900}
+        sx={{
+          transform: 'translateZ(0px)',
+        }}
         width="89%"
       >
+        <Box
+          position="absolute"
+          right={0}
+          top={0}
+        >
+          <Menu
+            transition
+            align="end"
+            menuButton={({ open }) => <FilterMenuButton filter={filter} open={open} />}
+            menuStyle={menuStyle}
+          >
+            {filters.map((option) => (
+              <FilterMenuItem
+                key={option}
+                label={option}
+                setFilter={setFilter}
+              />
+            ))}
+          </Menu>
+        </Box>
         {atTop && (
           <>
             <Avatar
+              imgProps={{
+                style: {
+                  objectPosition: 'center top',
+                },
+              }}
               src={artist.thumb ? thumbSrcArtist : ''}
               sx={{
-                width: 152 * (10 / 7), height: 152, borderRadius: '12px', margin: '8px', ml: 0,
+                borderRadius: '12px',
+                height: 152,
+                margin: '8px',
+                ml: 0,
+                width: Math.floor(152 * (10 / 7)),
               }}
             >
               <SvgIcon
