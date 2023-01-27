@@ -132,8 +132,8 @@ const Discography = () => {
     return [all as AlbumWithSection[], newFilters];
   }, [appearances.data, artist.data]);
 
-  const { items, groupCounts, groups } = useMemo(() => {
-    if (!tracks) return { items: [], groupCounts: [], groups: [] };
+  const { items, groupCounts, groups, offsets } = useMemo(() => {
+    if (!tracks) return { items: [], groupCounts: [], groups: [], offsets: [] };
     let newItems = tracks;
     let newGroups: AlbumWithSection[] = [];
     if (filter === 'All Releases') {
@@ -149,7 +149,20 @@ const Discography = () => {
     newGroups.sort((a, b) => b.originallyAvailableAt.getTime() - a.originallyAvailableAt.getTime());
     const newGroupCounts = newGroups
       .map((album) => newItems.filter((track) => track.parentId === album.id).length);
-    return { items: newItems, groupCounts: newGroupCounts, groups: newGroups };
+    let sum = 200;
+    const newOffsets = newGroups
+      .map((obj) => [obj, ...newItems.filter((item) => item.parentId === obj.id)])
+      .flat()
+      .slice(1)
+      .map((obj) => (obj.type === 'album' ? GROUP_ROW_HEIGHT : 56))
+      // eslint-disable-next-line no-return-assign
+      .map((v) => sum += v);
+    return {
+      items: newItems,
+      groupCounts: newGroupCounts,
+      groups: newGroups,
+      offsets: [200, ...newOffsets.slice(0, -1)],
+    };
   }, [filter, releases, tracks]);
 
   const { drag, dragPreview } = useTrackDragDrop({
@@ -162,8 +175,8 @@ const Discography = () => {
     setSelectedRows([]);
   }, [location, setSelectedRows]);
 
-  useEffect(() => {
-    queryClient.setQueryData(['disc-header-opacity'], 1);
+  useLayoutEffect(() => {
+    queryClient.setQueriesData(['disc-header-opacity'], 1);
     queryClient.setQueryData(['discography-header-album'], groups[topmostGroup.current]);
   }, [groups, location, queryClient]);
 
@@ -289,34 +302,38 @@ const Discography = () => {
         key={location.pathname}
         ref={setScrollRef as React.Ref<HTMLDivElement> | undefined}
         style={{ height: '100%', overflow: 'overlay' }}
-        onScroll={(e) => {
-          const { current: topIndex } = topmostGroup;
-          const topmost = document.querySelector(
-            `div[data-item-index="${topIndex}"][data-known-size="${GROUP_ROW_HEIGHT}"]`,
+        onScroll={() => {
+          const container = document.querySelector('#discography-scroll-container');
+          if (!container) return;
+          const targetOffset = offsets.slice().reverse().find((v) => v <= container.scrollTop);
+          const targetIndex = offsets.findIndex((v) => v === targetOffset);
+          let targetElement;
+          targetElement = document.querySelector(
+            `div.virtuoso-item[data-index="${targetIndex + 1}"][data-known-size="56"]`,
           ) as HTMLElement;
-          if (topmost) {
-            const intersectionRatio = Math
-              .max(((e.currentTarget.scrollTop - topmost.offsetTop) / (GROUP_ROW_HEIGHT / 2)), 0);
-            if (intersectionRatio >= 0 && intersectionRatio <= 1) {
-              queryClient.setQueryData(
-                ['disc-header-opacity', groups[topIndex].id],
-                (1 - intersectionRatio),
-              );
-            }
+          if (!targetElement) {
+            targetElement = document.querySelector(
+              `div[data-index="${targetIndex + 1}"][data-known-size="${GROUP_ROW_HEIGHT}"]`,
+            ) as HTMLElement;
           }
-          const next = document.querySelector(
-            `div[data-item-index="${topIndex + 1}"][data-known-size="${GROUP_ROW_HEIGHT}"]`,
-          ) as HTMLElement;
-          if (next) {
-            const intersectionRatio = Math
-              .max(((e.currentTarget.scrollTop - next.offsetTop) / (GROUP_ROW_HEIGHT / 2)), 0);
-            if (intersectionRatio >= 0 && intersectionRatio <= 1) {
-              queryClient.setQueryData(
-                ['disc-header-opacity', groups[topIndex + 1].id],
-                (1 - intersectionRatio),
-              );
-            }
+          if (!targetElement) return;
+          let intersectingGroupIndex;
+          intersectingGroupIndex = targetElement.getAttribute('data-item-group-index');
+          if (!intersectingGroupIndex) {
+            intersectingGroupIndex = targetElement.getAttribute('data-item-index');
           }
+          if (!intersectingGroupIndex) return;
+          const asNumber = parseInt(intersectingGroupIndex, 10);
+          if (topmostGroup.current !== asNumber) {
+            queryClient.setQueryData(['discography-header-album'], groups[asNumber]);
+            topmostGroup.current = asNumber;
+          }
+          if (container.scrollTop === 0) {
+            queryClient.setQueriesData(['disc-header-opacity'], 1);
+            return;
+          }
+          queryClient.setQueriesData(['disc-header-opacity'], 1);
+          queryClient.setQueryData(['disc-header-opacity', groups[asNumber].id], 0);
         }}
       >
         <Header context={artistDiscographyContext} />
@@ -324,7 +341,6 @@ const Discography = () => {
           atTopStateChange={(atTop) => {
             if (atTop) {
               topmostGroup.current = 0;
-              queryClient.setQueryData(['disc-header-opacity'], 1);
             }
             queryClient.setQueryData(['at-top'], atTop);
           }}
@@ -341,30 +357,13 @@ const Discography = () => {
             { album: groups[index], context: artistDiscographyContext },
           )}
           groupCounts={groupCounts}
+          increaseViewportBy={200}
           isScrolling={handleScrollState}
           itemContent={
             (index, _groupIndex, _data, context) => RowContent(
               { context, index, track: items[index] },
             )
           }
-          itemsRendered={(list) => {
-            const container = document.querySelector('#discography-scroll-container');
-            if (!container) return;
-            const offsets = list.map((item) => item.offset);
-            const targetOffset = offsets.reverse().find((v) => v <= container.scrollTop);
-            const targetItem = list.find((item) => item.offset === targetOffset);
-            if (!targetItem) return;
-            let newIndex: number;
-            if (targetItem.type && targetItem.type === 'group') {
-              newIndex = targetItem.index;
-            } else {
-              newIndex = targetItem.groupIndex!;
-            }
-            if (topmostGroup.current !== newIndex) {
-              queryClient.setQueryData(['discography-header-album'], groups[newIndex]);
-              topmostGroup.current = newIndex;
-            }
-          }}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
