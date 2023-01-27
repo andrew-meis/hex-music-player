@@ -289,7 +289,7 @@ const SimilarArtists = () => {
         groupCounts={items.groupCounts}
         isScrolling={handleScrollState}
         itemContent={
-          (index, groupIndex, item, context) => ArtistsRowContent({ index, context })
+          (index, _groupIndex, _item, context) => ArtistsRowContent({ index, context })
         }
         itemsRendered={(list) => {
           // @ts-ignore

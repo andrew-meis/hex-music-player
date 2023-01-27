@@ -23,7 +23,11 @@ const textStyle = {
   wordBreak: 'break-all',
 };
 
-const typeMap = {
+interface Map {
+  [key: string]: string;
+}
+
+const typeMap: Map = {
   Albums: 'Album',
   'Singles & EPs': 'Single / EP',
   Soundtracks: 'Soundtrack',

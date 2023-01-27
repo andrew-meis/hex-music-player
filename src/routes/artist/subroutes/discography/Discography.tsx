@@ -1,11 +1,13 @@
-import { Theme, useTheme } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Album, Track } from 'hex-plex';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Album, Artist, Track } from 'hex-plex';
+import React, {
+  ComponentType, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
+} from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { useLocation, useParams } from 'react-router-dom';
+import { GroupedVirtuoso, TopItemListProps } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useMenuStyle from 'hooks/useMenuStyle';
@@ -21,51 +23,57 @@ import {
 } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { AlbumWithSection } from 'routes/artist/Artist';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
-import List from 'routes/virtuoso-components/List';
+import ListGrouped from 'routes/virtuoso-components/ListGrouped';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { IConfig, IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
+import { IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import { ButtonSpecs } from '../../../../constants/buttons';
+import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
 
-export interface ArtistTracksContext extends IVirtuosoContext {
-  albums: Album[];
+const GroupHeaderContainer: ComponentType<TopItemListProps> = ({
+  children,
+  ...rest
+}: TopItemListProps) => (
+  <div {...rest} style={{ position: 'static' }}>
+    {children}
+  </div>
+);
+
+export interface ArtistDiscographyContext extends IVirtuosoContext {
   artist: ArtistQueryData | undefined;
-  config: IConfig;
-  filter: string;
-  items: Track[];
-  playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<string>>;
-  sort: string;
-  theme: Theme;
+  groupCounts: number[];
+  groups: AlbumWithSection[];
+  playAlbum: (album: Album, shuffle?: boolean) => Promise<void>;
+  playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
+  playArtist: (artist: Artist, shuffle?: boolean) => Promise<void>;
+  playArtistRadio: (artist: Artist) => Promise<void>;
+  topmostGroup: React.MutableRefObject<number>;
+}
+
+export interface GroupRowProps {
+  album: AlbumWithSection;
+  context: ArtistDiscographyContext;
 }
 
 export interface RowProps {
-  context: ArtistTracksContext;
+  context: ArtistDiscographyContext;
   index: number;
   track: Track;
 }
 
+const GroupRowContent = (props: GroupRowProps) => <GroupRow {...props} />;
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Discography = () => {
   const config = useConfig();
   const library = useLibrary();
-  const navigationType = useNavigationType();
   // data loading
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const [sort, setSort] = useState(() => {
-    if (navigationType === 'POP') {
-      return (sessionStorage.getItem(`artist-discography ${id}`)
-        ? sessionStorage.getItem(`artist-discography ${id}`)!
-        : location.state.sort);
-    }
-    return location.state.sort;
-  });
   const artist = useArtist(+id, library);
   const appearances = useArtistAppearances(
     config.data,
@@ -74,50 +82,61 @@ const Discography = () => {
     location.state.title,
     location.state.guid,
   );
-  const { data: tracks, isLoading } = useArtistTracks({
+  const { data: tracks } = useArtistTracks({
     config: config.data,
     library,
     id: +id,
     title: location.state.title,
     guid: location.state.guid,
     removeDupes: false,
-    sort,
+    sort: location.state.sort,
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const menuStyle = useMenuStyle();
-  const theme = useTheme();
+  const queryClient = useQueryClient();
+  const topmostGroup = useRef<number>(0);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement>();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playSwitch, playTracks } = usePlayback();
+  const { playSwitch, playAlbum, playAlbumAtTrack, playArtist, playArtistRadio } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+  const GROUP_ROW_HEIGHT = 200;
 
-  useEffect(() => () => sessionStorage.setItem(`artist-discography ${id}`, sort), [id, sort]);
-
-  const albums: Album[] = useMemo(() => {
-    const newAlbums = [];
-    if (artist.data && appearances.data) {
-      newAlbums.push(...artist.data.albums);
-      artist.data.hubs.forEach((hub) => {
-        if (hub.type === 'album') newAlbums.push(...hub.items as Album[]);
-      });
-      newAlbums.push(...appearances.data);
+  const releases: AlbumWithSection[] = useMemo(() => {
+    if (!artist.data || !appearances.data) {
+      return [];
     }
-    return newAlbums;
+    const filters: string[] = ['All Releases'];
+    const { albums } = artist.data;
+    const newAlbums = albums.map((album) => ({ ...album, section: 'Albums' }));
+    if (newAlbums.length > 0) filters.push('Albums');
+    const hubReleases = [] as Album[][];
+    artist.data.hubs.forEach((hub) => {
+      if (hub.type === 'album' && hub.size > 0) {
+        const objs = hub.items.map((album) => ({ ...album, section: hub.title })) as Album[];
+        filters.push(hub.title);
+        hubReleases.push(objs);
+      }
+    });
+    const appearsOn = appearances.data.map((album) => ({ ...album, section: 'Appears On' }));
+    if (appearsOn.length > 0) filters.push('Appears On');
+    const all = [...newAlbums, ...hubReleases.flat(1), ...appearsOn];
+    return all as AlbumWithSection[];
   }, [appearances.data, artist.data]);
 
   let items: Track[] = useMemo(() => [], []);
+  let groupCounts: number[] = useMemo(() => [], []);
+  let groups: AlbumWithSection[] = useMemo(() => [], []);
   if (tracks) {
-    items = tracks.filter(
-      (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
-      || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
-      || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
-      || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
-    );
+    items = tracks;
+    groups = releases
+      .sort((a, b) => b.originallyAvailableAt.getTime() - a.originallyAvailableAt.getTime());
+    groupCounts = groups
+      .map((album) => items.filter((track) => track.parentId === album.id).length);
   }
 
   const { drag, dragPreview } = useTrackDragDrop({
@@ -129,6 +148,11 @@ const Discography = () => {
   useLayoutEffect(() => {
     setSelectedRows([]);
   }, [location, setSelectedRows]);
+
+  useEffect(() => {
+    queryClient.setQueryData(['disc-header-opacity'], 1);
+    queryClient.setQueryData(['discography-header-album'], groups[topmostGroup.current]);
+  }, [groups, location, queryClient]);
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
@@ -143,7 +167,7 @@ const Discography = () => {
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-index');
+    const target = event.currentTarget.getAttribute('data-item-index');
     if (!target) {
       return;
     }
@@ -191,98 +215,142 @@ const Discography = () => {
     }
   };
 
-  const initialScrollTop = () => {
-    let top;
-    top = sessionStorage.getItem(`artist-discography-scroll ${id}`);
-    if (!top) return 0;
-    top = parseInt(top, 10);
-    if (navigationType === 'POP') {
-      return top;
-    }
-    return 0;
-  };
-
-  const artistTracksContext = useMemo(() => ({
-    albums,
+  const artistDiscographyContext = useMemo(() => ({
     artist: artist.data,
-    config: config.data,
     drag,
-    filter,
     getFormattedTime,
+    groupCounts,
+    groups,
     handleClickAway,
     handleContextMenu,
     handleRowClick,
     hoverIndex,
     isPlaying,
-    items,
     library,
     nowPlaying,
-    playTracks,
+    playAlbum,
+    playAlbumAtTrack,
+    playArtist,
+    playArtistRadio,
     selectedRows,
-    setFilter,
-    setSort,
-    sort,
-    theme,
+    topmostGroup,
   }), [
-    albums,
     artist.data,
-    config,
     drag,
-    filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
     handleRowClick,
     hoverIndex,
-    items,
+    groupCounts,
+    groups,
     isPlaying,
     library,
     nowPlaying,
-    playTracks,
+    playAlbum,
+    playAlbumAtTrack,
+    playArtist,
+    playArtistRadio,
     selectedRows,
-    setFilter,
-    setSort,
-    sort,
-    theme,
+    topmostGroup,
   ]);
+
+  if (!artist.data || !appearances.data || !tracks) {
+    return null;
+  }
 
   return (
     <>
       <motion.div
         animate={{ opacity: 1 }}
+        className="scroll-container"
         exit={{ opacity: 0 }}
+        id="discography-scroll-container"
         initial={{ opacity: 0 }}
         key={location.pathname}
-        style={{ height: '100%' }}
+        ref={setScrollRef as React.Ref<HTMLDivElement> | undefined}
+        style={{ height: '100%', overflow: 'overlay' }}
+        onScroll={(e) => {
+          const { current: topIndex } = topmostGroup;
+          const topmost = document.querySelector(
+            `div[data-item-index="${topIndex}"][data-known-size="${GROUP_ROW_HEIGHT}"]`,
+          ) as HTMLElement;
+          if (topmost) {
+            const intersectionRatio = Math
+              .max(((e.currentTarget.scrollTop - topmost.offsetTop) / (GROUP_ROW_HEIGHT / 2)), 0);
+            if (intersectionRatio >= 0 && intersectionRatio <= 1) {
+              queryClient.setQueryData(
+                ['disc-header-opacity', groups[topIndex].id],
+                (1 - intersectionRatio),
+              );
+            }
+          }
+          const next = document.querySelector(
+            `div[data-item-index="${topIndex + 1}"][data-known-size="${GROUP_ROW_HEIGHT}"]`,
+          ) as HTMLElement;
+          if (next) {
+            const intersectionRatio = Math
+              .max(((e.currentTarget.scrollTop - next.offsetTop) / (GROUP_ROW_HEIGHT / 2)), 0);
+            if (intersectionRatio >= 0 && intersectionRatio <= 1) {
+              queryClient.setQueryData(
+                ['disc-header-opacity', groups[topIndex + 1].id],
+                (1 - intersectionRatio),
+              );
+            }
+          }
+        }}
       >
-        <Virtuoso
-          className="scroll-container"
+        <Header context={artistDiscographyContext} />
+        <GroupedVirtuoso
+          atTopStateChange={(atTop) => {
+            if (atTop) {
+              topmostGroup.current = 0;
+              queryClient.setQueryData(['disc-header-opacity'], 1);
+            }
+            queryClient.setQueryData(['at-top'], atTop);
+          }}
           components={{
             Footer,
-            Header,
             Item,
-            List,
+            List: ListGrouped,
             ScrollSeekPlaceholder,
+            TopItemList: GroupHeaderContainer,
           }}
-          context={artistTracksContext}
-          data={artist.isLoading || appearances.isLoading || isLoading ? [] : items}
-          fixedItemHeight={56}
-          initialScrollTop={initialScrollTop()}
+          context={artistDiscographyContext}
+          customScrollParent={scrollRef as unknown as HTMLElement}
+          groupContent={(index) => GroupRowContent(
+            { album: groups[index], context: artistDiscographyContext },
+          )}
+          groupCounts={groupCounts}
           isScrolling={handleScrollState}
-          itemContent={(index, item, context) => RowContent({ context, index, track: item })}
+          itemContent={
+            (index, _groupIndex, _data, context) => RowContent(
+              { context, index, track: items[index] },
+            )
+          }
+          itemsRendered={(list) => {
+            const container = document.querySelector('#discography-scroll-container');
+            if (!container) return;
+            const offsets = list.map((item) => item.offset);
+            const targetOffset = offsets.reverse().find((v) => v <= container.scrollTop);
+            const targetItem = list.find((item) => item.offset === targetOffset);
+            if (!targetItem) return;
+            let newIndex: number;
+            if (targetItem.type && targetItem.type === 'group') {
+              newIndex = targetItem.index;
+            } else {
+              newIndex = targetItem.groupIndex!;
+            }
+            if (topmostGroup.current !== newIndex) {
+              queryClient.setQueryData(['discography-header-album'], groups[newIndex]);
+              topmostGroup.current = newIndex;
+            }
+          }}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
-          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={isLoading || tracks === undefined ? 0 : items.length}
-          onScroll={(e) => {
-            const target = e.currentTarget as unknown as HTMLDivElement;
-            sessionStorage.setItem(
-              `artist-discography-scroll ${id}`,
-              target.scrollTop as unknown as string,
-            );
-          }}
+          style={{ overflow: 'hidden' }}
         />
       </motion.div>
       <TrackMenu

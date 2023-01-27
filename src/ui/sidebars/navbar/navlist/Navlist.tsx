@@ -61,6 +61,8 @@ const Navlist = ({ list, setIndex }: NavlistProps) => {
     },
     {
       enabled: !!config && !!library && list !== '',
+      refetchOnMount: true,
+      refetchOnWindowFocus: false,
       select: (data) => {
         if ('artists' in data) return data.artists;
         if ('albums' in data) return data.albums;

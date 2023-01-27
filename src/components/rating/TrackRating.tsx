@@ -11,6 +11,7 @@ const invalidateTrackQueries = async (queryClient: QueryClient) => {
   await queryClient.invalidateQueries([QueryKeys.PLAYLIST]);
   await queryClient.invalidateQueries([QueryKeys.PLAYQUEUE]);
   await queryClient.invalidateQueries([QueryKeys.TOP]);
+  await queryClient.invalidateQueries([QueryKeys.TRACK]);
 };
 
 interface TrackRatingProps {

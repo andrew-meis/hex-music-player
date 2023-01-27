@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import { useLibrary, useSettings } from 'queries/app-queries';
 import styles from 'styles/Search.module.scss';
-import { DragActions } from 'types/enums';
+import { DragActions, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import ResultTooltip from '../tooltip/ResultTooltip';
 import TopResultButtons from './TopResultButtons';
@@ -98,7 +98,14 @@ const TopResult = ({ topResult, setOpen }: Props) => {
 
   const linkState = () => {
     if (isArtist(topResult)) {
-      return { guid: topResult.guid, title: topResult.title };
+      return {
+        guid: topResult.guid,
+        title: topResult.title,
+        sort: [
+          PlexSortKeys.RELEASE_DATE,
+          SortOrders.DESC,
+        ].join(''),
+      };
     }
     if (isAlbum(topResult)) {
       return { guid: topResult.parentGuid, title: topResult.parentTitle };
@@ -253,9 +260,9 @@ const TopResult = ({ topResult, setOpen }: Props) => {
             >
               <Link
                 className="link"
-                state={isAlbum(topResult) || isTrack(topResult) ? linkState() : null}
+                state={linkState()}
                 to={{
-                  artist: isArtist(topResult) ? `/artists/${topResult.id}/releases` : '',
+                  artist: isArtist(topResult) ? `/artists/${topResult.id}/discography` : '',
                   album: isAlbum(topResult) ? `/artists/${topResult.parentId}` : '',
                   track: isTrack(topResult) ? `/artists/${topResult.grandparentId}` : '',
                 }[topResult.type] || '/'}

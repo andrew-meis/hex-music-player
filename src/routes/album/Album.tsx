@@ -245,7 +245,7 @@ const Album = () => {
           groupCounts={groupCounts}
           initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
-          itemContent={(index, groupIndex, _item, context) => RowContent(
+          itemContent={(index, _groupIndex, _item, context) => RowContent(
             { context, index, track: albumTracks.data![index] },
           )}
           scrollSeekConfiguration={{

@@ -6,27 +6,24 @@ import { RowProps } from './Discography';
 
 const Row = React.memo(({ context, index, track }: RowProps) => {
   const {
-    albums,
     getFormattedTime,
+    groups,
     handleRowClick,
     hoverIndex,
     isPlaying,
-    items,
     library,
     nowPlaying,
-    playTracks,
+    playAlbumAtTrack,
     selectedRows,
-    sort,
   } = context;
-  const { originallyAvailableAt } = albums.find((album) => album.guid === track.parentGuid)!;
+  const { originallyAvailableAt } = groups.find((album) => album.guid === track.parentGuid)!;
   const playing = nowPlaying?.track.id === track.id;
   const selected = selectedRows.includes(index);
   const selUp = selected && selectedRows.includes(index - 1);
   const selDown = selected && selectedRows.includes(index + 1);
-  const [by] = sort.split(':');
 
   const handleDoubleClick = async () => {
-    await playTracks(items, false, track.key);
+    await playAlbumAtTrack(track, false);
   };
 
   const handleMouseEnter = () => {
@@ -48,14 +45,13 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
     >
       <TrackRow
         getFormattedTime={getFormattedTime}
-        index={index + 1}
+        index={track.trackNumber}
         isPlaying={isPlaying}
         library={library}
         options={{
-          metaText: by,
           originallyAvailableAt,
           showAlbumTitle: true,
-          showArtwork: true,
+          showArtwork: false,
         }}
         playing={playing}
         track={track}
