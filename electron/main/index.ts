@@ -1,11 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies, no-param-reassign */
 // @ts-nocheck
-import {
-  app, BrowserWindow, shell, ipcMain, screen, nativeImage,
-} from 'electron';
 import { readFileSync, writeFileSync } from 'fs';
 import { hostname, release, version } from 'os';
 import path, { join } from 'path';
+import {
+  app, BrowserWindow, shell, ipcMain, screen, nativeImage,
+} from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
 // Config setup
@@ -81,7 +81,9 @@ const resetTaskbarButtons = (isPlaying) => {
     {
       tooltip: isPlaying ? 'Pause' : 'Play',
       icon: nativeImage
-        .createFromPath(path.join(ROOT_PATH.public, 'taskbar', `${isPlaying ? 'pause' : 'play'}.png`)),
+        .createFromPath(
+          path.join(ROOT_PATH.public, 'taskbar', `${isPlaying ? 'pause' : 'play'}.png`),
+        ),
       click() { win.webContents.send('taskbar-controls', { event: 'play-pause' }); },
     },
     {

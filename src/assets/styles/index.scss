@@ -212,6 +212,10 @@ select:focus-visible {
   }
 }
 
+.scroll-container.grouped > div[data-viewport-type="element"] {
+  top: 71px !important;
+}
+
 .szh-menu {
   background-color: var(--menu-paper);
   background-image: linear-gradient(var(--menu-gradient), var(--menu-gradient));

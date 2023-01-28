@@ -1,5 +1,4 @@
-import { Box, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuButton, MenuButtonProps, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Track } from 'hex-plex';
@@ -7,7 +6,6 @@ import React, {
   useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
 } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { FaCaretDown, FaCaretUp } from 'react-icons/all';
 import { useLocation, useParams } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
@@ -28,74 +26,22 @@ import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { AlbumWithSection } from 'routes/artist/Artist';
 import Footer from 'routes/virtuoso-components/Footer';
+import Group from 'routes/virtuoso-components/Group';
 import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
-import styles from 'styles/ArtistHeader.module.scss';
+import TopItemList from 'routes/virtuoso-components/TopItemList';
 import { IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
-import GroupRowArtist from './GroupRowArtist';
+import Header from './Header';
 import Row from './Row';
-
-interface FilterMenuButtonProps extends MenuButtonProps{
-  filter: string;
-  open: boolean;
-}
-
-const FilterMenuButton = React.forwardRef((
-  { filter, open, onClick, onKeyDown }: FilterMenuButtonProps,
-  ref,
-) => (
-  <MenuButton
-    className={styles['sort-button']}
-    ref={ref}
-    style={{ zIndex: 200 }}
-    onClick={onClick}
-    onKeyDown={onKeyDown}
-  >
-    <Box
-      alignItems="center"
-      color={open ? 'text.primary' : 'text.secondary'}
-      display="flex"
-      height={32}
-      justifyContent="space-between"
-      sx={{
-        '&:hover': {
-          color: 'text.primary',
-        },
-      }}
-      width={160}
-    >
-      <Typography>
-        {filter}
-      </Typography>
-      <SvgIcon sx={{ height: 16, width: 16 }}>
-        {(open ? <FaCaretUp /> : <FaCaretDown />)}
-      </SvgIcon>
-    </Box>
-  </MenuButton>
-));
-
-interface FilterMenuItemProps {
-  label: string;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const FilterMenuItem = ({ label, setFilter }: FilterMenuItemProps) => (
-  <MenuItem
-    onClick={() => setFilter(label)}
-  >
-    <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
-      {label}
-    </Box>
-  </MenuItem>
-);
 
 export interface ArtistDiscographyContext extends IVirtuosoContext {
   artist: ArtistQueryData | undefined;
   filter: string;
   filters: string[];
   groupCounts: number[];
-  groups: (AlbumWithSection | Artist)[];
+  groups: AlbumWithSection[];
+  menuStyle: React.CSSProperties;
   playAlbum: (album: Album, shuffle?: boolean) => Promise<void>;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   playArtist: (artist: Artist, shuffle?: boolean) => Promise<void>;
@@ -109,11 +55,6 @@ export interface GroupRowProps {
   context: ArtistDiscographyContext;
 }
 
-export interface GroupRowArtistProps {
-  artist: Artist;
-  context: ArtistDiscographyContext;
-}
-
 export interface RowProps {
   context: ArtistDiscographyContext;
   index: number;
@@ -121,7 +62,6 @@ export interface RowProps {
 }
 
 const GroupRowContent = (props: GroupRowProps) => <GroupRow {...props} />;
-const GroupRowContentArtist = (props: GroupRowArtistProps) => <GroupRowArtist {...props} />;
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Discography = () => {
@@ -185,7 +125,7 @@ const Discography = () => {
   }, [appearances.data, artist.data]);
 
   const { items, groupCounts, groups } = useMemo(() => {
-    if (!tracks || !artist.data) return { items: [], groupCounts: [], groups: [], offsets: [] };
+    if (!tracks) return { items: [], groupCounts: [], groups: [], offsets: [] };
     let newItems = tracks;
     let newGroups: AlbumWithSection[] = [];
     if (filter === 'All Releases') {
@@ -211,11 +151,11 @@ const Discography = () => {
       .map((v) => sum += v);
     return {
       items: newItems,
-      groupCounts: [0, ...newGroupCounts],
-      groups: [artist.data.artist, ...newGroups],
+      groupCounts: newGroupCounts,
+      groups: newGroups,
       offsets: [200, ...newOffsets.slice(0, -1)],
     };
-  }, [artist, filter, releases, tracks]);
+  }, [filter, releases, tracks]);
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
@@ -307,6 +247,7 @@ const Discography = () => {
     hoverIndex,
     isPlaying,
     library,
+    menuStyle,
     nowPlaying,
     playAlbum,
     playAlbumAtTrack,
@@ -329,6 +270,7 @@ const Discography = () => {
     groups,
     isPlaying,
     library,
+    menuStyle,
     nowPlaying,
     playAlbum,
     playAlbumAtTrack,
@@ -352,52 +294,22 @@ const Discography = () => {
         key={location.pathname}
         style={{ height: '100%' }}
       >
-        <Box
-          position="absolute"
-          top={0}
-          width={1}
-        >
-          <Box
-            display="flex"
-            justifyContent="flex-end"
-            margin="auto"
-            maxWidth={900}
-            width="89%"
-          >
-            <Menu
-              transition
-              align="end"
-              menuButton={({ open }) => <FilterMenuButton filter={filter} open={open} />}
-              menuStyle={menuStyle}
-            >
-              {filters.map((option) => (
-                <FilterMenuItem
-                  key={option}
-                  label={option}
-                  setFilter={setFilter}
-                />
-              ))}
-            </Menu>
-          </Box>
-        </Box>
         <GroupedVirtuoso
-          className="scroll-container"
+          className="scroll-container grouped"
           components={{
             Footer,
+            Group,
+            Header,
             Item,
             List: ListGrouped,
+            TopItemList,
           }}
           context={artistDiscographyContext}
-          groupContent={(index) => {
-            if (groups[index].type === 'album') {
-              return GroupRowContent(
-                { album: groups[index] as AlbumWithSection, context: artistDiscographyContext },
-              );
-            }
-            return GroupRowContentArtist(
-              { artist: groups[index] as Artist, context: artistDiscographyContext },
-            );
-          }}
+          groupContent={
+            (index) => GroupRowContent(
+              { album: groups[index], context: artistDiscographyContext },
+            )
+          }
           groupCounts={groupCounts}
           increaseViewportBy={200}
           isScrolling={handleScrollState}
