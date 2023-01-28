@@ -10,6 +10,7 @@ import initializeApp from 'scripts/initialize-app';
 import DragLayer from './DragLayer';
 import Layout from './Layout';
 import Player from './Player';
+import PlexWebSocket from './PlexWebSocket';
 import Theme from './Theme';
 import type { IAppSettings, IConfig } from 'types/interfaces';
 
@@ -29,10 +30,13 @@ const Root = () => {
   useConfig(loaderData.config);
   useAuth(loaderData.auth);
   const { data: settings } = useSettings(loaderData.settings);
+  const connection = loaderData.auth.server.connections
+    .find((conn) => conn.uri === loaderData.auth.library.api.uri);
 
   return (
     <Theme settings={settings!}>
       <DragLayer />
+      <PlexWebSocket connection={connection} token={loaderData.auth.account.authToken} />
       <Player>
         <Box
           bgcolor="background.default"

@@ -133,12 +133,14 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                     {track.media[0].parts[0].streams[0].bitDepth}
                     /
                     {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}
-                    &nbsp;
-                    ·
-                    &nbsp;
                   </Typography>
                 )
               }
+              <Typography variant="subtitle2">
+                &nbsp;
+                ·
+                &nbsp;
+              </Typography>
               <Box height={21}>
                 <TrackRating id={track.id} userRating={track.userRating} />
               </Box>

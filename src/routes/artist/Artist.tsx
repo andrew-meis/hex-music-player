@@ -332,8 +332,8 @@ const Artist = () => {
   const refreshPage = useCallback(() => {
     queryClient.invalidateQueries([QueryKeys.ARTIST]);
     queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES]);
-    queryClient.invalidateQueries([QueryKeys.ALBUM_TRACKS]);
-    queryClient.invalidateQueries([QueryKeys.HISTORY]);
+    queryClient.invalidateQueries([QueryKeys.ARTIST_TRACKS]);
+    queryClient.invalidateQueries([QueryKeys.RECENT_TRACKS]);
     queryClient.invalidateQueries([QueryKeys.PALETTE]);
   }, [queryClient]);
 
