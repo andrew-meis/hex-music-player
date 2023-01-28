@@ -140,6 +140,7 @@ const GroupRow = React.memo(({ album, context }: GroupRowProps) => {
       </Box>
       <Box
         alignItems="flex-start"
+        bgcolor="background.paper"
         borderBottom="1px solid"
         borderColor="border.main"
         color="text.secondary"

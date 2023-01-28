@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { Album } from 'hex-plex';
 import React from 'react';
 import TrackRow from 'components/track-row/TrackRow';
 import { rowStyle, selectBorderRadius, selectedStyle } from 'constants/style';
@@ -16,7 +17,8 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
     playAlbumAtTrack,
     selectedRows,
   } = context;
-  const { originallyAvailableAt } = groups.find((album) => album.guid === track.parentGuid)!;
+  const { originallyAvailableAt } = groups
+    .find((album) => album.guid === track.parentGuid)! as Album;
   const playing = nowPlaying?.track.id === track.id;
   const selected = selectedRows.includes(index);
   const selUp = selected && selectedRows.includes(index - 1);
