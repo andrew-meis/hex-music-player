@@ -1,4 +1,3 @@
-import { Theme, useTheme } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Track } from 'hex-plex';
@@ -9,7 +8,6 @@ import { Virtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -32,7 +30,6 @@ export interface SimilarTracksContext extends IVirtuosoContext {
   items: Track[];
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  theme: Theme;
 }
 
 export interface RowProps {
@@ -57,8 +54,6 @@ const SimilarTracks = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const menuStyle = useMenuStyle();
-  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
@@ -177,7 +172,6 @@ const SimilarTracks = () => {
     playTracks,
     selectedRows,
     setFilter,
-    theme,
   }), [
     config,
     currentTrack.data,
@@ -195,7 +189,6 @@ const SimilarTracks = () => {
     playTracks,
     selectedRows,
     setFilter,
-    theme,
   ]);
 
   if (currentTrack.isLoading || isLoading) {
@@ -246,7 +239,6 @@ const SimilarTracks = () => {
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       />

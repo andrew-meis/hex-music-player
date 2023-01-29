@@ -1,4 +1,4 @@
-import { Box, SvgIcon, useTheme } from '@mui/material';
+import { Box, SvgIcon } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -18,7 +18,6 @@ import Palette from 'components/palette/Palette';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import {
@@ -162,11 +161,9 @@ const Artist = () => {
   // other hooks
   const hideAlbum = useHideAlbum();
   const menuSection = useRef<string | null>();
-  const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
-  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<number | undefined>();
@@ -436,7 +433,6 @@ const Artist = () => {
               {...menuProps}
               portal
               anchorPoint={anchorPoint}
-              menuStyle={menuStyle}
               onClose={() => {
                 menuSection.current = null;
                 setMenuTarget(undefined);
@@ -453,10 +449,7 @@ const Artist = () => {
               <>
                 <MenuDivider />
                 <MenuItem
-                  style={{
-                    '--menu-primary': theme.palette.error.main,
-                    '--menu-transparent': `${theme.palette.error.main}cc`,
-                  } as React.CSSProperties}
+                  className="error"
                   onClick={handleHideAlbum}
                 >
                   <SvgIcon sx={{ mr: '8px' }}><MdMusicOff /></SvgIcon>

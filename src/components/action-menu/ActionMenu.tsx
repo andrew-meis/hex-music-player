@@ -2,8 +2,6 @@ import { Box, SvgIcon } from '@mui/material';
 import { Menu, MenuButton, MenuButtonProps, MenuProps } from '@szhsin/react-menu';
 import React from 'react';
 import { FiMoreVertical } from 'react-icons/all';
-import useMenuStyle from 'hooks/useMenuStyle';
-import styles from 'styles/Common.module.scss';
 
 interface ActionMenuButtonProps extends MenuButtonProps{
   open: boolean;
@@ -15,8 +13,13 @@ const ActionMenuButton = React.forwardRef((
   ref,
 ) => (
   <MenuButton
-    className={styles['action-menu-button']}
     ref={ref}
+    style={{
+      backgroundColor: 'transparent',
+      border: 'none',
+      padding: 0,
+      WebkitAppRegion: 'no-drag',
+    } as React.CSSProperties}
     onClick={onClick}
     onKeyDown={onKeyDown}
   >
@@ -41,23 +44,21 @@ const ActionMenuButton = React.forwardRef((
 ));
 
 interface ActionMenuProps extends MenuProps {
-  // eslint-disable-next-line react/require-default-props
   style?: React.CSSProperties;
   width: number;
 }
 
-const ActionMenu = ({ children, style, width, ...props }: Omit<ActionMenuProps, 'menuButton'>) => {
-  const menuStyle = useMenuStyle();
-  return (
-    <Menu
-      transition
-      menuButton={({ open }) => <ActionMenuButton open={open} width={width} />}
-      menuStyle={{ ...menuStyle, ...style }}
-      {...props}
-    >
-      {children}
-    </Menu>
-  );
-};
+const ActionMenu = ({
+  children, style = {}, width, ...props
+}: Omit<ActionMenuProps, 'menuButton'>) => (
+  <Menu
+    transition
+    menuButton={({ open }) => <ActionMenuButton open={open} width={width} />}
+    menuStyle={style}
+    {...props}
+  >
+    {children}
+  </Menu>
+);
 
 export default ActionMenu;

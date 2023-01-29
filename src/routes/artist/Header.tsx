@@ -7,8 +7,6 @@ import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import useMenuStyle from 'hooks/useMenuStyle';
-import styles from 'styles/ArtistHeader.module.scss';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
@@ -35,7 +33,7 @@ const SortMenuButton = React.forwardRef((
   ref,
 ) => (
   <MenuButton
-    className={styles['sort-button']}
+    className="sort"
     ref={ref}
     onClick={onClick}
     onKeyDown={onKeyDown}
@@ -105,7 +103,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   } = context!;
   const { artist } = artistData!;
   const maxList = Math.max(context!.topTracks!.length, context!.recentFavorites!.length);
-  const menuStyle = useMenuStyle();
   const tracksInView = useInView({ threshold: 0 });
   const similarArtists = useMemo(() => {
     const similar = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
@@ -210,7 +207,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           transition
           align="end"
           menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
-          menuStyle={menuStyle}
         >
           {sortOptions.map((option) => (
             <SortMenuItem

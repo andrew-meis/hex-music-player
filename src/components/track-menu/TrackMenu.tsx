@@ -15,7 +15,6 @@ interface TrackMenuProps{
       state?: MenuState | undefined;
       endTransition: () => void;
   };
-  menuStyle: React.CSSProperties;
   selectedRows: number[];
   toggleMenu: (open?: boolean | undefined) => void;
 }
@@ -26,7 +25,6 @@ const TrackMenu = ({
   handleMenuSelection,
   id,
   menuProps,
-  menuStyle,
   selectedRows,
   toggleMenu,
 }: TrackMenuProps) => {
@@ -36,7 +34,6 @@ const TrackMenu = ({
       {...menuProps}
       portal
       anchorPoint={anchorPoint}
-      menuStyle={menuStyle}
       onClose={() => toggleMenu(false)}
     >
       {selectedRows.length === 1 && trackButtons.map((button: ButtonSpecs) => (

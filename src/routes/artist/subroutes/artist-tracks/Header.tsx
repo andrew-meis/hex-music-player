@@ -14,8 +14,6 @@ import { NavLink } from 'react-router-dom';
 import FilterInput from 'components/filter-input/FilterInput';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';
-import useMenuStyle from 'hooks/useMenuStyle';
-import styles from 'styles/ArtistHeader.module.scss';
 import { PlexSortKeys } from 'types/enums';
 import { ArtistTracksContext } from './ArtistTracks';
 import FixedHeader from './FixedHeader';
@@ -45,7 +43,7 @@ const SortMenuButton = React.forwardRef((
   const [by, order] = sort.split(':');
   return (
     <MenuButton
-      className={styles['sort-button']}
+      className="sort"
       ref={ref}
       onClick={onClick}
       onKeyDown={onKeyDown}
@@ -107,7 +105,6 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
     artist: artistData, filter, items, playTracks, setFilter, setSort, sort,
   } = context!;
   const { artist } = artistData!;
-  const menuStyle = useMenuStyle();
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
@@ -226,7 +223,6 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               transition
               align="end"
               menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
-              menuStyle={menuStyle}
             >
               {sortOptions.map((option) => (
                 <SortMenuItem

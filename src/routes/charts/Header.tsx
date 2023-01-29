@@ -37,7 +37,6 @@ const Header = ({ context }: { context?: ChartsContext }) => {
     setEndDate,
     startDate,
     setStartDate,
-    theme,
     uri,
   } = context!;
   const endInput = useRef<HTMLInputElement>();
@@ -91,7 +90,6 @@ const Header = ({ context }: { context?: ChartsContext }) => {
           zIndex={400}
         >
           <FixedHeader
-            color={theme.palette.primary.main}
             days={days}
             end={end}
             handlePlay={handlePlay}

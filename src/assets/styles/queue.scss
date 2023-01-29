@@ -15,7 +15,7 @@
   svg {
     display: none;
   }
-  border-top: 1px solid tomato;
+  border-top: 1px solid var(--mui-palette-info-main);
 }
 
 .queue-track-over > div {
@@ -32,7 +32,7 @@
 }
 
 .queue-box-over::after {
-  border-top: 1px solid tomato;
+  border-top: 1px solid var(--mui-palette-info-main);
   content: "add last";
   height: 32px;
 }
@@ -42,7 +42,7 @@
 }
 
 .compact-queue-over {
-  border-top: 1px solid tomato;
+  border-top: 1px solid var(--mui-palette-info-main);
 }
 
 .compact-queue-over > div {

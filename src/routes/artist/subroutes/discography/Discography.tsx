@@ -11,7 +11,6 @@ import { GroupedVirtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -41,7 +40,6 @@ export interface ArtistDiscographyContext extends IVirtuosoContext {
   filters: string[];
   groupCounts: number[];
   groups: AlbumWithSection[];
-  menuStyle: React.CSSProperties;
   playAlbum: (album: Album, shuffle?: boolean) => Promise<void>;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   playArtist: (artist: Artist, shuffle?: boolean) => Promise<void>;
@@ -89,7 +87,6 @@ const Discography = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const menuStyle = useMenuStyle();
   const queryClient = useQueryClient();
   const topmostGroup = useRef<number>(0);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -247,7 +244,6 @@ const Discography = () => {
     hoverIndex,
     isPlaying,
     library,
-    menuStyle,
     nowPlaying,
     playAlbum,
     playAlbumAtTrack,
@@ -270,7 +266,6 @@ const Discography = () => {
     groups,
     isPlaying,
     library,
-    menuStyle,
     nowPlaying,
     playAlbum,
     playAlbumAtTrack,
@@ -326,7 +321,6 @@ const Discography = () => {
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       />

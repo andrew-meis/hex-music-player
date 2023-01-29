@@ -1,6 +1,6 @@
-import { Box, CircularProgress, useTheme } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
 import Toast from 'components/toast/Toast';
@@ -18,7 +18,6 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
   const library = useLibrary();
   const location = useLocation();
   const searchContainer = useRef<HTMLDivElement>(null);
-  const theme = useTheme();
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
   const playlists = usePlaylists(library);
@@ -50,11 +49,6 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
         display="flex"
         height="calc(100vh - 140px)"
         position="absolute"
-        style={{
-          '--item-bg': theme.palette.action.selected,
-          '--text-primary': theme.palette.text.primary,
-          '--text-secondary': theme.palette.text.secondary,
-        } as React.CSSProperties}
         top={50}
         width="100vw"
       >

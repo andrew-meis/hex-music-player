@@ -11,11 +11,11 @@ import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail, useUploadArt } from 'hooks/plexHooks';
-import styles from 'styles/ArtistHeader.module.scss';
 import { IAppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
 import FixedHeader from '../FixedHeader';
 import { thresholds } from '../Header';
+import styles from './Banner.module.scss';
 
 const getMeta = (url: string) => new Promise((resolve, reject) => {
   const img = new Image();
@@ -145,7 +145,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
           && (
             <motion.div
               animate={{ opacity: 1 }}
-              className={styles['artist-banner']}
+              className={styles.banner}
               initial={{ opacity: 0 }}
               style={{
                 '--img': `url(${bannerSrc})`,
@@ -161,7 +161,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
         {!artist.art && !!artist.thumb
           && (
             <span
-              className={styles['artist-banner']}
+              className={styles.banner}
               style={{
                 display: 'flex',
                 '--color': chroma(color.current || greyColor).rgb(),
@@ -182,7 +182,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
         {!artist.art && !artist.thumb
           && (
             <span
-              className={styles['artist-banner']}
+              className={styles.banner}
               style={{
                 display: 'flex',
                 '--color': chroma(color.current || greyColor).rgb(),

@@ -5,9 +5,9 @@ import {
 } from 'react-icons/all';
 import usePlayback from 'hooks/usePlayback';
 import { useSettings } from 'queries/app-queries';
-import styles from 'styles/Search.module.scss';
 import { PlayActions } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import styles from '../Search.module.scss';
 import type { Result } from 'types/types';
 
 const allButtons = [

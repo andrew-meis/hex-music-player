@@ -1,4 +1,3 @@
-import { Theme, useTheme } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Album, Track } from 'hex-plex';
@@ -8,7 +7,6 @@ import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -40,7 +38,6 @@ export interface ArtistTracksContext extends IVirtuosoContext {
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React.Dispatch<React.SetStateAction<string>>;
   sort: string;
-  theme: Theme;
 }
 
 export interface RowProps {
@@ -85,8 +82,6 @@ const ArtistTracks = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
-  const menuStyle = useMenuStyle();
-  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
@@ -222,7 +217,6 @@ const ArtistTracks = () => {
     setFilter,
     setSort,
     sort,
-    theme,
   }), [
     albums,
     artist.data,
@@ -243,7 +237,6 @@ const ArtistTracks = () => {
     setFilter,
     setSort,
     sort,
-    theme,
   ]);
 
   return (
@@ -290,7 +283,6 @@ const ArtistTracks = () => {
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       />

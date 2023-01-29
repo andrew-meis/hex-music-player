@@ -1,4 +1,3 @@
-import { Theme, useTheme } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Track } from 'hex-plex';
@@ -9,7 +8,6 @@ import { useLocation, useNavigationType } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -36,7 +34,6 @@ export interface ChartsContext extends IVirtuosoContext {
   setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setDays: React.Dispatch<React.SetStateAction<number>>;
-  theme: Theme;
   topTracks: Track[] | undefined;
   uri: string;
 }
@@ -83,8 +80,6 @@ const Charts = () => {
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
-  const menuStyle = useMenuStyle();
-  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
@@ -229,7 +224,6 @@ const Charts = () => {
     setDays,
     setEndDate,
     setStartDate,
-    theme,
     topTracks,
     uri,
   }), [
@@ -252,7 +246,6 @@ const Charts = () => {
     setDays,
     setEndDate,
     setStartDate,
-    theme,
     topTracks,
     uri,
   ]);
@@ -301,7 +294,6 @@ const Charts = () => {
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       />

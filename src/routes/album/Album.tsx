@@ -17,7 +17,6 @@ import { GroupedVirtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -84,7 +83,6 @@ const Album = () => {
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
-  const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -267,7 +265,6 @@ const Album = () => {
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       />

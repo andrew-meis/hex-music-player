@@ -1,17 +1,15 @@
 import {
-  Avatar, Box, ListItem, SvgIcon, Typography, useTheme,
+  Avatar, Box, ListItem, SvgIcon, Typography,
 } from '@mui/material';
-import React, {
-  CSSProperties, useCallback, useEffect, useState,
-} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
-import styles from 'styles/Search.module.scss';
 import { DragActions } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import styles from '../Search.module.scss';
 import ResultTooltip from '../tooltip/ResultTooltip';
 import type { Result } from 'types/types';
 
@@ -52,7 +50,6 @@ const ResultRow = ({
 }: ResultRowProps) => {
   const library = useLibrary();
   const navigate = useNavigate();
-  const theme = useTheme();
   const [isHovered, setHovered] = useState(false);
   const [isTooltipOpen, setTooltipOpen] = useState(false);
   const thumbSrc = result.thumb
@@ -177,9 +174,6 @@ const ResultRow = ({
       disablePadding
       className={isHovered ? styles['results-list-hover'] : styles['results-list']}
       ref={drag}
-      style={{
-        '--background': `${theme.palette.action.hover}`,
-      } as CSSProperties}
       sx={resultStyle}
       onClick={handleClick}
       onMouseEnter={() => setHovered(true)}

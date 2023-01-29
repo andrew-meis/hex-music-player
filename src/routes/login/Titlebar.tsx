@@ -1,9 +1,8 @@
-import { Box, useTheme } from '@mui/material';
-import React, { useState } from 'react';
-import styles from 'styles/Titlebar.module.scss';
+import { Box } from '@mui/material';
+import { useState } from 'react';
+import styles from 'ui/titlebar/Titlebar.module.scss';
 
 const Titlebar = () => {
-  const theme = useTheme();
   const [isMaximized, setMaximized] = useState(false);
 
   const handleAppClose = async () => {
@@ -22,10 +21,6 @@ const Titlebar = () => {
   return (
     <Box
       className="titlebar"
-      style={{
-        '--color': theme.palette.getContrastText(theme.palette.background.default),
-        '--hover': theme.palette.action.selected,
-      } as React.CSSProperties}
     >
       <Box
         display="flex"

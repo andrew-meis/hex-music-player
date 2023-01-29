@@ -9,7 +9,6 @@ import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { ButtonSpecs, trackButtons } from 'constants/buttons';
 import { typographyStyle } from 'constants/style';
-import useMenuStyle from 'hooks/useMenuStyle';
 import { PlayParams } from 'hooks/usePlayback';
 import { useLastfmSimilar } from 'queries/last-fm-queries';
 import { useSearch, useSearchTracks } from 'queries/plex-queries';
@@ -160,7 +159,6 @@ interface SimilarProps {
 const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => {
   const cols = throttle(() => getCols(width || 900), 300, { leading: true })();
   const hoverIndex = useRef(0);
-  const menuStyle = useMenuStyle();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -333,7 +331,6 @@ const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => 
         align="center"
         anchorPoint={anchorPoint}
         direction="left"
-        menuStyle={menuStyle}
         offsetX={-10}
         onClose={() => toggleMenu(false)}
       >

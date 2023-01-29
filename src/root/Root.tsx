@@ -1,5 +1,4 @@
 import { Box } from '@mui/material';
-import React from 'react';
 import { redirect, useLoaderData } from 'react-router-dom';
 import {
   defaultSettings,
@@ -7,11 +6,12 @@ import {
   useSettings,
 } from 'queries/app-queries';
 import initializeApp from 'scripts/initialize-app';
+import CssTheme from './CssTheme';
 import DragLayer from './DragLayer';
 import Layout from './Layout';
 import Player from './Player';
 import PlexWebSocket from './PlexWebSocket';
-import Theme from './Theme';
+import ThemeMode from './ThemeMode';
 import type { IAppSettings, IConfig } from 'types/interfaces';
 
 export const rootLoader = async () => {
@@ -34,24 +34,20 @@ const Root = () => {
     .find((conn) => conn.uri === loaderData.auth.library.api.uri);
 
   return (
-    <Theme settings={settings!}>
+    <CssTheme>
+      <ThemeMode settings={settings} />
       <DragLayer />
       <PlexWebSocket connection={connection} token={loaderData.auth.account.authToken} />
       <Player>
         <Box
           bgcolor="background.default"
           height="100vh"
-          style={{
-            '--scrollbar': settings!.colorMode === 'light'
-              ? 'rgba(69, 69, 69, 0.5)'
-              : 'rgba(255, 255, 255, 0.5)',
-          } as React.CSSProperties}
           width="100vw"
         >
           <Layout settings={settings!} />
         </Box>
       </Player>
-    </Theme>
+    </CssTheme>
   );
 };
 

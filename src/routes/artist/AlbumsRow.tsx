@@ -3,9 +3,11 @@ import { Library } from 'hex-plex';
 import moment from 'moment';
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import { MotionBox } from 'components/motion-components/motion-components';
+import { imageMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';
 import usePalette, { defaultColors } from 'hooks/usePalette';
-import styles from 'styles/AlbumsRow.module.scss';
+import styles from 'styles/MotionImage.module.scss';
 import { IAppSettings } from 'types/interfaces';
 import { AlbumWithSection, Measurements, RowProps } from './Artist';
 
@@ -102,8 +104,8 @@ const AlbumCover = ({
 
   if (settings.albumText) {
     return (
-      <Box
-        className={styles['album-box']}
+      <MotionBox
+        className={styles.container}
         data-id={album.id}
         data-section={album.section}
         height={measurements.ROW_HEIGHT}
@@ -112,18 +114,21 @@ const AlbumCover = ({
           backgroundColor: menuTarget === album.id ? backgroundColor() : '',
           '&:hover': { backgroundColor: backgroundColor() },
         }}
+        whileHover="hover"
         width={measurements.CARD_WIDTH}
         onClick={() => navigate(`/albums/${album.id}`)}
         onContextMenu={handleContextMenu}
       >
-        <Box
-          className={styles['album-cover']}
+        <MotionBox
+          animate={{ scale: menuTarget === album.id ? 1 : 0.95 }}
+          className={styles.image}
           height={measurements.COVER_HEIGHT}
+          initial={{ scale: 0.95 }}
           margin="4px"
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
-          sx={{ transform: menuTarget === album.id ? 'scale(1) translateZ(0px)' : '' }}
+          variants={menuTarget === album.id ? {} : imageMotion}
           width={measurements.COVER_WIDTH}
         />
         <Typography sx={textStyle}>
@@ -132,18 +137,19 @@ const AlbumCover = ({
         <Typography color="text.primary" lineHeight={2} mx="8px" variant="subtitle2">
           {getAdditionalText(album, sort.by)}
         </Typography>
-      </Box>
+      </MotionBox>
     );
   }
 
   return (
-    <Box
-      className={styles['album-box']}
+    <MotionBox
+      className={styles.container}
       data-id={album.id}
       data-section={album.section}
       height={measurements.ROW_HEIGHT}
       justifyContent="center"
       key={album.id}
+      whileHover="hover"
       width={measurements.CARD_WIDTH}
       onContextMenu={handleContextMenu}
     >
@@ -164,18 +170,20 @@ const AlbumCover = ({
         key={album.id}
         title={album.title}
       >
-        <Box
-          className={styles['album-cover']}
+        <MotionBox
+          animate={{ scale: menuTarget === album.id ? 1 : 0.95 }}
+          className={styles.image}
           height={measurements.COVER_HEIGHT}
+          initial={{ scale: 0.95 }}
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
-          sx={{ transform: menuTarget === album.id ? 'scale(1) translateZ(0px)' : '' }}
+          variants={menuTarget === album.id ? {} : imageMotion}
           width={measurements.COVER_WIDTH}
           onClick={() => navigate(`/albums/${album.id}`)}
         />
       </Tooltip>
-    </Box>
+    </MotionBox>
   );
 };
 

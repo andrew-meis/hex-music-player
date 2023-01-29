@@ -7,7 +7,8 @@ import qs from 'qs';
 import React, { useState } from 'react';
 import { redirect, useLoaderData, useNavigate } from 'react-router-dom';
 import { defaultSettings, useSettings } from 'queries/app-queries';
-import Theme from 'root/Theme';
+import CssTheme from 'root/CssTheme';
+import ThemeMode from 'root/ThemeMode';
 import initializeApp from 'scripts/initialize-app';
 import { IAppSettings, IConfig } from 'types/interfaces';
 import favicon from '../../assets/imgs/favicon.svg';
@@ -206,7 +207,8 @@ const Login = () => {
   };
 
   return (
-    <Theme settings={settings!}>
+    <CssTheme>
+      <ThemeMode settings={settings} />
       <Box
         bgcolor="background.default"
         height="100vh"
@@ -377,7 +379,7 @@ const Login = () => {
           </Box>
         </Fade>
       </Box>
-    </Theme>
+    </CssTheme>
   );
 };
 

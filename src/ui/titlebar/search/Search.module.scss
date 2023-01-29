@@ -40,7 +40,7 @@
 }
 
 .results-list:hover {
-  background-color: var(--background);
+  background-color: var(--mui-palette-action-hover);
   border-radius: 4px;
   svg {
     opacity: 1;
@@ -48,7 +48,7 @@
 }
 
 .results-list-hover {
-  background-color: var(--background);
+  background-color: var(--mui-palette-action-hover);
   border-radius: 4px;
   svg {
     opacity: 1;

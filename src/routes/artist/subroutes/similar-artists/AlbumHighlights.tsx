@@ -1,7 +1,8 @@
-import { Avatar, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import { useMemo } from 'react';
 import { NavigateFunction } from 'react-router-dom';
+import { MotionAvatar } from 'components/motion-components/motion-components';
 import Tooltip from 'components/tooltip/Tooltip';
 
 interface AlbumHighlightsProps {
@@ -50,23 +51,27 @@ const AlbumHighlights = ({
             key={release.id}
             sx={{
               cursor: 'pointer',
-              transform: 'scale(0.95)',
-              transition: '0.2s',
-              '&:hover': { transform: 'scale(1)' },
             }}
             onClick={() => navigate(`/albums/${release.id}`)}
           >
             <Tooltip
               title={release.title}
             >
-              <Avatar
+              <MotionAvatar
                 alt={release.title}
+                initial={{ scale: 0.95 }}
                 src={thumbSrc}
                 sx={{
                   height: panelWidth / cols,
                   width: panelWidth / cols,
                 }}
+                transition={{
+                  duration: 0.4,
+                }}
                 variant="rounded"
+                whileHover={{
+                  scale: [null, 1.02, 1],
+                }}
               />
             </Tooltip>
           </Box>

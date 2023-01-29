@@ -1,7 +1,7 @@
 import { Gapless5, LogLevel } from '@regosen/gapless-5';
 import { useQueryClient } from '@tanstack/react-query';
 import React, {
-  ReactNode, useCallback, useContext, useEffect, useMemo, useRef,
+  ReactNode, useCallback, useContext, useEffect, useRef,
 } from 'react';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
@@ -40,11 +40,11 @@ const Player = ({ children }: {children: ReactNode}) => {
   const { data: settings } = useSettings();
   const { setQueueId, updateTimeline } = useQueue();
 
-  const player = useMemo((): Gapless5 => new Gapless5({
+  const { current: player } = useRef(new Gapless5({
     ...playerOptions,
     loop: settings.repeat !== 'repeat-none',
     singleMode: settings.repeat === 'repeat-one',
-  }), []);
+  }));
 
   const startTimer = useCallback((queueItem: PlayQueueItem) => {
     window.clearInterval(timelineRef.current);

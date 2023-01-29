@@ -1,4 +1,4 @@
-import { SvgIcon, useTheme } from '@mui/material';
+import { SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import React, {
@@ -12,7 +12,6 @@ import { Virtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useToast from 'hooks/useToast';
@@ -55,10 +54,8 @@ const Playlist = () => {
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
-  const menuStyle = useMenuStyle();
   const navigationType = useNavigationType();
   const removeFromPlaylist = useRemoveFromPlaylist();
-  const theme = useTheme();
   const toast = useToast();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
@@ -257,7 +254,6 @@ const Playlist = () => {
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       >
@@ -265,10 +261,7 @@ const Playlist = () => {
         <>
           <MenuDivider />
           <MenuItem
-            style={{
-              '--menu-primary': theme.palette.error.main,
-              '--menu-transparent': `${theme.palette.error.main}cc`,
-            } as React.CSSProperties}
+            className="error"
             onClick={handleRemove}
           >
             <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>

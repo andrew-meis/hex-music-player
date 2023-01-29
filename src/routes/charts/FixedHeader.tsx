@@ -4,7 +4,6 @@ import { TiChartLine } from 'react-icons/ti';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 
 interface FixedHeaderProps {
-  color: string;
   days: number;
   start: Moment;
   end: Moment;
@@ -12,7 +11,7 @@ interface FixedHeaderProps {
   handleShuffle: () => Promise<void>;
 }
 
-const FixedHeader = ({ color, days, end, handlePlay, handleShuffle, start }: FixedHeaderProps) => (
+const FixedHeader = ({ days, end, handlePlay, handleShuffle, start }: FixedHeaderProps) => (
   <Box
     alignItems="center"
     bgcolor="background.paper"
@@ -29,7 +28,10 @@ const FixedHeader = ({ color, days, end, handlePlay, handleShuffle, start }: Fix
     <Avatar
       alt="Chart"
       sx={{
-        background: `linear-gradient(to bottom right, ${color}, ${color}99)`,
+        background: `linear-gradient(
+          to bottom right,
+          var(--mui-palette-primary-main),
+          rgba(var(--mui-palette-primary-mainChannel) / 0.60))`,
         width: 60,
         height: 60,
       }}

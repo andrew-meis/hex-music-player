@@ -1,11 +1,30 @@
 import {
-  Box, Button, ButtonGroup, useTheme,
+  Box, Button, ButtonGroup,
 } from '@mui/material';
 import React from 'react';
 import usePlayback from 'hooks/usePlayback';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import { allButtons, ButtonSpecs } from '../../../../constants/buttons';
 import type { Result } from 'types/types';
+
+const buttonStyle = {
+  width: '-webkit-fill-available',
+  borderRadius: '4px !important',
+  justifyContent: 'left',
+  color: 'text.primary',
+  cursor: 'default',
+  border: 'none',
+  textTransform: 'none',
+  textAlign: 'right',
+  padding: '6px 8px',
+  transition: 'none',
+  fontSize: '0.875rem',
+  height: '36px',
+  '&:hover': {
+    border: 'none',
+    backgroundColor: 'action.selected',
+  },
+};
 
 interface Props {
   result: Result;
@@ -15,26 +34,6 @@ interface Props {
 
 const TooltipMenu = ({ result, open, setOpen }: Props) => {
   const { playSwitch } = usePlayback();
-  const theme = useTheme();
-
-  const buttonStyle = {
-    width: '-webkit-fill-available',
-    borderRadius: '4px !important',
-    justifyContent: 'left',
-    color: 'text.primary',
-    cursor: 'default',
-    border: 'none',
-    textTransform: 'none',
-    textAlign: 'right',
-    padding: '6px 8px',
-    transition: 'none',
-    fontSize: '0.875rem',
-    height: '36px',
-    '&:hover': {
-      border: 'none',
-      backgroundColor: theme.palette.action.selected,
-    },
-  };
 
   const handleButton = async (
     event: React.SyntheticEvent<HTMLButtonElement>,

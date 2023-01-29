@@ -6,7 +6,6 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import TrackRow from 'components/track-row/TrackRow';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
-import useMenuStyle from 'hooks/useMenuStyle';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { ButtonSpecs } from '../../constants/buttons';
@@ -22,7 +21,6 @@ interface TrackHighlightsProps {
 const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) => {
   const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
-  const menuStyle = useMenuStyle();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
@@ -173,7 +171,6 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
         handleMenuSelection={handleMenuSelection}
         id={getTrackId()}
         menuProps={menuProps}
-        menuStyle={menuStyle}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
       />

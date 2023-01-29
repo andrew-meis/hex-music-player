@@ -1,5 +1,4 @@
-import { Avatar, Box, Dialog, SvgIcon, Typography, useTheme } from '@mui/material';
-import { grey } from '@mui/material/colors';
+import { Avatar, Box, Dialog, SvgIcon, Typography } from '@mui/material';
 import { MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -47,7 +46,6 @@ const AppMenu = () => {
   const library = useLibrary();
   const navigate = useNavigate();
   const player = usePlayerContext();
-  const theme = useTheme();
   const [open, setOpen] = useState(false);
   const { data: config } = useConfig();
   const { data: nowPlaying } = useNowPlaying();
@@ -114,8 +112,7 @@ const AppMenu = () => {
         style={{
           fontSize: '1rem',
           minWidth: '198px',
-          '--menu-grey': theme.palette.mode === 'light' ? grey['100'] : grey['800'],
-        } as React.CSSProperties}
+        }}
         width={32}
       >
         <MenuItem

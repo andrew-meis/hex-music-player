@@ -2,7 +2,9 @@ import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
-import styles from 'styles/AlbumsRow.module.scss';
+import { MotionBox } from 'components/motion-components/motion-components';
+import { imageMotion } from 'components/motion-components/motion-variants';
+import styles from 'styles/MotionImage.module.scss';
 import CollapseContent from './CollapseContent';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
 
@@ -63,28 +65,31 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   };
 
   return (
-    <Box
-      className={styles['album-box']}
+    <MotionBox
+      className={styles.container}
       data-id={artist.id}
       height={imgHeight + 28}
       key={artist.id}
       sx={{
         contain: 'paint',
       }}
+      whileHover="hover"
       width={imgWidth}
       onClick={handleClick}
     >
-      <Box
+      <MotionBox
+        animate={{ scale: open ? 1 : 0.95 }}
         bgcolor="action.selected"
-        className={styles['album-cover']}
+        className={styles.image}
         flexDirection="column-reverse"
         height={imgHeight - 8}
+        initial={{ scale: 0.95 }}
         margin="4px"
         style={{
           borderRadius: '32px',
-          transform: open ? 'scale(1) translateZ(0px)' : '',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
+        variants={open ? {} : imageMotion}
         width={imgWidth - 8}
       >
         {!artist.thumb && (
@@ -95,7 +100,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
             <IoMdMicrophone />
           </SvgIcon>
         )}
-      </Box>
+      </MotionBox>
       <Typography
         sx={{
           ...textStyle,
@@ -120,7 +125,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       >
         <FaAngleDown />
       </SvgIcon>
-    </Box>
+    </MotionBox>
   );
 };
 

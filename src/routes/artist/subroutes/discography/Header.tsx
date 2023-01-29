@@ -3,7 +3,6 @@ import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu'
 import React from 'react';
 import { FaCaretDown, FaCaretUp, IoMdMicrophone } from 'react-icons/all';
 import { NavLink, useOutletContext } from 'react-router-dom';
-import styles from 'styles/ArtistHeader.module.scss';
 import { ArtistDiscographyContext } from './Discography';
 
 interface FilterMenuButtonProps extends MenuButtonProps{
@@ -16,7 +15,7 @@ const FilterMenuButton = React.forwardRef((
   ref,
 ) => (
   <MenuButton
-    className={styles['sort-button']}
+    className="sort"
     ref={ref}
     style={{ marginLeft: 'auto', marginTop: 12 }}
     onClick={onClick}
@@ -64,7 +63,7 @@ const FilterMenuItem = ({ label, setFilter }: FilterMenuItemProps) => (
 const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
   const { width } = useOutletContext() as { width: number };
   const {
-    artist: artistData, filter, filters, library, menuStyle, setFilter,
+    artist: artistData, filter, filters, library, setFilter,
   } = context!;
   const { artist } = artistData!;
   const thumbSrc = library.api
@@ -127,7 +126,6 @@ const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
           transition
           align="end"
           menuButton={({ open }) => <FilterMenuButton filter={filter} open={open} />}
-          menuStyle={menuStyle}
         >
           {filters.map((option) => (
             <FilterMenuItem

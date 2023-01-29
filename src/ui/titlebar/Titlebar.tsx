@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import React, { useState } from 'react';
 import useQueue from 'hooks/useQueue';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -15,7 +15,6 @@ interface TitlebarProps {
 
 const Titlebar = ({ searchContainer }: TitlebarProps) => {
   const player = usePlayerContext();
-  const theme = useTheme();
   const [isMaximized, setMaximized] = useState(false);
   const { data: nowPlaying } = useNowPlaying();
   const { updateTimeline } = useQueue();
@@ -39,10 +38,6 @@ const Titlebar = ({ searchContainer }: TitlebarProps) => {
   return (
     <Box
       className="titlebar"
-      style={{
-        '--color': theme.palette.getContrastText(theme.palette.background.default),
-        '--hover': theme.palette.action.selected,
-      } as React.CSSProperties}
     >
       <Box
         display="flex"

@@ -1,7 +1,6 @@
 import {
-  Box, Collapse, List, ListItem, SvgIcon, Typography, useTheme,
+  Box, Collapse, List, ListItem, SvgIcon, Typography,
 } from '@mui/material';
-import { grey } from '@mui/material/colors';
 import {
   ControlledMenu, MenuDivider, MenuItem, useMenuState,
 } from '@szhsin/react-menu';
@@ -10,7 +9,6 @@ import {
   FaCaretDown, FaCaretRight, MdDelete, TiFolder,
 } from 'react-icons/all';
 import { useDeletePlaylist } from 'hooks/playlistHooks';
-import useMenuStyle from 'hooks/useMenuStyle';
 import usePlayback from 'hooks/usePlayback';
 import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
@@ -52,9 +50,7 @@ const activeBox = (isActive: boolean) => ({
 const PlaylistLinks = () => {
   const deletePlaylist = useDeletePlaylist();
   const library = useLibrary();
-  const menuStyle = useMenuStyle();
   const toast = useToast();
-  const theme = useTheme();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const [menuTarget, setMenuTarget] = useState<number>();
@@ -136,10 +132,6 @@ const PlaylistLinks = () => {
         {...menuProps}
         portal
         anchorPoint={anchorPoint}
-        menuStyle={{
-          ...menuStyle,
-          '--menu-grey': theme.palette.mode === 'light' ? grey['100'] : grey['800'],
-        } as React.CSSProperties}
         onClose={() => toggleMenu(false)}
       >
         {playlistButtons.map((button: ButtonSpecs) => (
@@ -150,10 +142,7 @@ const PlaylistLinks = () => {
         ))}
         <MenuDivider />
         <MenuItem
-          style={{
-            '--menu-primary': theme.palette.error.main,
-            '--menu-transparent': `${theme.palette.error.main}cc`,
-          } as React.CSSProperties}
+          className="error"
           onClick={() => deletePlaylist(menuTarget as number)}
         >
           <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>
