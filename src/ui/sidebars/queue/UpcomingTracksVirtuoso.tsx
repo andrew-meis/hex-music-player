@@ -58,7 +58,6 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   const { data: isDragging } = useQuery(
     ['is-dragging'],
     () => false,
-    {},
   );
 
   const selected = selectedRows.includes(index);
@@ -89,9 +88,16 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       data-index={index}
       display="flex"
       height={54}
-      sx={selected
-        ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-        : { ...rowStyle }}
+      sx={
+        selected
+          ? {
+            ...selectedStyle,
+            borderRadius: selectBorderRadius(selUp, selDown),
+          }
+          : {
+            ...rowStyle,
+          }
+      }
       onClick={(event) => handleRowClick(event, index)}
       onDoubleClick={handleDoubleClick}
       onDragEnter={() => setOver(true)}
@@ -122,12 +128,12 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             fontFamily="Rubik"
             fontSize="0.95rem"
             sx={{ ...typographyStyle }}
-            onClick={(event) => event.stopPropagation()}
           >
             <NavLink
               className="link"
               style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
               to={`/tracks/${track.id}`}
+              onClick={(event) => event.stopPropagation()}
             >
               {track.title}
             </NavLink>
@@ -136,7 +142,6 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             color="text.secondary"
             fontSize="0.875rem"
             sx={{ ...typographyStyle }}
-            onClick={(event) => event.stopPropagation()}
           >
             <Subtext showAlbum track={track} />
           </Typography>

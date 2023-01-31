@@ -97,12 +97,12 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
           fontFamily="Rubik"
           fontSize="0.95rem"
           sx={{ ...typographyStyle }}
-          onClick={(event) => event.stopPropagation()}
         >
           <NavLink
             className="link"
             style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
             to={`/tracks/${track.id}`}
+            onClick={(event) => event.stopPropagation()}
           >
             {track.title}
           </NavLink>
@@ -111,7 +111,6 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
           color="text.secondary"
           fontSize="0.875rem"
           sx={{ ...typographyStyle }}
-          onClick={(event) => event.stopPropagation()}
         >
           <Subtext showAlbum track={track} />
         </Typography>

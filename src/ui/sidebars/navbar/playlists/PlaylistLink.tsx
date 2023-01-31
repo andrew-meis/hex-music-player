@@ -68,7 +68,7 @@ const PlaylistLink = ({
               ...navlistBoxStyle,
               ml: playlist.smart ? '34px' : '12px',
               border: '1px solid',
-              borderColor: isOver ? 'tomato' : 'transparent',
+              borderColor: isOver ? 'var(--mui-palette-info-main)' : 'transparent',
               borderRadius: '4px',
             }}
           >

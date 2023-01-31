@@ -79,6 +79,7 @@ const DragLayer = () => {
     currentFileOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
   useEffect(() => {
     if (isDragging === isDraggingRef.current) return;
     queryClient.setQueryData(['is-dragging'], isDragging);
