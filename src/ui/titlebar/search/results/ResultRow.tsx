@@ -7,7 +7,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
-import { DragActions } from 'types/enums';
+import { DragActions, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import styles from '../Search.module.scss';
 import ResultTooltip from '../tooltip/ResultTooltip';
@@ -77,7 +77,7 @@ const ResultRow = ({
   const handleNavigate = useCallback((
     event: React.MouseEvent<HTMLDivElement>,
     path: string,
-    state?: { guid: string, title: string },
+    state?: { guid: string, title: string, sort?: string },
   ) => {
     event.stopPropagation();
     navigate(path, { state });
@@ -91,7 +91,18 @@ const ResultRow = ({
           <Box
             className="link"
             sx={linkBoxStyle}
-            onClick={(event) => handleNavigate(event, `/artists/${result.id}/releases`)}
+            onClick={(event) => handleNavigate(
+              event,
+              `/artists/${result.id}/discography`,
+              {
+                guid: result.guid,
+                title: result.title,
+                sort: [
+                  PlexSortKeys.RELEASE_DATE,
+                  SortOrders.DESC,
+                ].join(''),
+              },
+            )}
           >
             {result.childCount > 1
               ? `${result.childCount} releases`

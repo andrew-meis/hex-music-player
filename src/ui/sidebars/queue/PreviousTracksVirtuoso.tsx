@@ -97,6 +97,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
           fontFamily="Rubik"
           fontSize="0.95rem"
           sx={{ ...typographyStyle }}
+          onClick={(event) => event.stopPropagation()}
         >
           <NavLink
             className="link"
@@ -110,6 +111,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
           color="text.secondary"
           fontSize="0.875rem"
           sx={{ ...typographyStyle }}
+          onClick={(event) => event.stopPropagation()}
         >
           <Subtext showAlbum track={track} />
         </Typography>

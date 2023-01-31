@@ -1,6 +1,7 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiCloseFill } from 'react-icons/all';
@@ -37,6 +38,7 @@ export interface RowProps {
 }
 
 const Row = React.memo(({ index, item, context }: RowProps) => {
+  const [over, setOver] = useState(false);
   const {
     dropIndex,
     handleRowClick,
@@ -53,6 +55,11 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       url: track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
     },
   );
+  const { data: isDragging } = useQuery(
+    ['is-dragging'],
+    () => false,
+    {},
+  );
 
   const selected = selectedRows.includes(index);
   const selUp = selected && selectedRows.includes(index - 1);
@@ -64,8 +71,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
 
   const handleDrop = () => {
     dropIndex.current = index;
-    document.querySelector(`.queue-track[data-index="${index}"]`)
-      ?.classList.remove('queue-track-over');
+    setOver(false);
   };
 
   const handleMouseEnter = () => {
@@ -79,7 +85,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   return (
     <Box
       alignItems="center"
-      className="queue-track"
+      className={over ? 'queue-track queue-track-over' : 'queue-track'}
       data-index={index}
       display="flex"
       height={54}
@@ -88,72 +94,74 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
         : { ...rowStyle }}
       onClick={(event) => handleRowClick(event, index)}
       onDoubleClick={handleDoubleClick}
-      onDragEnter={() => {
-        document.querySelector(`.queue-track[data-index="${index}"]`)
-          ?.classList.add('queue-track-over');
-      }}
-      onDragLeave={() => {
-        document.querySelector(`.queue-track[data-index="${index}"]`)
-          ?.classList.remove('queue-track-over');
-      }}
+      onDragEnter={() => setOver(true)}
+      onDragLeave={() => setOver(false)}
       onDrop={handleDrop}
       onMouseEnter={handleMouseEnter}
     >
-      <Avatar
-        alt={track.title}
-        src={thumbSrc}
-        sx={{ width: 40, height: 40, marginX: '8px' }}
-        variant="rounded"
-      />
       <Box
-        sx={{
-          display: 'table',
-          tableLayout: 'fixed',
-          width: '100%',
-        }}
+        alignItems="center"
+        display="flex"
+        sx={{ pointerEvents: isDragging ? 'none' : '' }}
       >
-        <Typography
-          color="text.primary"
-          fontFamily="Rubik"
-          fontSize="0.95rem"
-          sx={{ ...typographyStyle }}
-        >
-          <NavLink
-            className="link"
-            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
-            to={`/tracks/${track.id}`}
-          >
-            {track.title}
-          </NavLink>
-        </Typography>
-        <Typography
-          color="text.secondary"
-          fontSize="0.875rem"
-          sx={{ ...typographyStyle }}
-        >
-          <Subtext showAlbum track={track} />
-        </Typography>
-      </Box>
-      <Box title="Remove from queue">
-        <SvgIcon
+        <Avatar
+          alt={track.title}
+          src={thumbSrc}
+          sx={{ width: 40, height: 40, marginX: '8px' }}
+          variant="rounded"
+        />
+        <Box
           sx={{
-            mx: '6px',
-            color: 'text.primary',
-            width: '0.9em',
-            height: '0.9em',
-            transition: 'transform 200ms ease-in-out',
-            '&:hover': {
-              color: 'error.main',
-              transform: 'scale(1.3)',
-            },
-          }}
-          onClick={async (event) => {
-            event.stopPropagation();
-            await removeTrack(item);
+            display: 'table',
+            tableLayout: 'fixed',
+            width: '100%',
           }}
         >
-          <RiCloseFill />
-        </SvgIcon>
+          <Typography
+            color="text.primary"
+            fontFamily="Rubik"
+            fontSize="0.95rem"
+            sx={{ ...typographyStyle }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <NavLink
+              className="link"
+              style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
+              to={`/tracks/${track.id}`}
+            >
+              {track.title}
+            </NavLink>
+          </Typography>
+          <Typography
+            color="text.secondary"
+            fontSize="0.875rem"
+            sx={{ ...typographyStyle }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <Subtext showAlbum track={track} />
+          </Typography>
+        </Box>
+        <Box title="Remove from queue">
+          <SvgIcon
+            sx={{
+              mx: '6px',
+              color: 'text.primary',
+              width: '0.9em',
+              height: '0.9em',
+              transition: 'transform 200ms ease-in-out',
+              '&:hover': {
+                color: 'error.main',
+                transform: 'scale(1.3)',
+              },
+            }}
+            onClick={async (event) => {
+              event.stopPropagation();
+              await removeTrack(item);
+            }}
+          >
+            <RiCloseFill />
+          </SvgIcon>
+        </Box>
       </Box>
     </Box>
   );

@@ -1,4 +1,5 @@
-import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useRef } from 'react';
 import { useDragLayer, XYCoord } from 'react-dnd';
 import { isAlbum, isArtist, isPlayListItem, isPlayQueueItem, isTrack } from 'types/type-guards';
 
@@ -61,9 +62,11 @@ const getText = (item: any) => {
 };
 
 const DragLayer = () => {
+  const queryClient = useQueryClient();
+  const isDraggingRef = useRef(false);
   const {
     item,
-    itemType,
+    // itemType,
     isDragging,
     initialCursorOffset,
     initialFileOffset,
@@ -76,6 +79,11 @@ const DragLayer = () => {
     currentFileOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+  useEffect(() => {
+    if (isDragging === isDraggingRef.current) return;
+    queryClient.setQueryData(['is-dragging'], isDragging);
+    isDraggingRef.current = isDragging;
+  }, [isDragging, queryClient]);
 
   if (!isDragging) {
     return null;

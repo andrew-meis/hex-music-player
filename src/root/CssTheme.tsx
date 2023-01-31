@@ -19,6 +19,9 @@ declare module '@mui/material/styles' {
   }
 }
 
+const shadow = 'rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px';
+const shadowHov = 'rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px';
+
 const common: ColorSystemOptions = {
   palette: {
     primary: {
@@ -85,6 +88,48 @@ const theme = extendTheme({
   colorSchemes: {
     dark,
     light,
+  },
+  components: {
+    MuiChip: {
+      styleOverrides: {
+        colorPrimary: ({ theme: { vars } }) => ({
+          ':hover': {
+            backgroundColor: `rgba(${vars.palette.primary.mainChannel} / 0.80)`,
+          },
+        }),
+        root: ({ theme: { vars } }) => ({
+          ':hover': {
+            backgroundColor: vars.palette.action.disabled,
+          },
+        }),
+      },
+    },
+    MuiSlider: {
+      styleOverrides: {
+        root: ({ theme: { vars } }) => ({
+          color: vars.palette.common.grey,
+          height: '4px',
+          ':hover': {
+            color: vars.palette.primary.main,
+          },
+        }),
+        thumb: ({ theme: { vars } }) => ({
+          boxShadow: shadow,
+          color: vars.palette.common.white,
+          ':hover': {
+            boxShadow: shadowHov,
+            color: vars.palette.common.white,
+          },
+        }),
+        thumbColorPrimary: {
+          transition: 'none',
+        },
+        track: {
+          border: 'none',
+          transition: 'none',
+        },
+      },
+    },
   },
   typography: {
     fontFamily: 'Arimo, sans-serif',

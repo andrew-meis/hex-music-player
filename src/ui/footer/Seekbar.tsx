@@ -10,7 +10,6 @@ import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 import { QueryKeys } from 'types/enums';
-import { sliderStyle } from '../../constants/style';
 
 const Seekbar = () => {
   const player = usePlayerContext();
@@ -73,7 +72,6 @@ const Seekbar = () => {
             min={0}
             size="small"
             sx={{
-              ...sliderStyle,
               '& .MuiSlider-thumb': {
                 display: isHovered ? 'flex' : 'none',
               },

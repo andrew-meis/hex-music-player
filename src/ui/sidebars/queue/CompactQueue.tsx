@@ -1,7 +1,7 @@
 import { Avatar, Box, Tooltip, Typography } from '@mui/material';
 import { Library, PlayQueueItem, Track } from 'hex-plex';
 import { isNumber } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
@@ -28,38 +28,34 @@ const Text = ({ track }: { track: Track }) => (
 );
 
 const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemProps) => {
+  const [over, setOver] = useState(false);
   const handleDrop = () => {
     onDrop();
-    document.querySelector(`.compact-queue[data-index="${index}"]`)
-      ?.classList.remove('compact-queue-over');
+    setOver(false);
   };
 
   return (
-    <Box
-      className="compact-queue"
-      data-index={index}
-      sx={{
-        marginRight: '3px',
+    <Tooltip
+      arrow
+      TransitionProps={{
+        timeout: isDragging ? 0 : 150,
       }}
-      onDragEnter={() => {
-        document.querySelector(`.compact-queue[data-index="${index}"]`)
-          ?.classList.add('compact-queue-over');
-      }}
-      onDragLeave={() => {
-        document.querySelector(`.compact-queue[data-index="${index}"]`)
-          ?.classList.remove('compact-queue-over');
-      }}
-      onDrop={handleDrop}
-      onMouseEnter={onMouseEnter}
+      key={item.id}
+      placement="left"
+      title={isDragging ? '' : <Text track={item.track} />}
     >
-      <Tooltip
-        arrow
-        TransitionProps={{
-          timeout: isDragging ? 0 : 150,
+      <Box
+        className="compact-queue"
+        data-index={index}
+        sx={{
+          borderRadius: '4px',
+          borderTop: over ? '1px solid var(--mui-palette-info-main)' : '1px solid transparent',
+          marginRight: '3px',
         }}
-        key={item.id}
-        placement="left"
-        title={isDragging ? '' : <Text track={item.track} />}
+        onDragEnter={() => setOver(true)}
+        onDragLeave={() => setOver(false)}
+        onDrop={handleDrop}
+        onMouseEnter={onMouseEnter}
       >
         <Avatar
           alt={item.track.title}
@@ -69,11 +65,11 @@ const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemP
               url: item.track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
             },
           )}
-          sx={{ width: 40, height: 40, mb: '2px', ml: '3px', mt: '2px' }}
+          sx={{ width: 40, height: 40, mb: '2px', ml: '3px', mt: '2px', pointerEvents: 'none' }}
           variant="rounded"
         />
-      </Tooltip>
-    </Box>
+      </Box>
+    </Tooltip>
   );
 };
 

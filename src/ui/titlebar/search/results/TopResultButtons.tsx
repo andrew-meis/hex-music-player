@@ -3,6 +3,7 @@ import React from 'react';
 import {
   BsPlayFill, FiRadio, RiShuffleFill, TiArrowForward,
 } from 'react-icons/all';
+import { MotionBox } from 'components/motion-components/motion-components';
 import usePlayback from 'hooks/usePlayback';
 import { useSettings } from 'queries/app-queries';
 import { PlayActions } from 'types/enums';
@@ -79,64 +80,66 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
 
   return (
     <>
-      <Button
-        className={styles['play-button']}
-        size="small"
-        sx={{
-          borderRadius: '10px',
-          ml: '6px',
-          minWidth: '116px',
-          maxWidth: '116px',
-          height: '36px',
-          color: 'black.main',
-          textTransform: 'none',
-          backgroundColor: 'rgb(252, 252, 252)',
-          transition: 'background 100ms ease-in',
-          boxShadow: 'none',
-          '&:hover': {
-            backgroundColor: 'rgba(252, 252, 252, 0.7)',
-            boxShadow: 'none',
-          },
-        }}
-        variant="contained"
-        onClick={() => handleButtonGroup(buttons[0].action, buttons[0].shuffle)}
+      <MotionBox
+        transition={{ type: 'spring', stiffness: 100 }}
+        whileHover={{ scale: [null, 1.08, 1.04] }}
       >
-        <Box alignItems="center" display="flex" justifyContent="center" width={1}>
-          {buttons[0].icon}
-          <span style={{ width: '5px', flexShrink: 0 }} />
-          {buttons[0].name}
-        </Box>
-      </Button>
-      <Button
-        className={styles['play-button']}
-        size="small"
-        sx={{
-          borderRadius: '10px',
-          ml: '4px',
-          minWidth: '116px',
-          maxWidth: '116px',
-          height: '36px',
-          color: colorMode === 'light' ? 'text.secondary' : 'white.main',
-          textTransform: 'none',
-          backgroundColor: colorMode === 'light'
-            ? 'rgba(252, 252, 252, 0.65)' : 'rgba(252, 252, 252, 0.5)',
-          transition: 'background 100ms ease-in',
-          boxShadow: 'none',
-          '&:hover': {
-            backgroundColor: colorMode === 'light'
-              ? 'rgba(252, 252, 252, 0.35)' : 'rgba(252, 252, 252, 0.2)',
-            boxShadow: 'none',
-          },
-        }}
-        variant="contained"
-        onClick={() => handleButtonGroup(buttons[1].action, buttons[1].shuffle)}
+        <Button
+          className={styles['play-button']}
+          size="small"
+          sx={{
+            borderRadius: '10px',
+            ml: '6px',
+            minWidth: '116px',
+            maxWidth: '116px',
+            height: '36px',
+            color: 'common.black',
+            textTransform: 'none',
+            backgroundColor: 'rgb(252, 252, 252)',
+            '&:hover': {
+              backgroundColor: 'rgb(252, 252, 252)',
+            },
+          }}
+          variant="contained"
+          onClick={() => handleButtonGroup(buttons[0].action, buttons[0].shuffle)}
+        >
+          <Box alignItems="center" display="flex" justifyContent="center" width={1}>
+            {buttons[0].icon}
+            <span style={{ width: '5px', flexShrink: 0 }} />
+            {buttons[0].name}
+          </Box>
+        </Button>
+      </MotionBox>
+      <MotionBox
+        transition={{ type: 'spring', stiffness: 100 }}
+        whileHover={{ scale: [null, 1.08, 1.04] }}
       >
-        <Box alignItems="center" display="flex" justifyContent="center" width={1}>
-          {buttons[1].icon}
-          <span style={{ width: '5px', flexShrink: 0 }} />
-          {buttons[1].name}
-        </Box>
-      </Button>
+        <Button
+          className={styles['play-button']}
+          size="small"
+          sx={{
+            borderRadius: '10px',
+            ml: '6px',
+            minWidth: '116px',
+            maxWidth: '116px',
+            height: '36px',
+            color: colorMode === 'light' ? 'text.secondary' : 'white.main',
+            textTransform: 'none',
+            backgroundColor: 'rgba(252, 252, 252, 0.65)',
+            '&:hover': {
+              backgroundColor: 'rgba(252, 252, 252, 0.65)',
+            },
+          }}
+          variant="contained"
+          onClick={() => handleButtonGroup(buttons[1].action, buttons[1].shuffle)}
+        >
+          <Box alignItems="center" display="flex" justifyContent="center" width={1}>
+            {buttons[1].icon}
+            <span style={{ width: '5px', flexShrink: 0 }} />
+            {buttons[1].name}
+          </Box>
+        </Button>
+      </MotionBox>
     </>
   );
 };

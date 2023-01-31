@@ -1,7 +1,7 @@
 import { IconButton, Slider, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { IoVolumeLow, IoVolumeMedium, IoVolumeOff } from 'react-icons/all';
-import { iconButtonStyle, sliderStyle } from 'constants/style';
+import { iconButtonStyle } from 'constants/style';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
@@ -99,7 +99,6 @@ const VolumeSlider = () => {
         aria-label="Volume"
         size="small"
         sx={{
-          ...sliderStyle,
           width: 100,
           '& .MuiSlider-thumb': {
             display: isHovered ? 'flex' : 'none',
