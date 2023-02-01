@@ -64,10 +64,8 @@ const QueueDrawer = () => {
           sx={{
             ...iconButtonStyle,
             display: settings.dockedQueue ? 'none' : 'inherit',
-            width: '30px',
+            width: settings.dockedQueue ? '0px' : '32px',
             height: '30px',
-            position: 'absolute',
-            right: '147px',
             color: open ? 'primary.main' : 'text.secondary',
             '&:hover': {
               backgroundColor: 'transparent',

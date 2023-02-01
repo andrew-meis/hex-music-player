@@ -1,10 +1,16 @@
-import { IconButton, Slider, SvgIcon } from '@mui/material';
+import { Box, IconButton, Slider, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { IoVolumeLow, IoVolumeMedium, IoVolumeOff } from 'react-icons/all';
+import { RiVolumeDownFill, RiVolumeMuteFill, RiVolumeUpFill } from 'react-icons/all';
 import { iconButtonStyle } from 'constants/style';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
+
+const getViewbox = (volume: number) => {
+  if (volume === 0) return '0 0 24 24';
+  if (volume !== 0 && volume <= 60) return '3 0 24 24';
+  return '0 0 24 24';
+};
 
 const VolumeSlider = () => {
   const player = usePlayerContext();
@@ -69,29 +75,37 @@ const VolumeSlider = () => {
         size="small"
         sx={{
           ...iconButtonStyle,
-          position: 'absolute',
-          right: volume === 0 ? '112px' : '110px',
         }}
         onClick={handleVolumeClick}
       >
+        {volume === 0
+          && (
+            <Box
+              bgcolor="background.paper"
+              height={30}
+              position="absolute"
+              right={5}
+              width={9}
+            />
+          )}
         <SvgIcon
           sx={{
-            width: volume <= 60 ? '0.95em' : '0.9em',
+            width: '0.9em',
             height: '0.9em',
-            marginRight: volume > 60 ? '2px' : '3px',
           }}
+          viewBox={getViewbox(volume)}
         >
           {volume === 0
             && (
-              <IoVolumeOff />
+              <RiVolumeMuteFill />
             )}
           {volume !== 0 && volume <= 60
             && (
-              <IoVolumeLow />
+              <RiVolumeDownFill />
             )}
           {volume > 60
             && (
-              <IoVolumeMedium />
+              <RiVolumeUpFill />
             )}
         </SvgIcon>
       </IconButton>
