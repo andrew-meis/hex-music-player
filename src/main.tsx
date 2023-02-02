@@ -28,7 +28,7 @@ import Playlists from 'routes/Playlists';
 import Settings from 'routes/settings/Settings';
 import SimilarTracks from 'routes/track/subroutes/similar-tracks/SimilarTracks';
 import Track from 'routes/track/Track';
-import Tracks from 'routes/Tracks';
+import Tracks from 'routes/tracks/Tracks';
 
 const ErrorElement = () => (
   <Box alignItems="center" display="flex" flexDirection="column" height={1} justifyContent="center">
