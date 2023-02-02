@@ -127,7 +127,9 @@ const usePlayback = () => {
             break;
           }
           if (params.track) {
-            const newQueue = await addToQueue(params.track, true, false);
+            const newQueue = await addToQueue({
+              newTracks: params.track, sendToast: true, next: true,
+            });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');
           }
@@ -138,7 +140,9 @@ const usePlayback = () => {
             break;
           }
           if (params.track) {
-            const newQueue = await addToQueue(params.track, false, true);
+            const newQueue = await addToQueue({
+              newTracks: params.track, sendToast: true, end: true,
+            });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');
           }
@@ -149,13 +153,17 @@ const usePlayback = () => {
             break;
           }
           if (params.album) {
-            const newQueue = await addToQueue(params.album, true, false);
+            const newQueue = await addToQueue({
+              newTracks: params.album, sendToast: true, next: true,
+            });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');
             break;
           }
           if (params.tracks) {
-            const newQueue = await addToQueue(params.tracks, true, false);
+            const newQueue = await addToQueue({
+              newTracks: params.tracks, sendToast: true, next: true,
+            });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');
           }
@@ -166,13 +174,17 @@ const usePlayback = () => {
             break;
           }
           if (params.album) {
-            const newQueue = await addToQueue(params.album, false, true);
+            const newQueue = await addToQueue({
+              newTracks: params.album, sendToast: true, end: true,
+            });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');
             break;
           }
           if (params.tracks) {
-            const newQueue = await addToQueue(params.tracks, false, true);
+            const newQueue = await addToQueue({
+              newTracks: params.tracks, sendToast: true, end: true,
+            });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');
           }

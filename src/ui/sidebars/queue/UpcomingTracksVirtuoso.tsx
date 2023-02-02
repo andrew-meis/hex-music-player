@@ -24,8 +24,8 @@ export interface UpcomingTracksContext {
   dropIndex: React.MutableRefObject<number | null>;
   handleRowClick: (event: React.MouseEvent, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
-  library: Library;
   items: PlayQueueItem[] | undefined;
+  library: Library;
   playQueueItem: (item: PlayQueueItem) => Promise<void>;
   removeTrack: (item: PlayQueueItem) => Promise<void>;
   selectedRows: number[];
@@ -312,8 +312,8 @@ const UpcomingTracksVirtuoso = () => {
     dropIndex,
     handleRowClick,
     hoverIndex,
-    library,
     items,
+    library,
     playQueueItem,
     removeTrack,
     selectedRows,
@@ -321,8 +321,8 @@ const UpcomingTracksVirtuoso = () => {
     dropIndex,
     handleRowClick,
     hoverIndex,
-    library,
     items,
+    library,
     playQueueItem,
     removeTrack,
     selectedRows,

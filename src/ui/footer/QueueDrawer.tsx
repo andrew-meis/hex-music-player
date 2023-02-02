@@ -64,6 +64,7 @@ const QueueDrawer = () => {
           sx={{
             ...iconButtonStyle,
             display: settings.dockedQueue ? 'none' : 'inherit',
+            marginRight: '4px',
             width: settings.dockedQueue ? '0px' : '32px',
             height: '30px',
             color: open ? 'primary.main' : 'text.secondary',

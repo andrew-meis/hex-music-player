@@ -30,6 +30,7 @@ const LyricsButton = () => {
         size="small"
         sx={{
           ...iconButtonStyle,
+          marginRight: '4px',
           width: '32px',
           height: '30px',
           color: isActive ? 'primary.main' : 'text.secondary',

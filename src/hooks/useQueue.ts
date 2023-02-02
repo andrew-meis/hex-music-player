@@ -21,12 +21,19 @@ const useQueue = () => {
   const toast = useToast();
   const queueId = useQueueId();
 
-  const addToQueue = useCallback(async (
-    newTracks : Album | Track | Track[],
-    next: boolean,
-    end: boolean,
-    quiet: boolean = false,
-  ) => {
+  const addToQueue = useCallback(async ({
+    newTracks,
+    sendToast,
+    after = 0,
+    end = false,
+    next = false,
+  }: {
+    newTracks: Album | Track | Track[],
+    sendToast: boolean,
+    after?: number,
+    end?: boolean,
+    next?: boolean,
+  }) => {
     let uri;
     if (Array.isArray(newTracks)) {
       const ids = newTracks.map((track) => track.id).join(',');
@@ -41,12 +48,13 @@ const useQueue = () => {
       `/playQueues/${queueId}`,
       {
         uri,
-        next: next ? 1 : 0,
-        end: end ? 1 : 0,
+        ...(after && { after }),
+        ...(end && { end: 1 }),
+        ...(next && { next: 1 }),
       },
     );
     const response = await axios.put(url);
-    if (quiet) {
+    if (!sendToast) {
       return parsePlayQueue(response.data);
     }
     toast({ type: 'info', text: 'Added to queue' });

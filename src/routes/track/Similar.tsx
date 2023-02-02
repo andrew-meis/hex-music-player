@@ -22,12 +22,8 @@ interface MenuItemsProps {
 }
 
 const MenuItems = ({ artist, navigate, playSwitch, title }: MenuItemsProps) => {
-  const searchTitle = title
-    .split(' (with')
-    .join(' (feat')
-    .split(' (ft')
-    .join(' (feat')
-    .split(' (feat')[0];
+  const regex = /\s[[(](?=[Ff]eat\.|[Ww]ith\s|[Ff]t\.|[Ff]eaturing\s)/;
+  const searchTitle = title.split(regex)[0];
   const { data: tracks, isLoading } = useSearchTracks({
     artist,
     sectionId: 6,

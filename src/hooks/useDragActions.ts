@@ -21,7 +21,11 @@ const useDragActions = () => {
       await playTracks(dragItem);
       return;
     }
-    const newQueue = await addToQueue(dragItem, false, true);
+    const newQueue = await addToQueue({
+      newTracks: dragItem,
+      sendToast: true,
+      end: true,
+    });
     await updateQueue(newQueue);
     player.updateTracks(newQueue, 'update');
   }, [addToQueue, playTrack, playTracks, player, queueId, updateQueue]);
@@ -31,42 +35,36 @@ const useDragActions = () => {
       await playTracks(dragItems);
       return;
     }
-    const newTracksIds = dragItems.map((track) => track.id);
-    const newQueue = await addToQueue(dragItems, true, false);
-    const newQueueItemsIds = newQueue.items
-      .filter((item) => newTracksIds.includes(item.track.id))
-      .map((item) => item.id);
-    // eslint-disable-next-line no-restricted-syntax
-    for (const [index, id] of newQueueItemsIds.entries()) {
-      if (index === 0) {
-        // eslint-disable-next-line no-await-in-loop
-        await library.movePlayQueueItem(queueId, id, afterId);
-      }
-      if (index > 0) {
-        // eslint-disable-next-line no-await-in-loop
-        await library.movePlayQueueItem(queueId, id, newQueueItemsIds[index - 1]);
-      }
-    }
-    const finalQueue = await getQueue();
-    await updateQueue(finalQueue);
-    player.updateTracks(finalQueue, 'update');
-  }, [addToQueue, getQueue, library, playTracks, player, queueId, updateQueue]);
+    const newQueue = await addToQueue({
+      newTracks: dragItems,
+      sendToast: true,
+      after: afterId,
+    });
+    await updateQueue(newQueue);
+    player.updateTracks(newQueue, 'update');
+  }, [addToQueue, playTracks, player, queueId, updateQueue]);
 
   const addOne = useCallback(async (dragItem: Track, afterId: PlayQueueItem['id']) => {
     if (!queueId) {
       await playTrack(dragItem);
       return;
     }
-    let newQueue = await addToQueue(dragItem, true, false);
-    const queueItem = newQueue.items.find((item) => item.track.id === dragItem.id);
-    newQueue = await library.movePlayQueueItem(queueId, queueItem!.id, afterId);
+    const newQueue = await addToQueue({
+      newTracks: dragItem,
+      sendToast: true,
+      after: afterId,
+    });
     await updateQueue(newQueue);
     player.updateTracks(newQueue, 'update');
-  }, [queueId, addToQueue, library, updateQueue, player, playTrack]);
+  }, [queueId, addToQueue, updateQueue, player, playTrack]);
 
   const moveLast = useCallback(async (dragItem: PlayQueueItem) => {
     await removeFromQueue(dragItem.id);
-    const newQueue = await addToQueue(dragItem.track, false, true, true);
+    const newQueue = await addToQueue({
+      newTracks: dragItem.track,
+      sendToast: false,
+      end: true,
+    });
     await updateQueue(newQueue);
     player.updateTracks(newQueue, 'update');
   }, [addToQueue, player, removeFromQueue, updateQueue]);

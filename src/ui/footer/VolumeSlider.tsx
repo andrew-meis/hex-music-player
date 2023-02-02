@@ -75,6 +75,8 @@ const VolumeSlider = () => {
         size="small"
         sx={{
           ...iconButtonStyle,
+          height: '30px',
+          width: '32px',
         }}
         onClick={handleVolumeClick}
       >
@@ -124,7 +126,7 @@ const VolumeSlider = () => {
         onMouseLeave={() => setHovered(false)}
         onWheel={handleVolumeWheel}
       />
-      <span style={{ width: 12 }} />
+      <span style={{ width: 18 }} />
     </>
   );
 };
