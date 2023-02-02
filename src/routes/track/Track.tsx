@@ -103,6 +103,7 @@ const Track = () => {
                 <Similar
                   apikey={settings.apiKey}
                   artist={lastfmSearch?.artist}
+                  library={library}
                   playSwitch={playSwitch}
                   title={lastfmSearch?.name}
                   width={Math.min(width * 0.89, 900)}

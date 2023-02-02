@@ -1,119 +1,52 @@
 import { Box, CircularProgress, Grid, SvgIcon, Typography } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence, AnimateSharedLayout } from 'framer-motion';
-import { Track } from 'hex-plex';
+import { Library, Track } from 'hex-plex';
 import { throttle } from 'lodash';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { ButtonSpecs, trackButtons } from 'constants/buttons';
 import { typographyStyle } from 'constants/style';
 import { PlayParams } from 'hooks/usePlayback';
+import useToast from 'hooks/useToast';
+import { useConfig } from 'queries/app-queries';
 import { useLastfmSimilar } from 'queries/last-fm-queries';
-import { useSearch, useSearchTracks } from 'queries/plex-queries';
+import { getTrackMatch } from 'queries/plex-query-fns';
 import { PlayActions } from 'types/enums';
+import { LastFmTrack } from 'types/lastfm-interfaces';
 
 interface MenuItemsProps {
-  artist: string;
   navigate: NavigateFunction;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
-  title: string;
+  track: Track | undefined;
 }
 
-const MenuItems = ({ artist, navigate, playSwitch, title }: MenuItemsProps) => {
-  const regex = /\s[[(](?=[Ff]eat\.|[Ww]ith\s|[Ff]t\.|[Ff]eaturing\s)/;
-  const searchTitle = title.split(regex)[0];
-  const { data: tracks, isLoading } = useSearchTracks({
-    artist,
-    sectionId: 6,
-    title: searchTitle,
-  });
-  const { data: results, isLoading: resultsLoading } = useSearch({
-    query: `${artist} ${searchTitle}`.split(' ').filter((t) => t.length > 1).join(' '),
-    onSuccess: () => {},
-  });
-  const matchingTrack = useMemo(() => {
-    if (tracks && results) {
-      const allTracks = [
-        ...tracks,
-        ...results.filter((result) => result.type === 'track'),
-      ] as Track[];
-      if (allTracks.length === 0) return undefined;
-      const nameMatch = allTracks?.find((track) => {
-        const lastfmTitle = title.replace(/["'’“”]/g, '').toLowerCase();
-        const plexTitle = track.title.replace(/["'’“”]/g, '').toLowerCase();
-        return lastfmTitle === plexTitle;
-      });
-      if (nameMatch) return nameMatch;
-      const alphanumericMatch = allTracks?.find((track) => {
-        const lastfmTitle = title.replace(/\W+/g, ' ').trim().toLowerCase();
-        const plexTitle = track.title.replace(/\W+/g, ' ').trim().toLowerCase();
-        return lastfmTitle === plexTitle;
-      });
-      if (alphanumericMatch) return alphanumericMatch;
-      const partialMatch = allTracks?.find((track) => {
-        const lastfmTitle = title.replace(/["'’“”]/g, '').toLowerCase();
-        const plexTitle = track.title.replace(/["'’“”]/g, '').toLowerCase();
-        return lastfmTitle.includes(plexTitle);
-      });
-      if (partialMatch) return partialMatch;
-      return undefined;
-    }
-    return undefined;
-  }, [results, tracks, title]);
-
-  if (isLoading || resultsLoading) {
-    return (
-      <Box
-        alignItems="center"
-        display="flex"
-        height={24}
-        justifyContent="center"
+const MenuItems = ({ navigate, playSwitch, track }: MenuItemsProps) => (
+  <>
+    {trackButtons.map((button: ButtonSpecs) => (
+      <MenuItem
+        key={button.name}
+        onClick={() => playSwitch(button.action, {
+          track, shuffle: button.shuffle,
+        })}
       >
-        ...searching...
-      </Box>
-    );
-  }
-
-  if (!matchingTrack) {
-    return (
-      <Box
-        alignItems="center"
-        display="flex"
-        height={24}
-        justifyContent="center"
-      >
-        ...no match found...
-      </Box>
-    );
-  }
-
-  return (
-    <>
-      {trackButtons.map((button: ButtonSpecs) => (
-        <MenuItem
-          key={button.name}
-          onClick={() => playSwitch(button.action, {
-            track: matchingTrack, shuffle: button.shuffle,
-          })}
-        >
-          {button.icon}
-          {button.name}
-        </MenuItem>
-      ))}
-      <MenuDivider />
-      <MenuItem onClick={() => navigate(`/tracks/${matchingTrack.id}`)}>
-        <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
-        Track information
+        {button.icon}
+        {button.name}
       </MenuItem>
-      <MenuItem onClick={() => navigate(`/tracks/${matchingTrack.id}/similar`)}>
-        <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
-        Similar tracks
-      </MenuItem>
-    </>
-  );
-};
+    ))}
+    <MenuDivider />
+    <MenuItem onClick={() => navigate(`/tracks/${track!.id}`)}>
+      <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
+      Track information
+    </MenuItem>
+    <MenuItem onClick={() => navigate(`/tracks/${track!.id}/similar`)}>
+      <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
+      Similar tracks
+    </MenuItem>
+  </>
+);
 
 const getCols = (width: number) => {
   if (width >= 800) {
@@ -147,16 +80,20 @@ const toTitleCase = (text: string) => {
 interface SimilarProps {
   apikey: string | undefined;
   artist: string | undefined;
+  library: Library;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   title: string | undefined;
   width: number | undefined;
 }
 
-const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => {
+const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarProps) => {
   const cols = throttle(() => getCols(width || 900), 300, { leading: true })();
+  const config = useConfig();
   const hoverIndex = useRef(0);
+  const match = useRef<Track>();
   const navigate = useNavigate();
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const toast = useToast();
   const [activeIndex, setActiveIndex] = useState(0);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ transition: true });
@@ -178,6 +115,34 @@ const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => 
       behavior: 'smooth',
     });
   }, [activeIndex, CARD_WIDTH, cols]);
+
+  const handleClick = async (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    index: number,
+    track: LastFmTrack,
+  ) => {
+    if (hoverIndex.current === index && menuProps.state === 'closing') {
+      return;
+    }
+    match.current = undefined;
+    hoverIndex.current = index;
+    setAnchorPoint({
+      x: event.currentTarget.getBoundingClientRect().x,
+      y: event.currentTarget.getBoundingClientRect().y + 28,
+    });
+    const trackMatch = await getTrackMatch({
+      artist: track.artist.name,
+      title: track.name,
+      library,
+      sectionId: config.data.sectionId!,
+    });
+    if (trackMatch) {
+      match.current = trackMatch;
+      toggleMenu(true);
+      return;
+    }
+    toast({ type: 'error', text: 'No matching track found.' });
+  };
 
   if (isLoading) {
     return (
@@ -271,17 +236,7 @@ const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => 
                   backgroundColor: 'action.selected',
                 },
               }}
-              onClick={(e) => {
-                if (hoverIndex.current === index && menuProps.state === 'closing') {
-                  return;
-                }
-                hoverIndex.current = index;
-                setAnchorPoint({
-                  x: e.currentTarget.getBoundingClientRect().x,
-                  y: e.currentTarget.getBoundingClientRect().y + 28,
-                });
-                toggleMenu(true);
-              }}
+              onClick={(event) => handleClick(event, index, track)}
               onMouseEnter={() => {
                 if (menuProps.state === 'open' || menuProps.state === 'opening') return;
                 hoverIndex.current = index;
@@ -331,10 +286,9 @@ const Similar = ({ apikey, artist, playSwitch, title, width }: SimilarProps) => 
         onClose={() => toggleMenu(false)}
       >
         <MenuItems
-          artist={similarTracks[hoverIndex.current].artist.name}
           navigate={navigate}
           playSwitch={playSwitch}
-          title={similarTracks[hoverIndex.current].name}
+          track={match.current}
         />
       </ControlledMenu>
       <AnimateSharedLayout>
