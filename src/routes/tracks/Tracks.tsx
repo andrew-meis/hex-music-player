@@ -172,7 +172,7 @@ const Tracks = () => {
         if (containerStart !== value) {
           setContainerStart(value);
         }
-      }, 300);
+      }, 200);
     }
   };
 

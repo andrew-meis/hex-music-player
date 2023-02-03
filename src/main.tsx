@@ -17,7 +17,7 @@ import ArtistTracks from 'routes/artist/subroutes/artist-tracks/ArtistTracks';
 import Discography from 'routes/artist/subroutes/discography/Discography';
 import RecentFavorites from 'routes/artist/subroutes/recent-favorites/RecentFavorites';
 import SimilarArtists from 'routes/artist/subroutes/similar-artists/SimilarArtists';
-import Artists from 'routes/Artists';
+import Artists from 'routes/artists/Artists';
 import Charts from 'routes/charts/Charts';
 import Genres from 'routes/Genres';
 import Home from 'routes/home/Home';
