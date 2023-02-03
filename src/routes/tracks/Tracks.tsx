@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { useLocation } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { useLocation, useNavigationType } from 'react-router-dom';
+import { ListRange, Virtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
@@ -15,16 +15,22 @@ import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { IConfig, IVirtuosoContext } from 'types/interfaces';
+import Header from './Header';
 import Row from './Row';
 
-const roundDown = (x: number) => Math.floor(x / 100) * 100;
+const containerSize = 100;
+
+const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
 export interface TracksContext extends IVirtuosoContext {
   config: IConfig;
+  playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
+  uri: string;
 }
 
 export interface RowProps {
@@ -36,9 +42,12 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Tracks = () => {
+  const fetchTimeout = useRef(0);
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
   const location = useLocation();
+  const navigationType = useNavigationType();
+  const range = useRef<ListRange>();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
   const [menuProps, toggleMenu] = useMenuState();
@@ -46,18 +55,18 @@ const Tracks = () => {
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: config } = useConfig();
-  const { playSwitch } = usePlayback();
+  const { playSwitch, playUri } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
   const fetchTracks = async ({ pageParam = 0 }) => {
     const response = library.tracks(config.sectionId!, {
       'X-Plex-Container-Start': pageParam,
-      'X-Plex-Container-Size': 100,
+      'X-Plex-Container-Size': containerSize,
     });
     return response;
   };
 
-  const { data, fetchNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+  const { data, fetchNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['all-tracks'],
     queryFn: fetchTracks,
     getNextPageParam: () => 0,
@@ -66,7 +75,7 @@ const Tracks = () => {
   });
 
   useEffect(() => {
-    if (!data || data.pageParams.includes(containerStart) || isFetchingNextPage) return;
+    if (!data || data.pageParams.includes(containerStart)) return;
     fetchNextPage({ pageParam: containerStart });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerStart, data]);
@@ -147,12 +156,44 @@ const Tracks = () => {
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
+      clearTimeout(fetchTimeout.current);
       document.body.classList.add('disable-hover');
     }
     if (!isScrolling) {
       document.body.classList.remove('disable-hover');
+      fetchTimeout.current = window.setTimeout(() => {
+        if (!data || !range.current) return;
+        let value = roundDown(range.current.endIndex);
+        if (roundDown(range.current.startIndex) !== roundDown(range.current.endIndex)) {
+          if (!data.pageParams.includes(roundDown(range.current.startIndex))) {
+            value = roundDown(range.current.startIndex);
+          }
+        }
+        if (containerStart !== value) {
+          setContainerStart(value);
+        }
+      }, 300);
     }
   };
+
+  const initialScrollTop = () => {
+    let top;
+    top = sessionStorage.getItem('tracks');
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    return 0;
+  };
+
+  const uri = useMemo(() => {
+    const uriParams = {
+      type: 10,
+    };
+    // eslint-disable-next-line max-len
+    return `/library/sections/${config.sectionId}/all?${new URLSearchParams(uriParams as any).toString()}`;
+  }, [config.sectionId]);
 
   const tracksContext = useMemo(() => ({
     config,
@@ -165,7 +206,9 @@ const Tracks = () => {
     isPlaying,
     library,
     nowPlaying,
+    playUri,
     selectedRows,
+    uri,
   }), [
     config,
     drag,
@@ -177,7 +220,9 @@ const Tracks = () => {
     isPlaying,
     library,
     nowPlaying,
+    playUri,
     selectedRows,
+    uri,
   ]);
 
   if (isLoading || !data) return null;
@@ -194,6 +239,8 @@ const Tracks = () => {
         <Virtuoso
           className="scroll-container"
           components={{
+            Footer,
+            Header,
             Item,
             List,
             ScrollSeekPlaceholder,
@@ -201,6 +248,7 @@ const Tracks = () => {
           context={tracksContext}
           fixedItemHeight={56}
           increaseViewportBy={168}
+          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, _item, context) => {
             const trackContainer = data.pages.find((page) => page.offset === roundDown(index));
@@ -212,16 +260,8 @@ const Tracks = () => {
               <ScrollSeekPlaceholder height={56} />
             );
           }}
-          rangeChanged={(range) => {
-            let value = roundDown(range.endIndex);
-            if (roundDown(range.startIndex) !== roundDown(range.endIndex)) {
-              if (!data.pageParams.includes(roundDown(range.startIndex))) {
-                value = roundDown(range.startIndex);
-              }
-            }
-            if (containerStart !== value) {
-              setContainerStart(value);
-            }
+          rangeChanged={(newRange) => {
+            range.current = newRange;
           }}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
@@ -229,6 +269,13 @@ const Tracks = () => {
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={data.pages[0].totalSize}
+          onScroll={(e) => {
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              'tracks',
+              target.scrollTop as unknown as string,
+            );
+          }}
         />
       </motion.div>
       <TrackMenu

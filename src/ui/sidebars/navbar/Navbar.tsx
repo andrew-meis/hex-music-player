@@ -4,7 +4,7 @@ import {
 import React, { useRef, useState } from 'react';
 import {
   BiChevronRight,
-  HiMusicNote,
+  MdMusicNote,
   IoMdMicrophone,
   IoMdPricetag,
   RiAlbumFill,
@@ -169,7 +169,7 @@ const Navbar = () => {
                   }}
                 >
                   <Box sx={activeBox(isActive)} />
-                  <SvgIcon sx={{ mx: '8px' }}><HiMusicNote /></SvgIcon>
+                  <SvgIcon sx={{ mx: '8px' }}><MdMusicNote /></SvgIcon>
                   Tracks
                   <SvgIcon
                     className="listsvg"

@@ -216,6 +216,7 @@ select:focus-visible {
 }
 
 .scroll-container.grouped > div[data-viewport-type="element"] {
+  height: calc(100% - 71px) !important;
   top: 71px !important;
 }
 

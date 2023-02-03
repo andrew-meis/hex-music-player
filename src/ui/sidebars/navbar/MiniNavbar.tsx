@@ -2,9 +2,8 @@ import {
   Box,
   List, ListItem, SvgIcon,
 } from '@mui/material';
-import React from 'react';
 import {
-  HiMusicNote,
+  MdMusicNote,
   IoMdMicrophone,
   IoMdPricetag,
   IoSettingsSharp,
@@ -81,7 +80,7 @@ const MiniNavbar = () => (
       <NavLink className="nav-link" to="/tracks">
         {({ isActive }) => (
           <ListItem sx={isActive ? activeStyle : listStyle} title="Tracks">
-            <SvgIcon sx={{ mx: '8px' }}><HiMusicNote /></SvgIcon>
+            <SvgIcon sx={{ mx: '8px' }}><MdMusicNote /></SvgIcon>
           </ListItem>
         )}
       </NavLink>

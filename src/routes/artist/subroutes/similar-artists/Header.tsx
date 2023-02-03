@@ -1,6 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import { SimilarArtistContext } from './SimilarArtists';

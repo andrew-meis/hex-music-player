@@ -1,5 +1,4 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import moment from 'moment';
 import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
@@ -95,16 +94,6 @@ const GroupRow = React.memo(({ album, context }: GroupRowProps) => {
   const {
     groupCounts, groups, playAlbum,
   } = context!;
-  const { data } = useQuery(
-    ['disc-header-opacity', album.id],
-    () => 1,
-    {
-      initialData: 1,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
   const [thumbSrc] = useThumbnail(album.thumb || 'none', 300);
   const groupIndex = groups.findIndex((obj) => obj.id === album.id);
   const trackLength = groupCounts[groupIndex];
@@ -121,10 +110,6 @@ const GroupRow = React.memo(({ album, context }: GroupRowProps) => {
         color="text.primary"
         display="flex"
         height={168}
-        sx={{
-          opacity: data,
-          transition: '300ms ease-in',
-        }}
         onClick={context.handleClickAway}
         onMouseEnter={() => {
           context.hoverIndex.current = null;
