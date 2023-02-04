@@ -142,7 +142,6 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
 const Row = React.memo(({ artists, context, index }: RowProps) => {
   const {
     grid,
-    height,
     measurements,
     open,
     openArtist,
@@ -154,7 +153,6 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
     virtuoso,
     width,
   } = context;
-  const panelHeight = height - 72 - measurements.ROW_HEIGHT - 12;
 
   const openIndex = openCard.index;
   const caretPos = getCaretPos(grid.cols, openIndex, width);
@@ -208,9 +206,8 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
           border="1px solid"
           borderColor="border.main"
           borderRadius="12px"
-          height={panelHeight}
+          height={332}
           margin="auto"
-          maxHeight={380}
           sx={{
             transform: 'translateZ(0px)',
           }}
@@ -233,10 +230,7 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
             width={18}
           />
           {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
-            <CollapseContent
-              context={context}
-              panelHeight={panelHeight}
-            />
+            <CollapseContent context={context} />
           )}
         </Box>
       </Collapse>

@@ -55,6 +55,7 @@ const PlexWebSocket = ({ connection, token }: PlexWebSocketProps) => {
         const { type, state } = entry;
         if (type === 8 && state === 5) {
           const id = parseInt(entry.itemID, 10);
+          queryClient.invalidateQueries([QueryKeys.ARTISTS]);
           queryClient.invalidateQueries([QueryKeys.ARTIST, id]);
           queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES, id]);
           queryClient.invalidateQueries([QueryKeys.ARTIST_TRACKS, id]);

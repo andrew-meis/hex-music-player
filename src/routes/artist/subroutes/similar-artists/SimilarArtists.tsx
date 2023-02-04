@@ -86,7 +86,6 @@ export interface SimilarArtistContext {
   artist: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
-  height: number;
   isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
@@ -97,12 +96,10 @@ export interface SimilarArtistContext {
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
   openArtistTracksQuery: UseQueryResult<Track[]>;
   openCard: {row: number, index: number};
-  panelContent: 'tracks' | 'albums';
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
   setOpenCard: React.Dispatch<React.SetStateAction<{row: number, index: number}>>;
-  setPanelContent: React.Dispatch<React.SetStateAction<'tracks' | 'albums'>>;
   thumbSrc: string;
   virtuoso: React.RefObject<GroupedVirtuosoHandle>;
   width: number;
@@ -130,12 +127,11 @@ const SimilarArtists = () => {
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
-  const [panelContent, setPanelContent] = useState<'tracks' | 'albums'>('tracks');
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
-  const { width, height } = useOutletContext() as { width: number, height: number };
+  const { width } = useOutletContext() as { width: number };
 
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
@@ -148,7 +144,7 @@ const SimilarArtists = () => {
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
     ].join(''),
-    slice: 5,
+    slice: 12,
   });
 
   const thumbSrc = library.api
@@ -218,7 +214,6 @@ const SimilarArtists = () => {
     artist: artist.data,
     getFormattedTime,
     grid,
-    height,
     isPlaying,
     items,
     library,
@@ -229,12 +224,10 @@ const SimilarArtists = () => {
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
-    panelContent,
     playSwitch,
     setOpen,
     setOpenArtist,
     setOpenCard,
-    setPanelContent,
     thumbSrc,
     virtuoso,
     width,
@@ -242,7 +235,6 @@ const SimilarArtists = () => {
     artist.data,
     getFormattedTime,
     grid,
-    height,
     isPlaying,
     items,
     library,
@@ -253,12 +245,10 @@ const SimilarArtists = () => {
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
-    panelContent,
     playSwitch,
     setOpen,
     setOpenArtist,
     setOpenCard,
-    setPanelContent,
     thumbSrc,
     virtuoso,
     width,

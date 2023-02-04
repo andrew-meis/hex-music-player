@@ -102,7 +102,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     width,
   } = context!;
   const { artist } = artistData!;
-  const maxList = Math.max(context!.topTracks!.length, context!.recentFavorites!.length);
   const tracksInView = useInView({ threshold: 0 });
   const similarArtists = useMemo(() => {
     const similar = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
@@ -156,7 +155,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         <TrackTabs
           artist={artist}
           context={context}
-          maxList={maxList}
         />
       </Box>
       <Box sx={{ height: 24, width: '100%' }} />

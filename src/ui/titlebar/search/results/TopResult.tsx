@@ -47,12 +47,12 @@ const getDragType = (resultType: string): DragActions => {
   }
 };
 
-interface Props {
+interface TopResultProps {
   topResult: Result;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TopResult = ({ topResult, setOpen }: Props) => {
+const TopResult = ({ topResult, setOpen }: TopResultProps) => {
   const library = useLibrary();
   const [isHovered, setHovered] = useState(false);
   const [isTooltipOpen, setTooltipOpen] = useState(false);

@@ -150,7 +150,7 @@ const Artist = () => {
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
     ].join(''),
-    slice: 5,
+    slice: 12,
   });
   const recentTracks = useRecentTracks({
     config: config.data,
@@ -349,7 +349,7 @@ const Artist = () => {
     playArtist,
     playArtistRadio,
     playSwitch,
-    recentFavorites: recentTracks.data.slice(0, 5),
+    recentFavorites: recentTracks.data.slice(0, 12),
     refreshMetadata,
     refreshPage,
     setFilter,

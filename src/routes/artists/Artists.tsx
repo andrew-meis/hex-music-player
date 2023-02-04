@@ -14,7 +14,7 @@ import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
-import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
 import { IConfig } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
@@ -56,7 +56,6 @@ export interface ArtistsContext {
   config: IConfig;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
-  height: number;
   isPlaying: boolean;
   library: Library;
   measurements: Measurements;
@@ -102,7 +101,7 @@ const Artists = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch, playUri } = usePlayback();
   const { getFormattedTime } = useFormattedTime();
-  const { width, height } = useOutletContext() as { width: number, height: number };
+  const { width } = useOutletContext() as { width: number, height: number };
 
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
@@ -115,11 +114,11 @@ const Artists = () => {
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
     ].join(''),
-    slice: 5,
+    slice: 12,
   });
 
   const { data: artists, isLoading } = useQuery(
-    ['artists'],
+    [QueryKeys.ARTISTS],
     async () => library.artists(config.sectionId!, { sort: 'titleSort:asc' }),
     {
       enabled: !!config && !!library,
@@ -174,7 +173,6 @@ const Artists = () => {
     config,
     getFormattedTime,
     grid,
-    height,
     isPlaying,
     library,
     measurements,
@@ -199,7 +197,6 @@ const Artists = () => {
     config,
     getFormattedTime,
     grid,
-    height,
     isPlaying,
     library,
     measurements,

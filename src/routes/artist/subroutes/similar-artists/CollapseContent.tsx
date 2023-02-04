@@ -1,40 +1,42 @@
-import { Box, Typography, SvgIcon } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { AnimateSharedLayout } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
-import { BsListUl, BsGrid } from 'react-icons/bs';
 import { Link } from 'react-router-dom';
-import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
+import {
+  MotionBox, MotionSvg, MotionTypography,
+} from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import TrackHighlights from 'routes/artist/TrackHighlights';
-import AlbumHighlights from './AlbumHighlights';
+import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { SimilarArtistContext } from './SimilarArtists';
-
-const iconStyle = {
-  color: 'text.secondary',
-  height: '0.9em',
-  marginRight: '8px',
-  width: '0.9em',
-};
 
 interface CollapseContentProps {
   context: SimilarArtistContext;
-  panelHeight: number;
 }
 
-const CollapseContent = ({ context, panelHeight }: CollapseContentProps) => {
+const CollapseContent = ({ context }: CollapseContentProps) => {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const {
-    grid,
-    library,
-    navigate,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
-    panelContent,
-    setPanelContent,
-    width,
   } = context;
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollTo({
+      left: activeIndex * scrollRef.current.clientWidth,
+      behavior: 'smooth',
+    });
+  }, [activeIndex]);
 
   return (
     <Box
+      alignContent="flex-start"
+      display="flex"
+      flexWrap="wrap"
+      height={1}
       margin="auto"
       width="calc(100% - 36px)"
     >
@@ -43,6 +45,7 @@ const CollapseContent = ({ context, panelHeight }: CollapseContentProps) => {
         color="text.primary"
         display="flex"
         pt="6px"
+        width={1}
       >
         <MotionTypography
           color="text.primary"
@@ -66,53 +69,65 @@ const CollapseContent = ({ context, panelHeight }: CollapseContentProps) => {
             </MotionSvg>
           </Link>
         </MotionTypography>
-        <SvgIcon
-          sx={{
-            ...iconStyle,
-            color: panelContent === 'tracks' ? 'primary.main' : 'text.secondary',
-            '&:hover': {
-              color: panelContent === 'tracks' ? 'primary.main' : 'text.primary',
-            },
-          }}
-          viewBox="0 -1 24 24"
-          onClick={() => setPanelContent('tracks')}
-        >
-          <BsListUl />
-        </SvgIcon>
-        <SvgIcon
-          sx={{
-            ...iconStyle,
-            color: panelContent === 'albums' ? 'primary.main' : 'text.secondary',
-            '&:hover': {
-              color: panelContent === 'albums' ? 'primary.main' : 'text.primary',
-            },
-          }}
-          onClick={() => setPanelContent('albums')}
-        >
-          <BsGrid />
-        </SvgIcon>
       </Box>
-      <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.3rem">
-        {panelContent === 'tracks' ? 'Top Tracks' : 'Top Albums'}
+      <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.3rem" width={1}>
+        Top Tracks
       </Typography>
-      <Box display="flex">
-        {panelContent === 'tracks' && (
-          <TrackHighlights
-            context={context}
-            tracks={openArtistTracksQuery.data!
-              .slice(0, Math.floor((panelHeight - 85) / 56))}
-          />
-        )}
-        {panelContent === 'albums' && (
-          <AlbumHighlights
-            artistData={openArtistQuery.data}
-            cols={grid.cols}
-            library={library}
-            navigate={navigate}
-            width={width}
-          />
-        )}
+      <Box
+        display="flex"
+        flex="1 1 600px"
+        overflow="hidden"
+        ref={scrollRef}
+      >
+        <TrackHighlights
+          context={context}
+          tracks={openArtistTracksQuery.data!}
+        />
       </Box>
+      <AnimateSharedLayout>
+        <Box
+          alignItems="center"
+          display="flex"
+          flex="1 1 600px"
+          height={32}
+          justifyContent="center"
+        >
+          {openArtistTracksQuery.data!.map((track, index, array) => {
+            if (array.length <= 4) return null;
+            if (index % 4 !== 0) return null;
+            return (
+              <Box
+                key={track.id}
+                paddingX="12px"
+                sx={{ cursor: 'pointer' }}
+                onClick={() => setActiveIndex(index / 4)}
+              >
+                <Box
+                  bgcolor="action.disabled"
+                  borderRadius="50%"
+                  height={8}
+                  width={8}
+                >
+                  {(index / 4) === activeIndex && (
+                    <MotionBox
+                      layoutId="highlight"
+                      sx={{
+                        backgroundColor: 'text.secondary',
+                        borderRadius: '50%',
+                        height: 12,
+                        width: 12,
+                        position: 'relative',
+                        top: '-2px',
+                        left: '-2px',
+                      }}
+                    />
+                  )}
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      </AnimateSharedLayout>
     </Box>
   );
 };

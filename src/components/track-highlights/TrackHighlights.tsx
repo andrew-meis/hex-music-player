@@ -5,15 +5,19 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import TrackRow from 'components/track-row/TrackRow';
+import { ButtonSpecs } from 'constants/buttons';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { ButtonSpecs } from '../../constants/buttons';
-import { ArtistContext } from './Artist';
-import { SimilarArtistContext } from './subroutes/similar-artists/SimilarArtists';
+import { ArtistContext } from 'routes/artist/Artist';
+
+type ContextProps = Pick<
+  ArtistContext,
+  'getFormattedTime' | 'isPlaying' | 'library' | 'nowPlaying' | 'playSwitch'
+>
 
 interface TrackHighlightsProps {
-  context: ArtistContext | SimilarArtistContext | undefined;
+  context: ContextProps | undefined;
   tracks: Track[] | undefined;
 }
 
@@ -102,8 +106,10 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
       <Box
         className="list-box"
         display="flex"
+        flex="0 0 200%"
         flexDirection="column"
         height={tracks.length * 56}
+        maxHeight={224}
         ref={drag}
         onDragEndCapture={() => {
           document.querySelectorAll('div.track-row')
@@ -129,7 +135,12 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
         }}
       >
         <ClickAwayListener onClickAway={handleClickAway}>
-          <Box>
+          <Box
+            display="flex"
+            flexDirection="column"
+            flexWrap="wrap"
+            maxHeight="100%"
+          >
             {tracks.map((track, index) => {
               const playing = nowPlaying?.track.id === track.id;
               const selected = selectedRows.includes(index);
@@ -147,6 +158,7 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
                   sx={selected
                     ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
                     : { ...rowStyle }}
+                  width={0.5}
                   onClick={(event) => handleRowClick(event, index)}
                   onContextMenu={handleContextMenu}
                   onMouseEnter={handleMouseEnter}

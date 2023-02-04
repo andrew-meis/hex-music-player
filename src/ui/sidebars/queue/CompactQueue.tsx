@@ -182,7 +182,6 @@ const CompactQueue = () => {
         display="flex"
         flexDirection="column"
         height={1}
-        justifyContent="space-between"
         ref={handleDrag}
       >
         {items.map((item, index) => (
