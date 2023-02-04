@@ -48,6 +48,7 @@ const getAdditionalText = (album: AlbumWithSection, by: string) => {
     return moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
   }
   if (by === 'played') {
+    if (!album.lastViewedAt) return 'unplayed';
     return moment(album.lastViewedAt).fromNow();
   }
   if (by === 'plays') {

@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
-import { throttle } from 'lodash';
+import { inRange, throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import {
   Location,
@@ -21,9 +21,9 @@ import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
-import ArtistsRow from './ArtistsRow';
 import GroupRow from './GroupRow';
 import Header from './Header';
+import Row from './Row';
 import type { RouteParams } from 'types/interfaces';
 
 const Footer = () => (
@@ -111,7 +111,7 @@ export interface RowProps {
   context: SimilarArtistContext;
 }
 
-const ArtistsRowContent = (props: RowProps) => <ArtistsRow {...props} />;
+const RowContent = (props: RowProps) => <Row {...props} />;
 const GroupRowContent = (props: RowProps) => <GroupRow {...props} />;
 
 const SimilarArtists = () => {
@@ -280,7 +280,7 @@ const SimilarArtists = () => {
         groupCounts={items.groupCounts}
         isScrolling={handleScrollState}
         itemContent={
-          (index, _groupIndex, _item, context) => ArtistsRowContent({ index, context })
+          (index, _groupIndex, _item, context) => RowContent({ index, context })
         }
         itemsRendered={(list) => {
           // @ts-ignore
@@ -289,6 +289,16 @@ const SimilarArtists = () => {
             queryClient
               .setQueryData(['similar-header-text'], items.groups![renderedGroupIndices[0]]?.text);
             topMostGroup.current = items.groups![renderedGroupIndices[0]];
+          }
+        }}
+        rangeChanged={(newRange) => {
+          if (!inRange(openCard.row, newRange.startIndex, newRange.endIndex)) {
+            setOpenArtist({
+              id: -1,
+              guid: '',
+              title: '',
+            });
+            setOpenCard({ row: -1, index: -1 });
           }
         }}
         ref={virtuoso}

@@ -215,13 +215,17 @@ const Artist = () => {
     }
     if (sort.by === 'played') {
       releases
-        .sort((a, b) => b.lastViewedAt.getTime() - a.lastViewedAt.getTime());
+        .sort((a, b) => {
+          const timeA = a.lastViewedAt ? a.lastViewedAt.getTime() : 0;
+          const timeB = b.lastViewedAt ? b.lastViewedAt.getTime() : 0;
+          return timeB - timeA;
+        });
       if (sort.order === 'asc') {
         releases.reverse();
       }
     }
     if (sort.by === 'plays') {
-      releases.sort((a, b) => b.viewCount - a.viewCount);
+      releases.sort((a, b) => (b.viewCount ? b.viewCount : 0) - (a.viewCount ? a.viewCount : 0));
       if (sort.order === 'asc') {
         releases.reverse();
       }

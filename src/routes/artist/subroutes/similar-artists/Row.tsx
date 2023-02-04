@@ -135,7 +135,7 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
   return (colWidth * openIndex) + (colWidth / 2);
 };
 
-const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
+const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
   const {
     grid,
     items: { rows },
@@ -235,4 +235,4 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
   );
 });
 
-export default ArtistsRow;
+export default Row;

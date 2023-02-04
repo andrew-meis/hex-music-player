@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
-import { throttle } from 'lodash';
+import { inRange, throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
@@ -242,6 +242,16 @@ const Artists = () => {
         fixedItemHeight={measurements.ROW_HEIGHT}
         initialScrollTop={initialScrollTop()}
         itemContent={(index, item, context) => RowContent({ context, index, artists: item })}
+        rangeChanged={(newRange) => {
+          if (!inRange(openCard.row, newRange.startIndex, newRange.endIndex)) {
+            setOpenArtist({
+              id: -1,
+              guid: '',
+              title: '',
+            });
+            setOpenCard({ row: -1, index: -1 });
+          }
+        }}
         ref={virtuoso}
         scrollSeekConfiguration={{
           enter: (velocity) => Math.abs(velocity) > 500,
