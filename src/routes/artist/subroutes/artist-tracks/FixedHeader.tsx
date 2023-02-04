@@ -3,6 +3,7 @@ import { Artist } from 'hex-plex';
 import { IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC_PADDING } from 'constants/measures';
 
 interface FixedHeaderProps {
   artist: Artist;
@@ -25,7 +26,7 @@ const FixedHeader = ({
     marginX="auto"
     maxWidth="888px"
     paddingX="6px"
-    width="calc(89% - 12px)"
+    width={WIDTH_CALC_PADDING}
   >
     <Avatar
       alt={artist.title}

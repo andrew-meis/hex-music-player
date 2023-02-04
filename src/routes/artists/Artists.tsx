@@ -7,6 +7,7 @@ import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -101,7 +102,7 @@ const Artists = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch, playUri } = usePlayback();
   const { getFormattedTime } = useFormattedTime();
-  const { width } = useOutletContext() as { width: number, height: number };
+  const { width } = useOutletContext() as { width: number };
 
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
@@ -155,10 +156,10 @@ const Artists = () => {
   };
 
   const measurements = useMemo(() => ({
-    IMAGE_HEIGHT: Math.floor(((width * 0.89) / grid.cols) * 0.70),
-    IMAGE_WIDTH: Math.floor((width * 0.89) / grid.cols),
-    ROW_HEIGHT: Math.floor(((width * 0.89) / grid.cols) * 0.70) + 28,
-    ROW_WIDTH: (Math.floor((width * 0.89) / grid.cols)) * grid.cols,
+    IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
+    IMAGE_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols),
+    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 28,
+    ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 
   const uri = useMemo(() => {

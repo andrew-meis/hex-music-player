@@ -2,6 +2,7 @@ import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
+import { WIDTH_CALC } from 'constants/measures';
 import { SimilarArtistContext } from './SimilarArtists';
 
 // eslint-disable-next-line react/require-default-props
@@ -39,7 +40,7 @@ const Header = ({ context }: { context?: SimilarArtistContext }) => {
         marginX="auto"
         maxWidth="1600px"
         paddingX="6px"
-        width="89%"
+        width={WIDTH_CALC}
       >
         <Avatar
           alt={artist.title}

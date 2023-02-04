@@ -10,6 +10,7 @@ import { IoMdMicrophone } from 'react-icons/all';
 import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail, useUploadArt } from 'hooks/plexHooks';
 import { IAppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
@@ -170,7 +171,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
                   : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
               } as React.CSSProperties}
             >
-              <Box alignItems="center" display="flex" height={1} mx="auto" width="89%">
+              <Box alignItems="center" display="flex" height={1} mx="auto" width={WIDTH_CALC}>
                 <Avatar
                   alt={artist.title}
                   src={thumbSrc}
@@ -191,7 +192,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
                   : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
               } as React.CSSProperties}
             >
-              <Box alignItems="center" display="flex" height={1} mx="auto" width="89%">
+              <Box alignItems="center" display="flex" height={1} mx="auto" width={WIDTH_CALC}>
                 <Avatar
                   alt={artist.title}
                   sx={{ width: 300, height: 300 }}

@@ -8,6 +8,7 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC } from 'constants/measures';
 import FixedHeader from './FixedHeader';
 import { TracksContext } from './Tracks';
 
@@ -43,7 +44,7 @@ const Header = ({ context }: { context?: TracksContext }) => {
         maxWidth="900px"
         mx="auto"
         ref={ref}
-        width="89%"
+        width={WIDTH_CALC}
       >
         <Box
           alignItems="center"

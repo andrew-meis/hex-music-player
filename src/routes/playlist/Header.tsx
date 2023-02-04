@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import FilterInput from 'components/filter-input/FilterInput';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import usePlayback from 'hooks/usePlayback';
 import FixedHeader from './FixedHeader';
@@ -59,7 +60,7 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
           />
         </Box>
       </Fade>
-      <Box maxWidth="900px" mx="auto" ref={ref} width="89%">
+      <Box maxWidth="900px" mx="auto" ref={ref} width={WIDTH_CALC}>
         <Box alignItems="flex-end" color="text.primary" display="flex" height={232}>
           <Avatar
             alt={playlist.title}

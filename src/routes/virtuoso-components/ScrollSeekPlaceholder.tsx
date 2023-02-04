@@ -1,6 +1,5 @@
 import { Skeleton } from '@mui/lab';
 import { Box } from '@mui/material';
-import React from 'react';
 
 const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
   <Box alignItems="center" display="flex" height={height}>

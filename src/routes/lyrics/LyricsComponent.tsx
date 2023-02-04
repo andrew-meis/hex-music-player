@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { WIDTH_CALC } from 'constants/measures';
 import { useLibrary } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -73,7 +73,6 @@ const LyricsComponent = () => {
       staleTime: Infinity,
     },
   );
-  const { width } = useOutletContext() as { width: number };
 
   useEffect(() => {
     if (!box.current || !activeLine) {
@@ -94,7 +93,7 @@ const LyricsComponent = () => {
         color="text.primary"
         height="fit-content"
         margin="auto"
-        width={width * 0.89}
+        width={WIDTH_CALC}
       >
         {lyrics?.Lyrics[0].Line.slice(0, -4).map((line, index) => (
           <Typography

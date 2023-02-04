@@ -4,6 +4,7 @@ import React from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
+import { VIEW_PADDING } from 'constants/measures';
 import styles from 'styles/MotionImage.module.scss';
 import { ArtistsContext, RowProps } from './Artists';
 import CollapseContent from './CollapseContent';
@@ -135,7 +136,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
 };
 
 const getCaretPos = (cols: number, openIndex: number, width: number) => {
-  const colWidth = Math.floor((width * 0.89) / cols);
+  const colWidth = Math.floor((width - VIEW_PADDING) / cols);
   return (colWidth * openIndex) + (colWidth / 2);
 };
 

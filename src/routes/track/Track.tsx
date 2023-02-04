@@ -4,6 +4,7 @@ import moment from 'moment';
 import { useMemo } from 'react';
 import { useLocation, useOutletContext, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbumQuick } from 'queries/album-queries';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
@@ -79,7 +80,7 @@ const Track = () => {
                 overflowY: 'overlay',
               }}
             >
-              <Box maxWidth="900px" mx="auto" pb="48px" width="89%">
+              <Box maxWidth="900px" mx="auto" pb="48px" width={WIDTH_CALC}>
                 <Header
                   colors={colors}
                   playSwitch={playSwitch}
@@ -106,7 +107,7 @@ const Track = () => {
                   library={library}
                   playSwitch={playSwitch}
                   title={lastfmSearch?.name}
-                  width={Math.min(width * 0.89, 900)}
+                  width={Math.min(width - VIEW_PADDING, 900)}
                 />
               </Box>
             </Box>

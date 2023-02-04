@@ -12,8 +12,9 @@ import {
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { BiPaste } from 'react-icons/all';
+import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
 import { IAppSettings } from 'types/interfaces';
 
@@ -111,7 +112,7 @@ const Settings = () => {
     <Paper
       elevation={0}
       sx={{
-        width: '70%',
+        width: WIDTH_CALC,
         maxWidth: '600px',
         backgroundColor: 'transparent',
         pt: 2,

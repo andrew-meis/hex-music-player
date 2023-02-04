@@ -9,6 +9,7 @@ import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import usePlayback from 'hooks/usePlayback';
 import { AlbumContext } from './Album';
@@ -66,7 +67,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
           />
         </Box>
       </Fade>
-      <Box maxWidth="900px" mx="auto" ref={ref} width="89%">
+      <Box maxWidth="900px" mx="auto" ref={ref} width={WIDTH_CALC}>
         <Box alignItems="flex-end" color="text.primary" display="flex" height={232}>
           <Avatar
             alt={album.title}

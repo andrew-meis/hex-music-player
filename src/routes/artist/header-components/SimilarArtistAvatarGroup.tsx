@@ -4,6 +4,7 @@ import { Link, NavigateFunction } from 'react-router-dom';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';
+import { WIDTH_CALC } from 'constants/measures';
 import type { Artist, Library } from 'hex-plex';
 
 interface SimilarArtistAvatarGroupProps {
@@ -11,13 +12,12 @@ interface SimilarArtistAvatarGroupProps {
   library: Library;
   navigate: NavigateFunction;
   similarArtists: Artist[];
-  width: number;
 }
 
 const SimilarArtistAvatarGroup = ({
-  artist, library, navigate, similarArtists, width,
+  artist, library, navigate, similarArtists,
 }: SimilarArtistAvatarGroupProps) => (
-  <Box display="flex" flexDirection="column" margin="auto" width={width * 0.89}>
+  <Box display="flex" flexDirection="column" margin="auto" width={WIDTH_CALC}>
     <MotionTypography
       color="text.primary"
       fontFamily="TT Commons"

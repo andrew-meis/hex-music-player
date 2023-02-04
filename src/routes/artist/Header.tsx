@@ -7,6 +7,7 @@ import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
+import { WIDTH_CALC } from 'constants/measures';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
@@ -142,7 +143,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         mt="9px"
         mx="auto"
         ref={tracksInView.ref}
-        width={(width * 0.89)}
+        width={WIDTH_CALC}
       >
         <InfoRow
           artistData={artistData}
@@ -164,7 +165,6 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           library={library}
           navigate={navigate}
           similarArtists={similarArtists}
-          width={width}
         />
       )}
       <Box sx={{ height: 24, width: '100%' }} />
@@ -173,7 +173,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         display="flex"
         justifyContent="space-between"
         mx="auto"
-        width={(width * 0.89)}
+        width={WIDTH_CALC}
       >
         <MotionTypography
           color="text.primary"
@@ -224,7 +224,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         gap="8px"
         mx="auto"
         my="12px"
-        width={(width * 0.89)}
+        width={WIDTH_CALC}
       >
         {filters.map((group) => (
           <Chip

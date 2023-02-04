@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import React from 'react';
+import { WIDTH_CALC } from 'constants/measures';
 import { RowProps } from './SimilarArtists';
 
 const GroupRow = React.memo(({ index, context }: RowProps) => {
@@ -15,7 +16,7 @@ const GroupRow = React.memo(({ index, context }: RowProps) => {
       display="flex"
       height={72}
       mx="auto"
-      width="89%"
+      width={WIDTH_CALC}
     >
       <Typography fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
         {text}

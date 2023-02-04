@@ -11,6 +11,7 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC } from 'constants/measures';
 import { iconButtonStyle } from 'constants/style';
 import { ChartsContext } from './Charts';
 import FixedHeader from './FixedHeader';
@@ -102,7 +103,7 @@ const Header = ({ context }: { context?: ChartsContext }) => {
         maxWidth="900px"
         mx="auto"
         ref={ref}
-        width="89%"
+        width={WIDTH_CALC}
       >
         <Box
           alignItems="center"

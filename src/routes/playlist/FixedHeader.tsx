@@ -1,5 +1,6 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC_PADDING } from 'constants/measures';
 import type { Playlist } from 'hex-plex';
 
 interface FixedHeaderProps {
@@ -23,7 +24,7 @@ const FixedHeader = ({
     marginX="auto"
     maxWidth="888px"
     paddingX="6px"
-    width="calc(89% - 12px)"
+    width={WIDTH_CALC_PADDING}
   >
     <Avatar
       alt={playlist.title}

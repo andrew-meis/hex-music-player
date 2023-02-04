@@ -15,6 +15,7 @@ import {
 } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
 import Palette from 'components/palette/Palette';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
@@ -39,9 +40,9 @@ import type { IAppSettings, LocationWithState, RouteParams } from 'types/interfa
 const Footer = () => (
   <Box
     height="20px"
-    maxWidth={900}
+    maxWidth={1600}
     mx="auto"
-    width="89%"
+    width={WIDTH_CALC}
   />
 );
 
@@ -318,12 +319,12 @@ const Artist = () => {
   };
 
   const measurements = useMemo(() => ({
-    CARD_HEIGHT: Math.floor((width * 0.89) / grid.cols),
-    CARD_WIDTH: Math.floor((width * 0.89) / grid.cols),
-    COVER_HEIGHT: Math.floor((width * 0.89) / grid.cols) - 8,
-    COVER_WIDTH: Math.floor((width * 0.89) / grid.cols) - 8,
-    ROW_HEIGHT: (Math.floor((width * 0.89) / grid.cols) + (settings.albumText ? 54 : 0)),
-    ROW_WIDTH: (Math.floor((width * 0.89) / grid.cols)) * grid.cols,
+    CARD_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols),
+    CARD_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols),
+    COVER_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) - 8,
+    COVER_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols) - 8,
+    ROW_HEIGHT: (Math.floor((width - VIEW_PADDING) / grid.cols) + (settings.albumText ? 54 : 0)),
+    ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, settings, width]);
 
   const refreshPage = useCallback(() => {

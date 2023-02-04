@@ -4,6 +4,7 @@ import React from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import styles from 'styles/MotionImage.module.scss';
 import CollapseContent from './CollapseContent';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
@@ -34,8 +35,8 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   const {
     grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
   } = context;
-  const imgHeight = Math.floor((width * 0.89) / grid.cols) * 0.70;
-  const imgWidth = Math.floor((width * 0.89) / grid.cols);
+  const imgHeight = Math.floor((width - VIEW_PADDING) / grid.cols) * 0.70;
+  const imgWidth = Math.floor((width - VIEW_PADDING) / grid.cols);
   const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
@@ -130,7 +131,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
 };
 
 const getCaretPos = (cols: number, openIndex: number, width: number) => {
-  const colWidth = Math.floor((width * 0.89) / cols);
+  const colWidth = Math.floor((width - VIEW_PADDING) / cols);
   return (colWidth * openIndex) + (colWidth / 2);
 };
 
@@ -180,7 +181,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
       <Box
         display="flex"
         mx="auto"
-        width={(width * 0.89)}
+        width={WIDTH_CALC}
       >
         {artists.map((artist, index) => (
           <ArtistCard
@@ -207,7 +208,7 @@ const ArtistsRow = React.memo(({ index: rowIndex, context }: RowProps) => {
           sx={{
             transform: 'translateZ(0px)',
           }}
-          width="89%"
+          width={WIDTH_CALC}
         >
           <Box
             bgcolor="common.contrastGrey"

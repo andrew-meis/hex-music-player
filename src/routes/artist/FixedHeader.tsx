@@ -1,8 +1,8 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
-import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC_PADDING } from 'constants/measures';
 
 interface FixedHeaderProps {
   artist: Artist;
@@ -27,7 +27,7 @@ const FixedHeader = ({
     marginX="auto"
     maxWidth="1600px"
     paddingX="6px"
-    width="89%"
+    width={WIDTH_CALC_PADDING}
   >
     <Avatar
       alt={artist.title}

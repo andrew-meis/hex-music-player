@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
 import FilterInput from 'components/filter-input/FilterInput';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
 import { RecentFavoritesContext } from './RecentFavorites';
@@ -47,7 +48,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
         maxWidth="900px"
         mx="auto"
         ref={ref}
-        width="89%"
+        width={WIDTH_CALC}
       >
         <Box
           alignItems="center"

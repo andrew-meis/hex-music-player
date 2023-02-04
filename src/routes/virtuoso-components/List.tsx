@@ -1,6 +1,7 @@
 import { Box, ClickAwayListener } from '@mui/material';
 import React from 'react';
 import { ListProps } from 'react-virtuoso';
+import { WIDTH_CALC } from 'constants/measures';
 import mergeRefs from 'scripts/merge-refs';
 import { IVirtuosoContext } from 'types/interfaces';
 
@@ -17,7 +18,7 @@ const List = React
           className="list-box"
           ref={mergeRefs(context.drag, listRef)}
           style={style}
-          sx={{ maxWidth: '900px', mx: 'auto', width: '89%' }}
+          sx={{ maxWidth: '900px', mx: 'auto', width: WIDTH_CALC }}
           onDragEndCapture={() => {
             document.querySelectorAll('div.virtuoso-item')
               .forEach((node) => node.classList.remove('non-dragged-item', 'dragged-item'));

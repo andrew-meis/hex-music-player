@@ -2,6 +2,7 @@ import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { Moment } from 'moment';
 import { TiChartLine } from 'react-icons/ti';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { WIDTH_CALC_PADDING } from 'constants/measures';
 
 interface FixedHeaderProps {
   days: number;
@@ -23,7 +24,7 @@ const FixedHeader = ({ days, end, handlePlay, handleShuffle, start }: FixedHeade
     marginX="auto"
     maxWidth="888px"
     paddingX="6px"
-    width="calc(89% - 12px)"
+    width={WIDTH_CALC_PADDING}
   >
     <Avatar
       alt="Chart"

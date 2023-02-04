@@ -13,6 +13,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
+import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -28,9 +29,9 @@ import type { RouteParams } from 'types/interfaces';
 const Footer = () => (
   <Box
     height="16px"
-    maxWidth={900}
+    maxWidth={1600}
     mx="auto"
-    width="89%"
+    width={WIDTH_CALC}
   />
 );
 

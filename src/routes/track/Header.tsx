@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import ActionMenu from 'components/action-menu/ActionMenu';
 import TrackRating from 'components/rating/TrackRating';
 import { ButtonSpecs, trackButtons } from 'constants/buttons';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { PaletteState } from 'hooks/usePalette';
 import { PlayParams } from 'hooks/usePlayback';
@@ -49,7 +50,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
           height={71}
           maxWidth={900}
           position="fixed"
-          width="89%"
+          width={WIDTH_CALC}
           zIndex={400}
         >
           <FixedHeader

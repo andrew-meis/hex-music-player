@@ -7,6 +7,7 @@ import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { useAlbumSearch, useTopAlbums } from 'queries/album-queries';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -252,7 +253,7 @@ const Home = () => {
         flexDirection="row"
         height="348px"
         mx="auto"
-        width="89%"
+        width={WIDTH_CALC}
       >
         <MotionBox
           display="flex"

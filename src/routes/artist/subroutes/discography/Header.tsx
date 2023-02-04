@@ -3,6 +3,7 @@ import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu'
 import React from 'react';
 import { FaCaretDown, FaCaretUp, IoMdMicrophone } from 'react-icons/all';
 import { NavLink, useOutletContext } from 'react-router-dom';
+import { WIDTH_CALC_PADDING } from 'constants/measures';
 import { ArtistDiscographyContext } from './Discography';
 
 interface FilterMenuButtonProps extends MenuButtonProps{
@@ -89,7 +90,7 @@ const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
         marginX="auto"
         maxWidth="900px"
         paddingX="6px"
-        width="89%"
+        width={WIDTH_CALC_PADDING}
       >
         <Avatar
           alt={artist.title}
