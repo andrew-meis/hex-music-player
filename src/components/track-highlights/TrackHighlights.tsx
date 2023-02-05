@@ -19,11 +19,14 @@ type ContextProps = Pick<
 interface TrackHighlightsProps {
   activeIndex: number;
   context: ContextProps | undefined;
-  tracks: Track[] | undefined;
+  tracks: Track[];
 }
 
 // TODO double-click behavior
-const TrackHighlights = React.memo(({ activeIndex, context, tracks }: TrackHighlightsProps) => {
+const TrackHighlights = React.memo(({
+  activeIndex, context, tracks: allTracks = [],
+}: TrackHighlightsProps) => {
+  const tracks = allTracks.slice((activeIndex * 4), (activeIndex * 4 + 4));
   const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -142,7 +145,7 @@ const TrackHighlights = React.memo(({ activeIndex, context, tracks }: TrackHighl
             flexWrap="wrap"
             maxHeight="100%"
           >
-            {tracks.slice((activeIndex * 4), (activeIndex * 4 + 4)).map((track, index) => {
+            {tracks.map((track, index) => {
               const playing = nowPlaying?.track.id === track.id;
               const selected = selectedRows.includes(index);
               const selUp = selected && selectedRows.includes(index - 1);

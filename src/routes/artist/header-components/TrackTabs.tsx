@@ -1,13 +1,14 @@
 import { Box, Chip, Tab, Tabs, Typography } from '@mui/material';
-import { AnimateSharedLayout } from 'framer-motion';
+import { AnimatePresence, AnimateSharedLayout } from 'framer-motion';
 import { Artist, Track } from 'hex-plex';
 import React, { useEffect, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import { Link } from 'react-router-dom';
+import { usePrevious } from 'react-use';
 import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';
-import { iconMotion } from 'components/motion-components/motion-variants';
+import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
 import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from '../Artist';
@@ -28,7 +29,7 @@ const TabChip = ({ active, label } : { active: boolean, label: string }) => (
 );
 
   interface TabPanelProps {
-    children(activeIndex: number): React.ReactNode;
+    children(activeIndex: number, difference: number): React.ReactNode;
     index: number;
     tracks: Track[];
     value: number;
@@ -37,7 +38,9 @@ const TabChip = ({ active, label } : { active: boolean, label: string }) => (
 const TabPanel = (props: TabPanelProps) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndex = usePrevious(activeIndex);
   const { children, value, tracks, index, ...other } = props;
+  const difference = prevIndex ? activeIndex - prevIndex : 1;
 
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -64,7 +67,7 @@ const TabPanel = (props: TabPanelProps) => {
             overflow="hidden"
             ref={scrollRef}
           >
-            <>{children(activeIndex)}</>
+            <>{children(activeIndex, difference)}</>
           </Box>
           <AnimateSharedLayout>
             <Box
@@ -167,7 +170,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
         TabIndicatorProps={{ sx: { height: 0 } }}
         textColor="primary"
         value={tab}
-        onChange={(e, newValue) => setTab(newValue)}
+        onChange={(_event, newValue) => setTab(newValue)}
       >
         <Tab
           disableRipple
@@ -183,21 +186,45 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
     )}
       </Tabs>
       <TabPanel index={0} tracks={context!.topTracks!} value={tab}>
-        {(activeIndex) => (
-          <TrackHighlights
-            activeIndex={activeIndex}
-            context={context}
-            tracks={context!.topTracks}
-          />
+        {(activeIndex, difference) => (
+          <AnimatePresence custom={difference} initial={false} mode="wait">
+            <MotionBox
+              animate={{ x: 0, opacity: 1 }}
+              custom={difference}
+              exit="exit"
+              initial="enter"
+              key={activeIndex}
+              transition={{ duration: 0.2 }}
+              variants={tracklistMotion}
+            >
+              <TrackHighlights
+                activeIndex={activeIndex}
+                context={context}
+                tracks={context!.topTracks!}
+              />
+            </MotionBox>
+          </AnimatePresence>
         )}
       </TabPanel>
       <TabPanel index={1} tracks={context!.recentFavorites!} value={tab}>
-        {(activeIndex) => (
-          <TrackHighlights
-            activeIndex={activeIndex}
-            context={context}
-            tracks={context!.recentFavorites}
-          />
+        {(activeIndex, difference) => (
+          <AnimatePresence custom={difference} initial={false} mode="wait">
+            <MotionBox
+              animate={{ x: 0, opacity: 1 }}
+              custom={difference}
+              exit="exit"
+              initial="enter"
+              key={activeIndex}
+              transition={{ duration: 0.2 }}
+              variants={tracklistMotion}
+            >
+              <TrackHighlights
+                activeIndex={activeIndex}
+                context={context}
+                tracks={context!.recentFavorites!}
+              />
+            </MotionBox>
+          </AnimatePresence>
         )}
       </TabPanel>
       <Typography

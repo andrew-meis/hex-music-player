@@ -16,3 +16,42 @@ export const iconMotion = {
     },
   },
 };
+
+export const tracklistMotion = {
+  enter: (difference: number) => {
+    if (difference > 0) {
+      return {
+        x: 10,
+        opacity: 0,
+      };
+    }
+    if (difference < 0) {
+      return {
+        x: -10,
+        opacity: 0,
+      };
+    }
+    return {
+      x: 0,
+      opacity: 1,
+    };
+  },
+  exit: (difference: number) => {
+    if (difference > 0) {
+      return {
+        x: -10,
+        opacity: 0,
+      };
+    }
+    if (difference < 0) {
+      return {
+        x: 10,
+        opacity: 0,
+      };
+    }
+    return {
+      x: 0,
+      opacity: 1,
+    };
+  },
+};

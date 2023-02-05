@@ -1,13 +1,14 @@
 import { Box, Typography } from '@mui/material';
-import { AnimateSharedLayout } from 'framer-motion';
+import { AnimatePresence, AnimateSharedLayout } from 'framer-motion';
 import { useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
+import { usePrevious } from 'react-use';
 import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';
-import { iconMotion } from 'components/motion-components/motion-variants';
+import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
 import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { thresholds } from 'routes/artist/Header';
 import { SimilarArtistContext } from './SimilarArtists';
@@ -18,12 +19,14 @@ interface CollapseContentProps {
 
 const CollapseContent = ({ context }: CollapseContentProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndex = usePrevious(activeIndex);
   const { ref, entry } = useInView({ threshold: thresholds });
   const {
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
   } = context;
+  const difference = prevIndex ? activeIndex - prevIndex : 1;
 
   return (
     <Box
@@ -76,11 +79,23 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
         {
           entry && entry.intersectionRatio > 0.3
             ? (
-              <TrackHighlights
-                activeIndex={activeIndex}
-                context={context}
-                tracks={openArtistTracksQuery.data!}
-              />
+              <AnimatePresence custom={difference} initial={false} mode="wait">
+                <MotionBox
+                  animate={{ x: 0, opacity: 1 }}
+                  custom={difference}
+                  exit="exit"
+                  initial="enter"
+                  key={activeIndex}
+                  transition={{ duration: 0.2 }}
+                  variants={tracklistMotion}
+                >
+                  <TrackHighlights
+                    activeIndex={activeIndex}
+                    context={context}
+                    tracks={openArtistTracksQuery.data!}
+                  />
+                </MotionBox>
+              </AnimatePresence>
             )
             : (
               <Box height={224} width={1} />
