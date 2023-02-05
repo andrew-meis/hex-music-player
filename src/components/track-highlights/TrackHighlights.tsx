@@ -114,6 +114,7 @@ const TrackHighlights = React.memo(({
         flexDirection="column"
         height={tracks.length * 56}
         maxHeight={224}
+        minHeight={allTracks.length > 4 ? 224 : 0}
         ref={drag}
         onDragEndCapture={() => {
           document.querySelectorAll('div.track-row')

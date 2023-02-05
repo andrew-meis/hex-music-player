@@ -9,8 +9,10 @@ import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';
 import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { thresholds } from 'routes/artist/Header';
+import { PlayActions } from 'types/enums';
 import { ArtistsContext } from './Artists';
 
 interface CollapseContentProps {
@@ -25,8 +27,22 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
+    playSwitch,
   } = context;
   const difference = prevIndex ? activeIndex - prevIndex : 1;
+
+  const handlePlay = () => playSwitch(
+    PlayActions.PLAY_ARTIST,
+    { artist: openArtistQuery.data?.artist, shuffle: false },
+  );
+  const handleShuffle = () => playSwitch(
+    PlayActions.PLAY_ARTIST,
+    { artist: openArtistQuery.data?.artist, shuffle: true },
+  );
+  const handleRadio = () => playSwitch(
+    PlayActions.PLAY_ARTIST_RADIO,
+    { artist: openArtistQuery.data?.artist },
+  );
 
   return (
     <Box
@@ -37,6 +53,17 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
       margin="auto"
       width="calc(100% - 36px)"
     >
+      <Box
+        position="absolute"
+        right={18}
+        top={8}
+      >
+        <PlayShuffleButton
+          handlePlay={handlePlay}
+          handleRadio={handleRadio}
+          handleShuffle={handleShuffle}
+        />
+      </Box>
       <Box
         alignItems="center"
         color="text.primary"
