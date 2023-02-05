@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
-import { inRange, throttle } from 'lodash';
+import { throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import {
   Location,
@@ -289,16 +289,6 @@ const SimilarArtists = () => {
             queryClient
               .setQueryData(['similar-header-text'], items.groups![renderedGroupIndices[0]]?.text);
             topMostGroup.current = items.groups![renderedGroupIndices[0]];
-          }
-        }}
-        rangeChanged={(newRange) => {
-          if (!inRange(openCard.row, newRange.startIndex, newRange.endIndex)) {
-            setOpenArtist({
-              id: -1,
-              guid: '',
-              title: '',
-            });
-            setOpenCard({ row: -1, index: -1 });
           }
         }}
         ref={virtuoso}

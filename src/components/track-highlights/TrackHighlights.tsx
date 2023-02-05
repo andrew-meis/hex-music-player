@@ -17,12 +17,13 @@ type ContextProps = Pick<
 >
 
 interface TrackHighlightsProps {
+  activeIndex: number;
   context: ContextProps | undefined;
   tracks: Track[] | undefined;
 }
 
 // TODO double-click behavior
-const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) => {
+const TrackHighlights = React.memo(({ activeIndex, context, tracks }: TrackHighlightsProps) => {
   const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -106,7 +107,7 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
       <Box
         className="list-box"
         display="flex"
-        flex="0 0 200%"
+        flex="0 0 100%"
         flexDirection="column"
         height={tracks.length * 56}
         maxHeight={224}
@@ -141,7 +142,7 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
             flexWrap="wrap"
             maxHeight="100%"
           >
-            {tracks.map((track, index) => {
+            {tracks.slice((activeIndex * 4), (activeIndex * 4 + 4)).map((track, index) => {
               const playing = nowPlaying?.track.id === track.id;
               const selected = selectedRows.includes(index);
               const selUp = selected && selectedRows.includes(index - 1);
@@ -158,14 +159,14 @@ const TrackHighlights = React.memo(({ context, tracks }: TrackHighlightsProps) =
                   sx={selected
                     ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
                     : { ...rowStyle }}
-                  width={0.5}
+                  width={1}
                   onClick={(event) => handleRowClick(event, index)}
                   onContextMenu={handleContextMenu}
                   onMouseEnter={handleMouseEnter}
                 >
                   <TrackRow
                     getFormattedTime={getFormattedTime}
-                    index={index + 1}
+                    index={(activeIndex * 4) + index + 1}
                     isPlaying={isPlaying}
                     library={library}
                     options={{ showAlbumTitle: true, showArtwork: true }}

@@ -1,13 +1,15 @@
 import { Box, Typography } from '@mui/material';
 import { AnimateSharedLayout } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
+import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import TrackHighlights from 'components/track-highlights/TrackHighlights';
+import { thresholds } from 'routes/artist/Header';
 import { SimilarArtistContext } from './SimilarArtists';
 
 interface CollapseContentProps {
@@ -15,21 +17,13 @@ interface CollapseContentProps {
 }
 
 const CollapseContent = ({ context }: CollapseContentProps) => {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { ref, entry } = useInView({ threshold: thresholds });
   const {
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
   } = context;
-
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    scrollRef.current.scrollTo({
-      left: activeIndex * scrollRef.current.clientWidth,
-      behavior: 'smooth',
-    });
-  }, [activeIndex]);
 
   return (
     <Box
@@ -77,12 +71,21 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
         display="flex"
         flex="1 1 600px"
         overflow="hidden"
-        ref={scrollRef}
+        ref={ref}
       >
-        <TrackHighlights
-          context={context}
-          tracks={openArtistTracksQuery.data!}
-        />
+        {
+          entry && entry.intersectionRatio > 0.3
+            ? (
+              <TrackHighlights
+                activeIndex={activeIndex}
+                context={context}
+                tracks={openArtistTracksQuery.data!}
+              />
+            )
+            : (
+              <Box height={224} width={1} />
+            )
+        }
       </Box>
       <AnimateSharedLayout>
         <Box

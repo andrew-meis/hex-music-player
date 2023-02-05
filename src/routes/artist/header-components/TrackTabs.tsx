@@ -28,8 +28,7 @@ const TabChip = ({ active, label } : { active: boolean, label: string }) => (
 );
 
   interface TabPanelProps {
-    // eslint-disable-next-line react/require-default-props
-    children?: React.ReactNode;
+    children(activeIndex: number): React.ReactNode;
     index: number;
     tracks: Track[];
     value: number;
@@ -65,7 +64,7 @@ const TabPanel = (props: TabPanelProps) => {
             overflow="hidden"
             ref={scrollRef}
           >
-            {children}
+            <>{children(activeIndex)}</>
           </Box>
           <AnimateSharedLayout>
             <Box
@@ -184,16 +183,22 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
     )}
       </Tabs>
       <TabPanel index={0} tracks={context!.topTracks!} value={tab}>
-        <TrackHighlights
-          context={context}
-          tracks={context!.topTracks}
-        />
+        {(activeIndex) => (
+          <TrackHighlights
+            activeIndex={activeIndex}
+            context={context}
+            tracks={context!.topTracks}
+          />
+        )}
       </TabPanel>
       <TabPanel index={1} tracks={context!.recentFavorites!} value={tab}>
-        <TrackHighlights
-          context={context}
-          tracks={context!.recentFavorites}
-        />
+        {(activeIndex) => (
+          <TrackHighlights
+            activeIndex={activeIndex}
+            context={context}
+            tracks={context!.recentFavorites}
+          />
+        )}
       </TabPanel>
       <Typography
         color="text.secondary"
