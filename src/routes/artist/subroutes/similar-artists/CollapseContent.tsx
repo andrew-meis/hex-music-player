@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import { AnimatePresence, AnimateSharedLayout } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
@@ -9,6 +9,7 @@ import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';
 import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
+import PaginationDots from 'components/pagination-dots/PaginationDots';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { thresholds } from 'routes/artist/Header';
@@ -99,7 +100,7 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
       </Typography>
       <Box
         display="flex"
-        flex="1 1 600px"
+        flex="1 1 100%"
         overflow="hidden"
         ref={ref}
       >
@@ -129,50 +130,12 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
             )
         }
       </Box>
-      <AnimateSharedLayout>
-        <Box
-          alignItems="center"
-          display="flex"
-          flex="1 1 600px"
-          height={32}
-          justifyContent="center"
-        >
-          {openArtistTracksQuery.data!.map((track, index, array) => {
-            if (array.length <= 4) return null;
-            if (index % 4 !== 0) return null;
-            return (
-              <Box
-                key={track.id}
-                paddingX="12px"
-                sx={{ cursor: 'pointer' }}
-                onClick={() => setActiveIndex(index / 4)}
-              >
-                <Box
-                  bgcolor="action.disabled"
-                  borderRadius="50%"
-                  height={8}
-                  width={8}
-                >
-                  {(index / 4) === activeIndex && (
-                    <MotionBox
-                      layoutId="highlight"
-                      sx={{
-                        backgroundColor: 'text.secondary',
-                        borderRadius: '50%',
-                        height: 12,
-                        width: 12,
-                        position: 'relative',
-                        top: '-2px',
-                        left: '-2px',
-                      }}
-                    />
-                  )}
-                </Box>
-              </Box>
-            );
-          })}
-        </Box>
-      </AnimateSharedLayout>
+      <PaginationDots
+        activeIndex={activeIndex}
+        array={openArtistTracksQuery.data!}
+        colLength={4}
+        setActiveIndex={setActiveIndex}
+      />
     </Box>
   );
 };

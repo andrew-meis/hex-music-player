@@ -1,18 +1,20 @@
 import { Box, Chip, SvgIcon, Typography } from '@mui/material';
 import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
 import { Artist } from 'hex-plex';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
+import { usePrevious } from 'react-use';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
+import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { WIDTH_CALC } from 'constants/measures';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
 import InfoRow from './header-components/InfoRow';
-import SimilarArtistAvatarGroup from './header-components/SimilarArtistAvatarGroup';
+import SimilarArtistsCards from './header-components/SimilarArtistsCards';
 import TrackTabs from './header-components/TrackTabs';
 
 const sortOptions = [
@@ -91,10 +93,9 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   const {
     artist: artistData,
     colors,
+    cols,
     filter,
     filters,
-    library,
-    navigate,
     refreshMetadata,
     refreshPage,
     setFilter,
@@ -103,7 +104,13 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     width,
   } = context!;
   const { artist } = artistData!;
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndex = usePrevious(activeIndex);
   const tracksInView = useInView({ threshold: 0 });
+  const difference = prevIndex ? activeIndex - prevIndex : 1;
+  const colLength = (cols - 1) * 2;
+
   const similarArtists = useMemo(() => {
     const similar = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
     const sonicSimilar = artistData?.hubs
@@ -158,16 +165,25 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           context={context}
         />
       </Box>
-      <Box sx={{ height: 24, width: '100%' }} />
       {similarArtists.length > 0 && (
-        <SimilarArtistAvatarGroup
-          artist={artist}
-          library={library}
-          navigate={navigate}
-          similarArtists={similarArtists}
-        />
+        <>
+          <div style={{ height: 12, width: '100%' }} />
+          <SimilarArtistsCards
+            activeIndex={activeIndex}
+            artist={artist}
+            context={context}
+            difference={difference}
+            similarArtists={similarArtists}
+          />
+          <PaginationDots
+            activeIndex={activeIndex}
+            array={similarArtists}
+            colLength={colLength}
+            setActiveIndex={setActiveIndex}
+          />
+        </>
       )}
-      <Box sx={{ height: 24, width: '100%' }} />
+      <div style={{ height: 12, width: '100%' }} />
       <Box
         alignItems="flex-end"
         display="flex"

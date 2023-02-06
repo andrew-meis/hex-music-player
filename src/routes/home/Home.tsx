@@ -1,11 +1,12 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
-import { motion, AnimatePresence, AnimateSharedLayout } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Album } from 'hex-plex';
 import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import PaginationDots from 'components/pagination-dots/PaginationDots';
 import Palette from 'components/palette/Palette';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -274,46 +275,17 @@ const Home = () => {
           ))}
         </MotionBox>
       </MotionBox>
-      <AnimateSharedLayout>
-        <Box
-          alignItems="center"
-          display="flex"
-          height={16}
-          justifyContent="center"
-          width={1}
-        >
-          {cards.map((album, index) => (
-            <Box
-              key={album.id}
-              paddingX="12px"
-              sx={{ cursor: 'pointer' }}
-              onClick={() => setActiveIndex(index)}
-            >
-              <Box
-                bgcolor="action.disabled"
-                borderRadius="50%"
-                height={8}
-                width={8}
-              >
-                {index === activeIndex && (
-                  <MotionBox
-                    layoutId="highlight"
-                    sx={{
-                      backgroundColor: 'text.secondary',
-                      borderRadius: '50%',
-                      height: 12,
-                      width: 12,
-                      position: 'relative',
-                      top: '-2px',
-                      left: '-2px',
-                    }}
-                  />
-                )}
-              </Box>
-            </Box>
-          ))}
-        </Box>
-      </AnimateSharedLayout>
+      <Box
+        position="relative"
+        top={-16}
+      >
+        <PaginationDots
+          activeIndex={activeIndex}
+          array={cards}
+          colLength={1}
+          setActiveIndex={setActiveIndex}
+        />
+      </Box>
     </motion.div>
   );
 };

@@ -10,7 +10,7 @@ const useHideAlbum = () => {
     if (isEmpty(filters)) {
       window.electron.writeFilters('filters', [{ artist: artist.guid, exclusions: [album.guid] }]);
       await queryClient.refetchQueries([QueryKeys.ARTIST_APPEARANCES, artist.id]);
-      await queryClient.refetchQueries([QueryKeys.ARTIST_TRACKS, artist.id, 5]);
+      await queryClient.refetchQueries([QueryKeys.ARTIST_TRACKS, artist.id]);
       return;
     }
     const index = filters.findIndex((obj) => obj.artist === artist.guid);
@@ -23,7 +23,7 @@ const useHideAlbum = () => {
     }
     window.electron.writeFilters('filters', filters);
     await queryClient.refetchQueries([QueryKeys.ARTIST_APPEARANCES, artist.id]);
-    await queryClient.refetchQueries([QueryKeys.ARTIST_TRACKS, artist.id, 5]);
+    await queryClient.refetchQueries([QueryKeys.ARTIST_TRACKS, artist.id]);
   };
 };
 

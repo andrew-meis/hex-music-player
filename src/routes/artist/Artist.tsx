@@ -89,11 +89,13 @@ export interface Measurements {
   COVER_WIDTH: number;
   ROW_HEIGHT: number;
   ROW_WIDTH: number;
+  SIMILAR_CARD_WIDTH: number;
 }
 
 export interface ArtistContext {
   artist: ArtistQueryData | undefined;
   colors: string[] | undefined;
+  cols: number;
   filter: string;
   filters: string[];
   getFormattedTime: (inMs: number) => string;
@@ -329,6 +331,7 @@ const Artist = () => {
     COVER_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols) - 8,
     ROW_HEIGHT: (Math.floor((width - VIEW_PADDING) / grid.cols) + (settings.albumText ? 54 : 0)),
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
+    SIMILAR_CARD_WIDTH: (Math.floor((width - VIEW_PADDING) / (grid.cols - 1))),
   }), [grid, settings, width]);
 
   const refreshPage = useCallback(() => {
@@ -341,6 +344,7 @@ const Artist = () => {
 
   const artistContext = useMemo(() => ({
     artist: artist.data,
+    cols: grid.cols,
     filter,
     filters: data.filters,
     getFormattedTime,
@@ -368,6 +372,7 @@ const Artist = () => {
     data,
     filter,
     getFormattedTime,
+    grid.cols,
     handleContextMenu,
     isPlaying,
     library,
@@ -420,7 +425,7 @@ const Artist = () => {
                 context={{ ...artistContext, colors: Object.values(colors) as string[] }}
                 data={items}
                 fixedItemHeight={measurements.ROW_HEIGHT}
-                increaseViewportBy={{ top: 0, bottom: 500 }}
+                increaseViewportBy={{ top: 0, bottom: 700 }}
                 initialScrollTop={initialScrollTop()}
                 isScrolling={handleScrollState}
                 itemContent={(index, item, context) => RowContent({ index, item, context })}
