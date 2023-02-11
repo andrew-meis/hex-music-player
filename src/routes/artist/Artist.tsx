@@ -13,7 +13,7 @@ import {
   useOutletContext,
   useParams,
 } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { ListProps, Virtuoso } from 'react-virtuoso';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
@@ -45,6 +45,24 @@ const Footer = () => (
     width={WIDTH_CALC}
   />
 );
+
+const List = React
+  .forwardRef((
+    // @ts-ignore
+    { style, children }: ListProps,
+    listRef: React.ForwardedRef<HTMLDivElement>,
+  ) => (
+    <Box
+      className="album-row-box"
+      ref={listRef}
+      style={{
+        ...style,
+        minHeight: 'calc(100% - 118px)',
+      }}
+    >
+      {children}
+    </Box>
+  ));
 
 const getCols = (width: number) => {
   if (width >= 1350) {
@@ -421,6 +439,7 @@ const Artist = () => {
                 components={{
                   Footer,
                   Header,
+                  List,
                 }}
                 context={{ ...artistContext, colors: Object.values(colors) as string[] }}
                 data={items}

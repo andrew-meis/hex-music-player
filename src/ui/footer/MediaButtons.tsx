@@ -264,6 +264,17 @@ const MediaButtons = () => {
     return () => removeEventListener();
   }, [onEvent]);
 
+  const canShuffle = () => {
+    if (!nowPlaying) return true;
+    if (playQueue && playQueue.allowShuffle !== undefined) {
+      return !playQueue.allowShuffle;
+    }
+    if (playQueue && playQueue.lastAddedItemID !== undefined) {
+      return true;
+    }
+    return false;
+  };
+
   const handleShuffle = async () => {
     if (playQueue?.shuffled) {
       const newQueue = await toggleShuffle('unshuffle');
@@ -293,7 +304,7 @@ const MediaButtons = () => {
         <span>
           <IconButton
             disableRipple
-            disabled={!nowPlaying || !playQueue?.allowShuffle}
+            disabled={canShuffle()}
             size="small"
             sx={{
               ...iconButtonStyle,

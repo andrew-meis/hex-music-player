@@ -1,9 +1,16 @@
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Divider, Grid, Typography } from '@mui/material';
 import { Album, Track } from 'hex-plex';
 import moment from 'moment';
 import React from 'react';
 import useFormattedTime from 'hooks/useFormattedTime';
 import { LastFmTrack } from 'types/lastfm-interfaces';
+
+const dividerStyle = {
+  position: 'absolute',
+  right: 0,
+  bottom: 0,
+  width: '100%',
+};
 
 interface InfoCardProps {
   children: React.ReactNode;
@@ -19,12 +26,12 @@ const InfoCard = ({ children, ...props }: InfoCardProps) => (
   >
     <Box
       sx={{
-        backgroundColor: 'action.hover',
         borderRadius: '4px',
         height: '100%',
         marginBottom: '6px',
         paddingTop: '12px',
         paddingX: '16px',
+        transform: 'translateZ(0)',
       }}
     >
       {children}
@@ -78,6 +85,10 @@ const Info = ({ album, lastfmTrack, track }: InfoProps) => {
           <InfoRow data={getFormattedTime(track.duration)} title="Duration" />
           <InfoRow data={track.trackNumber} title="Tracknumber" />
           <InfoRow data={track.parentStudio ? track.parentStudio : '—'} title="Record Label" />
+          <Divider
+            orientation={window.innerWidth < 1200 ? 'horizontal' : 'vertical'}
+            sx={dividerStyle}
+          />
         </InfoCard>
         <InfoCard lg={4} md={12}>
           <InfoRow data={track.viewCount > 0 ? track.viewCount : '—'} title="Playcount" />
@@ -92,6 +103,10 @@ const Info = ({ album, lastfmTrack, track }: InfoProps) => {
               ? parseInt(lastfmTrack.playcount, 10).toLocaleString()
               : '—'}
             title="Last.fm Scrobbles"
+          />
+          <Divider
+            orientation={window.innerWidth < 1200 ? 'horizontal' : 'vertical'}
+            sx={dividerStyle}
           />
         </InfoCard>
         <InfoCard lg={4} md={12}>

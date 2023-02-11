@@ -36,11 +36,8 @@ const FixedHeader = ({ thumbSrcSm, track }: FixedHeaderProps) => (
     </Avatar>
     <Typography
       alignSelf="center"
-      fontFamily="TT Commons"
-      fontSize="1.75rem"
-      fontWeight={600}
       ml="10px"
-      variant="h5"
+      variant="fixed"
       width={1}
     >
       {track.grandparentTitle}

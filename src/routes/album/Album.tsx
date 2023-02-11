@@ -3,8 +3,8 @@ import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Artist, Album as TAlbum, Playlist, Track } from 'hex-plex';
-import { countBy } from 'lodash';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { countBy, inRange } from 'lodash';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import {
   NavigateFunction,
@@ -100,10 +100,6 @@ const Album = () => {
     tracks: albumTracks.data || [],
   });
 
-  useLayoutEffect(() => {
-    setSelectedRows([]);
-  }, [id, setSelectedRows]);
-
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
@@ -112,7 +108,7 @@ const Album = () => {
     if (!albumTracks.data) {
       return 0;
     }
-    if (selectedRows.length === 1) {
+    if (selectedRows.length === 1 && inRange(selectedRows[0], 0, albumTracks.data.length)) {
       const [track] = selectedRows.map((n) => albumTracks.data[n]);
       return track.id;
     }

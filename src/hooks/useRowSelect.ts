@@ -1,7 +1,7 @@
 import { isEmpty, range } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 
-const useRowSelect = (initialSelect: number[], exclusions: number[] = []) => {
+const useRowSelect = (initialSelect: number[]) => {
   const [selectedRows, setSelectedRows] = useState(initialSelect);
 
   const handleClickAway = useCallback(() => {
@@ -23,20 +23,17 @@ const useRowSelect = (initialSelect: number[], exclusions: number[] = []) => {
     }
     if (event.shiftKey) {
       if (isEmpty(selectedRows)) {
-        const newSelected = range(0, index + 1)
-          .filter((n) => !exclusions.includes(n));
+        const newSelected = range(0, index + 1);
         setSelectedRows(newSelected);
         return;
       }
       if (index < selectedRows[0]) {
-        const newSelected = range(index, selectedRows[selectedRows.length - 1] + 1)
-          .filter((n) => !exclusions.includes(n));
+        const newSelected = range(index, selectedRows[selectedRows.length - 1] + 1);
         setSelectedRows(newSelected);
         return;
       }
       if (index > selectedRows[selectedRows.length - 1]) {
-        const newSelected = range(selectedRows[0], index + 1)
-          .filter((n) => !exclusions.includes(n));
+        const newSelected = range(selectedRows[0], index + 1);
         setSelectedRows(newSelected);
         return;
       }
@@ -46,7 +43,7 @@ const useRowSelect = (initialSelect: number[], exclusions: number[] = []) => {
       return;
     }
     setSelectedRows([index]);
-  }, [exclusions, selectedRows]);
+  }, [selectedRows]);
 
   return useMemo(() => ({
     selectedRows, setSelectedRows, handleRowClick, handleClickAway,

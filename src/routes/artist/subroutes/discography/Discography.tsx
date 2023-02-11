@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useParams } from 'react-router-dom';
-import { GroupedVirtuoso } from 'react-virtuoso';
+import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
@@ -89,6 +89,7 @@ const Discography = () => {
   const hoverIndex = useRef<number | null>(null);
   const queryClient = useQueryClient();
   const topmostGroup = useRef<number>(0);
+  const virtuoso = useRef<GroupedVirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
   const [menuProps, toggleMenu] = useMenuState();
@@ -98,6 +99,10 @@ const Discography = () => {
   const { playSwitch, playAlbum, playAlbumAtTrack, playArtist, playArtistRadio } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
   const GROUP_ROW_HEIGHT = 200;
+
+  useEffect(() => {
+    virtuoso.current?.scrollTo({ top: 0 });
+  }, [filter]);
 
   const [releases, filters]: [releases: AlbumWithSection[], filters: string[] ] = useMemo(() => {
     if (!artist.data || !appearances.data) {
@@ -313,6 +318,7 @@ const Discography = () => {
               { context, index, track: items[index] },
             )
           }
+          ref={virtuoso}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
         />
       </motion.div>

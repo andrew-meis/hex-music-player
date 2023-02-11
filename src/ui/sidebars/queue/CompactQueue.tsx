@@ -81,7 +81,7 @@ const CompactQueue = () => {
   const { addLast, addMany, addOne, moveLast, moveTrack } = useDragActions();
   const { data: playQueue } = useCurrentQueue();
 
-  const maxListLength = Math.floor(height / 46);
+  const maxListLength = Math.ceil(height / 46);
   const items = useMemo(() => playQueue?.items
     .slice(playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId) + 1)
     .slice(0, maxListLength), [maxListLength, playQueue]);
@@ -177,11 +177,12 @@ const CompactQueue = () => {
   }
 
   return (
-    <Box display="flex" flexDirection="column" height="calc(100% - 4px)" ref={ref}>
+    <Box display="flex" flexDirection="column" height="calc(100% - 4px)" ref={ref} width="48px">
       <Box
         display="flex"
         flexDirection="column"
         height={1}
+        overflow="hidden"
         ref={handleDrag}
       >
         {items.map((item, index) => (
@@ -199,6 +200,19 @@ const CompactQueue = () => {
             }}
           />
         ))}
+        <Box
+          bottom={4}
+          height={32}
+          position="absolute"
+          sx={{
+            background: `linear-gradient(to top, rgba(255,255,255, 0.04) 20%, transparent),
+              linear-gradient(to top, var(--mui-palette-background-paper) 20%, transparent)`,
+          }}
+          width={48}
+          onMouseEnter={() => {
+            hoverIndex.current = null;
+          }}
+        />
       </Box>
     </Box>
   );

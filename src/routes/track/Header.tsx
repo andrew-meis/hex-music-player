@@ -3,7 +3,7 @@ import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import { Track } from 'hex-plex';
-import { TbWaveSawTool } from 'react-icons/all';
+import { RiAlbumFill, TbWaveSawTool } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
 import ActionMenu from 'components/action-menu/ActionMenu';
@@ -171,6 +171,10 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
             <MenuItem onClick={() => navigate(`/tracks/${track.id}/similar`)}>
               <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
               Similar tracks
+            </MenuItem>
+            <MenuItem onClick={() => navigate(`/albums/${track.parentId}`)}>
+              <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+              Go to album
             </MenuItem>
           </ActionMenu>
         </Box>

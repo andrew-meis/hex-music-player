@@ -67,14 +67,15 @@ export const getTrackMatch = async ({
   title: string,
 }) => {
   const account = library.api.parent as Account;
-  const regex = /\s[[(](?=[Ff]eat\.|[Ww]ith\s|[Ff]t\.|[Ff]eaturing\s)/;
+  const regex = /\s[[(](?=[Ff]eat\.|[Ww]ith\s|[Ff]t\.|[Ff]eaturing\s)|\s&\s/;
+  const searchArtist = artist.split(regex)[0];
   const searchTitle = title.split(regex)[0];
-  const query = `${artist} ${searchTitle}`.split(' ').filter((t) => t.length > 1).join(' ');
+  const query = `${searchArtist} ${searchTitle}`.split(' ').filter((t) => t.length > 1).join(' ');
   const searchResults = await searchQueryFn(library, query);
   const searchTrackResults = await searchTracksQueryFn({
     account,
-    artist,
-    title,
+    artist: searchArtist,
+    title: searchTitle,
     library,
     sectionId,
   });

@@ -175,7 +175,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
                 <Avatar
                   alt={artist.title}
                   src={thumbSrc}
-                  sx={{ width: 300, height: 300 }}
+                  sx={{ width: 406, height: 406 * 0.7, borderRadius: '32px' }}
                 />
               </Box>
             </span>
@@ -207,14 +207,9 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
         <Box position="absolute" width="80%">
           <Textfit max={72} min={24} mode="single">
             <Typography
-              color="common.white"
-              fontFamily="TT Commons"
-              fontSize="inherit"
-              fontWeight={700}
               marginBottom="8px"
               marginLeft="22px"
-              sx={{ textShadow: '2px 4px 8px rgb(40 40 48 / 60%)' }}
-              variant="h1"
+              variant="banner"
             >
               {artist.title}
             </Typography>

@@ -19,6 +19,13 @@ declare module '@mui/material/styles' {
   }
 }
 
+declare module '@mui/material/Typography' {
+  interface TypographyPropsVariantOverrides {
+    banner: true;
+    fixed: true;
+  }
+}
+
 const shadow = 'rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px';
 const shadowHov = 'rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px';
 
@@ -129,6 +136,33 @@ const theme = extendTheme({
           transition: 'none',
         },
       },
+    },
+    MuiTypography: {
+      variants: [
+        {
+          props: { variant: 'banner' },
+          style: {
+            color: 'var(--mui-palette-common-white)',
+            fontFamily: 'TT Commons, sans-serif',
+            fontSize: 'inherit',
+            fontWeight: 700,
+            textShadow: '2px 4px 8px rgb(40 40 48 / 60%)',
+          },
+        },
+        {
+          props: { variant: 'fixed' },
+          style: {
+            display: '-webkit-box',
+            fontFamily: 'TT Commons, sans-serif',
+            fontSize: '1.75rem',
+            fontWeight: 600,
+            overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 1,
+            wordBreak: 'break-all',
+          },
+        },
+      ],
     },
   },
   typography: {

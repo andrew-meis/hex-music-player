@@ -1,12 +1,15 @@
 import { Box, CircularProgress, Grid, SvgIcon, Typography } from '@mui/material';
 import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
-import { AnimatePresence, AnimateSharedLayout } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { Library, Track } from 'hex-plex';
 import { throttle } from 'lodash';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
+import React, { useMemo, useRef, useState } from 'react';
+import { RiAlbumFill, TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
 import { NavigateFunction, useNavigate } from 'react-router-dom';
+import { usePrevious } from 'react-use';
 import { MotionBox } from 'components/motion-components/motion-components';
+import { tracklistMotion } from 'components/motion-components/motion-variants';
+import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { ButtonSpecs, trackButtons } from 'constants/buttons';
 import { typographyStyle } from 'constants/style';
 import { PlayParams } from 'hooks/usePlayback';
@@ -44,6 +47,10 @@ const MenuItems = ({ navigate, playSwitch, track }: MenuItemsProps) => (
     <MenuItem onClick={() => navigate(`/tracks/${track!.id}/similar`)}>
       <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
       Similar tracks
+    </MenuItem>
+    <MenuItem onClick={() => navigate(`/albums/${track!.parentId}`)}>
+      <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+      Go to album
     </MenuItem>
   </>
 );
@@ -90,11 +97,13 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
   const cols = throttle(() => getCols(width || 900), 300, { leading: true })();
   const config = useConfig();
   const hoverIndex = useRef(0);
+  const length = (cols || 4) * 4;
   const match = useRef<Track>();
   const navigate = useNavigate();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const toast = useToast();
   const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndex = usePrevious(activeIndex);
+  const difference = prevIndex ? activeIndex - prevIndex : 1;
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { data: similarTracks, isLoading } = useLastfmSimilar({
@@ -105,16 +114,8 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
 
   const CARD_WIDTH = useMemo(() => {
     if (!width || !cols) return 200;
-    return Math.floor((width / cols) - (8 / cols));
+    return Math.floor(width / cols);
   }, [cols, width]);
-
-  useEffect(() => {
-    if (!scrollRef.current || !cols) return;
-    scrollRef.current.scrollTo({
-      left: (activeIndex * CARD_WIDTH) * cols,
-      behavior: 'smooth',
-    });
-  }, [activeIndex, CARD_WIDTH, cols]);
 
   const handleClick = async (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -208,73 +209,89 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
       >
         Last.fm Similar Tracks
       </Typography>
-      <Grid
-        container
-        className="scroll-container"
-        direction="column"
-        height={240}
-        overflow="hidden"
-        ref={scrollRef}
-      >
-        {similarTracks.map((track, index) => (
-          <Grid item color="text.secondary" key={track.url} width={CARD_WIDTH}>
-            <Box
-              alignItems="center"
-              borderRadius="4px"
-              display="flex"
-              height={40}
-              mb="4px"
-              mr="4px"
-              paddingX="12px"
-              paddingY="8px"
-              sx={{
-                backgroundColor: menuProps.state === 'open' && hoverIndex.current === index
-                  ? 'action.selected'
-                  : 'action.hover',
-                cursor: 'pointer',
-                '&:hover': {
-                  backgroundColor: 'action.selected',
-                },
-              }}
-              onClick={(event) => handleClick(event, index, track)}
-              onMouseEnter={() => {
-                if (menuProps.state === 'open' || menuProps.state === 'opening') return;
-                hoverIndex.current = index;
-              }}
-            >
-              <AnimatePresence>
-                {(menuProps.state === 'open' || menuProps.state === 'opening')
-                  && hoverIndex.current === index
-                  && (
-                    <MotionBox
-                      animate={{ opacity: 1, x: 0 }}
-                      bgcolor="primary.main"
-                      borderRadius="2px"
-                      exit={{ opacity: 0 }}
-                      height={28}
-                      initial={{ opacity: 0, x: -10 }}
-                      mr="8px"
-                      width={4}
-                    />
-                  )}
-              </AnimatePresence>
-              <Box width={0.9}>
-                <Typography
-                  color="text.primary"
-                  fontFamily="Rubik"
-                  fontSize="0.95rem"
-                  sx={typographyStyle}
-                >
-                  {toTitleCase(track.name)}
-                </Typography>
-                <Typography fontSize="0.875rem" sx={typographyStyle}>
-                  {track.artist.name}
-                </Typography>
-              </Box>
-            </Box>
+      <AnimatePresence custom={difference} initial={false} mode="wait">
+        <MotionBox
+          animate={{ x: 0, opacity: 1 }}
+          custom={difference}
+          display="flex"
+          exit="exit"
+          flexWrap="wrap"
+          gap="8px"
+          initial="enter"
+          key={activeIndex}
+          minHeight={240}
+          transition={{ duration: 0.2 }}
+          variants={tracklistMotion}
+        >
+          <Grid
+            container
+            className="scroll-container"
+            direction="column"
+            height={240}
+          >
+            {similarTracks
+              .slice((activeIndex * length), (activeIndex * length + length))
+              .map((track, index) => (
+                <Grid item color="text.secondary" key={track.url} width={CARD_WIDTH}>
+                  <Box
+                    alignItems="center"
+                    borderRadius="4px"
+                    display="flex"
+                    height={40}
+                    mb="4px"
+                    mr="4px"
+                    paddingX="12px"
+                    paddingY="8px"
+                    sx={{
+                      backgroundColor: menuProps.state === 'open' && hoverIndex.current === index
+                        ? 'action.selected'
+                        : 'action.hover',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'action.selected',
+                      },
+                    }}
+                    onClick={(event) => handleClick(event, index, track)}
+                    onMouseEnter={() => {
+                      if (menuProps.state === 'open' || menuProps.state === 'opening') return;
+                      hoverIndex.current = index;
+                    }}
+                  >
+                    <AnimatePresence>
+                      {(menuProps.state === 'open' || menuProps.state === 'opening')
+                        && hoverIndex.current === index
+                        && (
+                          <MotionBox
+                            animate={{ opacity: 1, x: 0 }}
+                            bgcolor="primary.main"
+                            borderRadius="2px"
+                            exit={{ opacity: 0 }}
+                            height={28}
+                            initial={{ opacity: 0, x: -10 }}
+                            mr="8px"
+                            width={4}
+                          />
+                        )}
+                    </AnimatePresence>
+                    <Box width={0.9}>
+                      <Typography
+                        color="text.primary"
+                        fontFamily="Rubik"
+                        fontSize="0.95rem"
+                        sx={typographyStyle}
+                      >
+                        {toTitleCase(track.name)}
+                      </Typography>
+                      <Typography fontSize="0.875rem" sx={typographyStyle}>
+                        {track.artist.name}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+              ))}
           </Grid>
-        ))}
-      </Grid>
+        </MotionBox>
+      </AnimatePresence>
       <ControlledMenu
         {...menuProps}
         arrow
@@ -291,49 +308,12 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
           track={match.current}
         />
       </ControlledMenu>
-      <AnimateSharedLayout>
-        <Box
-          alignItems="center"
-          display="flex"
-          height={24}
-          justifyContent="center"
-          width={1}
-        >
-          {similarTracks.map((track, index) => {
-            if (index % (4 * cols) !== 0) return null;
-            return (
-              <Box
-                key={track.url}
-                paddingX="12px"
-                sx={{ cursor: 'pointer' }}
-                onClick={() => setActiveIndex(index / (4 * cols))}
-              >
-                <Box
-                  bgcolor="action.disabled"
-                  borderRadius="50%"
-                  height={8}
-                  width={8}
-                >
-                  {(index / (4 * cols)) === activeIndex && (
-                    <MotionBox
-                      layoutId="highlight"
-                      sx={{
-                        backgroundColor: 'text.secondary',
-                        borderRadius: '50%',
-                        height: 12,
-                        width: 12,
-                        position: 'relative',
-                        top: '-2px',
-                        left: '-2px',
-                      }}
-                    />
-                  )}
-                </Box>
-              </Box>
-            );
-          })}
-        </Box>
-      </AnimateSharedLayout>
+      <PaginationDots
+        activeIndex={activeIndex}
+        array={similarTracks}
+        colLength={cols * 4}
+        setActiveIndex={setActiveIndex}
+      />
     </>
   );
 };

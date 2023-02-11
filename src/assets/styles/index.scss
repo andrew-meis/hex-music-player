@@ -309,3 +309,17 @@ select:focus-visible {
   background-color: var(--mui-palette-action-selected) !important;
   color: var(--mui-palette-text-primary) !important;
 }
+
+.drag-first > * {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.drag-last > * {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+.drag-middle > * {
+  border-radius: 0 !important;
+}

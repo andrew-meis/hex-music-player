@@ -26,8 +26,8 @@ const PaginationDots = ({ activeIndex, array, colLength, setActiveIndex }: Pagin
           <Box
             // eslint-disable-next-line react/no-array-index-key
             key={index}
-            padding="12px"
-            sx={{ cursor: 'pointer' }}
+            padding="11px"
+            sx={{ cursor: 'pointer', overflow: 'hidden' }}
             onClick={() => setActiveIndex(index / colLength)}
           >
             <Box
