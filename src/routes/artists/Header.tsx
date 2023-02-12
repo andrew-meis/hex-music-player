@@ -50,7 +50,7 @@ const Header = ({ context }: { context?: ArtistsContext }) => {
           height={70}
           paddingX="6px"
         >
-          <Typography sx={{ fontWeight: 600 }} variant="h4">Artists</Typography>
+          <Typography variant="h1">Artists</Typography>
           <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
         </Box>
       </Box>

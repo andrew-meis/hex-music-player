@@ -164,6 +164,14 @@ const theme = extendTheme({
           },
         },
         {
+          props: { variant: 'h1' },
+          style: {
+            fontFamily: 'TT Commons, sans-serif',
+            fontSize: '2.75rem',
+            fontWeight: '700',
+          },
+        },
+        {
           props: { variant: 'home' },
           style: {
             display: '-webkit-box',

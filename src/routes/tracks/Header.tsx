@@ -51,8 +51,9 @@ const Header = ({ context }: { context?: TracksContext }) => {
           color="text.primary"
           display="flex"
           height={70}
+          paddingX="6px"
         >
-          <Typography sx={{ fontWeight: 600 }} variant="h4">Tracks</Typography>
+          <Typography variant="h1">Tracks</Typography>
           <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
         </Box>
         <Box

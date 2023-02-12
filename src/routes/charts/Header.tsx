@@ -110,8 +110,9 @@ const Header = ({ context }: { context?: ChartsContext }) => {
           color="text.primary"
           display="flex"
           height={70}
+          paddingX="6px"
         >
-          <Typography sx={{ fontWeight: 600 }} variant="h4">Charts</Typography>
+          <Typography variant="h1">Charts</Typography>
           <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
         </Box>
         <Box

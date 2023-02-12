@@ -9,6 +9,7 @@ import { NavLink, useLocation, useNavigate, useOutletContext } from 'react-route
 import { MotionBox } from 'components/motion-components/motion-components';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import Palette from 'components/palette/Palette';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { useAlbumSearch, useTopAlbums } from 'queries/album-queries';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -33,7 +34,7 @@ const variants = {
         cursor: 'default',
         scale: 1,
         opacity: 1,
-        left: '5%',
+        left: '0%',
         zIndex: 3,
       };
     }
@@ -42,7 +43,7 @@ const variants = {
         cursor: 'pointer',
         scale: 0.8,
         opacity: 0.6,
-        left: difference === 1 ? 'calc(-4% - 16px)' : 'calc(14% + 16px)',
+        left: difference === 1 ? 'calc(-10% - 16px)' : 'calc(10% + 16px)',
         zIndex: 2,
       };
     }
@@ -50,7 +51,7 @@ const variants = {
       return {
         scale: 0.8,
         opacity: 0,
-        left: difference === 2 ? 'calc(-4% - 16px)' : 'calc(14% + 16px)',
+        left: difference === 2 ? 'calc(-10% - 16px)' : 'calc(10% + 16px)',
         zIndex: 1,
       };
     }
@@ -108,7 +109,7 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
                   opacity: { duration: 0.2 },
                 }}
                 variants={variants}
-                width="90%"
+                width="100%"
                 onClick={() => setActiveIndex(index)}
               >
                 <Avatar
@@ -216,7 +217,7 @@ const Home = () => {
     seconds: 60 * 60 * 24 * 30,
   });
 
-  const fontSize = scale(Math.min(width * 0.4, 300), [188, 300], [1.64, 2.625]);
+  const fontSize = scale(Math.min(Math.floor(width * 0.4), 300), [188, 300], [1.64, 2.625]);
 
   const cards = useMemo(() => {
     const albums = [];
@@ -252,15 +253,29 @@ const Home = () => {
       key={location.pathname}
       style={{ height: '100%', '--home-banner-font-size': `${fontSize}rem` } as React.CSSProperties}
     >
+      <Box
+        maxWidth="900px"
+        mx="auto"
+        width={WIDTH_CALC}
+      >
+        <Box
+          alignItems="center"
+          color="text.primary"
+          display="flex"
+          height={70}
+          paddingX="6px"
+        >
+          <Typography variant="h1">Home</Typography>
+        </Box>
+      </Box>
       <MotionBox
         display="flex"
         flexDirection="row"
-        height={width * 0.4}
+        height={Math.floor(width * 0.4)}
         margin="auto"
         maxHeight={300}
-        maxWidth={900}
-        paddingTop="24px"
-        width="100%"
+        maxWidth="900px"
+        width={WIDTH_CALC}
       >
         <MotionBox
           display="flex"
@@ -270,7 +285,7 @@ const Home = () => {
           }}
           width="100%"
         >
-          {cards.slice(0, 10).map((album, index) => (
+          {cards.map((album, index) => (
             <Item
               activeIndex={activeIndex}
               album={album}
@@ -284,7 +299,7 @@ const Home = () => {
       <Box>
         <PaginationDots
           activeIndex={activeIndex}
-          array={cards.slice(0, 10)}
+          array={cards}
           colLength={1}
           setActiveIndex={setActiveIndex}
         />
