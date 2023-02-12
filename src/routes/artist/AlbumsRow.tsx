@@ -121,10 +121,8 @@ const AlbumCover = ({
         onContextMenu={handleContextMenu}
       >
         <MotionBox
-          animate={{ scale: menuTarget === album.id ? 1 : 0.95 }}
           className={styles.image}
           height={measurements.COVER_HEIGHT}
-          initial={{ scale: 0.95 }}
           margin="4px"
           style={{
             '--img': `url(${thumbSrc})`,
@@ -172,10 +170,8 @@ const AlbumCover = ({
         title={album.title}
       >
         <MotionBox
-          animate={{ scale: menuTarget === album.id ? 1 : 0.95 }}
           className={styles.image}
           height={measurements.COVER_HEIGHT}
-          initial={{ scale: 0.95 }}
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}

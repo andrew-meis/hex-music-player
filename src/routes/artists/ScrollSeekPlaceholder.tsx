@@ -25,7 +25,6 @@ const ScrollSeekPlaceholder = ({ context }: { context?: ArtistsContext }) => {
             sx={{
               borderRadius: '32px',
               margin: '4px',
-              transform: 'scale(0.95)',
             }}
             variant="rectangular"
             width={measurements.IMAGE_WIDTH - 8}

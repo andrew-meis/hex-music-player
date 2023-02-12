@@ -79,12 +79,10 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       onClick={handleClick}
     >
       <MotionBox
-        animate={{ scale: open ? 1 : 0.95 }}
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
         height={imgHeight - 8}
-        initial={{ scale: 0.95 }}
         margin="4px"
         style={{
           borderRadius: '32px',

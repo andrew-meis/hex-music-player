@@ -1,6 +1,6 @@
 export const imageMotion = {
   hover: {
-    scale: [0.95, 1.02, 1],
+    scale: [1, 1.025, 1],
     transition: {
       duration: 0.4,
     },
