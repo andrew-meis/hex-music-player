@@ -5,27 +5,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Album } from 'hex-plex';
 import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
+import { MotionBox } from 'components/motion-components/motion-components';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import Palette from 'components/palette/Palette';
-import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { useAlbumSearch, useTopAlbums } from 'queries/album-queries';
 import { useConfig, useLibrary } from 'queries/app-queries';
 
-const MotionBox = motion(Box);
+const scale = (inputY: number, yRange: number[], xRange: number[]) => {
+  const [xMin, xMax] = xRange;
+  const [yMin, yMax] = yRange;
+
+  const percent = (inputY - yMin) / (yMax - yMin);
+  return percent * (xMax - xMin) + xMin;
+};
 
 const variants = {
   hide: {
     opacity: 0,
+    margin: 'auto',
     zIndex: 0,
   },
   visible: (difference: number) => {
     if (difference === 0) {
       return {
+        cursor: 'default',
         scale: 1,
         opacity: 1,
-        left: '10%',
+        left: '5%',
         zIndex: 3,
       };
     }
@@ -34,7 +42,7 @@ const variants = {
         cursor: 'pointer',
         scale: 0.8,
         opacity: 0.6,
-        left: difference === 1 ? '0' : '20%',
+        left: difference === 1 ? 'calc(-4% - 16px)' : 'calc(14% + 16px)',
         zIndex: 2,
       };
     }
@@ -42,7 +50,7 @@ const variants = {
       return {
         scale: 0.8,
         opacity: 0,
-        left: difference === 2 ? '0%' : '20%',
+        left: difference === 2 ? 'calc(-4% - 16px)' : 'calc(14% + 16px)',
         zIndex: 1,
       };
     }
@@ -85,31 +93,31 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
                 custom={difference}
                 display="flex"
                 exit="hide"
-                height="300px"
+                flexDirection="row"
+                height="100%"
                 initial="hide"
+                maxWidth={900}
                 position="absolute"
                 sx={{
                   backgroundImage:
                   `radial-gradient(circle at 115% 85%, ${gradStart}, ${gradEndOne} 40%),
                    radial-gradient(circle at 5% 5%, ${gradStart}, ${gradEndTwo} 70%)`,
                 }}
-                top="24px"
                 transition={{
                   left: { type: 'spring', stiffness: 200, damping: 30 },
                   opacity: { duration: 0.2 },
                 }}
                 variants={variants}
-                width="80%"
+                width="90%"
                 onClick={() => setActiveIndex(index)}
               >
                 <Avatar
                   alt={album.title}
                   src={thumbSrc}
                   sx={{
-                    height: '252px',
-                    ml: '24px',
-                    mt: '24px',
-                    width: '252px',
+                    height: 'auto',
+                    m: '18px',
+                    width: 'auto',
                   }}
                   variant="rounded"
                 />
@@ -117,30 +125,21 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
                   color="black"
                   display="flex"
                   flexDirection="column"
-                  height="calc(100% - 48px)"
+                  height="calc(100% - 36px)"
                   justifyContent="flex-end"
-                  mx="24px"
-                  my="24px"
+                  mb="18px"
+                  mr="18px"
+                  mt="18px"
                 >
-                  <Box display="flex" height={24}>
-                    {album.format.map((item, i, { length }) => {
-                      if (length - 1 === i) {
-                        return (
-                          <Typography key={item.tag} variant="subtitle2">
-                            {item.tag.toLowerCase()}
-                          </Typography>
-                        );
-                      }
-                      return (
-                        <Typography key={item.tag} variant="subtitle2">
-                          {item.tag.toLowerCase()}
-                          {' ·'}
-                          &nbsp;
-                        </Typography>
-                      );
-                    })}
+                  <Box display="flex" height={24} overflow="hidden">
+                    <Typography variant="subtitle2">
+                      {album.format.map((item, i, { length }) => {
+                        if (length - 1 === i) return item.tag.toLowerCase();
+                        return `${item.tag.toLowerCase()} · `;
+                      })}
+                    </Typography>
                   </Box>
-                  <Typography fontFamily="TT Commons" fontSize="2.625rem" lineHeight={1}>
+                  <Typography variant="home">
                     <NavLink
                       className="link"
                       to={`/albums/${album.id}`}
@@ -198,7 +197,11 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
 const Home = () => {
   const config = useConfig();
   const library = useLibrary();
-  const { data: newAlbums, isLoading: l1 } = useAlbumSearch(
+  const location = useLocation();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const { width } = useOutletContext() as { width: number };
+
+  const { data: newAlbums, isLoading: loadingNewAlbums } = useAlbumSearch(
     config.data,
     library,
     {
@@ -206,15 +209,15 @@ const Home = () => {
       sort: 'originallyAvailableAt:desc',
     },
   );
-  const { data: topAlbums, isLoading: l2 } = useTopAlbums({
+  const { data: topAlbums, isLoading: loadingTopAlbums } = useTopAlbums({
     config: config.data,
     library,
     limit: 10,
     seconds: 60 * 60 * 24 * 30,
   });
 
-  const location = useLocation();
-  const [activeIndex, setActiveIndex] = useState(0);
+  const fontSize = scale(Math.min(width * 0.4, 300), [188, 300], [1.64, 2.625]);
+
   const cards = useMemo(() => {
     const albums = [];
     if (newAlbums) albums.push(...newAlbums);
@@ -237,7 +240,7 @@ const Home = () => {
     return unique;
   }, [newAlbums, topAlbums]);
 
-  if (l1 || l2) {
+  if (loadingNewAlbums || loadingTopAlbums) {
     return null;
   }
 
@@ -247,14 +250,17 @@ const Home = () => {
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
+      style={{ height: '100%', '--home-banner-font-size': `${fontSize}rem` } as React.CSSProperties}
     >
       <MotionBox
         display="flex"
         flexDirection="row"
-        height="348px"
-        mx="auto"
-        width={WIDTH_CALC}
+        height={width * 0.4}
+        margin="auto"
+        maxHeight={300}
+        maxWidth={900}
+        paddingTop="24px"
+        width="100%"
       >
         <MotionBox
           display="flex"
@@ -264,7 +270,7 @@ const Home = () => {
           }}
           width="100%"
         >
-          {cards.map((album, index) => (
+          {cards.slice(0, 10).map((album, index) => (
             <Item
               activeIndex={activeIndex}
               album={album}
@@ -275,13 +281,10 @@ const Home = () => {
           ))}
         </MotionBox>
       </MotionBox>
-      <Box
-        position="relative"
-        top={-16}
-      >
+      <Box>
         <PaginationDots
           activeIndex={activeIndex}
-          array={cards}
+          array={cards.slice(0, 10)}
           colLength={1}
           setActiveIndex={setActiveIndex}
         />

@@ -24,10 +24,15 @@ const PaginationDots = ({ activeIndex, array, colLength, setActiveIndex }: Pagin
         if (index % colLength !== 0) return null;
         return (
           <Box
+            alignItems="center"
+            display="flex"
+            flexShrink={1}
+            height={32}
+            justifyContent="center"
             // eslint-disable-next-line react/no-array-index-key
             key={index}
-            padding="11px"
-            sx={{ cursor: 'pointer', overflow: 'hidden' }}
+            sx={{ cursor: 'pointer' }}
+            width={32}
             onClick={() => setActiveIndex(index / colLength)}
           >
             <Box
@@ -40,7 +45,7 @@ const PaginationDots = ({ activeIndex, array, colLength, setActiveIndex }: Pagin
                 <MotionBox
                   layoutId="highlight"
                   sx={{
-                    backgroundColor: 'text.secondary',
+                    backgroundColor: 'text.primary',
                     borderRadius: '50%',
                     height: 12,
                     width: 12,

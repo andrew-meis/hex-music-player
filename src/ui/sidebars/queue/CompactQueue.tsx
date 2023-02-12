@@ -202,7 +202,7 @@ const CompactQueue = () => {
         ))}
         <Box
           bottom={4}
-          height={32}
+          height={`calc(100% - ${(maxListLength - 1) * 46}px)`}
           position="absolute"
           sx={{
             background: `linear-gradient(to top, rgba(255,255,255, 0.04) 20%, transparent),
