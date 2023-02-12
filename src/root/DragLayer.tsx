@@ -15,18 +15,20 @@ const layerStyles: React.CSSProperties = {
 
 const getItemStyles = (
   initialCursorOffset: XYCoord | null,
+  currentCursorOffset: XYCoord | null,
   initialOffset: XYCoord | null,
   currentOffset: XYCoord | null,
 ) => {
-  if (!initialOffset || !currentOffset || !initialCursorOffset) {
+  if (!initialOffset || !currentOffset || !initialCursorOffset || !currentCursorOffset) {
     return {
       display: 'none',
     };
   }
 
+  const translate = Math.floor((currentCursorOffset.x / window.innerWidth) * 100);
   const x = initialCursorOffset.x + (currentOffset.x - initialOffset.x);
   const y = initialCursorOffset.y + (currentOffset.y - initialOffset.y);
-  const transform = `translateX(-25%) translate(${x}px, ${y}px)`;
+  const transform = `translateX(-${translate}%) translate(${x}px, ${y}px)`;
 
   return {
     transform,
@@ -69,12 +71,14 @@ const DragLayer = () => {
     // itemType,
     isDragging,
     initialCursorOffset,
+    currentCursorOffset,
     initialFileOffset,
     currentFileOffset,
   } = useDragLayer((monitor) => ({
     item: monitor.getItem(),
     itemType: monitor.getItemType(),
     initialCursorOffset: monitor.getInitialClientOffset(),
+    currentCursorOffset: monitor.getClientOffset(),
     initialFileOffset: monitor.getInitialSourceClientOffset(),
     currentFileOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
@@ -95,6 +99,7 @@ const DragLayer = () => {
       <div
         style={getItemStyles(
           initialCursorOffset,
+          currentCursorOffset,
           initialFileOffset,
           currentFileOffset,
         )}
