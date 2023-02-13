@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
+import AddToPlaylistDialog from 'components/dialogs/AddToPlaylistDialog';
 import Toast from 'components/toast/Toast';
 import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
@@ -95,6 +96,9 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
           </Box>
         )}
       </Box>
+      <AddToPlaylistDialog
+        playlists={playlists.data}
+      />
       <Toast />
       <Footer />
     </>

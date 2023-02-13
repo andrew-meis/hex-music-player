@@ -40,7 +40,7 @@ const Toast = () => {
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       autoHideDuration={2000}
       open={open}
-      sx={{ '&.MuiSnackbar-root': { bottom: '100px' } }}
+      sx={{ zIndex: 2500, '&.MuiSnackbar-root': { bottom: '100px' } }}
       onClose={handleClose}
     >
       <Alert

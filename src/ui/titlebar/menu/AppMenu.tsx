@@ -3,7 +3,7 @@ import { MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   FiLogOut, IoInformationCircleOutline, IoSettingsSharp,
 } from 'react-icons/all';

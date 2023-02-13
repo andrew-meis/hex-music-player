@@ -1,6 +1,6 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { Playlist } from 'hex-plex';
-import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import { BiHash, RiHeartLine, RiTimeLine, TbPlaylist } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import FilterInput from 'components/filter-input/FilterInput';
@@ -64,12 +64,25 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
         <Box alignItems="flex-end" color="text.primary" display="flex" height={232}>
           <Avatar
             alt={playlist.title}
-            src={thumbSrc}
+            src={playlist.thumb || playlist.composite
+              ? thumbSrc
+              : undefined}
             sx={{
               height: 216, margin: '8px', ml: 0, width: 216,
             }}
             variant="rounded"
-          />
+          >
+            <SvgIcon
+              sx={{
+                alignSelf: 'center',
+                color: 'common.black',
+                height: '65%',
+                width: '65%',
+              }}
+            >
+              <TbPlaylist />
+            </SvgIcon>
+          </Avatar>
           <Box alignItems="flex-end" display="flex" flexGrow={1} mb="10px">
             <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
               <Box display="flex" height={18}>

@@ -42,14 +42,14 @@ const TrackHighlights = React.memo(({
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrackId = useCallback(() => {
+  const getTrack = useCallback(() => {
     if (!tracks) {
-      return 0;
+      return undefined;
     }
     if (selectedRows.length === 1) {
-      return tracks[selectedRows[0]].id;
+      return tracks[selectedRows[0]];
     }
-    return 0;
+    return undefined;
   }, [selectedRows, tracks]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -186,10 +186,10 @@ const TrackHighlights = React.memo(({
       <TrackMenu
         anchorPoint={anchorPoint}
         handleMenuSelection={handleMenuSelection}
-        id={getTrackId()}
         menuProps={menuProps}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
+        track={getTrack()}
       />
     </>
   );

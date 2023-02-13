@@ -104,15 +104,15 @@ const Album = () => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrackId = useCallback(() => {
+  const getTrack = useCallback(() => {
     if (!albumTracks.data) {
-      return 0;
+      return undefined;
     }
     if (selectedRows.length === 1 && inRange(selectedRows[0], 0, albumTracks.data.length)) {
       const [track] = selectedRows.map((n) => albumTracks.data[n]);
-      return track.id;
+      return track;
     }
-    return 0;
+    return undefined;
   }, [albumTracks.data, selectedRows]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -259,10 +259,10 @@ const Album = () => {
       <TrackMenu
         anchorPoint={anchorPoint}
         handleMenuSelection={handleMenuSelection}
-        id={getTrackId()}
         menuProps={menuProps}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
+        track={getTrack()}
       />
     </>
   );

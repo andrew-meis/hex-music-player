@@ -121,14 +121,14 @@ const Charts = () => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrackId = useCallback(() => {
+  const getTrack = useCallback(() => {
     if (!topTracks) {
-      return 0;
+      return undefined;
     }
     if (selectedRows.length === 1) {
-      return topTracks[selectedRows[0]].id;
+      return topTracks[selectedRows[0]];
     }
-    return 0;
+    return undefined;
   }, [selectedRows, topTracks]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -292,10 +292,10 @@ const Charts = () => {
       <TrackMenu
         anchorPoint={anchorPoint}
         handleMenuSelection={handleMenuSelection}
-        id={getTrackId()}
         menuProps={menuProps}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
+        track={getTrack()}
       />
     </>
   );

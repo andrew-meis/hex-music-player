@@ -28,7 +28,9 @@ const FixedHeader = ({
   >
     <Avatar
       alt={playlist.title}
-      src={thumbSrcSm}
+      src={playlist.thumb || playlist.composite
+        ? thumbSrcSm
+        : undefined}
       sx={{ width: 60, height: 60 }}
       variant="rounded"
     />

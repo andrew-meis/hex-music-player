@@ -10,6 +10,7 @@ declare module '@mui/material/styles' {
   interface CommonColors {
     grey: string;
     contrastGrey: string;
+    overlay: string;
   }
   interface Palette {
     border?: Palette['primary'];
@@ -65,6 +66,7 @@ const dark: ColorSystemOptions = {
       white: '#f9f9f9',
       grey: grey['600'],
       contrastGrey: grey['900'],
+      overlay: 'linear-gradient(rgba(255,255,255,0.04),rgba(255,255,255,0.04))',
     },
   },
 };
@@ -84,6 +86,7 @@ const light: ColorSystemOptions = {
       white: '#f9f9f9',
       grey: grey['400'],
       contrastGrey: grey['100'],
+      overlay: 'linear-gradient(rgba(0,0,0,0.02),rgba(0,0,0,0.02))',
     },
     text: {
       primary: 'rgba(0, 0, 0, 1)',
@@ -109,6 +112,13 @@ const theme = extendTheme({
           ':hover': {
             backgroundColor: vars.palette.action.disabled,
           },
+        }),
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: ({ theme: { vars } }) => ({
+          backgroundImage: vars.palette.common.overlay,
         }),
       },
     },

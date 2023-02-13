@@ -1,7 +1,9 @@
 import {
-  Box, Button, ButtonGroup,
+  Box, Button, ButtonGroup, SvgIcon,
 } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
+import { MdPlaylistAdd } from 'react-icons/all';
 import usePlayback from 'hooks/usePlayback';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import { allButtons, ButtonSpecs } from '../../../../constants/buttons';
@@ -33,6 +35,7 @@ interface Props {
 }
 
 const TooltipMenu = ({ result, open, setOpen }: Props) => {
+  const queryClient = useQueryClient();
   const { playSwitch } = usePlayback();
 
   const handleButton = async (
@@ -81,6 +84,20 @@ const TooltipMenu = ({ result, open, setOpen }: Props) => {
             {button.name}
           </Button>
         ))}
+        {isTrack(result) && (
+          <Button
+            sx={buttonStyle}
+            onClick={(e) => {
+              e.stopPropagation();
+              queryClient.setQueryData(['playlist-dialog-open'], result);
+              document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
+              setOpen(!open);
+            }}
+          >
+            <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
+            Add to playlist
+          </Button>
+        )}
       </ButtonGroup>
     </Box>
   );

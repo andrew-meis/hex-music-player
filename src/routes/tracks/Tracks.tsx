@@ -103,14 +103,14 @@ const Tracks = () => {
     setSelectedRows([]);
   }, [location, setSelectedRows]);
 
-  const getTrackId = useCallback(() => {
+  const getTrack = useCallback(() => {
     if (!flatTracks) {
-      return 0;
+      return undefined;
     }
     if (selectedRows.length === 1) {
-      return flatTracks[selectedRows[0]].id;
+      return flatTracks[selectedRows[0]];
     }
-    return 0;
+    return undefined;
   }, [selectedRows, flatTracks]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -281,10 +281,10 @@ const Tracks = () => {
       <TrackMenu
         anchorPoint={anchorPoint}
         handleMenuSelection={handleMenuSelection}
-        id={getTrackId()}
         menuProps={menuProps}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
+        track={getTrack()}
       />
     </>
   );

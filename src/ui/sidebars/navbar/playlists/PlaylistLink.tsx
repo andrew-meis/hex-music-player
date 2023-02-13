@@ -28,8 +28,8 @@ const PlaylistLink = ({
 
   const handleDrop = async (item: PlayQueueItem | Track | Track[]) => {
     if (Array.isArray(item)) {
-      await item.forEach((track) => {
-        addToPlaylist(playlist.id, track.key);
+      item.forEach(async (track) => {
+        await addToPlaylist(playlist.id, track.key);
       });
       return;
     }

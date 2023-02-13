@@ -87,11 +87,11 @@ const SimilarTracks = () => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrackId = useCallback(() => {
+  const getTrack = useCallback(() => {
     if (selectedRows.length === 1) {
-      return items[selectedRows[0]].id;
+      return items[selectedRows[0]];
     }
-    return 0;
+    return undefined;
   }, [items, selectedRows]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -237,10 +237,10 @@ const SimilarTracks = () => {
       <TrackMenu
         anchorPoint={anchorPoint}
         handleMenuSelection={handleMenuSelection}
-        id={getTrackId()}
         menuProps={menuProps}
         selectedRows={selectedRows}
         toggleMenu={toggleMenu}
+        track={getTrack()}
       />
     </>
   );

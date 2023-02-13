@@ -43,13 +43,6 @@ export const allButtons: ButtonSpecs[] = [
     shuffle: false,
   },
   {
-    type: 'track',
-    icon: <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>,
-    name: 'Add to playlist',
-    action: PlayActions.DO_NOTHING,
-    shuffle: false,
-  },
-  {
     type: 'album',
     icon: <SvgIcon sx={{ mr: '8px' }}><BsPlayFill /></SvgIcon>,
     name: 'Play now',
