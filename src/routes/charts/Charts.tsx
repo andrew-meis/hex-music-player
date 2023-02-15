@@ -20,7 +20,6 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { IConfig, IVirtuosoContext } from 'types/interfaces';
-import { ButtonSpecs } from '../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
 
@@ -121,12 +120,12 @@ const Charts = () => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrack = useCallback(() => {
+  const selectedTracks = useMemo(() => {
     if (!topTracks) {
       return undefined;
     }
-    if (selectedRows.length === 1) {
-      return topTracks[selectedRows[0]];
+    if (selectedRows.length > 0) {
+      return selectedRows.map((n) => topTracks[n]);
     }
     return undefined;
   }, [selectedRows, topTracks]);
@@ -138,39 +137,22 @@ const Charts = () => {
       return;
     }
     const targetIndex = parseInt(target, 10);
-    if (selectedRows.length === 0) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length === 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length === 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length > 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length > 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
+    switch (true) {
+      case selectedRows.length === 0:
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      default:
+        break;
     }
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
-
-  const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!topTracks) {
-      return;
-    }
-    if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => topTracks[n]);
-      await playSwitch(button.action, { track, shuffle: button.shuffle });
-      return;
-    }
-    if (selectedRows.length > 1) {
-      const tracks = selectedRows.map((n) => topTracks[n]);
-      await playSwitch(button.action, { tracks, shuffle: button.shuffle });
-    }
-  };
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -291,11 +273,10 @@ const Charts = () => {
       </motion.div>
       <TrackMenu
         anchorPoint={anchorPoint}
-        handleMenuSelection={handleMenuSelection}
-        menuProps={menuProps}
-        selectedRows={selectedRows}
+        playSwitch={playSwitch}
         toggleMenu={toggleMenu}
-        track={getTrack()}
+        tracks={selectedTracks}
+        {...menuProps}
       />
     </>
   );

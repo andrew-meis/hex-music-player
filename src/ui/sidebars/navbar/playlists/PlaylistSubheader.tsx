@@ -88,7 +88,7 @@ const PlaylistSubheader = ({ show, setShow }: PlaylistSubheaderProps) => {
               </InputAdornment>
             )}
             inputProps={{ style: { padding: '4px 8px 4px' }, spellCheck: false }}
-            placeholder="Playlist title..."
+            placeholder="Create playlist..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />

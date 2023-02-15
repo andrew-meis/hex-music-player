@@ -1,78 +1,90 @@
 import { SvgIcon } from '@mui/material';
-import { ControlledMenu, MenuDivider, MenuItem, MenuState } from '@szhsin/react-menu';
+import { ControlledMenu, ControlledMenuProps, MenuDivider, MenuItem } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { Track } from 'hex-plex';
-import React from 'react';
-import { MdPlaylistAdd, TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
+import React, { useCallback } from 'react';
+import { MdPlaylistAdd, RiAlbumFill, TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { PlayParams } from 'hooks/usePlayback';
+import { PlayActions } from 'types/enums';
 import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 
-interface TrackMenuProps{
-  anchorPoint: { x: number; y: number; };
-  // eslint-disable-next-line react/require-default-props
-  children?: React.ReactNode;
-  handleMenuSelection: (button: ButtonSpecs) => Promise<void>;
-  menuProps: {
-      state?: MenuState | undefined;
-      endTransition: () => void;
-  };
-  selectedRows: number[];
+interface TrackMenuProps extends ControlledMenuProps{
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   toggleMenu: (open?: boolean | undefined) => void;
-  track: Track | undefined;
+  tracks: Track[] | undefined;
 }
 
 const TrackMenu = ({
-  anchorPoint,
   children,
-  handleMenuSelection,
-  menuProps,
-  selectedRows,
+  playSwitch,
   toggleMenu,
-  track,
+  tracks,
+  ...props
 }: TrackMenuProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  if (!track) return null;
+
+  const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
+    if (!tracks) {
+      return;
+    }
+    if (tracks.length === 1) {
+      const [track] = tracks;
+      await playSwitch(button.action, { track, shuffle: button.shuffle });
+      return;
+    }
+    if (tracks.length > 1) {
+      await playSwitch(button.action, { tracks, shuffle: button.shuffle });
+    }
+  }, [playSwitch, tracks]);
+
+  if (!tracks) return null;
+
   return (
     <ControlledMenu
-      {...menuProps}
       portal
-      anchorPoint={anchorPoint}
       onClose={() => toggleMenu(false)}
+      {...props}
     >
-      {selectedRows.length === 1 && trackButtons.map((button: ButtonSpecs) => (
+      {tracks.length === 1 && trackButtons.map((button: ButtonSpecs) => (
         <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
           {button.icon}
           {button.name}
         </MenuItem>
       ))}
-      {selectedRows.length > 1 && tracksButtons.map((button: ButtonSpecs) => (
+      {tracks.length > 1 && tracksButtons.map((button: ButtonSpecs) => (
         <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
           {button.icon}
           {button.name}
         </MenuItem>
       ))}
-      {selectedRows.length === 1 && (
+      <MenuDivider />
+      <MenuItem
+        onClick={() => queryClient
+          .setQueryData(['playlist-dialog-open'], tracks)}
+      >
+        <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
+        Add to playlist
+      </MenuItem>
+      {tracks.length === 1 && (
         <>
           <MenuItem
-            onClick={() => queryClient
-              .setQueryData(['playlist-dialog-open'], track)}
+            onClick={() => navigate(`/tracks/${tracks[0].id}/similar`)}
           >
-            <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
-            Add to playlist
+            <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
+            Similar tracks
           </MenuItem>
           <MenuDivider />
           <MenuItem
-            onClick={() => navigate(`/tracks/${track.id}`)}
+            onClick={() => navigate(`/tracks/${tracks[0].id}`)}
           >
             <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
             Track information
           </MenuItem>
-          <MenuItem
-            onClick={() => navigate(`/tracks/${track.id}/similar`)}
-          >
-            <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
-            Similar tracks
+          <MenuItem onClick={() => navigate(`/albums/${tracks[0].parentId}`)}>
+            <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+            Go to album
           </MenuItem>
         </>
       )}
@@ -81,4 +93,4 @@ const TrackMenu = ({
   );
 };
 
-export default TrackMenu;
+export default React.memo(TrackMenu);

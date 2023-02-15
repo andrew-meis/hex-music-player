@@ -1,14 +1,14 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import { MenuDivider, MenuItem } from '@szhsin/react-menu';
+import { useMenuState } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import { Track } from 'hex-plex';
-import { RiAlbumFill, TbWaveSawTool } from 'react-icons/all';
+import { useRef } from 'react';
+import { FiMoreVertical } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import ActionMenu from 'components/action-menu/ActionMenu';
 import TrackRating from 'components/rating/TrackRating';
-import { ButtonSpecs, trackButtons } from 'constants/buttons';
+import TrackMenu from 'components/track-menu/TrackMenu';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { PaletteState } from 'hooks/usePalette';
@@ -33,7 +33,9 @@ interface HeaderProps {
 }
 
 const Header = ({ colors, playSwitch, track }: HeaderProps) => {
+  const menuRef = useRef(null);
   const navigate = useNavigate();
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const [grandparentThumbSrc] = useThumbnail(track.grandparentThumb || 'none', 100);
   const [thumbSrc] = useThumbnail(track.parentThumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(track.parentThumb || 'none', 100);
@@ -148,36 +150,42 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
             </Box>
           </Box>
         </Box>
-        <Box mb="5px">
-          <ActionMenu
-            arrow
-            portal
-            align="center"
-            direction="left"
-            width={16}
-          >
-            {trackButtons.map((button: ButtonSpecs) => (
-              <MenuItem
-                key={button.name}
-                onClick={() => playSwitch(button.action, {
-                  track, shuffle: button.shuffle,
-                })}
-              >
-                {button.icon}
-                {button.name}
-              </MenuItem>
-            ))}
-            <MenuDivider />
-            <MenuItem onClick={() => navigate(`/tracks/${track.id}/similar`)}>
-              <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
-              Similar tracks
-            </MenuItem>
-            <MenuItem onClick={() => navigate(`/albums/${track.parentId}`)}>
-              <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-              Go to album
-            </MenuItem>
-          </ActionMenu>
+        <Box
+          alignItems="center"
+          color={menuProps.state === 'open' || menuProps.state === 'opening'
+            ? 'text.primary'
+            : 'text.secondary'}
+          display="flex"
+          height={32}
+          justifyContent="center"
+          mb="5px"
+          ref={menuRef}
+          sx={{
+            '&:hover': {
+              color: 'text.primary',
+            },
+          }}
+          width={16}
+          onClick={() => {
+            if (menuProps.state === 'closing') return;
+            toggleMenu(true);
+          }}
+        >
+          <SvgIcon>
+            <FiMoreVertical />
+          </SvgIcon>
         </Box>
+        <TrackMenu
+          arrow
+          portal
+          align="center"
+          anchorRef={menuRef}
+          direction="left"
+          playSwitch={playSwitch}
+          toggleMenu={toggleMenu}
+          tracks={[track]}
+          {...menuProps}
+        />
       </Box>
     </>
   );

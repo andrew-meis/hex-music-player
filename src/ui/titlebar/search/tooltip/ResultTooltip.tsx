@@ -7,14 +7,15 @@ import TooltipMenu from './TooltipMenu';
 import type { Result } from 'types/types';
 
 interface Props {
-  result: Result;
-  isTooltipOpen: boolean;
-  setTooltipOpen: React.Dispatch<React.SetStateAction<boolean>>;
   color: 'text.primary' | 'common.black'
+  result: Result;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setTooltipOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  tooltipOpen: boolean;
 }
 
 const ResultTooltip = ({
-  result, isTooltipOpen, setTooltipOpen, color,
+  color, result, tooltipOpen, setOpen, setTooltipOpen,
 }: Props) => (
   <Tooltip
     arrow
@@ -39,14 +40,14 @@ const ResultTooltip = ({
     }}
     enterDelay={300}
     enterNextDelay={300}
-    open={isTooltipOpen}
+    open={tooltipOpen}
     placement="right"
     sx={{ pointerEvents: 'auto' }}
     title={(
       <TooltipMenu
-        open={isTooltipOpen}
         result={result}
-        setOpen={setTooltipOpen}
+        setOpen={setOpen}
+        setTooltipOpen={setTooltipOpen}
       />
     )}
     onClose={() => {

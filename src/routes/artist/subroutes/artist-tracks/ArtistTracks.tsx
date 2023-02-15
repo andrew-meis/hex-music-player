@@ -24,7 +24,6 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { IConfig, IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
-import { ButtonSpecs } from '../../../../constants/buttons';
 import Header from './Header';
 import Row from './Row';
 
@@ -129,12 +128,15 @@ const ArtistTracks = () => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrack = useCallback(() => {
-    if (selectedRows.length === 1) {
-      return items[selectedRows[0]];
+  const selectedTracks = useMemo(() => {
+    if (!items) {
+      return undefined;
+    }
+    if (selectedRows.length > 0) {
+      return selectedRows.map((n) => items[n]);
     }
     return undefined;
-  }, [items, selectedRows]);
+  }, [selectedRows, items]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -143,39 +145,22 @@ const ArtistTracks = () => {
       return;
     }
     const targetIndex = parseInt(target, 10);
-    if (selectedRows.length === 0) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length === 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length === 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length > 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length > 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
+    switch (true) {
+      case selectedRows.length === 0:
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      default:
+        break;
     }
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
-
-  const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!items) {
-      return;
-    }
-    if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => items[n]);
-      await playSwitch(button.action, { track, shuffle: button.shuffle });
-      return;
-    }
-    if (selectedRows.length > 1) {
-      const selectedTracks = selectedRows.map((n) => items[n]);
-      await playSwitch(button.action, { tracks: selectedTracks, shuffle: button.shuffle });
-    }
-  };
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -280,11 +265,10 @@ const ArtistTracks = () => {
       </motion.div>
       <TrackMenu
         anchorPoint={anchorPoint}
-        handleMenuSelection={handleMenuSelection}
-        menuProps={menuProps}
-        selectedRows={selectedRows}
+        playSwitch={playSwitch}
         toggleMenu={toggleMenu}
-        track={getTrack()}
+        tracks={selectedTracks}
+        {...menuProps}
       />
     </>
   );

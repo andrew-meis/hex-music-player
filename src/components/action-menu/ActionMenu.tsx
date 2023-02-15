@@ -8,7 +8,7 @@ interface ActionMenuButtonProps extends MenuButtonProps{
   width: number;
 }
 
-const ActionMenuButton = React.forwardRef((
+export const ActionMenuButton = React.forwardRef((
   { open, width, onClick, onKeyDown }: ActionMenuButtonProps,
   ref,
 ) => (

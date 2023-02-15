@@ -1,7 +1,7 @@
 import {
   Avatar, Box, SvgIcon, Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
@@ -55,7 +55,7 @@ interface TopResultProps {
 const TopResult = ({ topResult, setOpen }: TopResultProps) => {
   const library = useLibrary();
   const [isHovered, setHovered] = useState(false);
-  const [isTooltipOpen, setTooltipOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
   const { data: settings } = useSettings();
   const { colorMode } = settings;
 
@@ -79,7 +79,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, topResult]);
 
-  const additionalText = () => {
+  const additionalText = useMemo(() => {
     if (isArtist(topResult)) {
       return topResult.childCount > 1
         ? `${topResult.childCount} releases`
@@ -94,9 +94,9 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
         : topResult.grandparentTitle;
     }
     throw new Error('no matching type');
-  };
+  }, [topResult]);
 
-  const linkState = () => {
+  const linkState = useMemo(() => {
     if (isArtist(topResult)) {
       return {
         guid: topResult.guid,
@@ -114,9 +114,9 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
       return { guid: topResult.grandparentGuid, title: topResult.grandparentTitle };
     }
     throw new Error('no matching type');
-  };
+  }, [topResult]);
 
-  const textSize = () => {
+  const fontSize = useMemo(() => {
     switch (true) {
       case topResult.title.length > 55:
         return '1.4rem';
@@ -128,9 +128,9 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
         return '2.0rem';
       default: return '2.0rem';
     }
-  };
+  }, [topResult.title.length]);
 
-  const resultType = () => {
+  const resultType = useMemo(() => {
     switch (topResult.type) {
       case 'artist':
         return (
@@ -149,9 +149,9 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
       default:
         return null;
     }
-  };
+  }, [topResult.type]);
 
-  const backgroundColor = () => {
+  const backgroundColor = useMemo(() => {
     if (isError || !palette) {
       return colorMode === 'light'
         ? `${defaultColors.lightVibrant}66`
@@ -160,7 +160,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
     return colorMode === 'light'
       ? `${palette.lightVibrant}66`
       : `${palette.lightVibrant}e6`;
-  };
+  }, [colorMode, isError, palette]);
 
   return (
     <Box
@@ -168,7 +168,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
       ref={drag}
       sx={{
         borderRadius: '8px',
-        backgroundColor: backgroundColor(),
+        backgroundColor,
       }}
       width="auto"
       onMouseEnter={() => setHovered(true)}
@@ -211,7 +211,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
               <IoMdMicrophone />
             </SvgIcon>
           </Avatar>
-          {resultType()}
+          {resultType}
         </Box>
         <Box
           className={styles['top-result-actions']}
@@ -233,13 +233,13 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
                 ...typographyStyle,
                 color: 'common.black',
                 fontFamily: 'Rubik, sans-serif',
-                fontSize: textSize(),
+                fontSize,
                 fontWeight: 700,
               }}
             >
               <Link
                 className="link"
-                state={isArtist(topResult) ? linkState() : null}
+                state={isArtist(topResult) ? linkState : null}
                 to={{
                   artist: isArtist(topResult) ? `/artists/${topResult.id}` : '',
                   album: isAlbum(topResult) ? `/albums/${topResult.id}` : '',
@@ -260,7 +260,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
             >
               <Link
                 className="link"
-                state={linkState()}
+                state={linkState}
                 to={{
                   artist: isArtist(topResult) ? `/artists/${topResult.id}/discography` : '',
                   album: isAlbum(topResult) ? `/artists/${topResult.parentId}` : '',
@@ -268,7 +268,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
                 }[topResult.type] || '/'}
                 onClick={() => setOpen(false)}
               >
-                {additionalText()}
+                {additionalText}
               </Link>
             </Typography>
           </Box>
@@ -292,9 +292,10 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
         <Box alignItems="center" display="flex" height="calc(100% + 24px)" width="24px">
           <ResultTooltip
             color="common.black"
-            isTooltipOpen={isTooltipOpen}
             result={topResult}
+            setOpen={setOpen}
             setTooltipOpen={setTooltipOpen}
+            tooltipOpen={tooltipOpen}
           />
         </Box>
       </Box>

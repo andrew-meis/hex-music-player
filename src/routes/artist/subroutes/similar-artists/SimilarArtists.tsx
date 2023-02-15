@@ -9,6 +9,7 @@ import {
   NavigateFunction,
   useLocation,
   useNavigate,
+  useNavigationType,
   useOutletContext,
   useParams,
 } from 'react-router-dom';
@@ -122,6 +123,7 @@ const SimilarArtists = () => {
   const artist = useArtist(+id, library);
 
   const navigate = useNavigate();
+  const navigationType = useNavigationType();
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
@@ -211,6 +213,17 @@ const SimilarArtists = () => {
     }
   };
 
+  const initialScrollTop = useMemo(() => {
+    let top;
+    top = sessionStorage.getItem(`similiar-artists ${id}`);
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    return 0;
+  }, [id, navigationType]);
+
   const similarArtistContext = useMemo(() => ({
     artist: artist.data,
     getFormattedTime,
@@ -266,6 +279,8 @@ const SimilarArtists = () => {
       initial={{ opacity: 0 }}
       key={location.pathname}
       style={{ height: '100%' }}
+      onAnimationComplete={() => virtuoso.current
+        ?.scrollTo({ top: initialScrollTop, behavior: 'smooth' })}
     >
       <GroupedVirtuoso
         className="scroll-container"
@@ -293,6 +308,13 @@ const SimilarArtists = () => {
         }}
         ref={virtuoso}
         style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+        onScroll={(e) => {
+          const target = e.currentTarget as unknown as HTMLDivElement;
+          sessionStorage.setItem(
+            `similiar-artists ${id}`,
+            target.scrollTop as unknown as string,
+          );
+        }}
       />
     </motion.div>
   );

@@ -144,7 +144,7 @@ const Artists = () => {
     return rows;
   }, [artists, grid]);
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
     top = sessionStorage.getItem('artists');
     if (!top) return 0;
@@ -153,7 +153,7 @@ const Artists = () => {
       return top;
     }
     return 0;
-  };
+  }, [navigationType]);
 
   const measurements = useMemo(() => ({
     IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
@@ -229,6 +229,8 @@ const Artists = () => {
       initial={{ opacity: 0 }}
       key={location.pathname}
       style={{ height: '100%' }}
+      onAnimationComplete={() => virtuoso.current
+        ?.scrollTo({ top: initialScrollTop, behavior: 'smooth' })}
     >
       <Virtuoso
         className="scroll-container"
@@ -239,7 +241,6 @@ const Artists = () => {
         }}
         context={artistsContext}
         data={items}
-        initialScrollTop={initialScrollTop()}
         itemContent={(index, item, context) => RowContent({ context, index, artists: item })}
         ref={virtuoso}
         scrollSeekConfiguration={{

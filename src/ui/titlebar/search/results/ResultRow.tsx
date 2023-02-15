@@ -1,7 +1,7 @@
 import {
   Avatar, Box, ListItem, SvgIcon, Typography,
 } from '@mui/material';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
@@ -51,7 +51,7 @@ const ResultRow = ({
   const library = useLibrary();
   const navigate = useNavigate();
   const [isHovered, setHovered] = useState(false);
-  const [isTooltipOpen, setTooltipOpen] = useState(false);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
   const thumbSrc = result.thumb
     ? library.api.getAuthenticatedUrl(
       '/photo/:/transcode',
@@ -71,8 +71,8 @@ const ResultRow = ({
   }, [dragPreview, result]);
 
   useEffect(() => {
-    setHovered(isTooltipOpen);
-  }, [isTooltipOpen]);
+    setHovered(tooltipOpen);
+  }, [tooltipOpen]);
 
   const handleNavigate = useCallback((
     event: React.MouseEvent<HTMLDivElement>,
@@ -84,7 +84,7 @@ const ResultRow = ({
     setOpen(false);
   }, [navigate, setOpen]);
 
-  const additionalText = useCallback(() => {
+  const additionalText = useMemo(() => {
     if (isArtist(result)) {
       return (
         <Box display="flex">
@@ -157,7 +157,7 @@ const ResultRow = ({
         </Box>
       );
     }
-    throw new Error('no matching type');
+    return '';
   }, [handleNavigate, result]);
 
   const handleClick = () => {
@@ -232,15 +232,16 @@ const ResultRow = ({
           </span>
           <br />
           <span style={{ fontSize: '0.875rem' }}>
-            {additionalText()}
+            {additionalText}
           </span>
         </Box>
       </Box>
       <ResultTooltip
         color="text.primary"
-        isTooltipOpen={isTooltipOpen}
         result={result}
+        setOpen={setOpen}
         setTooltipOpen={setTooltipOpen}
+        tooltipOpen={tooltipOpen}
       />
     </ListItem>
   );

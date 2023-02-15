@@ -3,10 +3,11 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { MdPlaylistAdd } from 'react-icons/all';
+import { MdPlaylistAdd, TbWaveSawTool } from 'react-icons/all';
+import { useNavigate } from 'react-router-dom';
+import { allButtons, ButtonSpecs } from 'constants/buttons';
 import usePlayback from 'hooks/usePlayback';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
-import { allButtons, ButtonSpecs } from '../../../../constants/buttons';
 import type { Result } from 'types/types';
 
 const buttonStyle = {
@@ -30,16 +31,17 @@ const buttonStyle = {
 
 interface Props {
   result: Result;
-  open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setTooltipOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TooltipMenu = ({ result, open, setOpen }: Props) => {
+const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { playSwitch } = usePlayback();
 
   const handleButton = async (
-    event: React.SyntheticEvent<HTMLButtonElement>,
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     button: ButtonSpecs,
   ) => {
     event.stopPropagation();
@@ -53,7 +55,17 @@ const TooltipMenu = ({ result, open, setOpen }: Props) => {
       await playSwitch(button.action, { track: result, shuffle: button.shuffle });
     }
     document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
-    setOpen(!open);
+    setTooltipOpen(false);
+    setOpen(false);
+  };
+
+  const handleButtonGeneric = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    event.stopPropagation();
+    document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
+    setTooltipOpen(false);
+    setOpen(false);
   };
 
   const buttons = allButtons.filter((button) => button.type === result.type);
@@ -85,18 +97,29 @@ const TooltipMenu = ({ result, open, setOpen }: Props) => {
           </Button>
         ))}
         {isTrack(result) && (
-          <Button
-            sx={buttonStyle}
-            onClick={(e) => {
-              e.stopPropagation();
-              queryClient.setQueryData(['playlist-dialog-open'], result);
-              document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
-              setOpen(!open);
-            }}
-          >
-            <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
-            Add to playlist
-          </Button>
+          <>
+            <div className="szh-menu__divider" style={{ width: '-webkit-fill-available' }} />
+            <Button
+              sx={buttonStyle}
+              onClick={(event) => {
+                handleButtonGeneric(event);
+                queryClient.setQueryData(['playlist-dialog-open'], [result]);
+              }}
+            >
+              <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
+              Add to playlist
+            </Button>
+            <Button
+              sx={buttonStyle}
+              onClick={(event) => {
+                handleButtonGeneric(event);
+                navigate(`/tracks/${result.id}/similar`);
+              }}
+            >
+              <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
+              Similar tracks
+            </Button>
+          </>
         )}
       </ButtonGroup>
     </Box>

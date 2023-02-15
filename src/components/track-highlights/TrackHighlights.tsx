@@ -1,11 +1,10 @@
 import { Box, ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { Track } from 'hex-plex';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import TrackRow from 'components/track-row/TrackRow';
-import { ButtonSpecs } from 'constants/buttons';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -42,12 +41,12 @@ const TrackHighlights = React.memo(({
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrack = useCallback(() => {
+  const selectedTracks = useMemo(() => {
     if (!tracks) {
       return undefined;
     }
-    if (selectedRows.length === 1) {
-      return tracks[selectedRows[0]];
+    if (selectedRows.length > 0) {
+      return selectedRows.map((n) => tracks[n]);
     }
     return undefined;
   }, [selectedRows, tracks]);
@@ -59,39 +58,22 @@ const TrackHighlights = React.memo(({
       return;
     }
     const targetIndex = parseInt(target, 10);
-    if (selectedRows.length === 0) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length === 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length === 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length > 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length > 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
+    switch (true) {
+      case selectedRows.length === 0:
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      default:
+        break;
     }
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
-
-  const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!tracks) {
-      return;
-    }
-    if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => tracks[n]);
-      await playSwitch(button.action, { track, shuffle: button.shuffle });
-      return;
-    }
-    if (selectedRows.length > 1) {
-      const selectedTracks = selectedRows.map((n) => tracks[n]);
-      await playSwitch(button.action, { tracks: selectedTracks, shuffle: button.shuffle });
-    }
-  };
 
   const handleMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
     const target = event.currentTarget.getAttribute('data-item-index');
@@ -185,11 +167,10 @@ const TrackHighlights = React.memo(({
       </Box>
       <TrackMenu
         anchorPoint={anchorPoint}
-        handleMenuSelection={handleMenuSelection}
-        menuProps={menuProps}
-        selectedRows={selectedRows}
+        playSwitch={playSwitch}
         toggleMenu={toggleMenu}
-        track={getTrack()}
+        tracks={selectedTracks}
+        {...menuProps}
       />
     </>
   );

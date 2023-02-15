@@ -1,16 +1,14 @@
-import { Box, CircularProgress, Grid, SvgIcon, Typography } from '@mui/material';
-import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { Box, CircularProgress, Grid, Typography } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
 import { Library, Track } from 'hex-plex';
 import { throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
-import { RiAlbumFill, TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
-import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { usePrevious } from 'react-use';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
-import { ButtonSpecs, trackButtons } from 'constants/buttons';
+import TrackMenu from 'components/track-menu/TrackMenu';
 import { typographyStyle } from 'constants/style';
 import { PlayParams } from 'hooks/usePlayback';
 import useToast from 'hooks/useToast';
@@ -19,41 +17,6 @@ import { useLastfmSimilar } from 'queries/last-fm-queries';
 import { getTrackMatch } from 'queries/plex-query-fns';
 import { PlayActions } from 'types/enums';
 import { LastFmTrack } from 'types/lastfm-interfaces';
-
-interface MenuItemsProps {
-  navigate: NavigateFunction;
-  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
-  track: Track | undefined;
-}
-
-const MenuItems = ({ navigate, playSwitch, track }: MenuItemsProps) => (
-  <>
-    {trackButtons.map((button: ButtonSpecs) => (
-      <MenuItem
-        key={button.name}
-        onClick={() => playSwitch(button.action, {
-          track, shuffle: button.shuffle,
-        })}
-      >
-        {button.icon}
-        {button.name}
-      </MenuItem>
-    ))}
-    <MenuDivider />
-    <MenuItem onClick={() => navigate(`/tracks/${track!.id}`)}>
-      <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
-      Track information
-    </MenuItem>
-    <MenuItem onClick={() => navigate(`/tracks/${track!.id}/similar`)}>
-      <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
-      Similar tracks
-    </MenuItem>
-    <MenuItem onClick={() => navigate(`/albums/${track!.parentId}`)}>
-      <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-      Go to album
-    </MenuItem>
-  </>
-);
 
 const getCols = (width: number) => {
   if (width >= 800) {
@@ -99,7 +62,6 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
   const hoverIndex = useRef(0);
   const length = (cols || 4) * 4;
   const match = useRef<Track>();
-  const navigate = useNavigate();
   const toast = useToast();
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
@@ -292,22 +254,18 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
           </Grid>
         </MotionBox>
       </AnimatePresence>
-      <ControlledMenu
-        {...menuProps}
+      <TrackMenu
         arrow
         portal
         align="center"
         anchorPoint={anchorPoint}
         direction="left"
         offsetX={-10}
-        onClose={() => toggleMenu(false)}
-      >
-        <MenuItems
-          navigate={navigate}
-          playSwitch={playSwitch}
-          track={match.current}
-        />
-      </ControlledMenu>
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        tracks={match.current ? [match.current] : undefined}
+        {...menuProps}
+      />
       <PaginationDots
         activeIndex={activeIndex}
         array={similarTracks}

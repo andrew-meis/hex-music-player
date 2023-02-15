@@ -17,13 +17,15 @@ import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
-import { isTrack } from 'types/type-guards';
 
-interface AddToPlaylistDialogProps {
+const cartesian = (...a: any[]) => a
+  .reduce((p, c) => p.flatMap((d: any) => c.map((e: any) => [d, e].flat())));
+
+interface AddToPlaylistProps {
   playlists: Playlist[] | undefined;
 }
 
-const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
+const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
   const addToPlaylist = useAddToPlaylist();
   const createPlaylist = useCreatePlaylist();
   const library = useLibrary();
@@ -31,16 +33,16 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
   const toast = useToast();
   const [selected, setSelected] = useState<number[]>([]);
   const [title, setTitle] = useState('');
-  const { data: track, isLoading } = useQuery<Track | {}>(
+  const { data: tracks, isLoading } = useQuery<Track[]>(
     ['playlist-dialog-open'],
-    () => ({}),
+    () => ([]),
     {
-      initialData: {},
+      initialData: [],
       staleTime: Infinity,
     },
   );
 
-  useEffect(() => setSelected([]), [track]);
+  useEffect(() => setSelected([]), [tracks]);
 
   const handleRowClick = (id: number) => {
     if (selected.includes(id)) {
@@ -53,14 +55,16 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
   };
 
   const handleSave = () => {
-    if (!isTrack(track)) {
-      queryClient.setQueryData(['playlist-dialog-open'], {});
+    if (tracks.length === 0) {
+      queryClient.setQueryData(['playlist-dialog-open'], []);
       return;
     }
-    selected.forEach(async (playlistId) => {
-      await addToPlaylist(playlistId, track.key);
+    const keys = tracks.map((track) => track.key);
+    const arrayForProcessing = cartesian(selected, keys);
+    arrayForProcessing.forEach(async ([id, key]: [number, string]) => {
+      await addToPlaylist(id, key);
     });
-    queryClient.setQueryData(['playlist-dialog-open'], {});
+    queryClient.setQueryData(['playlist-dialog-open'], []);
   };
 
   const handleScrollState = (isScrolling: boolean) => {
@@ -91,12 +95,12 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
     <Dialog
       fullWidth
       maxWidth="xs"
-      open={Object.keys(track).length > 0}
+      open={tracks.length > 0}
       sx={{
         zIndex: 2000,
       }}
       onClose={() => queryClient
-        .setQueryData(['playlist-dialog-open'], {})}
+        .setQueryData(['playlist-dialog-open'], [])}
     >
       <Box height="fit-content" paddingX="12px" paddingY="6px">
         <Typography color="text.primary" fontFamily="TT Commons" fontWeight={700} variant="h5">
@@ -189,8 +193,7 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
             color="error"
             size="small"
             sx={{
-              fontFamily: 'TT Commons, sans-serif',
-              fontSize: '1rem',
+              fontSize: '0.95rem',
               height: 32,
               lineHeight: 1,
               marginLeft: '4px',
@@ -198,7 +201,7 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
               textTransform: 'none',
             }}
             variant="outlined"
-            onClick={() => queryClient.setQueryData(['playlist-dialog-open'], {})}
+            onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
           >
             Cancel
           </Button>
@@ -207,8 +210,7 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
             color="success"
             size="small"
             sx={{
-              fontFamily: 'TT Commons, sans-serif',
-              fontSize: '1rem',
+              fontSize: '0.95rem',
               height: 32,
               lineHeight: 1,
               marginLeft: '4px',
@@ -226,4 +228,4 @@ const AddToPlaylistDialog = ({ playlists }: AddToPlaylistDialogProps) => {
   );
 };
 
-export default AddToPlaylistDialog;
+export default AddToPlaylist;

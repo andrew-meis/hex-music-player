@@ -15,7 +15,6 @@ import {
 } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
-import { ButtonSpecs } from 'constants/buttons';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
@@ -27,7 +26,6 @@ import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
-import { isTrack } from 'types/type-guards';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
@@ -104,16 +102,18 @@ const Album = () => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const getTrack = useCallback(() => {
+  const selectedTracks = useMemo(() => {
     if (!albumTracks.data) {
       return undefined;
     }
     if (selectedRows.length === 1 && inRange(selectedRows[0], 0, albumTracks.data.length)) {
-      const [track] = selectedRows.map((n) => albumTracks.data[n]);
-      return track;
+      return selectedRows.map((n) => albumTracks.data[n]);
+    }
+    if (selectedRows.length > 1) {
+      return selectedRows.map((n) => albumTracks.data[n]);
     }
     return undefined;
-  }, [albumTracks.data, selectedRows]);
+  }, [selectedRows, albumTracks.data]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -122,42 +122,22 @@ const Album = () => {
       return;
     }
     const targetIndex = parseInt(target, 10);
-    if (selectedRows.length === 0) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length === 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length === 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
-    }
-    if (selectedRows.length > 1 && selectedRows.includes(targetIndex)) {
-      // pass
-    }
-    if (selectedRows.length > 1 && !selectedRows.includes(targetIndex)) {
-      setSelectedRows([targetIndex]);
+    switch (true) {
+      case selectedRows.length === 0:
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      default:
+        break;
     }
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
-
-  const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!albumTracks.data) {
-      return;
-    }
-    if (selectedRows.length === 1) {
-      const [track] = selectedRows.map((n) => albumTracks.data[n]);
-      await playSwitch(button.action, { track, shuffle: button.shuffle });
-      return;
-    }
-    if (selectedRows.length > 1) {
-      const tracks = selectedRows.map((n) => albumTracks.data[n]);
-      if (tracks.every((item) => isTrack(item))) {
-        // @ts-ignore
-        await playSwitch(button.action, { tracks, shuffle: button.shuffle });
-      }
-    }
-  };
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -258,11 +238,10 @@ const Album = () => {
       </motion.div>
       <TrackMenu
         anchorPoint={anchorPoint}
-        handleMenuSelection={handleMenuSelection}
-        menuProps={menuProps}
-        selectedRows={selectedRows}
+        playSwitch={playSwitch}
         toggleMenu={toggleMenu}
-        track={getTrack()}
+        tracks={selectedTracks}
+        {...menuProps}
       />
     </>
   );
