@@ -52,9 +52,9 @@ const FixedHeader = ({ days, end, handlePlay, handleShuffle, start }: FixedHeade
       {days !== 0 && `Last ${days} days`}
       {days === 0 && (
         <span>
-          {start.format('DD MMM YYYY')}
+          {start.format('DD MMMM YYYY')}
           &nbsp;&nbsp;–&nbsp;&nbsp;
-          {end.format('DD MMM YYYY')}
+          {end.format('DD MMMM YYYY')}
         </span>
       )}
     </Typography>
