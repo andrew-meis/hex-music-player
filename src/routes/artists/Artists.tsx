@@ -92,6 +92,7 @@ const Artists = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
@@ -248,11 +249,15 @@ const Artists = () => {
         itemContent={(index, item, context) => RowContent({ context, index, artists: item })}
         ref={virtuoso}
         scrollSeekConfiguration={{
-          enter: (velocity) => Math.abs(velocity) > 500,
+          enter: (velocity) => {
+            if (scrollCount.current < 10) return false;
+            return Math.abs(velocity) > 500;
+          },
           exit: (velocity) => Math.abs(velocity) < 100,
         }}
         style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
         onScroll={(e) => {
+          if (scrollCount.current < 10) scrollCount.current += 1;
           const target = e.currentTarget as unknown as HTMLDivElement;
           sessionStorage.setItem(
             'artists',

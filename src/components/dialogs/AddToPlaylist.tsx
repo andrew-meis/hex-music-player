@@ -9,10 +9,12 @@ import {
   Typography,
 } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Playlist, Track } from 'hex-plex';
+import { Library, Playlist, Track } from 'hex-plex';
 import React, { useEffect, useState } from 'react';
-import { GoCheck, RiSendPlaneLine, TbPlaylist } from 'react-icons/all';
+import { GoCheck, RiSendPlaneLine } from 'react-icons/all';
 import { Virtuoso } from 'react-virtuoso';
+import Subtext from 'components/subtext/Subtext';
+import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
@@ -20,6 +22,71 @@ import { QueryKeys } from 'types/enums';
 
 const cartesian = (...a: any[]) => a
   .reduce((p, c) => p.flatMap((d: any) => c.map((e: any) => [d, e].flat())));
+
+const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) => {
+  if (tracks.length === 0) return null;
+  const [track] = tracks;
+  return (
+    <Box
+      alignItems="center"
+      display="flex"
+      height={56}
+    >
+      <Avatar
+        alt={track.title}
+        src={
+          library.api.getAuthenticatedUrl(
+            '/photo/:/transcode',
+            {
+              url: track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
+            },
+          )
+        }
+        sx={{ width: 40, height: 40, marginX: '8px' }}
+        variant="rounded"
+      />
+      <Box
+        sx={{
+          display: 'table',
+          tableLayout: 'fixed',
+          width: '100%',
+        }}
+      >
+        <Typography
+          color="text.primary"
+          fontFamily="Rubik"
+          fontSize="0.95rem"
+          sx={{ ...typographyStyle }}
+        >
+          {track.title}
+        </Typography>
+        <Typography
+          color="text.secondary"
+          fontSize="0.875rem"
+          sx={{ ...typographyStyle, pointerEvents: 'none' }}
+        >
+          <Subtext showAlbum track={track} />
+        </Typography>
+      </Box>
+      {tracks.length > 1 && (
+        <Box
+          alignItems="center"
+          bgcolor="action.selected"
+          borderRadius="50%"
+          display="flex"
+          flexShrink={0}
+          fontSize="1.3rem"
+          height={40}
+          justifyContent="center"
+          width={40}
+        >
+          +
+          {tracks.length - 1}
+        </Box>
+      )}
+    </Box>
+  );
+};
 
 interface AddToPlaylistProps {
   playlists: Playlist[] | undefined;
@@ -104,8 +171,12 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
     >
       <Box height="fit-content" paddingX="12px" paddingY="6px">
         <Typography color="text.primary" fontFamily="TT Commons" fontWeight={700} variant="h5">
-          Select playlists:
+          {`Add ${tracks.length > 1 ? 'tracks' : 'track'} to playlist:`}
         </Typography>
+        <TracksToAdd
+          library={library}
+          tracks={tracks}
+        />
         <Virtuoso
           className="scroll-container"
           data={playlists?.filter((playlist) => playlist.smart !== true)}
@@ -114,45 +185,29 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
             <Box
               alignItems="center"
               borderRadius="4px"
+              color={selected.includes(playlist.id) ? 'text.primary' : 'text.secondary'}
               display="flex"
-              height={56}
+              height={32}
+              paddingX="10px"
               sx={{
                 '&:hover': {
+                  color: 'text.primary',
                   backgroundColor: 'action.hover',
                 },
               }}
               onClick={() => handleRowClick(playlist.id)}
             >
               {selected.includes(playlist.id) && (
-                <SvgIcon sx={{ ml: '10px' }}>
+                <SvgIcon sx={{ mr: '10px' }}>
                   <GoCheck />
                 </SvgIcon>
               )}
-              <Avatar
-                alt={playlist.title}
-                src={playlist.thumb || playlist.composite
-                  ? library.api.getAuthenticatedUrl(
-                    '/photo/:/transcode',
-                    {
-                      url: playlist.thumb || playlist.composite,
-                      width: 100,
-                      height: 100,
-                      minSize: 1,
-                      upscale: 1,
-                    },
-                  )
-                  : undefined}
-                sx={{ mx: '10px' }}
-                variant="rounded"
-              >
-                <SvgIcon>
-                  <TbPlaylist />
-                </SvgIcon>
-              </Avatar>
-              {playlist.title}
+              <Typography color="inherit">
+                {playlist.title}
+              </Typography>
             </Box>
           )}
-          style={{ height: 280 }}
+          style={{ height: 288 }}
         />
         <Box
           display="flex"
