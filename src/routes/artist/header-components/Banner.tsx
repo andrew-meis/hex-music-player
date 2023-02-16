@@ -204,7 +204,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
                   alt={artist.title}
                   sx={{ width: 300, height: 300 }}
                 >
-                  <SvgIcon className="generic-artist" sx={{ height: '65%', width: '65%' }}>
+                  <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
                     <IoMdMicrophone />
                   </SvgIcon>
                 </Avatar>

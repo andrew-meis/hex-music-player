@@ -91,15 +91,8 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       >
         {!artist.thumb && (
           <SvgIcon
-            className="generic-artist"
-            sx={{
-              alignSelf: 'center',
-              color: 'common.grey',
-              height: '65%',
-              marginBottom: 'auto',
-              marginTop: 'auto',
-              width: '65%',
-            }}
+            className="generic-icon"
+            sx={{ color: 'common.grey' }}
           >
             <IoMdMicrophone />
           </SvgIcon>

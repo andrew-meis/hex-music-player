@@ -66,8 +66,8 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
             sx={{ width: 60, height: 60 }}
           >
             <SvgIcon
-              className="generic-artist"
-              sx={{ alignSelf: 'center', color: 'common.black', height: '65%', width: '65%' }}
+              className="generic-icon"
+              sx={{ color: 'common.black' }}
             >
               <IoMdMicrophone />
             </SvgIcon>

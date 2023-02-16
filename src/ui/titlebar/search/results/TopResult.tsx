@@ -207,7 +207,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
             sx={{ width: '100%', height: '100%' }}
             variant="square"
           >
-            <SvgIcon className="generic-artist" sx={{ height: '2em', width: '2em' }}>
+            <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
               <IoMdMicrophone />
             </SvgIcon>
           </Avatar>

@@ -108,6 +108,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
         color="text.primary"
         fontFamily="TT Commons"
         fontSize="1.625rem"
+        paddingX="1px"
         whileHover="hover"
         width="fit-content"
       >
