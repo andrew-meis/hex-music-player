@@ -1,5 +1,5 @@
 import { Avatar, Box, Dialog, SvgIcon, Typography } from '@mui/material';
-import { MenuItem } from '@szhsin/react-menu';
+import { Menu, MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
@@ -8,7 +8,7 @@ import {
   FiLogOut, IoInformationCircleOutline, IoSettingsSharp,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
-import ActionMenu from 'components/action-menu/ActionMenu';
+import IconMenuButton from 'components/buttons/IconMenuButton';
 import useQueue from 'hooks/useQueue';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
@@ -106,14 +106,15 @@ const AppMenu = () => {
 
   return (
     <>
-      <ActionMenu
+      <Menu
+        transition
         align={platform === 'darwin' ? 'end' : 'start'}
-        offsetX={platform === 'darwin' ? -6 : 6}
-        style={{
+        menuButton={({ open: menuOpen }) => <IconMenuButton open={menuOpen} width={32} />}
+        menuStyle={{
           fontSize: '1rem',
           minWidth: '198px',
         }}
-        width={32}
+        offsetX={platform === 'darwin' ? -6 : 6}
       >
         <MenuItem
           style={{
@@ -163,7 +164,7 @@ const AppMenu = () => {
           <SvgIcon sx={{ mr: '8px' }}><FiLogOut /></SvgIcon>
           Logout
         </MenuItem>
-      </ActionMenu>
+      </Menu>
       <Dialog
         maxWidth="xs"
         open={open}

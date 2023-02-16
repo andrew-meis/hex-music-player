@@ -175,7 +175,14 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
                 <Avatar
                   alt={artist.title}
                   src={thumbSrc}
-                  sx={{ width: 406, height: 406 * 0.7, borderRadius: '32px' }}
+                  sx={{
+                    width: 406,
+                    height: 406 * 0.7,
+                    borderRadius: '32px',
+                    '& > img': {
+                      objectPosition: 'center top',
+                    },
+                  }}
                 />
               </Box>
             </span>

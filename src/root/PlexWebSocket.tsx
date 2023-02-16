@@ -59,6 +59,7 @@ const PlexWebSocket = ({ connection, token }: PlexWebSocketProps) => {
           queryClient.invalidateQueries([QueryKeys.ARTIST, id]);
           queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES, id]);
           queryClient.invalidateQueries([QueryKeys.ARTIST_TRACKS, id]);
+          queryClient.invalidateQueries([QueryKeys.PALETTE, id]);
           queryClient.invalidateQueries([QueryKeys.RECENT_TRACKS, id]);
         }
         if (type === 9 && state === 5) {
@@ -66,6 +67,7 @@ const PlexWebSocket = ({ connection, token }: PlexWebSocketProps) => {
           queryClient.invalidateQueries([QueryKeys.ALBUM, id]);
           queryClient.invalidateQueries([QueryKeys.ALBUM_QUICK, id]);
           queryClient.invalidateQueries([QueryKeys.ALBUM_TRACKS, id]);
+          queryClient.invalidateQueries([QueryKeys.PALETTE, id]);
         }
       });
     }

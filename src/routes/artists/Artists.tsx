@@ -152,6 +152,10 @@ const Artists = () => {
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      'artists',
+      0 as unknown as string,
+    );
     return 0;
   }, [navigationType]);
 
@@ -230,7 +234,7 @@ const Artists = () => {
       key={location.pathname}
       style={{ height: '100%' }}
       onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop, behavior: 'smooth' })}
+        ?.scrollTo({ top: initialScrollTop })}
     >
       <Virtuoso
         className="scroll-container"

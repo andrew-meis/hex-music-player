@@ -1,15 +1,15 @@
 import { Box, SvgIcon } from '@mui/material';
-import { Menu, MenuButton, MenuButtonProps, MenuProps } from '@szhsin/react-menu';
+import { MenuButton, MenuButtonProps } from '@szhsin/react-menu';
 import React from 'react';
 import { FiMoreVertical } from 'react-icons/all';
 
-interface ActionMenuButtonProps extends MenuButtonProps{
+interface IconMenuButtonProps extends MenuButtonProps{
   open: boolean;
   width: number;
 }
 
-export const ActionMenuButton = React.forwardRef((
-  { open, width, onClick, onKeyDown }: ActionMenuButtonProps,
+const IconMenuButton = React.forwardRef((
+  { open, width, onClick, onKeyDown }: IconMenuButtonProps,
   ref,
 ) => (
   <MenuButton
@@ -43,22 +43,4 @@ export const ActionMenuButton = React.forwardRef((
   </MenuButton>
 ));
 
-interface ActionMenuProps extends MenuProps {
-  style?: React.CSSProperties;
-  width: number;
-}
-
-const ActionMenu = ({
-  children, style = {}, width, ...props
-}: Omit<ActionMenuProps, 'menuButton'>) => (
-  <Menu
-    transition
-    menuButton={({ open }) => <ActionMenuButton open={open} width={width} />}
-    menuStyle={style}
-    {...props}
-  >
-    {children}
-  </Menu>
-);
-
-export default ActionMenu;
+export default IconMenuButton;

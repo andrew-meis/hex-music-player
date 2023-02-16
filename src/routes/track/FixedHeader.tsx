@@ -37,7 +37,7 @@ const FixedHeader = ({ thumbSrcSm, track }: FixedHeaderProps) => (
     <Typography
       alignSelf="center"
       ml="10px"
-      variant="fixed"
+      variant="header"
       width={1}
     >
       {track.grandparentTitle}

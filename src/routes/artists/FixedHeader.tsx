@@ -41,7 +41,7 @@ const FixedHeader = ({ handlePlay, handleShuffle, width }: FixedHeaderProps) => 
     <Typography
       alignSelf="center"
       ml="10px"
-      variant="fixed"
+      variant="header"
       width={1}
     >
       Artists

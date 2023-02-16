@@ -4,7 +4,7 @@ import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -56,6 +56,7 @@ const RecentFavorites = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
@@ -132,16 +133,20 @@ const RecentFavorites = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem(`recent-favorites ${id}`);
+    top = sessionStorage.getItem(`recent-favorites-scroll ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      `recent-favorites-scroll ${id}`,
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [id, navigationType]);
 
   const recentFavoritesContext = useMemo(() => ({
     artist: artist.data,
@@ -187,6 +192,8 @@ const RecentFavorites = () => {
         initial={{ opacity: 0 }}
         key={location.pathname}
         style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
       >
         <Virtuoso
           className="scroll-container"
@@ -200,9 +207,9 @@ const RecentFavorites = () => {
           context={recentFavoritesContext}
           data={artist.isLoading || isLoading ? [] : items}
           fixedItemHeight={56}
-          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
+          ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
@@ -212,7 +219,7 @@ const RecentFavorites = () => {
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              `recent-favorites ${id}`,
+              `recent-favorites-scroll ${id}`,
               target.scrollTop as unknown as string,
             );
           }}

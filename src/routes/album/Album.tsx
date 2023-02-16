@@ -13,7 +13,7 @@ import {
   useNavigationType,
   useParams,
 } from 'react-router-dom';
-import { GroupedVirtuoso } from 'react-virtuoso';
+import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -83,6 +83,7 @@ const Album = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const virtuoso = useRef<GroupedVirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
@@ -148,16 +149,20 @@ const Album = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem(id);
+    top = sessionStorage.getItem(`album-scroll ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      `album-scroll ${id}`,
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [id, navigationType]);
 
   const albumContext = useMemo(() => ({
     album: album.data,
@@ -201,6 +206,8 @@ const Album = () => {
         initial={{ opacity: 0 }}
         key={location.pathname}
         style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
       >
         <GroupedVirtuoso
           className="scroll-container"
@@ -217,11 +224,11 @@ const Album = () => {
             { context: albumContext, discNumber: groups[index] },
           )}
           groupCounts={groupCounts}
-          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, _groupIndex, _item, context) => RowContent(
             { context, index, track: albumTracks.data![index] },
           )}
+          ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 700,
             exit: (velocity) => Math.abs(velocity) < 100,
@@ -230,7 +237,7 @@ const Album = () => {
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              id,
+              `album-scroll ${id}`,
               target.scrollTop as unknown as string,
             );
           }}

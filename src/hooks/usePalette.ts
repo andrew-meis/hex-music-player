@@ -47,6 +47,7 @@ const usePalette = (id: string, url: string) => useQuery(
       muted: data.Muted.getHex(),
       vibrant: data.Vibrant.getHex(),
     } as PaletteState),
+    staleTime: Infinity,
   },
 );
 

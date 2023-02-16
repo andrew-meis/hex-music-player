@@ -45,7 +45,7 @@ const FixedHeader = ({ days, end, handlePlay, handleShuffle, start }: FixedHeade
     <Typography
       alignSelf="center"
       ml="10px"
-      variant="fixed"
+      variant="header"
       width={1}
     >
       Top Tracks&nbsp;&nbsp;»&nbsp;&nbsp;

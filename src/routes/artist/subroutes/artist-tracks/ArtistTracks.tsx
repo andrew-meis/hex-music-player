@@ -4,7 +4,7 @@ import { Album, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -81,6 +81,7 @@ const ArtistTracks = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
@@ -171,7 +172,7 @@ const ArtistTracks = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
     top = sessionStorage.getItem(`artist-tracks-scroll ${id}`);
     if (!top) return 0;
@@ -179,8 +180,12 @@ const ArtistTracks = () => {
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      `artist-tracks-scroll ${id}`,
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [id, navigationType]);
 
   const artistTracksContext = useMemo(() => ({
     albums,
@@ -232,6 +237,8 @@ const ArtistTracks = () => {
         initial={{ opacity: 0 }}
         key={location.pathname}
         style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
       >
         <Virtuoso
           className="scroll-container"
@@ -245,9 +252,9 @@ const ArtistTracks = () => {
           context={artistTracksContext}
           data={artist.isLoading || appearances.isLoading || isLoading ? [] : items}
           fixedItemHeight={56}
-          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
+          ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,

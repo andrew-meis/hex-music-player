@@ -44,7 +44,7 @@ const FixedHeader = ({
     <Typography
       alignSelf="center"
       ml="10px"
-      variant="fixed"
+      variant="header"
       width={1}
     >
       <NavLink
@@ -53,8 +53,7 @@ const FixedHeader = ({
       >
         {track.title}
       </NavLink>
-      &nbsp;&nbsp;»&nbsp;&nbsp;
-      Similar Tracks
+      &nbsp;&nbsp;»&nbsp;&nbsp;Similar Tracks
     </Typography>
     <PlayShuffleButton
       handlePlay={handlePlay}

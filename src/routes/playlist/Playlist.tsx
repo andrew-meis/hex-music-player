@@ -8,7 +8,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/all';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useKey } from 'react-use';
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
@@ -56,6 +56,7 @@ const Playlist = () => {
   const navigationType = useNavigationType();
   const removeFromPlaylist = useRemoveFromPlaylist();
   const toast = useToast();
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
   const [menuProps, toggleMenu] = useMenuState();
@@ -148,16 +149,20 @@ const Playlist = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem(id);
+    top = sessionStorage.getItem(`playlist-scroll ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      `playlist-scroll ${id}`,
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [id, navigationType]);
 
   const playlistContext = useMemo(() => ({
     drag,
@@ -203,6 +208,8 @@ const Playlist = () => {
         initial={{ opacity: 0 }}
         key={location.pathname}
         style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
       >
         <Virtuoso
           className="scroll-container"
@@ -216,7 +223,6 @@ const Playlist = () => {
           context={playlistContext}
           data={items}
           fixedItemHeight={56}
-          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ index, item, context })}
           scrollSeekConfiguration={{
@@ -228,7 +234,7 @@ const Playlist = () => {
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              id,
+              `playlist-scroll ${id}`,
               target.scrollTop as unknown as string,
             );
           }}

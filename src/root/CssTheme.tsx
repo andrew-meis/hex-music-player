@@ -23,7 +23,7 @@ declare module '@mui/material/styles' {
 declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
     banner: true;
-    fixed: true;
+    header: true;
     home: true;
   }
 }
@@ -161,7 +161,15 @@ const theme = extendTheme({
           },
         },
         {
-          props: { variant: 'fixed' },
+          props: { variant: 'h1' },
+          style: {
+            fontFamily: 'TT Commons, sans-serif',
+            fontSize: '2.75rem',
+            fontWeight: '700',
+          },
+        },
+        {
+          props: { variant: 'header' },
           style: {
             display: '-webkit-box',
             fontFamily: 'TT Commons, sans-serif',
@@ -171,14 +179,6 @@ const theme = extendTheme({
             WebkitBoxOrient: 'vertical',
             WebkitLineClamp: 1,
             wordBreak: 'break-all',
-          },
-        },
-        {
-          props: { variant: 'h1' },
-          style: {
-            fontFamily: 'TT Commons, sans-serif',
-            fontSize: '2.75rem',
-            fontWeight: '700',
           },
         },
         {

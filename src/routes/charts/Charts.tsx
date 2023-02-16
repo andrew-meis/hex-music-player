@@ -5,7 +5,7 @@ import moment, { Moment } from 'moment';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -79,6 +79,7 @@ const Charts = () => {
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
@@ -163,16 +164,20 @@ const Charts = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem('charts');
+    top = sessionStorage.getItem('charts-scroll');
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      'charts-scroll',
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [navigationType]);
 
   const uri = useMemo(() => {
     const uriParams = {
@@ -240,6 +245,8 @@ const Charts = () => {
         initial={{ opacity: 0 }}
         key={location.pathname}
         style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
       >
         <Virtuoso
           className="scroll-container"
@@ -253,9 +260,9 @@ const Charts = () => {
           context={chartsContext}
           data={isLoading ? [] : topTracks}
           fixedItemHeight={56}
-          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
+          ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
@@ -265,7 +272,7 @@ const Charts = () => {
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              'charts',
+              'charts-scroll',
               target.scrollTop as unknown as string,
             );
           }}

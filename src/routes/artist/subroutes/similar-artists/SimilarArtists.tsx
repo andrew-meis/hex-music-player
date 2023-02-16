@@ -215,12 +215,16 @@ const SimilarArtists = () => {
 
   const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem(`similiar-artists ${id}`);
+    top = sessionStorage.getItem(`similar-artists-scroll ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      `similar-artists-scroll ${id}`,
+      0 as unknown as string,
+    );
     return 0;
   }, [id, navigationType]);
 
@@ -280,7 +284,7 @@ const SimilarArtists = () => {
       key={location.pathname}
       style={{ height: '100%' }}
       onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop, behavior: 'smooth' })}
+        ?.scrollTo({ top: initialScrollTop })}
     >
       <GroupedVirtuoso
         className="scroll-container"
@@ -311,7 +315,7 @@ const SimilarArtists = () => {
         onScroll={(e) => {
           const target = e.currentTarget as unknown as HTMLDivElement;
           sessionStorage.setItem(
-            `similiar-artists ${id}`,
+            `similar-artists-scroll ${id}`,
             target.scrollTop as unknown as string,
           );
         }}

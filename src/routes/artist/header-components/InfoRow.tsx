@@ -1,5 +1,5 @@
 import { Box, Chip, SvgIcon, Typography } from '@mui/material';
-import { MenuDivider, MenuItem } from '@szhsin/react-menu';
+import { Menu, MenuDivider, MenuItem } from '@szhsin/react-menu';
 import chroma from 'chroma-js';
 import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
@@ -7,7 +7,7 @@ import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import emoji from 'react-easy-emoji';
 import { SiMusicbrainz, TbBrandLastfm, TbExternalLink } from 'react-icons/all';
-import ActionMenu from 'components/action-menu/ActionMenu';
+import IconMenuButton from 'components/buttons/IconMenuButton';
 import Tooltip from 'components/tooltip/Tooltip';
 import useRestoreAlbums from 'hooks/useRestoreAlbums';
 
@@ -114,11 +114,12 @@ const MenuBox = ({ artist, refreshMetadata, refreshPage, width }: MenuBoxProps) 
       maxWidth={width}
       minWidth={width}
     >
-      <ActionMenu
+      <Menu
         arrow
+        transition
         align="center"
         direction={width < 180 ? 'right' : 'left'}
-        width={16}
+        menuButton={({ open }) => <IconMenuButton open={open} width={16} />}
       >
         <MenuItem onClick={() => refreshPage()}>
           Reload Page
@@ -151,7 +152,7 @@ const MenuBox = ({ artist, refreshMetadata, refreshPage, width }: MenuBoxProps) 
             <SiMusicbrainz />
           </SvgIcon>
         </MenuItem>
-      </ActionMenu>
+      </Menu>
     </Box>
   );
 };

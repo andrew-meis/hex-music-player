@@ -106,11 +106,8 @@ const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
         </Avatar>
         <Typography
           alignSelf="center"
-          fontFamily="TT Commons"
-          fontSize="1.75rem"
-          fontWeight={600}
           ml="10px"
-          variant="h5"
+          variant="header"
           width={1}
         >
           <NavLink
@@ -120,8 +117,7 @@ const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
           >
             {artist.title}
           </NavLink>
-          &nbsp;&nbsp;»&nbsp;&nbsp;
-          Discography
+          &nbsp;&nbsp;»&nbsp;&nbsp;Discography
         </Typography>
         <Menu
           transition

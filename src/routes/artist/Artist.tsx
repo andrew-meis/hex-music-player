@@ -13,7 +13,7 @@ import {
   useOutletContext,
   useParams,
 } from 'react-router-dom';
-import { ListProps, Virtuoso } from 'react-virtuoso';
+import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
@@ -185,6 +185,7 @@ const Artist = () => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<number | undefined>();
@@ -331,16 +332,20 @@ const Artist = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem(id);
+    top = sessionStorage.getItem(`artist-scroll ${id}`);
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      `artist-scroll ${id}`,
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [id, navigationType]);
 
   const measurements = useMemo(() => ({
     CARD_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols),
@@ -433,6 +438,8 @@ const Artist = () => {
               initial={{ opacity: 0 }}
               key={location.pathname}
               style={{ height: '100%' }}
+              onAnimationComplete={() => virtuoso.current
+                ?.scrollTo({ top: initialScrollTop })}
             >
               <Virtuoso
                 className="scroll-container"
@@ -445,14 +452,14 @@ const Artist = () => {
                 data={items}
                 fixedItemHeight={measurements.ROW_HEIGHT}
                 increaseViewportBy={{ top: 0, bottom: 700 }}
-                initialScrollTop={initialScrollTop()}
                 isScrolling={handleScrollState}
                 itemContent={(index, item, context) => RowContent({ index, item, context })}
+                ref={virtuoso}
                 style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
                 onScroll={(e) => {
                   const target = e.currentTarget as unknown as HTMLDivElement;
                   sessionStorage.setItem(
-                    id,
+                    `artist-scroll ${id}`,
                     target.scrollTop as unknown as string,
                   );
                 }}

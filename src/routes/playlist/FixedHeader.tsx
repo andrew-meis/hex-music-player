@@ -37,7 +37,7 @@ const FixedHeader = ({
     <Typography
       alignSelf="center"
       ml="10px"
-      variant="fixed"
+      variant="header"
       width={1}
     >
       {playlist.title}

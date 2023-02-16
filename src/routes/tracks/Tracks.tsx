@@ -5,7 +5,7 @@ import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
-import { ListRange, Virtuoso } from 'react-virtuoso';
+import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -47,6 +47,7 @@ const Tracks = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
   const [menuProps, toggleMenu] = useMenuState();
@@ -158,16 +159,20 @@ const Tracks = () => {
     }
   };
 
-  const initialScrollTop = () => {
+  const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem('tracks');
+    top = sessionStorage.getItem('tracks-scroll');
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
+    sessionStorage.setItem(
+      'tracks-scroll',
+      0 as unknown as string,
+    );
     return 0;
-  };
+  }, [navigationType]);
 
   const uri = useMemo(() => {
     const uriParams = {
@@ -217,6 +222,8 @@ const Tracks = () => {
         initial={{ opacity: 0 }}
         key={location.pathname}
         style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
       >
         <Virtuoso
           className="scroll-container"
@@ -230,7 +237,6 @@ const Tracks = () => {
           context={tracksContext}
           fixedItemHeight={56}
           increaseViewportBy={168}
-          initialScrollTop={initialScrollTop()}
           isScrolling={handleScrollState}
           itemContent={(index, _item, context) => {
             const trackContainer = data.pages.find((page) => page.offset === roundDown(index));
@@ -245,6 +251,7 @@ const Tracks = () => {
           rangeChanged={(newRange) => {
             range.current = newRange;
           }}
+          ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
@@ -254,7 +261,7 @@ const Tracks = () => {
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              'tracks',
+              'tracks-scroll',
               target.scrollTop as unknown as string,
             );
           }}
