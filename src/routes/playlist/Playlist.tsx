@@ -43,16 +43,16 @@ const Footer = ({ context }: { context?: PlaylistContext }) => {
       item: PlaylistItem[] | PlayQueueItem[] | Track[],
       monitor,
     ) => context!.handleDrop(item, Infinity, monitor.getItemType()),
-    canDrop: () => !context!.playlist?.smart,
-  }), [context!.playlist, context!.items]);
+  }), [context!.items]);
 
   return (
     <Box
       className="playlist-footer"
+      data-smart={context!.playlist?.smart}
       height="24px"
       maxWidth={900}
       mx="auto"
-      ref={drop}
+      ref={context!.playlist?.smart ? null : drop}
       width={WIDTH_CALC}
       onDragEnter={() => {
         document.querySelector('.playlist-footer')
@@ -140,7 +140,7 @@ const Playlist = () => {
     index: number | null,
     itemType: null | string | symbol,
   ) => {
-    if (!items || typeof index !== 'number') {
+    if (!playlistItems.data || !items || typeof index !== 'number') {
       return;
     }
     const target = items[index];
@@ -149,9 +149,9 @@ const Playlist = () => {
       moveMany(+id, array.map((item) => item.id), prevId);
     }
     if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
-      moveMany(+id, array.map((item) => item.id), items.slice(-1)[0].id);
+      moveMany(+id, array.map((item) => item.id), playlistItems.data.slice(-1)[0].id);
     }
-  }, [getPrevId, id, items, moveMany]);
+  }, [getPrevId, id, items, moveMany, playlistItems.data]);
 
   const [, drop] = useDrop(() => ({
     accept: [
@@ -163,8 +163,7 @@ const Playlist = () => {
       item: PlaylistItem[] | PlayQueueItem[] | Track[],
       monitor,
     ) => handleDrop(item, dropIndex.current, monitor.getItemType()),
-    canDrop: () => !playlist.data?.smart,
-  }), [playlist.data, items]);
+  }), [items]);
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
@@ -264,7 +263,7 @@ const Playlist = () => {
   }, [id, navigationType]);
 
   const playlistContext = useMemo(() => ({
-    drag: dragDrop,
+    drag: playlist.data?.smart ? drag : dragDrop,
     dropIndex,
     filter,
     getFormattedTime,
@@ -282,6 +281,7 @@ const Playlist = () => {
     selectedRows,
     setFilter,
   }), [
+    drag,
     dragDrop,
     dropIndex,
     filter,

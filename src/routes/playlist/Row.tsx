@@ -15,6 +15,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
     isPlaying,
     library,
     nowPlaying,
+    playlist,
     playPlaylistAtTrack,
     selectedRows,
   } = context;
@@ -45,9 +46,12 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   return (
     <Box
       alignItems="center"
-      className={over ? 'playlist-track playlist-track-over' : 'playlist-track'}
+      className={over
+        ? 'playlist-track playlist-track-over'
+        : 'playlist-track'}
       color="text.secondary"
       data-index={index}
+      data-smart={playlist?.smart}
       display="flex"
       height={56}
       sx={selected

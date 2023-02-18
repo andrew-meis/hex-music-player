@@ -9,6 +9,7 @@ import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { ArtistContext } from 'routes/artist/Artist';
+import { DragTypes } from 'types/enums';
 
 type ContextProps = Pick<
   ArtistContext,
@@ -33,8 +34,9 @@ const TrackHighlights = React.memo(({
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
+    items: tracks || [],
     selectedRows,
-    tracks: tracks || [],
+    type: DragTypes.TRACK,
   });
 
   useEffect(() => {
