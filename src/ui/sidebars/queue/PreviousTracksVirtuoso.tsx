@@ -1,7 +1,6 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
 import { Library, PlayQueueItem } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { TiArrowBack } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
@@ -12,9 +11,10 @@ import { selectedStyle, selectBorderRadius, rowStyle, typographyStyle } from 'co
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
+import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useLibrary, useSettings } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
-import { DragActions } from 'types/enums';
+import { DragTypes } from 'types/enums';
 
 export interface PreviousTracksContext {
   handleMoveTrack: (item: PlayQueueItem) => Promise<void>;
@@ -157,19 +157,12 @@ const PreviousTracksVirtuoso = () => {
     .slice(0, playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId))
     .reverse(), [playQueue]);
 
-  const [, drag, dragPreview] = useDrag(() => ({
-    type: selectedRows.length > 1 ? DragActions.MOVE_TRACKS : DragActions.MOVE_TRACK,
-    item: () => {
-      if (selectedRows.length === 1) {
-        return items![selectedRows[0]];
-      }
-      if (selectedRows.length > 1) {
-        return selectedRows.map((n) => items![n]);
-      }
-      return undefined;
-    },
-    canDrag: selectedRows.length < 10,
-  }), [items, selectedRows]);
+  const { drag, dragPreview } = useTrackDragDrop({
+    hoverIndex,
+    items: items || [],
+    selectedRows,
+    type: DragTypes.PLAYQUEUE_ITEM,
+  });
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });

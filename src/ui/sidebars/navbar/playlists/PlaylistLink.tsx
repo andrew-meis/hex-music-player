@@ -1,7 +1,7 @@
 import { Box, ListItem, Typography } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
-import { Playlist, PlayQueueItem, Track } from 'hex-plex';
-import React from 'react';
+import { Playlist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
+import React, { useCallback } from 'react';
 import { useDrop } from 'react-dnd';
 import { NavLink } from 'react-router-dom';
 import {
@@ -11,8 +11,7 @@ import {
   navlistTypeStyle,
 } from 'constants/style';
 import { useAddToPlaylist } from 'hooks/playlistHooks';
-import { DragActions } from 'types/enums';
-import { isPlayQueueItem, isTrack } from 'types/type-guards';
+import { DragTypes } from 'types/enums';
 
 interface PlaylistLinkProps {
   handleContextMenu: (event: React.MouseEvent) => void;
@@ -26,30 +25,29 @@ const PlaylistLink = ({
 }: PlaylistLinkProps) => {
   const addToPlaylist = useAddToPlaylist();
 
-  const handleDrop = async (item: PlayQueueItem | Track | Track[]) => {
-    if (Array.isArray(item)) {
-      item.forEach(async (track) => {
-        await addToPlaylist(playlist.id, track.key);
-      });
-      return;
+  const handleDrop = useCallback(async (
+    array: any[],
+    itemType: null | string | symbol,
+  ) => {
+    let tracks;
+    if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
+      tracks = array.map((item) => item.track) as Track[];
+    } else {
+      tracks = array as Track[];
     }
-    if (isTrack(item)) {
-      await addToPlaylist(playlist.id, item.key);
-      return;
-    }
-    if (isPlayQueueItem(item)) {
-      await addToPlaylist(playlist.id, item.track.key);
-    }
-  };
+    await addToPlaylist(playlist.id, tracks.map((track) => track.id));
+  }, [addToPlaylist, playlist.id]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: [
-      DragActions.COPY_TRACK,
-      DragActions.COPY_TRACKS,
-      DragActions.MOVE_TRACK,
-      DragActions.MOVE_TRACKS,
+      DragTypes.PLAYLIST_ITEM,
+      DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.TRACK,
     ],
-    drop: (item: PlayQueueItem | Track | Track[]) => handleDrop(item),
+    drop: (
+      item: PlaylistItem[] | PlayQueueItem[] | Track[],
+      monitor,
+    ) => handleDrop(item, monitor.getItemType()),
     collect: (monitor) => ({
       isOver: monitor.isOver(),
     }),

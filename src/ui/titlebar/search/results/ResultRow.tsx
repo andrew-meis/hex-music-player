@@ -7,7 +7,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
-import { DragActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import styles from '../Search.module.scss';
 import ResultTooltip from '../tooltip/ResultTooltip';
@@ -26,14 +26,14 @@ const linkBoxStyle = {
   overflow: 'hidden',
 };
 
-const getDragType = (resultType: string): DragActions => {
+const getDragType = (resultType: string) => {
   switch (resultType) {
     case 'artist':
-      return DragActions.COPY_ARTIST;
+      return DragTypes.ARTIST;
     case 'album':
-      return DragActions.COPY_ALBUM;
+      return DragTypes.ALBUM;
     case 'track':
-      return DragActions.COPY_TRACK;
+      return DragTypes.TRACK;
     default: throw new Error('no matching type');
   }
 };
@@ -63,7 +63,7 @@ const ResultRow = ({
 
   const [, drag, dragPreview] = useDrag(() => ({
     type: getDragType(result.type),
-    item: result,
+    item: [result],
   }), [result]);
 
   useEffect(() => {

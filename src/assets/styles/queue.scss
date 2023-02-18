@@ -1,5 +1,6 @@
 .queue-track {
   border: 1px solid transparent;
+  transform: translateZ(0);
   svg {
     display: none;
   }
@@ -15,6 +16,15 @@
   svg {
     display: none;
   }
+}
+
+.queue-track-over::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
   border-top: 1px solid var(--mui-palette-info-main);
 }
 
@@ -23,7 +33,7 @@
 }
 
 .queue-box::after {
-  align-items: flex-end;
+  align-items: center;
   border: 1px solid transparent;
   content: "";
   display: flex;
@@ -33,18 +43,10 @@
 
 .queue-box-over::after {
   border-top: 1px solid var(--mui-palette-info-main);
-  content: "add last";
+  content: var(--queue-box-content);
   height: 32px;
 }
 
 .compact-queue {
   border: 1px solid transparent;
-}
-
-.compact-queue-over {
-  border-top: 1px solid var(--mui-palette-info-main);
-}
-
-.compact-queue-over > div {
-  pointer-events: none;
 }

@@ -19,6 +19,7 @@ import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
+import { DragTypes } from 'types/enums';
 import { IConfig, IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
@@ -78,8 +79,9 @@ const RecentFavorites = () => {
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
+    items: items || [],
     selectedRows,
-    tracks: items || [],
+    type: DragTypes.TRACK,
   });
 
   useLayoutEffect(() => {

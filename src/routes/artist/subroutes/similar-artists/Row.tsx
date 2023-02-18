@@ -35,7 +35,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   const {
     grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
   } = context;
-  const imgHeight = Math.floor((width - VIEW_PADDING) / grid.cols) * 0.70;
+  const imgHeight = Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70);
   const imgWidth = Math.floor((width - VIEW_PADDING) / grid.cols);
   const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -82,14 +82,14 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
-        height={imgHeight - 8}
-        margin="4px"
+        height={imgHeight - 24}
+        margin="12px"
         style={{
           borderRadius: '32px',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={open ? {} : imageMotion}
-        width={imgWidth - 8}
+        width={imgWidth - 24}
       >
         {!artist.thumb && (
           <SvgIcon
@@ -114,7 +114,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       <SvgIcon
         className={open ? styles.open : ''}
         sx={{
-          bottom: '28px',
+          bottom: '36px',
           color: 'common.white',
           filter: 'drop-shadow(0px 0px 1px rgb(0 0 0 / 0.8))',
           position: 'absolute',

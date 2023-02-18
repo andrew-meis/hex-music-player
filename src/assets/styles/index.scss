@@ -200,6 +200,32 @@ select:focus-visible {
   text-decoration: none;
 }
 
+.playlist-footer {
+  border-top: 1px solid var(--mui-palette-border-main);
+}
+
+.playlist-footer-over {
+  border-top: 1px solid var(--mui-palette-info-main);
+}
+
+.playlist-track {
+  transform: translateZ(0);
+}
+
+.playlist-track-over > div {
+  pointer-events: none;
+}
+
+.playlist-track-over::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  border-top: 1px solid var(--mui-palette-info-main);
+}
+
 .scroll-container::-webkit-scrollbar {
   width: 10px;
   height: 10px;

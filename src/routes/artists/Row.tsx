@@ -80,14 +80,14 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
-        height={measurements.IMAGE_HEIGHT - 8}
-        margin="4px"
+        height={measurements.IMAGE_HEIGHT - 24}
+        margin="12px"
         style={{
           borderRadius: '32px',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={open ? {} : imageMotion}
-        width={measurements.IMAGE_WIDTH - 8}
+        width={measurements.IMAGE_WIDTH - 24}
       >
         {!artist.thumb && (
           <SvgIcon

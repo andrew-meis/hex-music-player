@@ -28,6 +28,7 @@ import Group from 'routes/virtuoso-components/Group';
 import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
 import TopItemList from 'routes/virtuoso-components/TopItemList';
+import { DragTypes } from 'types/enums';
 import { IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
@@ -160,8 +161,9 @@ const Discography = () => {
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
+    items: items || [],
     selectedRows,
-    tracks: items || [],
+    type: DragTypes.TRACK,
   });
 
   useLayoutEffect(() => {

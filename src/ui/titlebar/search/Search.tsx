@@ -20,6 +20,7 @@ import {
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
+import useHistoryStack from 'hooks/useHistoryStack';
 import { useSearch } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
@@ -35,6 +36,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const { backward, forward } = useHistoryStack();
   const onSuccess = (data: Result[]) => {
     setSearchHistory((prev) => [input, ...prev]);
     if (data.length === 0) {
@@ -90,6 +92,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     >
       <IconButton
         disableRipple
+        disabled={!backward}
         size="small"
         sx={{
           color: 'text.secondary',
@@ -237,6 +240,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
       </ClickAwayListener>
       <IconButton
         disableRipple
+        disabled={!forward}
         size="small"
         sx={{
           color: 'text.secondary',

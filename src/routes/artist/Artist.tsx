@@ -350,8 +350,8 @@ const Artist = () => {
   const measurements = useMemo(() => ({
     CARD_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols),
     CARD_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols),
-    COVER_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) - 8,
-    COVER_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols) - 8,
+    COVER_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) - 24,
+    COVER_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols) - 24,
     ROW_HEIGHT: (Math.floor((width - VIEW_PADDING) / grid.cols) + (settings.albumText ? 54 : 0)),
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
     SIMILAR_CARD_WIDTH: (Math.floor((width - VIEW_PADDING) / (grid.cols - 1))),

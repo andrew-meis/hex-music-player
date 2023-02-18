@@ -1,10 +1,9 @@
-export enum DragActions {
-  COPY_ALBUM = 'copy-album',
-  COPY_ARTIST = 'copy-artist',
-  COPY_TRACK = 'copy-track',
-  COPY_TRACKS = 'copy-tracks',
-  MOVE_TRACK = 'move-track',
-  MOVE_TRACKS = 'move-tracks',
+export enum DragTypes {
+  ALBUM = 'album',
+  ARTIST = 'artist',
+  PLAYLIST_ITEM = 'playlist-item',
+  PLAYQUEUE_ITEM = 'playqueue-item',
+  TRACK = 'track',
 }
 
 export enum PlayActions {

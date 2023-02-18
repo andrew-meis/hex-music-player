@@ -18,6 +18,7 @@ import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
+import { DragTypes } from 'types/enums';
 import { IConfig, IVirtuosoContext } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
@@ -101,8 +102,9 @@ const Tracks = () => {
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
+    items: flatTracks || [],
     selectedRows,
-    tracks: flatTracks || [],
+    type: DragTypes.TRACK,
   });
 
   useEffect(() => {

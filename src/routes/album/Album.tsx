@@ -26,6 +26,7 @@ import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
+import { DragTypes } from 'types/enums';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
@@ -95,8 +96,9 @@ const Album = () => {
   } = useRowSelect([]);
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
+    items: albumTracks.data || [],
     selectedRows,
-    tracks: albumTracks.data || [],
+    type: DragTypes.TRACK,
   });
 
   useEffect(() => {

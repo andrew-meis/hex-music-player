@@ -1,8 +1,8 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { Library, PlayQueueItem, Track } from 'hex-plex';
+import { Library, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiCloseFill } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
@@ -14,11 +14,11 @@ import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
 import useQueue from 'hooks/useQueue';
 import useRowSelect from 'hooks/useRowSelect';
+import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useLibrary, useSettings } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
-import { DragActions } from 'types/enums';
-import { isPlayQueueItem } from 'types/type-guards';
+import { DragTypes } from 'types/enums';
 
 export interface UpcomingTracksContext {
   dropIndex: React.MutableRefObject<number | null>;
@@ -88,16 +88,9 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       data-index={index}
       display="flex"
       height={54}
-      sx={
-        selected
-          ? {
-            ...selectedStyle,
-            borderRadius: selectBorderRadius(selUp, selDown),
-          }
-          : {
-            ...rowStyle,
-          }
-      }
+      sx={selected
+        ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
+        : { ...rowStyle }}
       onClick={(event) => handleRowClick(event, index)}
       onDoubleClick={handleDoubleClick}
       onDragEnter={() => setOver(true)}
@@ -181,7 +174,7 @@ const UpcomingTracksVirtuoso = () => {
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
   const player = usePlayerContext();
-  const { addLast, addMany, addOne, moveLast, moveMany, moveTrack } = useDragActions();
+  const { addLast, addMany, moveLast, moveMany } = useDragActions();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
   const { playQueueItem } = usePlayback();
@@ -201,87 +194,62 @@ const UpcomingTracksVirtuoso = () => {
   }, [playQueue]);
 
   const handleDrop = useCallback(async (
+    array: any[],
     index: number | null,
-    item: unknown,
     itemType: null | string | symbol,
   ) => {
     if (!items || typeof index !== 'number') {
       return;
     }
     const target = items[index];
-    if (itemType === DragActions.COPY_TRACK) {
-      if (target) {
-        const prevId = getPrevId(target.id);
-        await addOne(item as Track, prevId as number);
-        return;
-      }
-      if (!target) {
-        await addLast(item as Track);
-        return;
-      }
+    let tracks;
+    if (itemType === DragTypes.PLAYLIST_ITEM) {
+      tracks = array.map((item) => item.track) as Track[];
+    } else {
+      tracks = array as Track[];
     }
-    if (itemType === DragActions.COPY_TRACKS) {
-      if (Array.isArray(item) && target) {
-        const prevId = getPrevId(target.id);
-        await addMany(item as Track[], prevId as number);
-      }
-      if (Array.isArray(item) && !target) {
-        await addLast(item as Track[]);
-      }
+    if (itemType === DragTypes.PLAYQUEUE_ITEM && target) {
+      const moveIds = array.map((queueItem) => queueItem.id);
+      const prevId = getPrevId(target.id);
+      await moveMany(moveIds, prevId as number);
+      setSelectedRows([]);
+      return;
     }
-    if (itemType === DragActions.MOVE_TRACK) {
-      if (isPlayQueueItem(item) && target) {
-        const currentPrevId = getPrevId(item.id);
-        const newPrevId = getPrevId(target.id);
-        if (currentPrevId === newPrevId) {
-          return;
-        }
-        await moveTrack(item.id, newPrevId as number);
-        setSelectedRows([]);
-        return;
-      }
-      if (isPlayQueueItem(item) && !target) {
-        await moveLast(item);
-        setSelectedRows([]);
-        return;
-      }
+    if (itemType === DragTypes.PLAYQUEUE_ITEM && !target) {
+      array.forEach(async (queueItem) => {
+        await moveLast(queueItem);
+      });
+      setSelectedRows([]);
+      return;
     }
-    if (itemType === DragActions.MOVE_TRACKS) {
-      if (Array.isArray(item) && target) {
-        const moveIds = item.map((el) => el.id);
-        const prevId = getPrevId(target.id);
-        await moveMany(moveIds, prevId as number);
-        setSelectedRows([]);
-      }
+    if (target) {
+      const prevId = getPrevId(target.id);
+      await addMany(tracks as Track[], prevId as number);
+      return;
     }
-  }, [addLast, addMany, addOne, getPrevId, items, moveLast, moveMany, moveTrack, setSelectedRows]);
+    if (!target) {
+      await addLast(tracks as Track[]);
+    }
+  }, [addLast, addMany, getPrevId, items, moveLast, moveMany, setSelectedRows]);
 
   const [, drop] = useDrop(() => ({
     accept: [
-      DragActions.COPY_TRACK,
-      DragActions.COPY_TRACKS,
-      DragActions.MOVE_TRACK,
-      DragActions.MOVE_TRACKS,
+      DragTypes.PLAYLIST_ITEM,
+      DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.TRACK,
     ],
     drop: (
-      item: PlayQueueItem | Track | Track[],
+      item: PlaylistItem[] | PlayQueueItem[] | Track[],
       monitor,
-    ) => handleDrop(dropIndex.current, item, monitor.getItemType()),
+    ) => handleDrop(item, dropIndex.current, monitor.getItemType()),
   }), [items, playQueue]);
 
-  const [, drag, dragPreview] = useDrag(() => ({
-    type: selectedRows.length > 1 ? DragActions.MOVE_TRACKS : DragActions.MOVE_TRACK,
-    item: () => {
-      if (selectedRows.length === 1) {
-        return items![selectedRows[0]];
-      }
-      if (selectedRows.length > 1) {
-        return selectedRows.map((n) => items![n]);
-      }
-      return undefined;
-    },
-    canDrag: selectedRows.length < 10,
-  }), [items, selectedRows]);
+  const { drag, dragPreview } = useTrackDragDrop({
+    hoverIndex,
+    items: items || [],
+    selectedRows,
+    type: DragTypes.PLAYQUEUE_ITEM,
+  });
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
@@ -298,7 +266,7 @@ const UpcomingTracksVirtuoso = () => {
     setSelectedRows([hoverIndex.current!]);
   }, [selectedRows, setSelectedRows]);
 
-  const handleDropCapture = () => {
+  const handleContainerDrop = () => {
     dropIndex.current = -1;
   };
 
@@ -346,7 +314,7 @@ const UpcomingTracksVirtuoso = () => {
         ref={handleDrag}
         onDragEndCapture={handleClickAway}
         onDragStartCapture={handleDragStart}
-        onDropCapture={handleDropCapture}
+        onDropCapture={handleContainerDrop}
       >
         <ClickAwayListener onClickAway={handleClickAway}>
           <Virtuoso
@@ -364,7 +332,7 @@ const UpcomingTracksVirtuoso = () => {
           ref={box}
           sx={{
             marginLeft: '4px',
-            marginRight: '8px',
+            marginRight: '10px',
           }}
           onDragEnter={() => {
             document.querySelector('.queue-box')

@@ -123,7 +123,7 @@ const AlbumCover = ({
         <MotionBox
           className={styles.image}
           height={measurements.COVER_HEIGHT}
-          margin="4px"
+          margin="12px"
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}

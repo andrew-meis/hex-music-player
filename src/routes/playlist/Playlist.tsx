@@ -1,16 +1,18 @@
-import { SvgIcon } from '@mui/material';
+import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import React, {
-  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
+  useCallback, useEffect, useMemo, useRef, useState,
 } from 'react';
+import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/all';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useKey } from 'react-use';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import TrackMenu from 'components/track-menu/TrackMenu';
-import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
+import { WIDTH_CALC } from 'constants/measures';
+import { useMoveManyPlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
@@ -20,17 +22,60 @@ import { useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
+import { DragTypes } from 'types/enums';
 import Header from './Header';
 import Row from './Row';
-import type { Playlist as TPlaylist, PlaylistItem, Track } from 'hex-plex';
+import type { Playlist as TPlaylist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
-export interface PlaylistContext extends IVirtuosoContext {
+// eslint-disable-next-line react/require-default-props
+const Footer = ({ context }: { context?: PlaylistContext }) => {
+  const [, drop] = useDrop(() => ({
+    accept: [
+      DragTypes.PLAYLIST_ITEM,
+      DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.TRACK,
+    ],
+    drop: (
+      item: PlaylistItem[] | PlayQueueItem[] | Track[],
+      monitor,
+    ) => context!.handleDrop(item, Infinity, monitor.getItemType()),
+    canDrop: () => !context!.playlist?.smart,
+  }), [context!.playlist, context!.items]);
+
+  return (
+    <Box
+      className="playlist-footer"
+      height="24px"
+      maxWidth={900}
+      mx="auto"
+      ref={drop}
+      width={WIDTH_CALC}
+      onDragEnter={() => {
+        document.querySelector('.playlist-footer')
+          ?.classList.add('playlist-footer-over');
+      }}
+      onDragLeave={() => {
+        document.querySelector('.playlist-footer')
+          ?.classList.remove('playlist-footer-over');
+      }}
+      onDrop={() => {
+        document.querySelector('.playlist-footer')
+          ?.classList.remove('playlist-footer-over');
+      }}
+    />
+  );
+};
+
+export interface PlaylistContext extends Omit<IVirtuosoContext, 'drag'> {
+  drag: (node: any) => void;
+  dropIndex: React.MutableRefObject<number | null>;
   filter: string;
+  handleDrop: (array: any[], index: number | null, itemType: null | string | symbol) => void;
+  items: PlaylistItem[];
   playlist: TPlaylist | undefined;
   playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
@@ -51,8 +96,10 @@ const Playlist = () => {
   const playlist = usePlaylist(+id, library);
   const playlistItems = usePlaylistItems(+id, library);
   // other hooks
+  const dropIndex = useRef<number | null>(null);
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
+  const moveMany = useMoveManyPlaylistItems();
   const navigationType = useNavigationType();
   const removeFromPlaylist = useRemoveFromPlaylist();
   const toast = useToast();
@@ -76,13 +123,61 @@ const Playlist = () => {
     );
   }
 
+  const getPrevId = useCallback((itemId: PlaylistItem['id']) => {
+    try {
+      if (playlistItems.data) {
+        const index = playlistItems.data.findIndex((item) => item.id === itemId);
+        return playlistItems.data[index - 1].id;
+      }
+      return undefined;
+    } catch {
+      return undefined;
+    }
+  }, [playlistItems.data]);
+
+  const handleDrop = useCallback((
+    array: any[],
+    index: number | null,
+    itemType: null | string | symbol,
+  ) => {
+    if (!items || typeof index !== 'number') {
+      return;
+    }
+    const target = items[index];
+    if (itemType === DragTypes.PLAYLIST_ITEM && target) {
+      const prevId = getPrevId(target.id);
+      moveMany(+id, array.map((item) => item.id), prevId);
+    }
+    if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
+      moveMany(+id, array.map((item) => item.id), items.slice(-1)[0].id);
+    }
+  }, [getPrevId, id, items, moveMany]);
+
+  const [, drop] = useDrop(() => ({
+    accept: [
+      DragTypes.PLAYLIST_ITEM,
+      DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.TRACK,
+    ],
+    drop: (
+      item: PlaylistItem[] | PlayQueueItem[] | Track[],
+      monitor,
+    ) => handleDrop(item, dropIndex.current, monitor.getItemType()),
+    canDrop: () => !playlist.data?.smart,
+  }), [playlist.data, items]);
+
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
+    items,
     selectedRows,
-    tracks: items.map((item) => item.track),
+    type: DragTypes.PLAYLIST_ITEM,
   });
 
-  useLayoutEffect(() => {
+  const dragDrop = useCallback((node: any) => {
+    drag(drop(node));
+  }, [drag, drop]);
+
+  useEffect(() => {
     setSelectedRows([]);
   }, [id, setSelectedRows]);
 
@@ -99,6 +194,10 @@ const Playlist = () => {
     }
     return undefined;
   }, [selectedRows, items]);
+
+  const handleContainerDrop = () => {
+    dropIndex.current = -1;
+  };
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -165,14 +264,17 @@ const Playlist = () => {
   }, [id, navigationType]);
 
   const playlistContext = useMemo(() => ({
-    drag,
+    drag: dragDrop,
+    dropIndex,
     filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
+    handleDrop,
     handleRowClick,
     hoverIndex,
     isPlaying,
+    items,
     library,
     nowPlaying,
     playlist: playlist.data,
@@ -180,14 +282,17 @@ const Playlist = () => {
     selectedRows,
     setFilter,
   }), [
-    drag,
+    dragDrop,
+    dropIndex,
     filter,
     getFormattedTime,
     handleClickAway,
     handleContextMenu,
+    handleDrop,
     handleRowClick,
     hoverIndex,
     isPlaying,
+    items,
     library,
     nowPlaying,
     playlist.data,
@@ -210,6 +315,7 @@ const Playlist = () => {
         style={{ height: '100%' }}
         onAnimationComplete={() => virtuoso.current
           ?.scrollTo({ top: initialScrollTop })}
+        onDropCapture={handleContainerDrop}
       >
         <Virtuoso
           className="scroll-container"

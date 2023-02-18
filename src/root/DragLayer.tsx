@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { Album, Artist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useEffect, useRef } from 'react';
 import { useDragLayer, XYCoord } from 'react-dnd';
-import { isAlbum, isArtist, isPlayListItem, isPlayQueueItem, isTrack } from 'types/type-guards';
+import { DragTypes } from 'types/enums';
 
 const layerStyles: React.CSSProperties = {
   position: 'fixed',
@@ -41,24 +42,25 @@ const getItemStyles = (
   };
 };
 
-const getText = (item: any) => {
-  if (Array.isArray(item) && item.length > 1) {
+const getText = (item: any, itemType: any) => {
+  if (item.length > 1) {
     return `${item.length} items`;
   }
-  if (isArtist(item)) {
-    return `${item.title}`;
+  if (itemType === DragTypes.ALBUM) {
+    const [album] = item as Album[];
+    return `${album.title} — ${album.parentTitle}`;
   }
-  if (isAlbum(item)) {
-    return `${item.title} — ${item.parentTitle}`;
+  if (itemType === DragTypes.ARTIST) {
+    const [artist] = item as Artist[];
+    return `${artist.title}`;
   }
-  if (isPlayListItem(item)) {
-    return `${item.track.title} — ${item.track.originalTitle || item.track.grandparentTitle}`;
+  if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
+    const [{ track }] = item as PlaylistItem[] | PlayQueueItem[];
+    return `${track.title} — ${track.originalTitle || track.grandparentTitle}`;
   }
-  if (isPlayQueueItem(item)) {
-    return `${item.track.title} — ${item.track.originalTitle || item.track.grandparentTitle}`;
-  }
-  if (isTrack(item)) {
-    return `${item.title} — ${item.originalTitle || item.grandparentTitle}`;
+  if (itemType === DragTypes.TRACK) {
+    const [track] = item as Track[];
+    return `${track.title} — ${track.originalTitle || track.grandparentTitle}`;
   }
   return '';
 };
@@ -68,7 +70,7 @@ const DragLayer = () => {
   const isDraggingRef = useRef(false);
   const {
     item,
-    // itemType,
+    itemType,
     isDragging,
     initialCursorOffset,
     currentCursorOffset,
@@ -83,6 +85,15 @@ const DragLayer = () => {
     currentFileOffset: monitor.getSourceClientOffset(),
     isDragging: monitor.isDragging(),
   }));
+
+  useEffect(() => {
+    const root = document.querySelector(':root') as HTMLElement;
+    if (itemType === DragTypes.PLAYQUEUE_ITEM) {
+      root.style.setProperty('--queue-box-content', '"move last"');
+      return;
+    }
+    root.style.setProperty('--queue-box-content', '"add last"');
+  }, [itemType]);
 
   useEffect(() => {
     if (isDragging === isDraggingRef.current) return;
@@ -104,7 +115,7 @@ const DragLayer = () => {
           currentFileOffset,
         )}
       >
-        <div>{getText(item)}</div>
+        <div>{getText(item, itemType)}</div>
       </div>
     </div>
   );

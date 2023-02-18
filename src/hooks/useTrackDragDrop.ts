@@ -1,29 +1,32 @@
-import { Track } from 'hex-plex';
+import { PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { DragActions } from 'types/enums';
+import { DragTypes } from 'types/enums';
 
 const useTrackDragDrop = ({
   hoverIndex,
+  items,
   selectedRows,
-  tracks,
+  type,
 }: {
   hoverIndex: React.MutableRefObject<number | null>,
+  items: PlaylistItem[] | PlayQueueItem[] | Track[],
   selectedRows: number[],
-  tracks: Track[],
+  type: DragTypes,
 }) => {
   const [, drag, dragPreview] = useDrag(() => ({
-    type: selectedRows.length > 1 ? DragActions.COPY_TRACKS : DragActions.COPY_TRACK,
+    type,
     item: () => {
       if (!selectedRows.includes(hoverIndex.current!)) {
-        return tracks[hoverIndex.current!];
+        return [items[hoverIndex.current!]];
       }
       if (selectedRows.includes(hoverIndex.current!) && selectedRows.length === 1) {
-        return tracks[hoverIndex.current!];
+        return [items[hoverIndex.current!]];
       }
-      return selectedRows.map((n) => tracks[n]);
+      return selectedRows.map((n) => items[n]);
     },
-  }), [hoverIndex, tracks, selectedRows]);
+    canDrag: selectedRows.length <= 10,
+  }), [hoverIndex, items, selectedRows]);
 
   return { drag, dragPreview };
 };

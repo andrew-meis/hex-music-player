@@ -10,10 +10,11 @@ export const useAddToPlaylist = () => {
   const queryClient = useQueryClient();
   const server = useServer();
   const toast = useToast();
-  return async (id: Playlist['id'], key: string) => {
+  return async (id: Playlist['id'], idsToAdd: number[]) => {
     const response = await library.addToPlaylist(
       id,
-      `server://${server.clientIdentifier}/com.plexapp.plugins.library${key}`,
+      // eslint-disable-next-line max-len
+      `server://${server.clientIdentifier}/com.plexapp.plugins.library/library/metadata/${idsToAdd.join(',')}`,
     );
     if (response.MediaContainer.leafCountAdded > 0) {
       await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
@@ -51,6 +52,31 @@ export const useDeletePlaylist = () => {
     await library.deletePlaylist(id);
     await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
     toast({ type: 'error', text: 'Deleted playlist' });
+  };
+};
+
+export const useMoveManyPlaylistItems = () => {
+  const library = useLibrary();
+  const queryClient = useQueryClient();
+  return async (playlistId: number, playlistItemIds: number[], afterId?: number) => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [index, id] of playlistItemIds.entries()) {
+      if (index === 0 && afterId) {
+        // eslint-disable-next-line no-await-in-loop
+        await library.movePlaylistItem(playlistId, id, afterId);
+      }
+      if (index === 0 && !afterId) {
+        const url = library.api.getAuthenticatedUrl(`/playlists/${playlistId}/items/${id}/move`);
+        // eslint-disable-next-line no-await-in-loop
+        await axios.put(url);
+      }
+      if (index > 0) {
+        // eslint-disable-next-line no-await-in-loop
+        await library.movePlaylistItem(playlistId, id, playlistItemIds[index - 1]);
+      }
+    }
+    await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
+    await queryClient.refetchQueries([QueryKeys.PLAYLIST, playlistId]);
   };
 };
 

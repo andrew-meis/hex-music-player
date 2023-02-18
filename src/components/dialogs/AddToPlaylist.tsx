@@ -12,7 +12,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Library, Playlist, Track } from 'hex-plex';
 import React, { useEffect, useState } from 'react';
 import { GoCheck, RiSendPlaneLine } from 'react-icons/all';
-import { Virtuoso } from 'react-virtuoso';
+import { ListProps, Virtuoso } from 'react-virtuoso';
 import Subtext from 'components/subtext/Subtext';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
@@ -20,11 +20,27 @@ import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
 
-const cartesian = (...a: any[]) => a
-  .reduce((p, c) => p.flatMap((d: any) => c.map((e: any) => [d, e].flat())));
+const List = React
+  .forwardRef((
+    // @ts-ignore
+    { children, ...props }: ListProps,
+    listRef: React.ForwardedRef<HTMLDivElement>,
+  ) => (
+    <Box
+      className="list-box"
+      ref={listRef}
+      {...props}
+    >
+      {children}
+    </Box>
+  ));
 
 const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) => {
-  if (tracks.length === 0) return null;
+  if (tracks.length === 0) {
+    return (
+      <Box height={56} />
+    );
+  }
   const [track] = tracks;
   return (
     <Box
@@ -121,15 +137,14 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
     setSelected(newSelected);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (tracks.length === 0) {
       queryClient.setQueryData(['playlist-dialog-open'], []);
       return;
     }
-    const keys = tracks.map((track) => track.key);
-    const arrayForProcessing = cartesian(selected, keys);
-    arrayForProcessing.forEach(async ([id, key]: [number, string]) => {
-      await addToPlaylist(id, key);
+    const trackIds = tracks.map((track) => track.id);
+    selected.forEach(async (id) => {
+      await addToPlaylist(id, trackIds);
     });
     queryClient.setQueryData(['playlist-dialog-open'], []);
   };
@@ -179,6 +194,9 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
         />
         <Virtuoso
           className="scroll-container"
+          components={{
+            List,
+          }}
           data={playlists?.filter((playlist) => playlist.smart !== true)}
           isScrolling={handleScrollState}
           itemContent={(index, playlist) => (

@@ -8,7 +8,7 @@ import { IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import { useLibrary, useSettings } from 'queries/app-queries';
-import { DragActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 import styles from '../Search.module.scss';
 import ResultTooltip from '../tooltip/ResultTooltip';
@@ -35,14 +35,14 @@ const textStyle = {
   paddingY: '2px',
 };
 
-const getDragType = (resultType: string): DragActions => {
+const getDragType = (resultType: string) => {
   switch (resultType) {
     case 'artist':
-      return DragActions.COPY_ARTIST;
+      return DragTypes.ARTIST;
     case 'album':
-      return DragActions.COPY_ALBUM;
+      return DragTypes.ALBUM;
     case 'track':
-      return DragActions.COPY_TRACK;
+      return DragTypes.TRACK;
     default: throw new Error('no matching type');
   }
 };
@@ -72,7 +72,7 @@ const TopResult = ({ topResult, setOpen }: TopResultProps) => {
 
   const [, drag, dragPreview] = useDrag(() => ({
     type: getDragType(topResult.type),
-    item: topResult,
+    item: [topResult],
   }), [topResult]);
 
   useEffect(() => {
