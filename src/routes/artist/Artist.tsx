@@ -469,6 +469,7 @@ const Artist = () => {
               {...menuProps}
               portal
               anchorPoint={anchorPoint}
+              boundingBoxPadding="10"
               onClose={() => {
                 menuSection.current = null;
                 setMenuTarget(undefined);

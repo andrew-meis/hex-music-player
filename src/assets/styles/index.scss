@@ -310,6 +310,10 @@ select:focus-visible {
   background-color: rgba(var(--mui-palette-error-mainChannel) / 0.80);
 }
 
+.szh-menu__submenu > .szh-menu__item::after {
+  right: 0.5rem;
+}
+
 .szh-menu-container--itemTransition .szh-menu__item {
   transition-property: background-color;
   transition-duration: 0ms;

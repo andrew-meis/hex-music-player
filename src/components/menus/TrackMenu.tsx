@@ -1,11 +1,24 @@
 import { SvgIcon } from '@mui/material';
-import { ControlledMenu, ControlledMenuProps, MenuDivider, MenuItem } from '@szhsin/react-menu';
+import {
+  ControlledMenu,
+  ControlledMenuProps,
+  MenuDivider,
+  MenuItem,
+  SubMenu,
+} from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import { Track } from 'hex-plex';
+import { Artist, Track } from 'hex-plex';
 import React, { useCallback } from 'react';
-import { MdPlaylistAdd, RiAlbumFill, TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
+import {
+  IoMdMicrophone,
+  MdPlaylistAdd,
+  RiAlbumFill,
+  TbWaveSawTool,
+  TiInfoLarge,
+} from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { ButtonSpecs, trackButtons, tracksButtons } from 'constants/buttons';
+import useArtistMatch from 'hooks/useArtistMatch';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
 
@@ -22,8 +35,23 @@ const TrackMenu = ({
   tracks,
   ...props
 }: TrackMenuProps) => {
+  const artists = useArtistMatch({
+    name: tracks && tracks.length === 1
+      ? tracks[0].originalTitle || tracks[0].grandparentTitle
+      : '',
+  });
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const handleArtistNavigate = (artist: Artist) => {
+    const state = { guid: artist.guid, title: artist.title };
+    navigate(`/artists/${artist.id}`, { state });
+  };
+
+  const handleTrackNavigate = (track: Track) => {
+    const state = { guid: track.grandparentId, title: track.grandparentTitle };
+    navigate(`/artists/${track.grandparentId}`, { state });
+  };
 
   const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
     if (!tracks) {
@@ -46,6 +74,7 @@ const TrackMenu = ({
       portal
       onClose={() => toggleMenu(false)}
       {...props}
+      boundingBoxPadding="10"
     >
       {tracks.length === 1 && trackButtons.map((button: ButtonSpecs) => (
         <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
@@ -76,15 +105,69 @@ const TrackMenu = ({
             Similar tracks
           </MenuItem>
           <MenuDivider />
+          {
+            tracks[0].grandparentTitle === 'Various Artists'
+            && artists.length === 1
+            && (
+              <SubMenu label={(
+                <>
+                  <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                  Go to artist
+                </>
+              )}
+              >
+                {artists.map((artist) => (
+                  <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
+                    {artist.title}
+                  </MenuItem>
+                ))}
+              </SubMenu>
+            )
+          }
+          {
+            (artists.length === 0 || artists.length === 1)
+            && tracks[0].grandparentTitle !== 'Various Artists'
+            && (
+              <SubMenu label={(
+                <>
+                  <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                  Go to artist
+                </>
+              )}
+              >
+                <MenuItem onClick={() => handleTrackNavigate(tracks[0])}>
+                  {tracks[0].grandparentTitle}
+                </MenuItem>
+              </SubMenu>
+            )
+          }
+          {
+            artists.length > 1
+            && (
+              <SubMenu label={(
+                <>
+                  <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                  Go to artist
+                </>
+              )}
+              >
+                {artists.map((artist) => (
+                  <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
+                    {artist.title}
+                  </MenuItem>
+                ))}
+              </SubMenu>
+            )
+          }
+          <MenuItem onClick={() => navigate(`/albums/${tracks[0].parentId}`)}>
+            <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+            Go to album
+          </MenuItem>
           <MenuItem
             onClick={() => navigate(`/tracks/${tracks[0].id}`)}
           >
             <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
             Track information
-          </MenuItem>
-          <MenuItem onClick={() => navigate(`/albums/${tracks[0].parentId}`)}>
-            <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-            Go to album
           </MenuItem>
         </>
       )}

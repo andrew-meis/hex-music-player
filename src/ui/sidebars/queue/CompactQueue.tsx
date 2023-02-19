@@ -34,10 +34,20 @@ const Item = (
     index, isDragging, item, library, onContextMenu, onDrop, onMouseEnter,
   } : ItemProps,
 ) => {
+  const [open, setOpen] = useState(false);
   const [over, setOver] = useState(false);
+
   const handleDrop = () => {
     onDrop();
     setOver(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   return (
@@ -47,15 +57,21 @@ const Item = (
         timeout: isDragging ? 0 : 150,
       }}
       key={item.id}
+      open={open}
       placement="left"
       title={isDragging ? '' : <Text track={item.track} />}
+      onClose={handleClose}
+      onOpen={handleOpen}
     >
       <Box
         borderTop={over ? '1px solid var(--mui-palette-info-main)' : '1px solid transparent'}
         className="compact-queue"
         data-index={index}
         marginX="auto"
-        onContextMenu={onContextMenu}
+        onContextMenu={(event) => {
+          setOpen(false);
+          onContextMenu(event);
+        }}
         onDragEnter={() => setOver(true)}
         onDragLeave={() => setOver(false)}
         onDrop={handleDrop}
@@ -244,6 +260,10 @@ const CompactQueue = () => {
         items={contextMenuItems.current}
         removeTracks={removeTracks}
         toggleMenu={toggleMenu}
+        onClose={() => {
+          contextMenuItems.current = [];
+          toggleMenu(false);
+        }}
         {...menuProps}
       />
     </Box>

@@ -132,6 +132,7 @@ const PlaylistLinks = () => {
         {...menuProps}
         portal
         anchorPoint={anchorPoint}
+        boundingBoxPadding="10"
         onClose={() => toggleMenu(false)}
       >
         {playlistButtons.map((button: ButtonSpecs) => (
