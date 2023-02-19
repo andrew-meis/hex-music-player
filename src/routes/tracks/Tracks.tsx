@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import TrackMenu from 'components/track-menu/TrackMenu';
+import TrackMenu from 'components/menus/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';

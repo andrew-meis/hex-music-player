@@ -3,7 +3,7 @@ import { useMenuState } from '@szhsin/react-menu';
 import { Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import TrackMenu from 'components/track-menu/TrackMenu';
+import TrackMenu from 'components/menus/TrackMenu';
 import TrackRow from 'components/track-row/TrackRow';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import useRowSelect from 'hooks/useRowSelect';

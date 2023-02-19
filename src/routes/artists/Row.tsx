@@ -112,7 +112,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       <SvgIcon
         className={open ? styles.open : ''}
         sx={{
-          bottom: '28px',
+          bottom: '36px',
           color: 'common.white',
           filter: 'drop-shadow(0px 0px 1px rgb(0 0 0 / 0.8))',
           position: 'absolute',

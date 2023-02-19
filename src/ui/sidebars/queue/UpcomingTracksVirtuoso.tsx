@@ -1,4 +1,5 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import { Library, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -6,30 +7,49 @@ import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiCloseFill } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
-import { Virtuoso } from 'react-virtuoso';
+import { ItemProps, Virtuoso } from 'react-virtuoso';
 import 'styles/queue.scss';
+import QueueMenu from 'components/menus/QueueMenu';
 import Subtext from 'components/subtext/Subtext';
 import { selectedStyle, selectBorderRadius, rowStyle, typographyStyle } from 'constants/style';
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
-import useQueue from 'hooks/useQueue';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useLibrary, useSettings } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
-import { usePlayerContext } from 'root/Player';
 import { DragTypes } from 'types/enums';
 
 export interface UpcomingTracksContext {
   dropIndex: React.MutableRefObject<number | null>;
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   handleRowClick: (event: React.MouseEvent, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
   items: PlayQueueItem[] | undefined;
   library: Library;
   playQueueItem: (item: PlayQueueItem) => Promise<void>;
-  removeTrack: (item: PlayQueueItem) => Promise<void>;
+  removeTracks: (itemsToRemove: PlayQueueItem[]) => Promise<void>
   selectedRows: number[];
 }
+
+const Item = React
+  .forwardRef((
+    {
+      // @ts-ignore
+      style, children, context, ...props
+    }: ItemProps<any>,
+    itemRef: React.ForwardedRef<HTMLDivElement>,
+  ) => (
+    <div
+      {...props}
+      className="queue-item"
+      ref={itemRef}
+      style={style}
+      onContextMenu={(event) => context.handleContextMenu(event)}
+    >
+      {children}
+    </div>
+  ));
 
 export interface RowProps {
   index: number;
@@ -45,7 +65,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
     hoverIndex,
     library,
     playQueueItem,
-    removeTrack,
+    removeTracks,
     selectedRows,
   } = context;
   const { track } = item;
@@ -154,7 +174,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             }}
             onClick={async (event) => {
               event.stopPropagation();
-              await removeTrack(item);
+              await removeTracks([item]);
             }}
           >
             <RiCloseFill />
@@ -167,23 +187,56 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-// TODO add moveManyLast
 const UpcomingTracksVirtuoso = () => {
   const box = useRef<HTMLDivElement | null>(null);
   const dropIndex = useRef<number | null>(null);
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
-  const player = usePlayerContext();
-  const { addLast, addMany, moveLast, moveMany } = useDragActions();
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
+  const { addLast, addMany, moveMany, moveManyLast, removeMany } = useDragActions();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
   const { playQueueItem } = usePlayback();
-  const { removeFromQueue, updateQueue } = useQueue();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
   const items = useMemo(() => playQueue?.items
     .slice(playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId) + 1)
-    .slice(0), [playQueue]);
+    .slice(0, 30), [playQueue]);
+
+  const selectedQueueItems = useMemo(() => {
+    if (!items) {
+      return undefined;
+    }
+    if (selectedRows.length > 0) {
+      return selectedRows.map((n) => items[n]);
+    }
+    return undefined;
+  }, [selectedRows, items]);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-index');
+    if (!target) {
+      return;
+    }
+    const targetIndex = parseInt(target, 10);
+    switch (true) {
+      case selectedRows.length === 0:
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
+        setSelectedRows([targetIndex]);
+        break;
+      default:
+        break;
+    }
+    menuRef.current = event.currentTarget;
+    toggleMenu(true);
+  }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const getPrevId = useCallback((itemId: PlayQueueItem['id']): PlayQueueItem['id'] | undefined => {
     if (playQueue) {
@@ -208,6 +261,7 @@ const UpcomingTracksVirtuoso = () => {
     } else {
       tracks = array as Track[];
     }
+    /** MOVE PLAYQUEUE ITEMS WITHIN QUEUE */
     if (itemType === DragTypes.PLAYQUEUE_ITEM && target) {
       const moveIds = array.map((queueItem) => queueItem.id);
       const prevId = getPrevId(target.id);
@@ -215,22 +269,23 @@ const UpcomingTracksVirtuoso = () => {
       setSelectedRows([]);
       return;
     }
+    /** MOVE PLAYQUEUE ITEMS TO END OF QUEUE */
     if (itemType === DragTypes.PLAYQUEUE_ITEM && !target) {
-      array.forEach(async (queueItem) => {
-        await moveLast(queueItem);
-      });
+      moveManyLast(array);
       setSelectedRows([]);
       return;
     }
+    /** ADD OTHER ITEMS WITHIN QUEUE */
     if (target) {
       const prevId = getPrevId(target.id);
       await addMany(tracks as Track[], prevId as number);
       return;
     }
+    /** ADD OTHER ITEMS TO END OF QUEUE */
     if (!target) {
       await addLast(tracks as Track[]);
     }
-  }, [addLast, addMany, getPrevId, items, moveLast, moveMany, setSelectedRows]);
+  }, [addLast, addMany, getPrevId, items, moveMany, moveManyLast, setSelectedRows]);
 
   const [, drop] = useDrop(() => ({
     accept: [
@@ -270,29 +325,30 @@ const UpcomingTracksVirtuoso = () => {
     dropIndex.current = -1;
   };
 
-  const removeTrack = useCallback(async (item: PlayQueueItem) => {
-    const newQueue = await removeFromQueue(item.id);
-    await updateQueue(newQueue);
-    player.updateTracks(newQueue, 'update');
-  }, [player, removeFromQueue, updateQueue]);
+  const removeTracks = useCallback(async (itemsToRemove: PlayQueueItem[]) => {
+    await removeMany(itemsToRemove);
+    setSelectedRows([]);
+  }, [removeMany, setSelectedRows]);
 
   const virtuosoContext = useMemo(() => ({
     dropIndex,
+    handleContextMenu,
     handleRowClick,
     hoverIndex,
     items,
     library,
     playQueueItem,
-    removeTrack,
+    removeTracks,
     selectedRows,
   }), [
     dropIndex,
+    handleContextMenu,
     handleRowClick,
     hoverIndex,
     items,
     library,
     playQueueItem,
-    removeTrack,
+    removeTracks,
     selectedRows,
   ]);
 
@@ -319,6 +375,9 @@ const UpcomingTracksVirtuoso = () => {
         <ClickAwayListener onClickAway={handleClickAway}>
           <Virtuoso
             className="scroll-container"
+            components={{
+              Item,
+            }}
             context={virtuosoContext}
             data={items}
             fixedItemHeight={56}
@@ -348,6 +407,18 @@ const UpcomingTracksVirtuoso = () => {
           }}
         />
       </Box>
+      <QueueMenu
+        arrow
+        align="center"
+        anchorRef={menuRef}
+        currentId={playQueue?.selectedItemId}
+        direction="left"
+        items={selectedQueueItems}
+        removeTracks={removeTracks}
+        toggleMenu={toggleMenu}
+        viewScroll="close"
+        {...menuProps}
+      />
     </Box>
   );
 };

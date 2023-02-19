@@ -14,7 +14,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import TrackMenu from 'components/track-menu/TrackMenu';
+import TrackMenu from 'components/menus/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';

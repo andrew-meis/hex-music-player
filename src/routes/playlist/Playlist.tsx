@@ -10,7 +10,7 @@ import { MdDelete } from 'react-icons/all';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useKey } from 'react-use';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import TrackMenu from 'components/track-menu/TrackMenu';
+import TrackMenu from 'components/menus/TrackMenu';
 import { WIDTH_CALC } from 'constants/measures';
 import { useMoveManyPlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
@@ -236,6 +236,7 @@ const Playlist = () => {
       await removeFromPlaylist(item.playlistId, item.id);
     });
   };
+
   useKey('Delete', handleRemove, { event: 'keyup' }, [selectedRows]);
 
   const handleScrollState = (isScrolling: boolean) => {

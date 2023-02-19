@@ -1,10 +1,12 @@
 import { Avatar, Box, Tooltip, Typography } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import { Library, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import { isNumber } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
+import QueueMenu from 'components/menus/QueueMenu';
 import useDragActions from 'hooks/useDragActions';
 import { useLibrary } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
@@ -16,6 +18,7 @@ interface ItemProps {
   isDragging: boolean;
   item: PlayQueueItem;
   library: Library;
+  onContextMenu: (event: any) => void;
   onDrop: () => void;
   onMouseEnter: () => void;
 }
@@ -26,7 +29,11 @@ const Text = ({ track }: { track: Track }) => (
   </Typography>
 );
 
-const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemProps) => {
+const Item = (
+  {
+    index, isDragging, item, library, onContextMenu, onDrop, onMouseEnter,
+  } : ItemProps,
+) => {
   const [over, setOver] = useState(false);
   const handleDrop = () => {
     onDrop();
@@ -48,6 +55,7 @@ const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemP
         className="compact-queue"
         data-index={index}
         marginX="auto"
+        onContextMenu={onContextMenu}
         onDragEnter={() => setOver(true)}
         onDragLeave={() => setOver(false)}
         onDrop={handleDrop}
@@ -70,17 +78,32 @@ const Item = ({ index, isDragging, item, library, onDrop, onMouseEnter } : ItemP
 };
 
 const CompactQueue = () => {
+  const contextMenuItems = useRef<PlayQueueItem[]>([]);
   const dropIndex = useRef<number | null>(null);
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const [ref, { height }] = useMeasure();
-  const { addLast, addMany, moveLast, moveMany } = useDragActions();
+  const { addLast, addMany, moveMany, moveManyLast, removeMany } = useDragActions();
   const { data: playQueue } = useCurrentQueue();
 
   const maxListLength = Math.ceil(height / 46);
   const items = useMemo(() => playQueue?.items
     .slice(playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId) + 1)
     .slice(0, maxListLength), [maxListLength, playQueue]);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-index');
+    if (!target || !items) {
+      return;
+    }
+    const targetIndex = parseInt(target, 10);
+    contextMenuItems.current = [items[targetIndex]];
+    menuRef.current = event.currentTarget;
+    toggleMenu(true);
+  }, [items, toggleMenu]);
 
   const getPrevId = useCallback((itemId: PlayQueueItem['id']): PlayQueueItem['id'] | undefined => {
     if (playQueue) {
@@ -105,27 +128,29 @@ const CompactQueue = () => {
     } else {
       tracks = array as Track[];
     }
+    /** MOVE PLAYQUEUE ITEMS WITHIN QUEUE */
     if (itemType === DragTypes.PLAYQUEUE_ITEM && target) {
       const moveIds = array.map((queueItem) => queueItem.id);
       const prevId = getPrevId(target.id);
       await moveMany(moveIds, prevId as number);
       return;
     }
+    /** MOVE PLAYQUEUE ITEMS TO END OF QUEUE */
     if (itemType === DragTypes.PLAYQUEUE_ITEM && !target) {
-      array.forEach(async (queueItem) => {
-        await moveLast(queueItem);
-      });
+      await moveManyLast(array);
       return;
     }
+    /** ADD OTHER ITEMS WITHIN QUEUE */
     if (target) {
       const prevId = getPrevId(target.id);
       await addMany(tracks as Track[], prevId as number);
       return;
     }
+    /** ADD OTHER ITEMS TO END OF QUEUE */
     if (!target) {
       await addLast(tracks as Track[]);
     }
-  }, [addLast, addMany, getPrevId, items, moveLast, moveMany]);
+  }, [addLast, addMany, getPrevId, items, moveMany, moveManyLast]);
 
   const [, drop] = useDrop(() => ({
     accept: [
@@ -160,6 +185,10 @@ const CompactQueue = () => {
     drag(drop(node));
   }, [drag, drop]);
 
+  const removeTracks = useCallback(async (itemsToRemove: PlayQueueItem[]) => {
+    await removeMany(itemsToRemove);
+  }, [removeMany]);
+
   if (!items) {
     return null;
   }
@@ -180,6 +209,7 @@ const CompactQueue = () => {
             item={item}
             key={item.id}
             library={library}
+            onContextMenu={(event) => handleContextMenu(event)}
             onDrop={() => {
               dropIndex.current = index;
             }}
@@ -197,11 +227,25 @@ const CompactQueue = () => {
               linear-gradient(to top, var(--mui-palette-background-paper) 20%, transparent)`,
           }}
           width={48}
+          onDrop={() => {
+            dropIndex.current = Infinity;
+          }}
           onMouseEnter={() => {
             hoverIndex.current = null;
           }}
         />
       </Box>
+      <QueueMenu
+        arrow
+        align="center"
+        anchorRef={menuRef}
+        currentId={playQueue?.selectedItemId}
+        direction="left"
+        items={contextMenuItems.current}
+        removeTracks={removeTracks}
+        toggleMenu={toggleMenu}
+        {...menuProps}
+      />
     </Box>
   );
 };

@@ -5,9 +5,9 @@ import { Track } from 'hex-plex';
 import React, { useCallback } from 'react';
 import { MdPlaylistAdd, RiAlbumFill, TbWaveSawTool, TiInfoLarge } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { ButtonSpecs, trackButtons, tracksButtons } from 'constants/buttons';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
-import { ButtonSpecs, trackButtons, tracksButtons } from '../../constants/buttons';
 
 interface TrackMenuProps extends ControlledMenuProps{
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;

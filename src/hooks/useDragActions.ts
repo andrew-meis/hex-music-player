@@ -44,30 +44,22 @@ const useDragActions = () => {
     player.updateTracks(newQueue, 'update');
   }, [addToQueue, playTracks, player, queueId, updateQueue]);
 
-  const addOne = useCallback(async (dragItem: Track, afterId: PlayQueueItem['id']) => {
-    if (!queueId) {
-      await playTrack(dragItem);
-      return;
-    }
-    const newQueue = await addToQueue({
-      newTracks: dragItem,
-      sendToast: true,
-      after: afterId,
-    });
-    await updateQueue(newQueue);
-    player.updateTracks(newQueue, 'update');
-  }, [queueId, addToQueue, updateQueue, player, playTrack]);
-
-  const moveLast = useCallback(async (dragItem: PlayQueueItem) => {
-    await removeFromQueue(dragItem.id);
-    const newQueue = await addToQueue({
-      newTracks: dragItem.track,
+  const moveLast = useCallback(async (item: PlayQueueItem) => {
+    await removeFromQueue(item.id);
+    await addToQueue({
+      newTracks: item.track,
       sendToast: false,
       end: true,
     });
+  }, [addToQueue, removeFromQueue]);
+
+  const moveManyLast = useCallback(async (items: PlayQueueItem[]) => {
+    const promises = items.map((queueItem) => moveLast(queueItem));
+    await Promise.all(promises);
+    const newQueue = await getQueue();
     await updateQueue(newQueue);
     player.updateTracks(newQueue, 'update');
-  }, [addToQueue, player, removeFromQueue, updateQueue]);
+  }, [getQueue, moveLast, player, updateQueue]);
 
   const moveMany = useCallback(async (queueItemIds: number[], afterId: PlayQueueItem['id']) => {
     if (queueId) {
@@ -88,24 +80,34 @@ const useDragActions = () => {
     }
   }, [getQueue, library, player, queueId, updateQueue]);
 
-  const moveTrack = useCallback(async (
+  const moveNext = useCallback(async (
     queueItemId: PlayQueueItem['id'],
     afterId: PlayQueueItem['id'],
   ) => {
     if (queueId) {
-      const newQueue = await library.movePlayQueueItem(queueId, queueItemId, afterId);
+      await library.movePlayQueueItem(queueId, queueItemId, afterId);
+      const newQueue = await getQueue();
       await updateQueue(newQueue);
       player.updateTracks(newQueue, 'update');
     }
-  }, [library, player, queueId, updateQueue]);
+  }, [getQueue, library, player, queueId, updateQueue]);
+
+  const removeMany = useCallback(async (itemsToRemove: PlayQueueItem[]) => {
+    const promises = itemsToRemove.map((item) => removeFromQueue(item.id));
+    await Promise.all(promises);
+    const newQueue = await getQueue();
+    await updateQueue(newQueue);
+    player.updateTracks(newQueue, 'update');
+  }, [getQueue, player, removeFromQueue, updateQueue]);
 
   return {
     addLast,
     addMany,
-    addOne,
     moveLast,
     moveMany,
-    moveTrack,
+    moveManyLast,
+    moveNext,
+    removeMany,
   };
 };
 

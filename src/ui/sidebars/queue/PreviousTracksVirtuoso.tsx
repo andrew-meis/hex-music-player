@@ -149,13 +149,14 @@ const PreviousTracksVirtuoso = () => {
   const library = useLibrary();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
-  const { moveTrack } = useDragActions();
+  const { moveNext } = useDragActions();
   const { playQueueItem } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
   const items = useMemo(() => playQueue?.items
     .slice(0, playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId))
-    .reverse(), [playQueue]);
+    .reverse()
+    .slice(0, 30), [playQueue]);
 
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
@@ -177,10 +178,10 @@ const PreviousTracksVirtuoso = () => {
 
   const handleMoveTrack = useCallback(async (item: PlayQueueItem) => {
     if (playQueue) {
-      await moveTrack(item.id, playQueue.selectedItemId);
+      await moveNext(item.id, playQueue.selectedItemId);
       setSelectedRows([]);
     }
-  }, [moveTrack, playQueue, setSelectedRows]);
+  }, [moveNext, playQueue, setSelectedRows]);
 
   const virtuosoContext = useMemo(() => ({
     handleMoveTrack,
@@ -235,7 +236,7 @@ const PreviousTracksVirtuoso = () => {
           ref={box}
           sx={{
             marginLeft: '4px',
-            marginRight: '8px',
+            marginRight: '10px',
           }}
         />
       </Box>
