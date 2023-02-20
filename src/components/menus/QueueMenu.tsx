@@ -144,12 +144,15 @@ const QueueMenu = ({
         item.track.grandparentTitle === 'Various Artists'
         && artists.length === 1
         && (
-          <SubMenu label={(
-            <>
-              <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-              Go to artist
-            </>
-          )}
+          <SubMenu
+            align="center"
+            direction="right"
+            label={(
+              <>
+                <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                Go to artist
+              </>
+            )}
           >
             {artists.map((artist) => (
               <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
@@ -163,12 +166,15 @@ const QueueMenu = ({
         (artists.length === 0 || artists.length === 1)
         && item.track.grandparentTitle !== 'Various Artists'
         && (
-          <SubMenu label={(
-            <>
-              <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-              Go to artist
-            </>
-          )}
+          <SubMenu
+            align="center"
+            direction="right"
+            label={(
+              <>
+                <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                Go to artist
+              </>
+            )}
           >
             <MenuItem onClick={() => handleTrackNavigate(item.track)}>
               {item.track.grandparentTitle}
@@ -179,12 +185,15 @@ const QueueMenu = ({
       {
         artists.length > 1
         && (
-          <SubMenu label={(
-            <>
-              <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-              Go to artist
-            </>
-          )}
+          <SubMenu
+            align="center"
+            direction="right"
+            label={(
+              <>
+                <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                Go to artist
+              </>
+            )}
           >
             {artists.map((artist) => (
               <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>

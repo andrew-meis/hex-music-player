@@ -24,16 +24,21 @@ const useArtistMatch = ({ name = '' }: {name: string}) => {
     'w/',
     'vs.',
   ];
-  const nameSplit = name
-    .split(regex);
-  const andIndexes = nameSplit.flatMap((str, i) => (str === 'and' ? i : []));
+  const nameSplit = name.split(regex).filter((str) => str !== undefined);
+  const andIndexes = nameSplit.flatMap((str, i) => (str.toLowerCase() === 'and' ? i : []));
+  const ampersandIndexes = nameSplit.flatMap((str, i) => (str === '&' ? i : []));
   if (andIndexes) {
     const newNames = andIndexes.map((n) => nameSplit.slice(n - 1, n + 2).join(' '));
     nameSplit.push(...newNames);
   }
-  const searchArray = nameSplit.filter((str) => str !== undefined)
-    .filter((str) => !separators.includes(str.toLowerCase()));
-  const results = artists.filter((artist) => searchArray.includes(artist.title));
+  if (ampersandIndexes) {
+    const newNames = ampersandIndexes.map((n) => nameSplit.slice(n - 1, n + 2).join(' '));
+    nameSplit.push(...newNames);
+  }
+  const searchArray = nameSplit
+    .filter((str) => !separators.includes(str.toLowerCase()))
+    .map((str) => str.toLowerCase());
+  const results = artists.filter((artist) => searchArray.includes(artist.title.toLowerCase()));
   return results;
 };
 

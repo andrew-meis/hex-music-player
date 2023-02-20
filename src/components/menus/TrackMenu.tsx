@@ -109,12 +109,15 @@ const TrackMenu = ({
             tracks[0].grandparentTitle === 'Various Artists'
             && artists.length === 1
             && (
-              <SubMenu label={(
-                <>
-                  <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                  Go to artist
-                </>
-              )}
+              <SubMenu
+                align="center"
+                direction="right"
+                label={(
+                  <>
+                    <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                    Go to artist
+                  </>
+                )}
               >
                 {artists.map((artist) => (
                   <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
@@ -128,12 +131,15 @@ const TrackMenu = ({
             (artists.length === 0 || artists.length === 1)
             && tracks[0].grandparentTitle !== 'Various Artists'
             && (
-              <SubMenu label={(
-                <>
-                  <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                  Go to artist
-                </>
-              )}
+              <SubMenu
+                align="center"
+                direction="right"
+                label={(
+                  <>
+                    <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                    Go to artist
+                  </>
+                )}
               >
                 <MenuItem onClick={() => handleTrackNavigate(tracks[0])}>
                   {tracks[0].grandparentTitle}
@@ -144,12 +150,15 @@ const TrackMenu = ({
           {
             artists.length > 1
             && (
-              <SubMenu label={(
-                <>
-                  <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                  Go to artist
-                </>
-              )}
+              <SubMenu
+                align="center"
+                direction="right"
+                label={(
+                  <>
+                    <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
+                    Go to artist
+                  </>
+                )}
               >
                 {artists.map((artist) => (
                   <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>

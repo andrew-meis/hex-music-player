@@ -332,6 +332,7 @@ const Playlist = () => {
           fixedItemHeight={56}
           isScrolling={handleScrollState}
           itemContent={(index, item, context) => RowContent({ index, item, context })}
+          ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => Math.abs(velocity) > 500,
             exit: (velocity) => Math.abs(velocity) < 100,
