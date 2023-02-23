@@ -80,6 +80,7 @@ const Charts = () => {
   // other hooks
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
+  const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
@@ -266,12 +267,16 @@ const Charts = () => {
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           ref={virtuoso}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 500,
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={isLoading || topTracks === undefined ? 0 : topTracks.length}
           onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
               'charts-scroll',

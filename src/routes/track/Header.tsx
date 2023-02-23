@@ -91,7 +91,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                 alignItems="center"
                 borderRadius="16px"
                 display="flex"
-                height="28px"
+                height="36px"
                 sx={{
                   background: !colors
                     ? 'active.selected'
@@ -108,7 +108,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                 <Avatar
                   alt={track.grandparentTitle}
                   src={grandparentThumbSrc}
-                  sx={{ width: '24px', height: '24px', ml: '2px' }}
+                  sx={{ width: '32px', height: '32px', ml: '2px' }}
                 />
                 <Typography
                   color={!colors

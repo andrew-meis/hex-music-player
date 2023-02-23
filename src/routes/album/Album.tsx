@@ -1,5 +1,3 @@
-import { Skeleton } from '@mui/lab';
-import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Artist, Album as TAlbum, Playlist, Track } from 'hex-plex';
@@ -31,23 +29,6 @@ import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
 import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
-
-const ScrollSeekPlaceholder = ({ height }: { height: number }) => (
-  <Box alignItems="center" display="flex" height={height}>
-    <Box width="50px" />
-    <Box flexGrow={1} marginLeft="8px" width="50%">
-      <Skeleton variant="text" width="50%" />
-      <Skeleton variant="text" width="40%" />
-    </Box>
-    <Box mx="5px">
-      <Skeleton variant="text" width="80px" />
-    </Box>
-    <Box width="50px">
-      <Skeleton variant="text" width="50px" />
-    </Box>
-    <Box width="10px" />
-  </Box>
-);
 
 export interface AlbumContext extends IVirtuosoContext {
   album: {album: TAlbum, related: (Playlist | Track | TAlbum | Artist)[]} | undefined;
@@ -218,7 +199,6 @@ const Album = () => {
             Header,
             Item,
             List: ListGrouped,
-            ScrollSeekPlaceholder,
           }}
           context={albumContext}
           fixedItemHeight={56}
@@ -231,10 +211,6 @@ const Album = () => {
             { context, index, track: albumTracks.data![index] },
           )}
           ref={virtuoso}
-          scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 700,
-            exit: (velocity) => Math.abs(velocity) < 100,
-          }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           onScroll={(e) => {
             const target = e.currentTarget as unknown as HTMLDivElement;

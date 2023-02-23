@@ -1,10 +1,8 @@
 import { Box, IconButton, Slider, SvgIcon } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { RiVolumeDownFill, RiVolumeMuteFill, RiVolumeUpFill } from 'react-icons/all';
 import { iconButtonStyle } from 'constants/style';
-import { usePlayerState } from 'queries/player-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import { usePlayerContext } from 'root/Player';
 
 const getViewbox = (volume: number) => {
   if (volume === 0) return '0 0 24 24';
@@ -13,26 +11,14 @@ const getViewbox = (volume: number) => {
 };
 
 const VolumeSlider = () => {
-  const player = usePlayerContext();
+  const queryClient = useQueryClient();
   const [isHovered, setHovered] = useState(false);
-  const [volume, setVolume] = useState(50);
+  const [volume, setVolume] = useState(40);
   const [prevVolume, setPrevVolume] = useState(0);
-  const { data: nowPlaying } = useNowPlaying();
-  const { data: playerState } = usePlayerState();
 
   useEffect(() => {
-    if (player.currentSource() === undefined) {
-      return;
-    }
-    if (nowPlaying?.track.media[0].parts[0].streams[0].gain) {
-      const decibelLevel = 20 * Math.log10(volume / 100);
-      const applyTrackGain = decibelLevel + (+nowPlaying.track.media[0].parts[0].streams[0].gain);
-      const gainLevel = 10 ** (applyTrackGain / 20);
-      player.setVolume(gainLevel);
-      return;
-    }
-    player.setVolume(volume / 150);
-  }, [nowPlaying, player, playerState.isPlaying, volume]);
+    queryClient.setQueryData(['volume'], volume);
+  }, [queryClient, volume]);
 
   const handleVolumeChange = (event: Event, newVolume: number | number[]) => {
     setVolume(newVolume as number);

@@ -6,7 +6,6 @@ import { NavigateFunction } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';
-import usePalette, { defaultColors } from 'hooks/usePalette';
 import styles from 'styles/MotionImage.module.scss';
 import { IAppSettings } from 'types/interfaces';
 import { AlbumWithSection, Measurements, RowProps } from './Artist';
@@ -89,19 +88,6 @@ const AlbumCover = ({
       url: album.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
     },
   );
-  const thumbUrl = library.api.getAuthenticatedUrl(album.thumb);
-  const { data: palette, isError } = usePalette(album.thumb, thumbUrl);
-
-  const backgroundColor = () => {
-    if (isError || !palette) {
-      return settings.colorMode === 'light'
-        ? `${defaultColors.vibrant}66`
-        : `${defaultColors.vibrant}e6`;
-    }
-    return settings.colorMode === 'light'
-      ? `${palette.vibrant}66`
-      : `${palette.vibrant}e6`;
-  };
 
   if (settings.albumText) {
     return (
@@ -112,8 +98,10 @@ const AlbumCover = ({
         height={measurements.ROW_HEIGHT}
         key={album.id}
         sx={{
-          backgroundColor: menuTarget === album.id ? backgroundColor() : '',
-          '&:hover': { backgroundColor: backgroundColor() },
+          backgroundColor: menuTarget === album.id ? 'action.selected' : '',
+          '&:hover': {
+            backgroundColor: menuTarget === album.id ? 'action.selected' : 'action.hover',
+          },
         }}
         whileHover="hover"
         width={measurements.CARD_WIDTH}

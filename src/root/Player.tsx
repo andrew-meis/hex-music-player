@@ -1,5 +1,5 @@
 import { Gapless5, LogLevel } from '@regosen/gapless-5';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, {
   ReactNode, useCallback, useContext, useEffect, useRef,
 } from 'react';
@@ -8,7 +8,7 @@ import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
 import type { Updater } from '@tanstack/react-query';
-import type { PlayQueue, PlayQueueItem } from 'hex-plex';
+import type { PlayQueue, PlayQueueItem, Track } from 'hex-plex';
 import type { PlayerState } from 'types/interfaces';
 
 const playerOptions = {
@@ -39,12 +39,30 @@ const Player = ({ children }: {children: ReactNode}) => {
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
   const { setQueueId, updateTimeline } = useQueue();
+  const volume = useQuery(
+    ['volume'],
+    () => 40,
+    {
+      initialData: 40,
+    },
+  );
 
   const { current: player } = useRef(new Gapless5({
     ...playerOptions,
     loop: settings.repeat !== 'repeat-none',
     singleMode: settings.repeat === 'repeat-one',
   }));
+
+  player.applyTrackGain = (track: Track) => {
+    if (track.media[0].parts[0].streams[0].gain) {
+      const decibelLevel = 20 * Math.log10(volume.data / 100);
+      const adjustedDecibels = decibelLevel + (+track.media[0].parts[0].streams[0].gain);
+      const gainLevel = 10 ** (adjustedDecibels / 20);
+      player.setVolume(gainLevel);
+    } else {
+      player.setVolume(volume.data / 150);
+    }
+  };
 
   const startTimer = useCallback((queueItem: PlayQueueItem) => {
     window.clearInterval(timelineRef.current);
@@ -71,6 +89,12 @@ const Player = ({ children }: {children: ReactNode}) => {
   }, [nowPlaying]);
 
   useEffect(() => {
+    if (nowPlaying) {
+      player.applyTrackGain(nowPlaying.track);
+    }
+  }, [nowPlaying, player, volume.data]);
+
+  useEffect(() => {
     if (player.isPlaying() && nowPlaying) {
       startTimer(nowPlaying);
       updateTimeline(nowPlaying.id, 'playing', player.currentPosition(), nowPlaying.track);
@@ -92,6 +116,7 @@ const Player = ({ children }: {children: ReactNode}) => {
     }
     if (current) {
       player.addTrack(library.trackSrc(current.track));
+      player.applyTrackGain(current.track);
       if (forcePlay) {
         player.play();
         updateTimeline(current.id, 'playing', 0, current.track);
@@ -129,6 +154,7 @@ const Player = ({ children }: {children: ReactNode}) => {
       if (player.playlist.trackNumber === 0 && player.getTracks().length === 2) {
         if (current) {
           player.insertTrack(0, library.trackSrc(current.track));
+          player.applyTrackGain(current.track);
           player.gotoTrack(0, true);
           player.removeTrack(2);
         }
@@ -184,6 +210,7 @@ const Player = ({ children }: {children: ReactNode}) => {
         return;
       }
       if (nowPlaying) {
+        player.applyTrackGain(next.track);
         await updateTimeline(nowPlaying.id, 'stopped', nowPlaying.track.duration, nowPlaying.track);
         await updateTimeline(next.id, 'playing', 0, next.track);
         await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
@@ -193,7 +220,7 @@ const Player = ({ children }: {children: ReactNode}) => {
           [QueryKeys.PLAYER_STATE],
           () => ({ duration: next.track.duration, isPlaying: true, position: 0 }),
         );
-        await startTimer(next);
+        startTimer(next);
       }
     }
   };
@@ -215,6 +242,10 @@ const Player = ({ children }: {children: ReactNode}) => {
     if (player.playlist.trackNumber === 1) {
       player.removeTrack(0);
       player.addTrack(library.trackSrc(newTrack.track));
+    }
+    const playerState = queryClient.getQueryData([QueryKeys.PLAYER_STATE]) as PlayerState;
+    if (playerState.isPlaying) {
+      player.play();
     }
   };
 

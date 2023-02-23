@@ -48,6 +48,7 @@ const Tracks = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
+  const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
@@ -255,12 +256,16 @@ const Tracks = () => {
           }}
           ref={virtuoso}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 500,
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={data.pages[0].totalSize}
           onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
               'tracks-scroll',

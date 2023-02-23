@@ -57,6 +57,7 @@ const RecentFavorites = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
+  const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
@@ -213,12 +214,16 @@ const RecentFavorites = () => {
           itemContent={(index, item, context) => RowContent({ context, index, track: item })}
           ref={virtuoso}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 500,
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={isLoading || tracks === undefined ? 0 : items.length}
           onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
               `recent-favorites-scroll ${id}`,

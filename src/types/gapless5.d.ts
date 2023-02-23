@@ -43,6 +43,8 @@ declare module '@regosen/gapless-5' {
 
       keyMappings: {};
 
+      applyTrackGain: (...params: any) => void;
+
       clearTimer: () => any;
 
       initTracks: (...params: any) => any;

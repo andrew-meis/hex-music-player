@@ -110,6 +110,9 @@ const MediaButtons = () => {
       }
       await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
       const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
+      if (isPlayQueueItem(nextTrack)) {
+        player.applyTrackGain(nextTrack.track);
+      }
       player.next();
       if (!playerState.isPlaying) {
         player.play();

@@ -109,7 +109,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                         alignItems="center"
                         borderRadius="16px"
                         display="flex"
-                        height="28px"
+                        height="36px"
                         sx={{
                           background: !colors
                             ? 'active.selected'
@@ -126,7 +126,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                         <Avatar
                           alt={album.parentTitle}
                           src={parentThumbSrc}
-                          sx={{ width: '24px', height: '24px', ml: '2px' }}
+                          sx={{ width: '32px', height: '32px', ml: '2px' }}
                         />
                         <Typography
                           color={!colors

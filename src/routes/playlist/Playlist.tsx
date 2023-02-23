@@ -102,6 +102,7 @@ const Playlist = () => {
   const moveMany = useMoveManyPlaylistItems();
   const navigationType = useNavigationType();
   const removeFromPlaylist = useRemoveFromPlaylist();
+  const scrollCount = useRef(0);
   const toast = useToast();
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -334,12 +335,16 @@ const Playlist = () => {
           itemContent={(index, item, context) => RowContent({ index, item, context })}
           ref={virtuoso}
           scrollSeekConfiguration={{
-            enter: (velocity) => Math.abs(velocity) > 500,
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
           totalCount={items.length}
           onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
               `playlist-scroll ${id}`,
