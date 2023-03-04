@@ -1,5 +1,8 @@
 import {
-  Box, Fade, SvgIcon, Typography,
+  Box,
+  Fade,
+  SvgIcon,
+  Typography,
 } from '@mui/material';
 import {
   BiHash,

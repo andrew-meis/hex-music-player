@@ -1,7 +1,9 @@
 import { useMenuState } from '@szhsin/react-menu';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Track } from 'hex-plex';
+import { parseTrackContainer } from 'hex-plex/dist/types/track';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
@@ -18,12 +20,53 @@ import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { DragTypes } from 'types/enums';
+import { DragTypes, QueryKeys } from 'types/enums';
 import { IConfig, IVirtuosoContext } from 'types/interfaces';
+import { FilterObject } from 'ui/sidebars/filter/Filter';
 import Header from './Header';
 import Row from './Row';
 
 const containerSize = 100;
+
+const operatorMap = {
+  tag: {
+    is: '',
+    'is not': '!',
+  },
+  int: {
+    is: '',
+    'is not': '!',
+    'is greater than': '>>',
+    'is less than': '<<',
+  },
+  str: {
+    contains: '',
+    'does not contain': '!',
+    is: '=',
+    'is not': '!=',
+    'begins with': '<',
+    'ends with': '>',
+  },
+  bool: {
+    is: '',
+    'is not': '!',
+  },
+  datetime: {
+    'is before': '<<',
+    'is after': '>>',
+    'is in the last': '',
+    'is not in the last': '',
+  },
+};
+
+const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) => {
+  filters.forEach((filter) => params
+    .append(
+      // @ts-ignore
+      `${filter.group.toLowerCase()}.${filter.field}${operatorMap[filter.type][filter.operator]}`,
+      `${filter.value}`,
+    ));
+};
 
 const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
@@ -43,6 +86,16 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Tracks = () => {
   const fetchTimeout = useRef(0);
+  const filters = useQuery(
+    [QueryKeys.FILTERS],
+    () => ([]),
+    {
+      initialData: [] as FilterObject[],
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
   const location = useLocation();
@@ -61,17 +114,26 @@ const Tracks = () => {
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 
   const fetchTracks = async ({ pageParam = 0 }) => {
-    const response = library.tracks(config.sectionId!, {
-      'X-Plex-Container-Start': pageParam,
-      'X-Plex-Container-Size': containerSize,
-    });
-    return response;
+    const params = new URLSearchParams();
+    params.append('type', 10 as unknown as string);
+    params.append('X-Plex-Container-Start', `${pageParam}`);
+    params.append('X-Plex-Container-Size', `${containerSize}`);
+    addFiltersToParams(filters.data, params);
+    const url = [
+      library.api.uri,
+      `/library/sections/${config.sectionId!}/all?${params.toString()}`,
+      `&X-Plex-Token=${library.api.headers()['X-Plex-Token']}`,
+    ].join('');
+    const newResponse = await axios.get(url);
+    const container = parseTrackContainer(newResponse.data);
+    return container;
   };
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['all-tracks'],
+    queryKey: ['all-tracks', filters.data],
     queryFn: fetchTracks,
     getNextPageParam: () => 0,
+    keepPreviousData: true,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });

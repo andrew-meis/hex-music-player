@@ -5,7 +5,6 @@ import {
   InputAdornment,
   MenuItem,
   Paper,
-  Select,
   SelectChangeEvent,
   SvgIcon,
   Switch,
@@ -14,6 +13,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 import { BiPaste } from 'react-icons/all';
+import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
 import { IAppSettings } from 'types/interfaces';
@@ -94,11 +94,11 @@ const Settings = () => {
     await updateConfig('albumText', !settings.albumText);
   };
 
-  const handleAlbumSortOption = async (e: SelectChangeEvent) => {
+  const handleAlbumSortOption = async (e: SelectChangeEvent<unknown>) => {
     await updateConfig('albumSort', { by: e.target.value, order: settings.albumSort?.order });
   };
 
-  const handleAlbumOrderOption = async (e: SelectChangeEvent) => {
+  const handleAlbumOrderOption = async (e: SelectChangeEvent<unknown>) => {
     await updateConfig('albumSort', { by: settings.albumSort?.by, order: e.target.value });
   };
 
@@ -189,33 +189,7 @@ const Settings = () => {
             by:
           </Typography>
           <Select
-            disableUnderline
-            MenuProps={{
-              sx: {
-                marginTop: '4px',
-              },
-            }}
-            SelectDisplayProps={{
-              style: {
-                paddingLeft: '4px',
-              },
-            }}
-            inputProps={{
-              sx: {
-                backgroundColor: 'action.disabledBackground',
-                borderRadius: '4px',
-                '&:focus': {
-                  backgroundColor: 'action.disabledBackground',
-                  borderRadius: '4px',
-                },
-              },
-            }}
-            sx={{
-              ml: '4px',
-              width: 130,
-            }}
             value={settings.albumSort?.by}
-            variant="standard"
             onChange={handleAlbumSortOption}
           >
             <MenuItem value="added">Date Added</MenuItem>
@@ -229,33 +203,7 @@ const Settings = () => {
             order:
           </Typography>
           <Select
-            disableUnderline
-            MenuProps={{
-              sx: {
-                marginTop: '4px',
-              },
-            }}
-            SelectDisplayProps={{
-              style: {
-                paddingLeft: '4px',
-              },
-            }}
-            inputProps={{
-              sx: {
-                backgroundColor: 'action.disabledBackground',
-                borderRadius: '4px',
-                '&:focus': {
-                  backgroundColor: 'action.disabledBackground',
-                  borderRadius: '4px',
-                },
-              },
-            }}
-            sx={{
-              ml: '4px',
-              width: 120,
-            }}
             value={settings.albumSort?.order}
-            variant="standard"
             onChange={handleAlbumOrderOption}
           >
             <MenuItem value="asc">Ascending</MenuItem>

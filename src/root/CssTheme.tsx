@@ -101,6 +101,16 @@ const theme = extendTheme({
     light,
   },
   components: {
+    MuiAutocomplete: {
+      styleOverrides: {
+        option: ({ theme: { vars } }) => ({
+          color: vars.palette.text.secondary,
+          ':hover': {
+            color: vars.palette.text.primary,
+          },
+        }),
+      },
+    },
     MuiChip: {
       styleOverrides: {
         colorPrimary: ({ theme: { vars } }) => ({
@@ -119,6 +129,23 @@ const theme = extendTheme({
       styleOverrides: {
         paper: ({ theme: { vars } }) => ({
           backgroundImage: vars.palette.common.overlay,
+        }),
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: ({ theme: { vars } }) => ({
+          backgroundColor: vars.palette.background.paper,
+          border: '1px solid',
+          borderColor: vars.palette.border!.main,
+          height: 'calc(100vh - 154px)',
+          marginRight: '8px',
+          marginTop: '54px',
+          paddingLeft: '4px',
+          width: 294,
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
         }),
       },
     },
@@ -146,6 +173,21 @@ const theme = extendTheme({
           border: 'none',
           transition: 'none',
         },
+      },
+    },
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        grouped: ({ theme: muiTheme }) => ({
+          height: '32px',
+          margin: muiTheme.spacing(0.5),
+          border: 0,
+          '&:not(:first-of-type)': {
+            borderRadius: theme.shape.borderRadius,
+          },
+          '&:first-of-type': {
+            borderRadius: theme.shape.borderRadius,
+          },
+        }),
       },
     },
     MuiTypography: {

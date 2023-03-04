@@ -46,6 +46,8 @@ export enum QueryKeys {
   ARTIST_APPEARANCES = 'artist-appearances',
   ARTIST_TRACKS = 'artist-tracks',
   ARTISTS = 'artists',
+  FILTERS = 'filters',
+  GENRES = 'genres',
   HISTORY = 'history',
   LASTFM_SEARCH = 'lastfm-search',
   LASTFM_SIMILAR = 'lastfm-similar',

@@ -44,6 +44,9 @@ const Player = ({ children }: {children: ReactNode}) => {
     () => 40,
     {
       initialData: 40,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 
@@ -234,6 +237,10 @@ const Player = ({ children }: {children: ReactNode}) => {
     );
     const newTrack = loadQueue.current.shift();
     if (!newTrack) {
+      const playerState = queryClient.getQueryData([QueryKeys.PLAYER_STATE]) as PlayerState;
+      if (playerState.isPlaying) {
+        player.play();
+      }
       return;
     }
     if (player.playlist.trackNumber === 0) {
@@ -242,9 +249,6 @@ const Player = ({ children }: {children: ReactNode}) => {
     if (player.playlist.trackNumber === 1) {
       player.removeTrack(0);
       player.addTrack(library.trackSrc(newTrack.track));
-    }
-    const playerState = queryClient.getQueryData([QueryKeys.PLAYER_STATE]) as PlayerState;
-    if (playerState.isPlaying) {
       player.play();
     }
   };
