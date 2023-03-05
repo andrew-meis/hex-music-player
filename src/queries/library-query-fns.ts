@@ -1,13 +1,5 @@
 import axios from 'axios';
-import { Country, Genre, Library, MediaType } from 'hex-plex';
-import { Collection } from 'hex-plex/dist/types/collection';
-import { Decade } from 'hex-plex/dist/types/decade';
-import { Format } from 'hex-plex/dist/types/format';
-import { Mood } from 'hex-plex/dist/types/mood';
-import { Studio } from 'hex-plex/dist/types/studio';
-import { Style } from 'hex-plex/dist/types/style';
-import { Subformat } from 'hex-plex/dist/types/subformat';
-import { Year } from 'hex-plex/dist/types/year';
+import { Library, MediaType } from 'hex-plex';
 import { IConfig } from 'types/interfaces';
 
 type filterOptionsQueryFnParams = {
@@ -17,12 +9,16 @@ type filterOptionsQueryFnParams = {
   type: MediaType,
 };
 
+export interface MediaTag {
+  id: number | string;
+  fastKey: string;
+  title: string;
+  type: string;
+}
+
 export const filterOptionsQueryFn = async ({
   config, field, library, type,
-}: filterOptionsQueryFnParams): Promise<
-    Country[] | Genre[] | Style[] | Mood[] | Decade[] |
-    Year[] | Format[] | Subformat[] | Collection[] | Studio[]
-  > => {
+}: filterOptionsQueryFnParams): Promise<MediaTag[]> => {
   switch (field) {
     case 'country':
       return library.countries(config.sectionId!);

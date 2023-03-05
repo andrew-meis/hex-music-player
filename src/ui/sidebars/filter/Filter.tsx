@@ -45,7 +45,7 @@ const Filter = () => {
 
   useEffect(() => {
     queryClient.setQueryData([QueryKeys.FILTERS], filters);
-  });
+  }, [filters, queryClient]);
 
   const handleAccordianChange = (panel: string) => {
     if (expanded === panel) {
@@ -123,7 +123,6 @@ const Filter = () => {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  wordBreak: 'break-all',
                 }}
               >
                 <Typography component="span" display="inline" fontSize="0.8125rem">

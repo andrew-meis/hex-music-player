@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import AddToPlaylistDrawer from './AddToPlaylistDrawer';
 import FilterDrawer from './FilterDrawer';
 import LyricsButton from './LyricsButton';
 import QueueDrawer from './QueueDrawer';
@@ -15,6 +16,7 @@ const AdditionalButtons = () => (
     }}
     width={1}
   >
+    <AddToPlaylistDrawer />
     <LyricsButton />
     <FilterDrawer />
     <QueueDrawer />

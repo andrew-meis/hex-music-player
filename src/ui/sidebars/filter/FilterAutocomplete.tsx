@@ -11,7 +11,7 @@ import { isString } from 'lodash';
 import { useRef, useState } from 'react';
 import { FaTimes, TiPlus } from 'react-icons/all';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { filterOptionsQueryFn } from 'queries/library-query-fns';
+import { filterOptionsQueryFn, MediaTag } from 'queries/library-query-fns';
 import { FilterObject } from './Filter';
 import { FilterInput } from './filterInputs';
 
@@ -20,11 +20,6 @@ const groups = {
   Album: 9,
   Track: 10,
 };
-
-interface Option {
-  id: number;
-  title: string;
-}
 
 interface FilterAutocompleteProps {
   handleAddFilter:({
@@ -41,7 +36,7 @@ const FilterAutocomplete = ({
   const library = useLibrary();
   const [count, setCount] = useState(0);
   const [disableInput, setDisableInput] = useState(false);
-  const value = useRef<Option>();
+  const value = useRef<MediaTag>();
   const { data: options } = useQuery(
     [input.field, group],
     () => filterOptionsQueryFn({
@@ -118,6 +113,7 @@ const FilterAutocomplete = ({
               endAdornment={(
                 <SvgIcon
                   sx={{
+                    color: 'text.primary',
                     cursor: 'pointer',
                     marginRight: '5px',
                     width: '0.7em',
@@ -177,18 +173,20 @@ const FilterAutocomplete = ({
             </Typography>
           </li>
         )}
-        renderTags={(values: Option[], getTagProps) => (
-          values.map((option: Option, index: number) => (
+        renderTags={(values: MediaTag[], getTagProps) => (
+          values.map((option: MediaTag, index: number) => (
             <Chip
               label={option.title.toString()}
               size="small"
               sx={{
                 borderRadius: '4px',
+                flexShrink: 1,
                 marginLeft: '5px',
-                maxWidth: 'calc(100% - 72px) !important',
+                minWidth: '0 !important',
                 width: 'fit-content',
                 '& .MuiChip-deleteIcon': {
                   color: 'text.secondary',
+                  flexShrink: 0,
                   marginRight: '4px',
                   '&:hover': {
                     color: 'error.main',
@@ -203,6 +201,11 @@ const FilterAutocomplete = ({
             />
           ))
         )}
+        sx={{
+          '& .MuiAutocomplete-inputRoot': {
+            flexWrap: 'nowrap',
+          },
+        }}
         onChange={(e, values) => {
           setDisableInput(values.length > 0);
           if (values.length > 0) {

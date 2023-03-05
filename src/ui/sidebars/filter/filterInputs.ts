@@ -38,7 +38,7 @@ const filterInputs: FilterInput[] = [
     groups: ['Album'],
     field: 'studio',
     label: 'Record Label',
-    operators: ['contains', 'does not contain', 'is', 'is not', 'begins with', 'ends with'],
+    operators: ['is', 'is not'],
     options: [],
     type: 'tag',
   },

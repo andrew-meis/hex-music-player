@@ -2,14 +2,13 @@ import {
   Avatar,
   Box,
   Button,
-  Dialog,
   InputAdornment,
   InputBase,
   SvgIcon,
   Typography,
 } from '@mui/material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Library, Playlist, Track } from 'hex-plex';
+import { useQueryClient } from '@tanstack/react-query';
+import { Library, Track } from 'hex-plex';
 import React, { useEffect, useState } from 'react';
 import { GoCheck, RiSendPlaneLine } from 'react-icons/all';
 import { ListProps, Virtuoso } from 'react-virtuoso';
@@ -18,6 +17,7 @@ import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
+import { usePlaylists } from 'queries/playlist-queries';
 import { QueryKeys } from 'types/enums';
 
 const List = React
@@ -47,6 +47,7 @@ const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) =
       alignItems="center"
       display="flex"
       height={56}
+      width="calc(100% - 10px)"
     >
       <Avatar
         alt={track.title}
@@ -104,26 +105,15 @@ const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) =
   );
 };
 
-interface AddToPlaylistProps {
-  playlists: Playlist[] | undefined;
-}
-
-const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
+const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
   const addToPlaylist = useAddToPlaylist();
   const createPlaylist = useCreatePlaylist();
   const library = useLibrary();
+  const { data: playlists, isLoading } = usePlaylists(library);
   const queryClient = useQueryClient();
   const toast = useToast();
   const [selected, setSelected] = useState<number[]>([]);
   const [title, setTitle] = useState('');
-  const { data: tracks, isLoading } = useQuery<Track[]>(
-    ['playlist-dialog-open'],
-    () => ([]),
-    {
-      initialData: [],
-      staleTime: Infinity,
-    },
-  );
 
   useEffect(() => setSelected([]), [tracks]);
 
@@ -174,20 +164,25 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
   if (isLoading) return null;
 
   return (
-    <Dialog
-      fullWidth
-      maxWidth="xs"
-      open={tracks.length > 0}
-      sx={{
-        zIndex: 2000,
-      }}
-      onClose={() => queryClient
-        .setQueryData(['playlist-dialog-open'], [])}
+    <Box
+      display="flex"
+      flexDirection="column"
+      height={1}
+      marginLeft="4px"
+      overflow="hidden"
     >
-      <Box height="fit-content" paddingX="12px" paddingY="6px">
-        <Typography color="text.primary" fontFamily="TT Commons" fontWeight={700} variant="h5">
-          {`Add ${tracks.length > 1 ? 'tracks' : 'track'} to playlist:`}
-        </Typography>
+      <Box
+        alignItems="center"
+        borderRadius="4px"
+        color="text.primary"
+        display="flex"
+        justifyContent="flex-end"
+        paddingY="8px"
+        width={1}
+      >
+        <Typography fontSize="1.5rem" fontWeight={600} mr="8px">Add to Playlist</Typography>
+      </Box>
+      <Box height="-webkit-fill-available" width={1}>
         <TracksToAdd
           library={library}
           tracks={tracks}
@@ -225,18 +220,22 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
               </Typography>
             </Box>
           )}
-          style={{ height: 288 }}
+          style={{ height: 'calc(100% - 142px)' }}
         />
         <Box
           display="flex"
+          flexDirection="column"
         >
           <Box
-            bgcolor="background.paper"
             borderRadius="4px"
             component="form"
             height="32px"
-            marginTop="8px"
-            width={1}
+            marginY="4px"
+            sx={{
+              backgroundColor: 'background.paper',
+              backgroundImage: 'var(--mui-overlays-2)',
+            }}
+            width="calc(100% - 10px)"
             onSubmit={handleSubmit}
           >
             <InputBase
@@ -261,43 +260,49 @@ const AddToPlaylist = ({ playlists }: AddToPlaylistProps) => {
               onChange={(e) => setTitle(e.target.value)}
             />
           </Box>
-          <Button
-            disableRipple
-            color="error"
-            size="small"
-            sx={{
-              fontSize: '0.95rem',
-              height: 32,
-              lineHeight: 1,
-              marginLeft: '4px',
-              marginTop: '8px',
-              textTransform: 'none',
-            }}
-            variant="outlined"
-            onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
+          <Box
+            alignItems="center"
+            display="flex"
+            height={40}
+            justifyContent="flex-end"
+            width="calc(100% - 10px)"
           >
-            Cancel
-          </Button>
-          <Button
-            disableRipple
-            color="success"
-            size="small"
-            sx={{
-              fontSize: '0.95rem',
-              height: 32,
-              lineHeight: 1,
-              marginLeft: '4px',
-              marginTop: '8px',
-              textTransform: 'none',
-            }}
-            variant="outlined"
-            onClick={handleSave}
-          >
-            Save
-          </Button>
+            <Button
+              disableRipple
+              color="error"
+              size="small"
+              sx={{
+                fontSize: '0.95rem',
+                height: 32,
+                lineHeight: 1,
+                marginLeft: '4px',
+                textTransform: 'none',
+              }}
+              variant="outlined"
+              onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
+            >
+              Cancel
+            </Button>
+            <Button
+              disableRipple
+              color="success"
+              size="small"
+              sx={{
+                fontSize: '0.95rem',
+                height: 32,
+                lineHeight: 1,
+                marginLeft: '4px',
+                textTransform: 'none',
+              }}
+              variant="outlined"
+              onClick={handleSave}
+            >
+              Save
+            </Button>
+          </Box>
         </Box>
       </Box>
-    </Dialog>
+    </Box>
   );
 };
 

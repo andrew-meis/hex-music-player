@@ -4612,14 +4612,14 @@ __metadata:
 
 "hex-plex@file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A.":
   version: 0.1.1
-  resolution: "hex-plex@file:./../hex-plex#./../hex-plex::hash=7f9f9e&locator=hex-music-player%40workspace%3A."
+  resolution: "hex-plex@file:./../hex-plex#./../hex-plex::hash=02c26c&locator=hex-music-player%40workspace%3A."
   dependencies:
     "@zwolf/prism": 2.8.0
     fast-xml-parser: ^4.0.9
     ky: 0.18.0
     normalizr: 3.6.0
     uuid: 7.0.2
-  checksum: dff1e788d6d28ccdedc380ebe96d27fae856bc6efee35954ceb73d6c853ffd714fe5cf514199d87c868209e068c4ff6ae048996d59bcc36849d8906bac9ffe3f
+  checksum: a63ffea6f7a20680745211d23a1bdce3f027bd30a3f816b09761b0a105c86dcca6196ab8339948723da72688dc79903353535957ac88ff44e0dbc116a69c6de9
   languageName: node
   linkType: hard
 
