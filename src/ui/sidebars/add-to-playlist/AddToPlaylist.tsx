@@ -59,7 +59,7 @@ const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) =
             },
           )
         }
-        sx={{ width: 40, height: 40, marginX: '8px' }}
+        sx={{ width: 40, height: 40, marginRight: '8px' }}
         variant="rounded"
       />
       <Box

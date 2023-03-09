@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import { BiChevronDown, FaTimes } from 'react-icons/all';
 import { QueryKeys } from 'types/enums';
 import FilterAutocomplete from './FilterAutocomplete';
-import filterInputs from './filterInputs';
+import filterInputs, { FilterTypes, Operators } from './filterInputs';
 import FilterRating, { Rating } from './FilterRating';
 import FilterText from './FilterText';
 
@@ -25,13 +25,11 @@ const ExpandIcon = () => (
 );
 
 export interface FilterObject {
-  type: 'tag' | 'int' | 'str' | 'bool' | 'datetime';
+  type: FilterTypes;
   group: 'Artist' | 'Album' | 'Track';
   field: string;
   label: string;
-  operator: 'contains' | 'does not contain' | 'is' | 'is not'
-    | 'begins with' | 'ends with' | 'is before' | 'is after'
-    | 'is greater than' | 'is less than' | 'is in the last' | 'is not in the last';
+  operator: Operators;
   value: string | number | undefined;
   display: string | number | undefined;
   hash: string;
@@ -119,6 +117,8 @@ const Filter = () => {
             key={filter.hash}
             label={(
               <Box
+                alignItems="center"
+                display="inline-flex"
                 style={{
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -138,10 +138,10 @@ const Filter = () => {
                   {`${filter.operator}`}
                   &nbsp;
                 </Typography>
-                {filter.field === 'Rating' && (
+                {filter.field === 'userRating' && (
                   <Rating value={filter.value as number} />
                 )}
-                {filter.field !== 'Rating' && (
+                {filter.field !== 'userRating' && (
                   <Typography component="span" display="inline" fontSize="0.8125rem">
                     {`${filter.display?.toString().toLowerCase()}`}
                   </Typography>

@@ -54,8 +54,8 @@ const operatorMap = {
   datetime: {
     'is before': '<<',
     'is after': '>>',
-    'is in the last': '',
-    'is not in the last': '',
+    'is in the last': '>>',
+    'is not in the last': '<<',
   },
 };
 

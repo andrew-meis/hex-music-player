@@ -101,6 +101,14 @@ const theme = extendTheme({
     light,
   },
   components: {
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+          boxShadow: 'none',
+        },
+      },
+    },
     MuiAutocomplete: {
       styleOverrides: {
         option: ({ theme: { vars } }) => ({

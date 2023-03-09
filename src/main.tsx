@@ -24,7 +24,7 @@ import Home from 'routes/home/Home';
 import Login, { loginLoader } from 'routes/login/Login';
 import LyricsComponent from 'routes/lyrics/LyricsComponent';
 import Playlist from 'routes/playlist/Playlist';
-import Playlists from 'routes/Playlists';
+import Playlists from 'routes/playlists/Playlists';
 import Settings from 'routes/settings/Settings';
 import SimilarTracks from 'routes/track/subroutes/similar-tracks/SimilarTracks';
 import Track from 'routes/track/Track';

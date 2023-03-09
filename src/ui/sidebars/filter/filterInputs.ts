@@ -1,12 +1,33 @@
+export enum Operators {
+  CONTAINS = 'contains',
+  DOES_NOT_CONTAIN = 'does not contain',
+  IS = 'is',
+  IS_NOT = 'is not',
+  BEGINS_WITH = 'begins with',
+  ENDS_WITH = 'ends with',
+  IS_BEFORE = 'is before',
+  IS_AFTER = 'is after',
+  IS_GREATER_THAN = 'is greater than',
+  IS_LESS_THAN = 'is less than',
+  IS_IN_THE_LAST = 'is in the last',
+  IS_NOT_IN_THE_LAST = 'is not in the last'
+}
+
+export enum FilterTypes {
+  TAG = 'tag',
+  INT = 'int',
+  STR = 'str',
+  BOOL = 'bool',
+  DATETIME = 'datetime',
+}
+
 export interface FilterInput {
   groups: ('Artist' | 'Album' | 'Track')[];
   field: string;
   label: string;
-  operators: ('contains' | 'does not contain' | 'is' | 'is not'
-  | 'begins with' | 'ends with' | 'is before' | 'is after'
-  | 'is greater than' | 'is less than' | 'is in the last' | 'is not in the last')[];
+  operators: Operators[];
   options?: any[];
-  type: 'tag' | 'int' | 'str' | 'bool' | 'datetime';
+  type: FilterTypes;
 }
 
 const filterInputs: FilterInput[] = [
@@ -15,159 +36,242 @@ const filterInputs: FilterInput[] = [
     groups: ['Artist', 'Album', 'Track'],
     field: 'title',
     label: 'Title',
-    operators: ['contains', 'does not contain', 'is', 'is not', 'begins with', 'ends with'],
-    type: 'str',
+    operators: [
+      Operators.CONTAINS,
+      Operators.DOES_NOT_CONTAIN,
+      Operators.IS,
+      Operators.IS_NOT,
+      Operators.BEGINS_WITH,
+      Operators.ENDS_WITH],
+    type: FilterTypes.STR,
   },
   {
     groups: ['Artist', 'Album', 'Track'],
     field: 'userRating',
     label: 'Rating',
-    operators: ['is', 'is not', 'is greater than', 'is less than'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+      Operators.IS_GREATER_THAN,
+      Operators.IS_LESS_THAN,
+    ],
     options: [-1, 2, 4, 6, 8, 10],
-    type: 'int',
+    type: FilterTypes.INT,
   },
   {
     groups: ['Artist'],
     field: 'country',
     label: 'Country',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   {
     groups: ['Album'],
     field: 'studio',
     label: 'Record Label',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   // genre etc.
   {
     groups: ['Artist', 'Album'],
     field: 'genre',
     label: 'Genre',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   {
     groups: ['Artist', 'Album'],
     field: 'style',
     label: 'Style',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   {
     groups: ['Artist', 'Album', 'Track'],
     field: 'mood',
     label: 'Mood',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   // metadata date fields
   {
     groups: ['Album'],
     field: 'decade',
     label: 'Decade',
-    operators: ['is', 'is not', 'is before', 'is after'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+    ],
     options: [],
-    type: 'int',
+    type: FilterTypes.INT,
   },
   {
     groups: ['Album'],
     field: 'year',
     label: 'Year',
-    operators: ['is', 'is not', 'is before', 'is after'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+    ],
     options: [],
-    type: 'int',
+    type: FilterTypes.INT,
   },
   {
     groups: ['Album'],
     field: 'originallyAvailableAt',
     label: 'Release Date',
-    operators: ['is', 'is before', 'is after', 'is in the last', 'is not in the last'],
-    type: 'datetime',
+    operators: [
+      Operators.IS,
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+      Operators.IS_IN_THE_LAST,
+      Operators.IS_NOT_IN_THE_LAST,
+    ],
+    type: FilterTypes.DATETIME,
   },
   // count fields
   {
     groups: ['Artist', 'Album', 'Track'],
     field: 'viewCount',
     label: 'Playcount',
-    operators: ['is', 'is not', 'is greater than', 'is less than'],
-    type: 'int',
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+      Operators.IS_GREATER_THAN,
+      Operators.IS_LESS_THAN,
+    ],
+    type: FilterTypes.INT,
   },
   {
     groups: ['Track'],
     field: 'skipCount',
     label: 'Skipcount',
-    operators: ['is', 'is not', 'is greater than', 'is less than'],
-    type: 'int',
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+      Operators.IS_GREATER_THAN,
+      Operators.IS_LESS_THAN,
+    ],
+    type: FilterTypes.INT,
   },
   // album formats
   {
     groups: ['Album'],
     field: 'format',
     label: 'Format',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   {
     groups: ['Album'],
     field: 'subformat',
     label: 'Type',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   // library dates
   {
     groups: ['Artist', 'Album', 'Track'],
     field: 'addedAt',
     label: 'Date Added',
-    operators: ['is before', 'is after', 'is in the last', 'is not in the last'],
-    type: 'datetime',
+    operators: [
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+      Operators.IS_IN_THE_LAST,
+      Operators.IS_NOT_IN_THE_LAST,
+    ],
+    type: FilterTypes.DATETIME,
   },
   {
     groups: ['Artist', 'Album', 'Track'],
     field: 'lastViewedAt',
     label: 'Last Played',
-    operators: ['is before', 'is after', 'is in the last', 'is not in the last'],
-    type: 'datetime',
+    operators: [
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+      Operators.IS_IN_THE_LAST,
+      Operators.IS_NOT_IN_THE_LAST,
+    ],
+    type: FilterTypes.DATETIME,
   },
   {
     groups: ['Track'],
     field: 'lastRatedAt',
     label: 'Last Rated',
-    operators: ['is before', 'is after', 'is in the last', 'is not in the last'],
-    type: 'datetime',
+    operators: [
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+      Operators.IS_IN_THE_LAST,
+      Operators.IS_NOT_IN_THE_LAST,
+    ],
+    type: FilterTypes.DATETIME,
   },
   {
     groups: ['Track'],
     field: 'lastSkippedAt',
     label: 'Last Skipped',
-    operators: ['is before', 'is after', 'is in the last', 'is not in the last'],
-    type: 'datetime',
+    operators: [
+      Operators.IS_BEFORE,
+      Operators.IS_AFTER,
+      Operators.IS_IN_THE_LAST,
+      Operators.IS_NOT_IN_THE_LAST,
+    ],
+    type: FilterTypes.DATETIME,
   },
   // user organization
   {
-    groups: ['Artist', 'Album', 'Track'],
+    groups: ['Artist', 'Album'],
     field: 'collection',
     label: 'Collection',
-    operators: ['is', 'is not'],
+    operators: [
+      Operators.IS,
+      Operators.IS_NOT,
+    ],
     options: [],
-    type: 'tag',
+    type: FilterTypes.TAG,
   },
   {
     groups: ['Artist', 'Album'],
     field: 'unmatched',
     label: 'Unmatched',
-    operators: ['is'],
+    operators: [
+      Operators.IS,
+    ],
     options: [true, false],
-    type: 'bool',
+    type: FilterTypes.BOOL,
   },
 ];
 
