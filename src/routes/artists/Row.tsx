@@ -21,6 +21,7 @@ const textStyle = {
   position: 'absolute',
   WebkitBoxOrient: 'vertical',
   WebkitLineClamp: 1,
+  width: '100%',
   wordBreak: 'break-all',
 };
 
@@ -104,7 +105,6 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
           opacity: open ? 0 : 1,
           textAlign: 'center',
           transition: '200ms',
-          width: Math.floor((measurements.IMAGE_WIDTH - 16) * 0.95),
         }}
       >
         {artist.title}
@@ -112,7 +112,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       <SvgIcon
         className={open ? styles.open : ''}
         sx={{
-          bottom: '36px',
+          bottom: '40px',
           color: 'common.white',
           filter: 'drop-shadow(0px 0px 1px rgb(0 0 0 / 0.8))',
           position: 'absolute',
@@ -195,8 +195,6 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
       >
         <Box
           bgcolor="common.contrastGrey"
-          border="1px solid"
-          borderColor="border.main"
           borderRadius="12px"
           height={332}
           margin="auto"
@@ -210,9 +208,6 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
             height={18}
             position="absolute"
             sx={{
-              border: '1px solid transparent',
-              borderTopColor: 'border.main',
-              borderLeftColor: 'border.main',
               left: caretPos,
               overflow: 'hidden',
               top: '-14px',

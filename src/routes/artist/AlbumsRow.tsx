@@ -16,8 +16,7 @@ const textStyle = {
   fontFamily: 'Rubik',
   fontSize: '1rem',
   lineHeight: 1.2,
-  mt: '2px',
-  mx: '8px',
+  mx: '12px',
   overflow: 'hidden',
   WebkitBoxOrient: 'vertical',
   WebkitLineClamp: 1,
@@ -98,10 +97,7 @@ const AlbumCover = ({
         height={measurements.ROW_HEIGHT}
         key={album.id}
         sx={{
-          backgroundColor: menuTarget === album.id ? 'action.selected' : '',
-          '&:hover': {
-            backgroundColor: menuTarget === album.id ? 'action.selected' : 'action.hover',
-          },
+          contain: 'paint',
         }}
         whileHover="hover"
         width={measurements.CARD_WIDTH}
@@ -121,7 +117,7 @@ const AlbumCover = ({
         <Typography sx={textStyle}>
           {album.title}
         </Typography>
-        <Typography color="text.primary" lineHeight={2} mx="8px" variant="subtitle2">
+        <Typography color="text.secondary" mx="12px" variant="subtitle2">
           {getAdditionalText(album, sort.by)}
         </Typography>
       </MotionBox>

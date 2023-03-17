@@ -70,7 +70,7 @@ const preload = join(__dirname, '../preload/index.js');
 const url = process.env.VITE_DEV_SERVER_URL as string;
 const indexHtml = join(ROOT_PATH.dist, 'index.html');
 
-const resetTaskbarButtons = (isPlaying) => {
+const resetTaskbarButtons = (isPlaying : boolean) => {
   win.setThumbarButtons([
     {
       tooltip: 'Previous',
