@@ -94,7 +94,7 @@ const AlbumCover = ({
         className={styles.container}
         data-id={album.id}
         data-section={album.section}
-        height={measurements.ROW_HEIGHT}
+        height={measurements.CARD_HEIGHT - 8}
         key={album.id}
         sx={{
           backgroundColor: menuTarget === album.id ? 'var(--mui-palette-action-selected)' : '',
@@ -111,13 +111,13 @@ const AlbumCover = ({
       >
         <MotionBox
           className={styles.image}
-          height={measurements.COVER_HEIGHT}
+          height={measurements.CARD_WIDTH - 24}
           margin="12px"
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
           variants={menuTarget === album.id ? {} : imageMotion}
-          width={measurements.COVER_WIDTH}
+          width={measurements.CARD_WIDTH - 24}
         />
         <Typography sx={textStyle}>
           {album.title}
@@ -134,7 +134,7 @@ const AlbumCover = ({
       className={styles.container}
       data-id={album.id}
       data-section={album.section}
-      height={measurements.ROW_HEIGHT}
+      height={measurements.CARD_WIDTH}
       justifyContent="center"
       key={album.id}
       whileHover="hover"
@@ -160,12 +160,12 @@ const AlbumCover = ({
       >
         <MotionBox
           className={styles.image}
-          height={measurements.COVER_HEIGHT}
+          height={measurements.CARD_WIDTH}
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
           variants={menuTarget === album.id ? {} : imageMotion}
-          width={measurements.COVER_WIDTH}
+          width={measurements.CARD_WIDTH}
           onClick={() => navigate(`/albums/${album.id}`)}
         />
       </Tooltip>
@@ -181,7 +181,8 @@ const AlbumsRow = React.memo(({ item, context }: RowProps) => {
   return (
     <Box
       display="flex"
-      height={measurements.ROW_HEIGHT}
+      gap="8px"
+      height={measurements.CARD_HEIGHT}
       mx="auto"
       width={measurements.ROW_WIDTH}
     >

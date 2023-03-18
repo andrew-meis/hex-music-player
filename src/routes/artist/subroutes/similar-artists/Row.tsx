@@ -5,7 +5,7 @@ import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
-import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
+import { VIEW_PADDING } from 'constants/measures';
 import styles from 'styles/MotionImage.module.scss';
 import CollapseContent from './CollapseContent';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
@@ -36,10 +36,8 @@ interface ArtistCardProps {
 
 const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
   const {
-    grid, library, openArtist, width, openCard, setOpenArtist, setOpenCard,
+    library, measurements, openArtist, openCard, setOpenArtist, setOpenCard,
   } = context;
-  const imgHeight = Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70);
-  const imgWidth = Math.floor((width - VIEW_PADDING) / grid.cols);
   const open = openArtist.id === artist.id;
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
@@ -72,7 +70,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
     <MotionBox
       className={styles.container}
       data-id={artist.id}
-      height={imgHeight + 28}
+      height={measurements.ROW_HEIGHT}
       key={artist.id}
       sx={{
         backgroundColor: open ? 'var(--mui-palette-action-selected)' : '',
@@ -83,14 +81,14 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         },
       }}
       whileHover="hover"
-      width={imgWidth}
+      width={measurements.IMAGE_WIDTH}
       onClick={handleClick}
     >
       <MotionBox
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
-        height={imgHeight - 24}
+        height={measurements.IMAGE_HEIGHT - 24}
         margin="12px"
         style={{
           borderRadius: '32px',
@@ -98,7 +96,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={open ? {} : imageMotion}
-        width={imgWidth - 24}
+        width={measurements.IMAGE_WIDTH - 24}
       >
         {!artist.thumb && (
           <SvgIcon
@@ -153,6 +151,7 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
   const {
     grid,
     items: { rows },
+    measurements,
     open,
     openArtist,
     openArtistQuery,
@@ -194,8 +193,10 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
     >
       <Box
         display="flex"
+        gap="8px"
+        height={measurements.ROW_HEIGHT + 8}
         mx="auto"
-        width={WIDTH_CALC}
+        width={measurements.ROW_WIDTH}
       >
         {artists.map((artist, index) => (
           <ArtistCard
@@ -215,15 +216,15 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
         <Box
           bgcolor="common.contrastGrey"
           borderBottom="1px solid var(--mui-palette-action-hover)"
-          borderRadius="12px"
+          borderRadius="32px"
           borderTop="1px solid var(--mui-palette-action-hover)"
           height={332}
           margin="auto"
-          marginY="8px"
+          marginBottom="8px"
           sx={{
             transform: 'translateZ(0px)',
           }}
-          width={WIDTH_CALC}
+          width={measurements.ROW_WIDTH}
         >
           <Box
             bgcolor="common.contrastGrey"

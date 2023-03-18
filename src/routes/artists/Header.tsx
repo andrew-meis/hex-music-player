@@ -37,6 +37,7 @@ const Header = ({ context }: { context?: ArtistsContext }) => {
       </Fade>
       <Box
         maxWidth="1600px"
+        mb="1px"
         mx="auto"
         ref={ref}
         width={measurements.ROW_WIDTH}

@@ -103,9 +103,6 @@ export interface AlbumRow {
 export interface Measurements {
   CARD_HEIGHT: number;
   CARD_WIDTH: number;
-  COVER_HEIGHT: number;
-  COVER_WIDTH: number;
-  ROW_HEIGHT: number;
   ROW_WIDTH: number;
   SIMILAR_CARD_WIDTH: number;
 }
@@ -347,15 +344,15 @@ const Artist = () => {
     return 0;
   }, [id, navigationType]);
 
-  const measurements = useMemo(() => ({
-    CARD_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols),
-    CARD_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols),
-    COVER_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) - 24,
-    COVER_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols) - 24,
-    ROW_HEIGHT: (Math.floor((width - VIEW_PADDING) / grid.cols) + (settings.albumText ? 54 : 0)),
-    ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
-    SIMILAR_CARD_WIDTH: (Math.floor((width - VIEW_PADDING) / (grid.cols - 1))),
-  }), [grid, settings, width]);
+  const measurements = useMemo(() => {
+    const { cols } = grid;
+    return {
+      CARD_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) + (settings.albumText ? 54 : 0),
+      CARD_WIDTH: Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
+      ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / cols)) * cols,
+      SIMILAR_CARD_WIDTH: (Math.floor((width - VIEW_PADDING) / (cols - 1))),
+    };
+  }, [grid, settings, width]);
 
   const refreshPage = useCallback(() => {
     queryClient.invalidateQueries([QueryKeys.ARTIST]);
@@ -450,7 +447,7 @@ const Artist = () => {
                 }}
                 context={{ ...artistContext, colors: Object.values(colors) as string[] }}
                 data={items}
-                fixedItemHeight={measurements.ROW_HEIGHT}
+                fixedItemHeight={measurements.CARD_HEIGHT}
                 increaseViewportBy={{ top: 0, bottom: 700 }}
                 isScrolling={handleScrollState}
                 itemContent={(index, item, context) => RowContent({ index, item, context })}

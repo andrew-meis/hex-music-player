@@ -9,6 +9,7 @@ const ScrollSeekPlaceholder = ({ context }: { context?: ArtistsContext }) => {
   return (
     <Box
       display="flex"
+      gap="8px"
       height={measurements.ROW_HEIGHT}
       mx="auto"
       width={measurements.ROW_WIDTH}

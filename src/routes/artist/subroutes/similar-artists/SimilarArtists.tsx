@@ -14,7 +14,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import { WIDTH_CALC } from 'constants/measures';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -59,6 +59,13 @@ interface LocationWithState extends Location {
   state: { guid: Artist['guid'], title: Artist['title'] }
 }
 
+export interface Measurements {
+  IMAGE_HEIGHT: number;
+  IMAGE_WIDTH: number;
+  ROW_HEIGHT: number;
+  ROW_WIDTH: number;
+}
+
 export interface OpenArtist {
   id: number;
   guid: string;
@@ -91,6 +98,7 @@ export interface SimilarArtistContext {
   isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
+  measurements: Measurements;
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   open: boolean;
@@ -228,6 +236,14 @@ const SimilarArtists = () => {
     return 0;
   }, [id, navigationType]);
 
+  const measurements = useMemo(() => ({
+    IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
+    IMAGE_WIDTH:
+      Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
+    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 28,
+    ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
+  }), [grid, width]);
+
   const similarArtistContext = useMemo(() => ({
     artist: artist.data,
     getFormattedTime,
@@ -235,6 +251,7 @@ const SimilarArtists = () => {
     isPlaying,
     items,
     library,
+    measurements,
     navigate,
     nowPlaying,
     open,
@@ -256,6 +273,7 @@ const SimilarArtists = () => {
     isPlaying,
     items,
     library,
+    measurements,
     navigate,
     nowPlaying,
     open,

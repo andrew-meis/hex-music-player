@@ -162,7 +162,8 @@ const Artists = () => {
 
   const measurements = useMemo(() => ({
     IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
-    IMAGE_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols),
+    IMAGE_WIDTH:
+      Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
     ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 28,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);

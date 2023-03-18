@@ -52,11 +52,11 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
       flexWrap="wrap"
       height={1}
       margin="auto"
-      width="calc(100% - 36px)"
+      width="calc(100% - 64px)"
     >
       <Box
         position="absolute"
-        right={18}
+        right={32}
         top={8}
       >
         <PlayShuffleButton

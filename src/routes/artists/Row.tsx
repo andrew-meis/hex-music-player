@@ -166,7 +166,7 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
   const caretPos = getCaretPos(grid.cols, openIndex, width);
 
   const handleEntered = () => {
-    virtuoso.current?.scrollTo({ top: index * measurements.ROW_HEIGHT, behavior: 'smooth' });
+    virtuoso.current?.scrollTo({ top: index * (measurements.ROW_HEIGHT + 8), behavior: 'smooth' });
     if (openArtist.id === artists[openIndex].id) {
       setOpenArtist({
         id: -1,
@@ -191,6 +191,8 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
     >
       <Box
         display="flex"
+        gap="8px"
+        height={measurements.ROW_HEIGHT + 8}
         mx="auto"
         width={measurements.ROW_WIDTH}
       >
@@ -212,11 +214,11 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
         <Box
           bgcolor="common.contrastGrey"
           borderBottom="1px solid var(--mui-palette-action-hover)"
-          borderRadius="12px"
+          borderRadius="32px"
           borderTop="1px solid var(--mui-palette-action-hover)"
           height={332}
           margin="auto"
-          marginY="8px"
+          marginBottom="8px"
           sx={{
             transform: 'translateZ(0px)',
           }}
