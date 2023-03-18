@@ -2,6 +2,7 @@ import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
+import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { VIEW_PADDING } from 'constants/measures';
@@ -17,11 +18,12 @@ const textStyle = {
   fontSize: '1rem',
   height: '20px',
   lineHeight: 1.2,
+  marginLeft: '12px',
   overflow: 'hidden',
   position: 'absolute',
   WebkitBoxOrient: 'vertical',
   WebkitLineClamp: 1,
-  width: '100%',
+  width: 'calc(100% - 24px)',
   wordBreak: 'break-all',
 };
 
@@ -71,7 +73,12 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       height={measurements.ROW_HEIGHT}
       key={artist.id}
       sx={{
+        backgroundColor: open ? 'var(--mui-palette-action-selected)' : '',
+        borderRadius: '32px',
         contain: 'paint',
+        '&:hover': {
+          backgroundColor: open ? 'var(--mui-palette-action-selected)' : '',
+        },
       }}
       whileHover="hover"
       width={measurements.IMAGE_WIDTH}
@@ -85,6 +92,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         margin="12px"
         style={{
           borderRadius: '32px',
+          transition: '0.2s',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={open ? {} : imageMotion}
@@ -102,17 +110,25 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
       <Typography
         sx={{
           ...textStyle,
-          opacity: open ? 0 : 1,
           textAlign: 'center',
           transition: '200ms',
         }}
       >
-        {artist.title}
+        <Link
+          className="link"
+          state={{
+            guid: artist.guid,
+            title: artist.title,
+          }}
+          to={`/artists/${artist.id}`}
+        >
+          {artist.title}
+        </Link>
       </Typography>
       <SvgIcon
         className={open ? styles.open : ''}
         sx={{
-          bottom: '40px',
+          bottom: '38px',
           color: 'common.white',
           filter: 'drop-shadow(0px 0px 1px rgb(0 0 0 / 0.8))',
           position: 'absolute',
@@ -195,9 +211,12 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
       >
         <Box
           bgcolor="common.contrastGrey"
+          borderBottom="1px solid var(--mui-palette-action-hover)"
           borderRadius="12px"
+          borderTop="1px solid var(--mui-palette-action-hover)"
           height={332}
           margin="auto"
+          marginY="8px"
           sx={{
             transform: 'translateZ(0px)',
           }}
@@ -208,6 +227,8 @@ const Row = React.memo(({ artists, context, index }: RowProps) => {
             height={18}
             position="absolute"
             sx={{
+              borderLeft: '1px solid var(--mui-palette-action-hover)',
+              borderTop: '1px solid var(--mui-palette-action-hover)',
               left: caretPos,
               overflow: 'hidden',
               top: '-14px',

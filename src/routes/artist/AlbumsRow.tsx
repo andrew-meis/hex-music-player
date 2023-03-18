@@ -97,7 +97,12 @@ const AlbumCover = ({
         height={measurements.ROW_HEIGHT}
         key={album.id}
         sx={{
+          backgroundColor: menuTarget === album.id ? 'var(--mui-palette-action-selected)' : '',
+          borderRadius: '4px',
           contain: 'paint',
+          '&:hover': {
+            backgroundColor: menuTarget === album.id ? 'var(--mui-palette-action-selected)' : '',
+          },
         }}
         whileHover="hover"
         width={measurements.CARD_WIDTH}
