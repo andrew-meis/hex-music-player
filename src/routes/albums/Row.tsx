@@ -1,42 +1,43 @@
 import { Box, SvgIcon } from '@mui/material';
-import { Playlist } from 'hex-plex';
+import { Album } from 'hex-plex';
 import React from 'react';
-import { TbPlaylist } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/all';
+import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import styles from 'styles/MotionImage.module.scss';
-import { PlaylistsContext, RowProps } from './Playlists';
+import { AlbumsContext, RowProps } from './Albums';
 
-interface PlaylistCardProps {
-  playlist: Playlist;
-  context: PlaylistsContext;
+interface AlbumCardProps {
+  album: Album;
+  context: AlbumsContext;
 }
 
-const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
+const AlbumCard = ({ album, context }: AlbumCardProps) => {
   const {
     library, measurements, navigate,
   } = context;
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
-      url: playlist.thumb || playlist.composite, width: 300, height: 300, minSize: 1, upscale: 1,
+      url: album.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
     },
   );
 
   return (
     <MotionBox
       className={styles.container}
-      data-id={playlist.id}
+      data-id={album.id}
       height={measurements.ROW_HEIGHT}
-      key={playlist.id}
+      key={album.id}
       sx={{
-        borderRadius: '32px',
+        borderRadius: '4px',
         contain: 'paint',
       }}
       whileHover="hover"
       width={measurements.IMAGE_SIZE}
-      onClick={() => navigate(`/playlists/${playlist.id}`)}
+      onClick={() => navigate(`/albums/${album.id}`)}
     >
       <MotionBox
         bgcolor="action.selected"
@@ -45,36 +46,47 @@ const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
         height={measurements.IMAGE_SIZE - 24}
         margin="12px"
         style={{
-          borderRadius: '32px',
+          borderRadius: '4px',
           transition: '0.2s',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={imageMotion}
         width={measurements.IMAGE_SIZE - 24}
       >
-        {!playlist.thumb && !playlist.composite && (
+        {!album.thumb && (
           <SvgIcon
             className="generic-icon"
             sx={{ color: 'common.grey' }}
           >
-            <TbPlaylist />
+            <IoMdMicrophone />
           </SvgIcon>
         )}
       </MotionBox>
-      <Title marginX="12px" textAlign="center">
-        {playlist.title}
+      <Title
+        marginX="12px"
+      >
+        {album.title}
       </Title>
       <Subtitle
         marginX="12px"
-        textAlign="center"
       >
-        {`${playlist.leafCount} ${playlist.leafCount === 1 ? 'track' : 'tracks'}`}
+        <Link
+          className="link"
+          state={{
+            guid: album.parentGuid,
+            title: album.parentTitle,
+          }}
+          to={`/artists/${album.parentId}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {album.parentTitle}
+        </Link>
       </Subtitle>
     </MotionBox>
   );
 };
 
-const Row = React.memo(({ playlists, context }: RowProps) => {
+const Row = React.memo(({ albums, context }: RowProps) => {
   const {
     measurements,
   } = context;
@@ -91,11 +103,11 @@ const Row = React.memo(({ playlists, context }: RowProps) => {
         mx="auto"
         width={measurements.ROW_WIDTH}
       >
-        {playlists.map((playlist) => (
-          <PlaylistCard
+        {albums.map((album) => (
+          <AlbumCard
+            album={album}
             context={context}
-            key={playlist.id}
-            playlist={playlist}
+            key={album.id}
           />
         ))}
       </Box>

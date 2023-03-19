@@ -41,8 +41,7 @@ const getCols = (width: number) => {
 };
 
 export interface Measurements {
-  IMAGE_HEIGHT: number;
-  IMAGE_WIDTH: number;
+  IMAGE_SIZE: number;
   ROW_HEIGHT: number;
   ROW_WIDTH: number;
 }
@@ -152,8 +151,7 @@ const Artists = () => {
   }, [navigationType]);
 
   const measurements = useMemo(() => ({
-    IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
-    IMAGE_WIDTH:
+    IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
     ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,

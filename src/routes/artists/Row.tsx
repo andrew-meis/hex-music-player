@@ -65,14 +65,14 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         },
       }}
       whileHover="hover"
-      width={measurements.IMAGE_WIDTH}
+      width={measurements.IMAGE_SIZE}
       onClick={handleClick}
     >
       <MotionBox
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
-        height={measurements.IMAGE_HEIGHT - 24}
+        height={(measurements.IMAGE_SIZE * 0.70) - 24}
         margin="12px"
         style={{
           borderRadius: '32px',
@@ -80,7 +80,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={open ? {} : imageMotion}
-        width={measurements.IMAGE_WIDTH - 24}
+        width={measurements.IMAGE_SIZE - 24}
       >
         {!artist.thumb && (
           <SvgIcon

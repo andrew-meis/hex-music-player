@@ -130,7 +130,7 @@ const Tracks = () => {
   };
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['all-tracks', filters.data],
+    queryKey: [QueryKeys.ALL_TRACKS, filters.data],
     queryFn: fetchTracks,
     getNextPageParam: () => 0,
     keepPreviousData: true,

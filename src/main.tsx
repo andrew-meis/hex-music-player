@@ -11,7 +11,7 @@ import '@szhsin/react-menu/dist/transitions/slide.css';
 import 'styles/index.scss';
 import Root, { rootLoader } from 'root/Root';
 import Album from 'routes/album/Album';
-import Albums from 'routes/Albums';
+import Albums from 'routes/albums/Albums';
 import Artist from 'routes/artist/Artist';
 import ArtistTracks from 'routes/artist/subroutes/artist-tracks/ArtistTracks';
 import Discography from 'routes/artist/subroutes/discography/Discography';
@@ -19,7 +19,7 @@ import RecentFavorites from 'routes/artist/subroutes/recent-favorites/RecentFavo
 import SimilarArtists from 'routes/artist/subroutes/similar-artists/SimilarArtists';
 import Artists from 'routes/artists/Artists';
 import Charts from 'routes/charts/Charts';
-import Genres from 'routes/Genres';
+import Genres from 'routes/genres/Genres';
 import Home from 'routes/home/Home';
 import Login, { loginLoader } from 'routes/login/Login';
 import LyricsComponent from 'routes/lyrics/LyricsComponent';

@@ -1,9 +1,9 @@
 import { Skeleton } from '@mui/lab';
 import { Box } from '@mui/material';
-import { ArtistsContext } from './Artists';
+import { AlbumsContext } from './Albums';
 
 // eslint-disable-next-line react/require-default-props
-const ScrollSeekPlaceholder = ({ context }: { context?: ArtistsContext }) => {
+const ScrollSeekPlaceholder = ({ context }: { context?: AlbumsContext }) => {
   const { grid: { cols }, measurements } = context!;
   const array = [...Array(cols).keys()];
   return (
@@ -16,15 +16,14 @@ const ScrollSeekPlaceholder = ({ context }: { context?: ArtistsContext }) => {
     >
       {array.map((value) => (
         <Box
-          alignItems="center"
           display="flex"
           flexDirection="column"
           key={value}
         >
           <Skeleton
-            height={(measurements.IMAGE_SIZE * 0.70) - 24}
+            height={measurements.IMAGE_SIZE - 24}
             sx={{
-              borderRadius: '32px',
+              borderRadius: '4px',
               margin: '12px',
             }}
             variant="rectangular"
@@ -34,6 +33,7 @@ const ScrollSeekPlaceholder = ({ context }: { context?: ArtistsContext }) => {
             height="20"
             sx={{
               borderRadius: '4px',
+              marginLeft: '12px',
             }}
             variant="rectangular"
             width={measurements.IMAGE_SIZE - 64}

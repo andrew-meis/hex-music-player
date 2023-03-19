@@ -82,7 +82,7 @@ const AlbumCover = ({
         className={styles.container}
         data-id={album.id}
         data-section={album.section}
-        height={measurements.CARD_HEIGHT - 8}
+        height={measurements.CARD_HEIGHT}
         key={album.id}
         sx={{
           backgroundColor: menuTarget === album.id ? 'var(--mui-palette-action-selected)' : '',
@@ -166,7 +166,7 @@ const AlbumsRow = React.memo(({ item, context }: RowProps) => {
     <Box
       display="flex"
       gap="8px"
-      height={measurements.CARD_HEIGHT}
+      height={measurements.CARD_HEIGHT + 8}
       mx="auto"
       width={measurements.ROW_WIDTH}
     >

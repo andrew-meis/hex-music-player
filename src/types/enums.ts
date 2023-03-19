@@ -42,6 +42,8 @@ export enum QueryKeys {
   ALBUM_QUICK = 'album-quick',
   ALBUM_TRACKS = 'album-tracks',
   ALBUMS = 'albums',
+  ALL_ALBUMS = 'all-albums',
+  ALL_TRACKS = 'all-tracks',
   ARTIST = 'artist',
   ARTIST_APPEARANCES = 'artist-appearances',
   ARTIST_TRACKS = 'artist-tracks',

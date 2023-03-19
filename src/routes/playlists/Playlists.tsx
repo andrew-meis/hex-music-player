@@ -39,8 +39,7 @@ const getCols = (width: number) => {
 };
 
 export interface Measurements {
-  IMAGE_HEIGHT: number;
-  IMAGE_WIDTH: number;
+  IMAGE_SIZE: number;
   ROW_HEIGHT: number;
   ROW_WIDTH: number;
 }
@@ -109,14 +108,13 @@ const Playlists = () => {
   }, [navigationType]);
 
   const measurements = useMemo(() => ({
-    IMAGE_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols),
-    IMAGE_WIDTH:
+    IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
     ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 
-  const artistsContext = useMemo(() => ({
+  const playlistsContext = useMemo(() => ({
     config,
     getFormattedTime,
     isPlaying,
@@ -154,7 +152,7 @@ const Playlists = () => {
           Footer: FooterWide,
           Header,
         }}
-        context={artistsContext}
+        context={playlistsContext}
         data={items}
         itemContent={(index, item, context) => RowContent({ context, index, playlists: item })}
         ref={virtuoso}
