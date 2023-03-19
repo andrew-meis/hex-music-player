@@ -62,3 +62,19 @@ export const useArtistTracks = ({
     refetchOnWindowFocus: false,
   },
 );
+
+export const useArtists = ({
+  config, library,
+}: {
+  config: IConfig,
+  library: Library,
+}) => useQuery(
+  [QueryKeys.ARTISTS],
+  () => library.artists(config.sectionId!, { sort: 'titleSort:asc' }),
+  {
+    enabled: !!config && !!library,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    select: (data) => data.artists,
+  },
+);

@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
@@ -14,27 +13,19 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
+import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
 import type { RouteParams } from 'types/interfaces';
-
-const Footer = () => (
-  <Box
-    height="16px"
-    maxWidth={1600}
-    mx="auto"
-    width={WIDTH_CALC}
-  />
-);
 
 const getCols = (width: number) => {
   if (width >= 1350) {
@@ -95,6 +86,7 @@ export interface SimilarArtistContext {
   artist: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
+  height: number;
   isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
@@ -142,7 +134,7 @@ const SimilarArtists = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
-  const { width } = useOutletContext() as { width: number };
+  const { height, width } = useOutletContext() as { height: number, width: number };
 
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
@@ -240,7 +232,7 @@ const SimilarArtists = () => {
     IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
     IMAGE_WIDTH:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
-    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 28,
+    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 
@@ -248,6 +240,7 @@ const SimilarArtists = () => {
     artist: artist.data,
     getFormattedTime,
     grid,
+    height,
     isPlaying,
     items,
     library,
@@ -270,6 +263,7 @@ const SimilarArtists = () => {
     artist.data,
     getFormattedTime,
     grid,
+    height,
     isPlaying,
     items,
     library,
@@ -307,7 +301,7 @@ const SimilarArtists = () => {
       <GroupedVirtuoso
         className="scroll-container"
         components={{
-          Footer,
+          Footer: FooterWide,
           Header,
         }}
         context={similarArtistContext}

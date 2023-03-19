@@ -1,9 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { ArtistContainer } from 'hex-plex';
+import { QueryKeys } from 'types/enums';
 
 const useArtistMatch = ({ name = '' }: {name: string}) => {
   const queryClient = useQueryClient();
-  const artistData = queryClient.getQueryData(['artists']) as ArtistContainer;
+  const artistData = queryClient.getQueryData([QueryKeys.ARTISTS]) as ArtistContainer;
   if (!artistData || name === '') return [];
   const { artists } = artistData;
   // eslint-disable-next-line max-len

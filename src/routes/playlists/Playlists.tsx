@@ -13,7 +13,7 @@ import { useConfig, useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import Footer from 'routes/virtuoso-components/Footer';
+import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { PlayActions } from 'types/enums';
 import { IConfig } from 'types/interfaces';
 import Header from './Header';
@@ -110,8 +110,9 @@ const Playlists = () => {
 
   const measurements = useMemo(() => ({
     IMAGE_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols),
-    IMAGE_WIDTH: Math.floor((width - VIEW_PADDING) / grid.cols),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) + 28,
+    IMAGE_WIDTH:
+      Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
+    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 
@@ -150,7 +151,7 @@ const Playlists = () => {
       <Virtuoso
         className="scroll-container"
         components={{
-          Footer,
+          Footer: FooterWide,
           Header,
         }}
         context={artistsContext}

@@ -1,31 +1,15 @@
-import { Box, Collapse, SvgIcon, Typography } from '@mui/material';
+import { Box, Collapse, SvgIcon } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React from 'react';
 import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
+import { Title, Subtitle } from 'components/typography/TitleSubtitle';
 import { VIEW_PADDING } from 'constants/measures';
 import styles from 'styles/MotionImage.module.scss';
 import CollapseContent from './CollapseContent';
 import { RowProps, SimilarArtistContext } from './SimilarArtists';
-
-const textStyle = {
-  bottom: '8px',
-  color: 'text.primary',
-  display: '-webkit-box',
-  fontFamily: 'Rubik',
-  fontSize: '1rem',
-  height: '20px',
-  lineHeight: 1.2,
-  marginLeft: '12px',
-  overflow: 'hidden',
-  position: 'absolute',
-  WebkitBoxOrient: 'vertical',
-  WebkitLineClamp: 1,
-  width: 'calc(100% - 24px)',
-  wordBreak: 'break-all',
-};
 
 interface ArtistCardProps {
   artist: Artist;
@@ -107,13 +91,7 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
           </SvgIcon>
         )}
       </MotionBox>
-      <Typography
-        sx={{
-          ...textStyle,
-          textAlign: 'center',
-          transition: '200ms',
-        }}
-      >
+      <Title marginX="12px" textAlign="center">
         <Link
           className="link"
           state={{
@@ -124,11 +102,19 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         >
           {artist.title}
         </Link>
-      </Typography>
+      </Title>
+      <Subtitle
+        marginX="12px"
+        textAlign="center"
+      >
+        {artist.genre.slice(0, 2).map(
+          (genre, i, a) => `${genre.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
+        )}
+      </Subtitle>
       <SvgIcon
         className={open ? styles.open : ''}
         sx={{
-          bottom: '38px',
+          bottom: '-2px',
           color: 'common.white',
           filter: 'drop-shadow(0px 0px 1px rgb(0 0 0 / 0.8))',
           position: 'absolute',
@@ -150,6 +136,7 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
 const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
   const {
     grid,
+    height,
     items: { rows },
     measurements,
     open,
@@ -218,7 +205,7 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
           borderBottom="1px solid var(--mui-palette-action-hover)"
           borderRadius="32px"
           borderTop="1px solid var(--mui-palette-action-hover)"
-          height={332}
+          height={height < 639 ? 270 : 326}
           margin="auto"
           marginBottom="8px"
           sx={{

@@ -15,7 +15,7 @@ import {
 } from 'react-router-dom';
 import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import Palette from 'components/palette/Palette';
-import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
+import { VIEW_PADDING } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
@@ -30,21 +30,13 @@ import {
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
+import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
 import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import AlbumsRow from './AlbumsRow';
 import Header from './Header';
 import type { Album, Artist as TArtist, Library, PlayQueueItem, Track } from 'hex-plex';
 import type { IAppSettings, LocationWithState, RouteParams } from 'types/interfaces';
-
-const Footer = () => (
-  <Box
-    height="20px"
-    maxWidth={1600}
-    mx="auto"
-    width={WIDTH_CALC}
-  />
-);
 
 const List = React
   .forwardRef((
@@ -441,7 +433,7 @@ const Artist = () => {
               <Virtuoso
                 className="scroll-container"
                 components={{
-                  Footer,
+                  Footer: FooterWide,
                   Header,
                   List,
                 }}

@@ -20,13 +20,16 @@ interface TrackHighlightsProps {
   activeIndex: number;
   context: ContextProps | undefined;
   tracks: Track[];
+  // eslint-disable-next-line react/require-default-props
+  pageLength?: number;
 }
 
 // TODO double-click behavior
 const TrackHighlights = React.memo(({
-  activeIndex, context, tracks: allTracks = [],
+  activeIndex, context, tracks: allTracks = [], pageLength = 4,
 }: TrackHighlightsProps) => {
-  const tracks = allTracks.slice((activeIndex * 4), (activeIndex * 4 + 4));
+  const tracks = allTracks
+    .slice((activeIndex * pageLength), (activeIndex * pageLength + pageLength));
   const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
   const hoverIndex = useRef<number | null>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -97,8 +100,8 @@ const TrackHighlights = React.memo(({
         flex="0 0 100%"
         flexDirection="column"
         height={tracks.length * 56}
-        maxHeight={224}
-        minHeight={allTracks.length > 4 ? 224 : 0}
+        maxHeight={pageLength * 56}
+        minHeight={allTracks.length > pageLength ? pageLength * 56 : 0}
         ref={drag}
         onDragEndCapture={() => {
           document.querySelectorAll('div.track-row')
@@ -154,7 +157,7 @@ const TrackHighlights = React.memo(({
                 >
                   <TrackRow
                     getFormattedTime={getFormattedTime}
-                    index={(activeIndex * 4) + index + 1}
+                    index={(activeIndex * pageLength) + index + 1}
                     isPlaying={isPlaying}
                     library={library}
                     options={{ showAlbumTitle: true, showArtwork: true }}

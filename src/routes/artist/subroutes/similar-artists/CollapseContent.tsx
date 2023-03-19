@@ -25,6 +25,7 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
   const prevIndex = usePrevious(activeIndex);
   const { ref, entry } = useInView({ threshold: thresholds });
   const {
+    height,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
@@ -69,7 +70,6 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
         alignItems="center"
         color="text.primary"
         display="flex"
-        pt="6px"
         width={1}
       >
         <MotionTypography
@@ -120,6 +120,7 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
                   <TrackHighlights
                     activeIndex={activeIndex}
                     context={context}
+                    pageLength={height < 639 ? 3 : 4}
                     tracks={openArtistTracksQuery.data!}
                   />
                 </MotionBox>
@@ -133,7 +134,7 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
       <PaginationDots
         activeIndex={activeIndex}
         array={openArtistTracksQuery.data!}
-        colLength={4}
+        colLength={height < 639 ? 3 : 4}
         setActiveIndex={setActiveIndex}
       />
     </Box>

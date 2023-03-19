@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { Library } from 'hex-plex';
 import moment from 'moment';
 import React from 'react';
@@ -6,22 +6,10 @@ import { NavigateFunction } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';
+import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import styles from 'styles/MotionImage.module.scss';
 import { IAppSettings } from 'types/interfaces';
 import { AlbumWithSection, Measurements, RowProps } from './Artist';
-
-const textStyle = {
-  color: 'text.primary',
-  display: '-webkit-box',
-  fontFamily: 'Rubik',
-  fontSize: '1rem',
-  lineHeight: 1.2,
-  mx: '12px',
-  overflow: 'hidden',
-  WebkitBoxOrient: 'vertical',
-  WebkitLineClamp: 1,
-  wordBreak: 'break-all',
-};
 
 interface Map {
   [key: string]: string;
@@ -119,12 +107,8 @@ const AlbumCover = ({
           variants={menuTarget === album.id ? {} : imageMotion}
           width={measurements.CARD_WIDTH - 24}
         />
-        <Typography sx={textStyle}>
-          {album.title}
-        </Typography>
-        <Typography color="text.secondary" mx="12px" variant="subtitle2">
-          {getAdditionalText(album, sort.by)}
-        </Typography>
+        <Title marginX="12px">{album.title}</Title>
+        <Subtitle marginX="12px">{getAdditionalText(album, sort.by)}</Subtitle>
       </MotionBox>
     );
   }

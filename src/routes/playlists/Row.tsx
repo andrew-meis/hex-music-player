@@ -1,26 +1,12 @@
-import { Box, SvgIcon, Typography } from '@mui/material';
+import { Box, SvgIcon } from '@mui/material';
 import { Playlist } from 'hex-plex';
 import React from 'react';
 import { TbPlaylist } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
+import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import styles from 'styles/MotionImage.module.scss';
 import { PlaylistsContext, RowProps } from './Playlists';
-
-const textStyle = {
-  bottom: '8px',
-  color: 'text.primary',
-  display: '-webkit-box',
-  fontFamily: 'Rubik',
-  fontSize: '1rem',
-  height: '20px',
-  lineHeight: 1.2,
-  overflow: 'hidden',
-  position: 'absolute',
-  WebkitBoxOrient: 'vertical',
-  WebkitLineClamp: 1,
-  wordBreak: 'break-all',
-};
 
 interface PlaylistCardProps {
   playlist: Playlist;
@@ -45,6 +31,7 @@ const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
       height={measurements.ROW_HEIGHT}
       key={playlist.id}
       sx={{
+        borderRadius: '32px',
         contain: 'paint',
       }}
       whileHover="hover"
@@ -59,6 +46,7 @@ const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
         margin="12px"
         style={{
           borderRadius: '32px',
+          transition: '0.2s',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={imageMotion}
@@ -73,16 +61,15 @@ const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
           </SvgIcon>
         )}
       </MotionBox>
-      <Typography
-        sx={{
-          ...textStyle,
-          textAlign: 'center',
-          transition: '200ms',
-          width: Math.floor((measurements.IMAGE_WIDTH - 16) * 0.95),
-        }}
-      >
+      <Title marginX="12px" textAlign="center">
         {playlist.title}
-      </Typography>
+      </Title>
+      <Subtitle
+        marginX="12px"
+        textAlign="center"
+      >
+        {`${playlist.leafCount} ${playlist.leafCount === 1 ? 'track' : 'tracks'}`}
+      </Subtitle>
     </MotionBox>
   );
 };
@@ -99,6 +86,8 @@ const Row = React.memo(({ playlists, context }: RowProps) => {
     >
       <Box
         display="flex"
+        gap="8px"
+        height={measurements.ROW_HEIGHT + 8}
         mx="auto"
         width={measurements.ROW_WIDTH}
       >

@@ -1,4 +1,4 @@
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
+import { UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { throttle } from 'lodash';
@@ -11,11 +11,11 @@ import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { useArtist, useArtistTracks } from 'queries/artist-queries';
+import { useArtist, useArtists, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import Footer from 'routes/virtuoso-components/Footer';
-import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
+import FooterWide from 'routes/virtuoso-components/FooterWide';
+import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import { IConfig } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
@@ -57,6 +57,7 @@ export interface ArtistsContext {
   config: IConfig;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
+  height: number;
   isPlaying: boolean;
   library: Library;
   measurements: Measurements;
@@ -103,8 +104,9 @@ const Artists = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch, playUri } = usePlayback();
   const { getFormattedTime } = useFormattedTime();
-  const { width } = useOutletContext() as { width: number };
+  const { height, width } = useOutletContext() as { height: number, width: number };
 
+  const { data: artists, isLoading } = useArtists({ config, library });
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
     config,
@@ -118,17 +120,6 @@ const Artists = () => {
     ].join(''),
     slice: 12,
   });
-
-  const { data: artists, isLoading } = useQuery(
-    [QueryKeys.ARTISTS],
-    async () => library.artists(config.sectionId!, { sort: 'titleSort:asc' }),
-    {
-      enabled: !!config && !!library,
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-      select: (data) => data.artists,
-    },
-  );
 
   // create array for virtualization
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
@@ -164,7 +155,7 @@ const Artists = () => {
     IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
     IMAGE_WIDTH:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
-    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 28,
+    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 
@@ -180,6 +171,7 @@ const Artists = () => {
     config,
     getFormattedTime,
     grid,
+    height,
     isPlaying,
     library,
     measurements,
@@ -204,6 +196,7 @@ const Artists = () => {
     config,
     getFormattedTime,
     grid,
+    height,
     isPlaying,
     library,
     measurements,
@@ -241,7 +234,7 @@ const Artists = () => {
       <Virtuoso
         className="scroll-container"
         components={{
-          Footer,
+          Footer: FooterWide,
           Header,
           ScrollSeekPlaceholder,
         }}

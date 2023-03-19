@@ -1,4 +1,4 @@
-import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
+import { Avatar, Box, SvgIcon } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
 import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
@@ -6,23 +6,10 @@ import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';
 import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
+import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import { WIDTH_CALC } from 'constants/measures';
 import { ArtistContext } from '../Artist';
 import type { Artist } from 'hex-plex';
-
-const textStyle = {
-  color: 'text.primary',
-  display: '-webkit-box',
-  fontFamily: 'Rubik',
-  fontSize: '1rem',
-  lineHeight: 1.2,
-  mt: '2px',
-  mx: '8px',
-  overflow: 'hidden',
-  WebkitBoxOrient: 'vertical',
-  WebkitLineClamp: 1,
-  wordBreak: 'break-all',
-};
 
 interface SimilarArtistsCardsProps {
   activeIndex: number;
@@ -120,22 +107,17 @@ const SimilarArtistsCards = ({
                   </SvgIcon>
                 </Avatar>
                 <Box>
-                  <Typography sx={textStyle}>
+                  <Title marginTop="2px" marginX="8px">
                     {similarArtist.title}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      ...textStyle,
-                      color: 'text.secondary',
-                      fontSize: '0.875rem',
-                    }}
-                    variant="subtitle2"
+                  </Title>
+                  <Subtitle
+                    marginX="8px"
                   >
                     {similarArtist.genre.map(
                       // eslint-disable-next-line max-len
                       (genre, i, a) => `${genre.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
                     )}
-                  </Typography>
+                  </Subtitle>
                 </Box>
               </Box>
             );

@@ -4,7 +4,8 @@ import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
 import Toast from 'components/toast/Toast';
-import { useLibrary } from 'queries/app-queries';
+import { useConfig, useLibrary } from 'queries/app-queries';
+import { useArtists } from 'queries/artist-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { IAppSettings } from 'types/interfaces';
 import Footer from 'ui/footer/Footer';
@@ -21,8 +22,10 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
   const playlists = usePlaylists(library);
+  const { data: config } = useConfig();
+  const artists = useArtists({ config, library });
 
-  if (playlists.isLoading) {
+  if (artists.isLoading || playlists.isLoading) {
     return (
       <Box
         alignItems="center"
