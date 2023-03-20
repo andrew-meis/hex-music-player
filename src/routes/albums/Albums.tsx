@@ -14,6 +14,7 @@ import {
   useOutletContext,
 } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import AlbumMenu from 'components/menus/AlbumMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -95,6 +96,7 @@ export interface AlbumsContext {
   hoverIndex: React.MutableRefObject<number | null>;
   library: Library;
   measurements: Measurements;
+  menuTarget: Album[];
   navigate: NavigateFunction;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   uri: string;
@@ -139,6 +141,7 @@ const Albums = () => {
   const [containerStart, setContainerStart] = useState(0);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [menuProps, toggleMenu] = useMenuState();
+  const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const { data: config } = useConfig();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { playSwitch, playUri } = usePlayback();
@@ -190,13 +193,14 @@ const Albums = () => {
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
     const target = event.currentTarget.getAttribute('data-id');
-    const section = event.currentTarget.getAttribute('data-section');
-    if (!target || !section) {
+    if (!target) {
       return;
     }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(flatAlbums.filter((album) => album).filter((album) => album.id === targetId));
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
-  }, [toggleMenu]);
+  }, [flatAlbums, toggleMenu]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -258,6 +262,7 @@ const Albums = () => {
     hoverIndex,
     library,
     measurements,
+    menuTarget,
     navigate,
     playUri,
     uri,
@@ -268,6 +273,7 @@ const Albums = () => {
     hoverIndex,
     library,
     measurements,
+    menuTarget,
     navigate,
     playUri,
     uri,
@@ -276,59 +282,73 @@ const Albums = () => {
   if (isLoading || !data) return null;
 
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-      key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
-    >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer: FooterWide,
-          Header,
-          ScrollSeekPlaceholder,
+    <>
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={location.pathname}
+        style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
+      >
+        <Virtuoso
+          className="scroll-container"
+          components={{
+            Footer: FooterWide,
+            Header,
+            ScrollSeekPlaceholder,
+          }}
+          context={albumsContext}
+          fixedItemHeight={measurements.ROW_HEIGHT}
+          isScrolling={handleScrollState}
+          itemContent={(index, _item, context) => {
+            const startIndex = index * grid.cols;
+            const albums = flatAlbums
+              .slice(startIndex, startIndex + grid.cols).filter((album) => album);
+            if (albums.length === grid.cols || (startIndex + grid.cols > data.pages[0].totalSize)) {
+              return RowContent({ context, index, albums });
+            }
+            return (
+              <ScrollSeekPlaceholder context={albumsContext} />
+            );
+          }}
+          rangeChanged={(newRange) => {
+            range.current = newRange;
+          }}
+          ref={virtuoso}
+          scrollSeekConfiguration={{
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
+            exit: (velocity) => Math.abs(velocity) < 100,
+          }}
+          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          totalCount={Math.ceil(data.pages[0].totalSize / grid.cols)}
+          onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              'albums-scroll',
+              target.scrollTop as unknown as string,
+            );
+          }}
+        />
+      </motion.div>
+      <AlbumMenu
+        artistLink
+        albums={menuTarget}
+        anchorPoint={anchorPoint}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
         }}
-        context={albumsContext}
-        fixedItemHeight={measurements.ROW_HEIGHT}
-        isScrolling={handleScrollState}
-        itemContent={(index, _item, context) => {
-          const startIndex = index * grid.cols;
-          const albums = flatAlbums
-            .slice(startIndex, startIndex + grid.cols).filter((album) => album);
-          if (albums.length === grid.cols) {
-            return RowContent({ context, index, albums });
-          }
-          return (
-            <ScrollSeekPlaceholder context={albumsContext} />
-          );
-        }}
-        rangeChanged={(newRange) => {
-          range.current = newRange;
-        }}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={Math.floor(data.pages[0].totalSize / grid.cols)}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            'albums-scroll',
-            target.scrollTop as unknown as string,
-          );
-        }}
+        {...menuProps}
       />
-    </motion.div>
+    </>
   );
 };
 

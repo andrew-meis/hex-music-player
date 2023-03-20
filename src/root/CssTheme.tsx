@@ -104,7 +104,7 @@ const theme = extendTheme({
     MuiAccordion: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
+          backgroundImage: 'var(--mui-palette-common-overlay)',
           boxShadow: 'none',
         },
       },

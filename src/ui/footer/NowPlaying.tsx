@@ -1,7 +1,11 @@
 import { Avatar, Box, Typography } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import NowPlayingMenu from 'components/menus/NowPlayingMenu';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
+import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 
@@ -14,7 +18,10 @@ const typographyStyle = {
 
 const NowPlaying = () => {
   const library = useLibrary();
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
   const { data: nowPlaying } = useNowPlaying();
+  const { playSwitch } = usePlayback();
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
@@ -26,57 +33,75 @@ const NowPlaying = () => {
     },
   );
 
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  };
+
   if (!nowPlaying) {
     return null;
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        width: '100%',
-        height: '100%',
-        alignItems: 'center',
-      }}
-    >
-      <Avatar
-        alt={nowPlaying.track.title}
-        src={thumbSrc}
-        sx={{ width: 74, height: 74, marginX: '8px' }}
-        variant="rounded"
-      />
+    <>
       <Box
         sx={{
-          display: 'table',
-          tableLayout: 'fixed',
+          display: 'flex',
           width: '100%',
+          height: '100%',
+          alignItems: 'center',
         }}
       >
-        <Typography sx={{
-          ...typographyStyle,
-          fontFamily: 'Rubik, sans-serif',
-          fontSize: '0.95rem',
-          fontWeight: 600,
-          color: 'text.primary',
-        }}
-        >
-          <NavLink
-            className="link"
-            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
-            to={`/tracks/${nowPlaying.track.id}`}
-          >
-            {nowPlaying.track.title}
-          </NavLink>
-        </Typography>
-        <Typography sx={{ ...typographyStyle, fontSize: '0.875rem', color: 'text.secondary' }}>
-          <Subtext showAlbum track={nowPlaying.track} />
-        </Typography>
-        <TrackRating
-          id={nowPlaying.track.id}
-          userRating={nowPlaying.track.userRating}
+        <Avatar
+          alt={nowPlaying.track.title}
+          src={thumbSrc}
+          sx={{ width: 74, height: 74, marginX: '8px' }}
+          variant="rounded"
+          onContextMenu={handleContextMenu}
         />
+        <Box
+          sx={{
+            display: 'table',
+            tableLayout: 'fixed',
+            width: '100%',
+          }}
+        >
+          <Typography
+            sx={{
+              ...typographyStyle,
+              fontFamily: 'Rubik, sans-serif',
+              fontSize: '0.95rem',
+              fontWeight: 600,
+              color: 'text.primary',
+            }}
+            onContextMenu={handleContextMenu}
+          >
+            <NavLink
+              className="link"
+              style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
+              to={`/tracks/${nowPlaying.track.id}`}
+            >
+              {nowPlaying.track.title}
+            </NavLink>
+          </Typography>
+          <Typography sx={{ ...typographyStyle, fontSize: '0.875rem', color: 'text.secondary' }}>
+            <Subtext showAlbum track={nowPlaying.track} />
+          </Typography>
+          <TrackRating
+            id={nowPlaying.track.id}
+            userRating={nowPlaying.track.userRating}
+          />
+        </Box>
       </Box>
-    </Box>
+      <NowPlayingMenu
+        anchorPoint={anchorPoint}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        tracks={[nowPlaying.track]}
+        {...menuProps}
+      />
+    </>
   );
 };
 

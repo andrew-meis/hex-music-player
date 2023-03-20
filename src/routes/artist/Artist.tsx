@@ -1,5 +1,5 @@
 import { Box, SvgIcon } from '@mui/material';
-import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
@@ -14,6 +14,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import AlbumMenu from 'components/menus/AlbumMenu';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
@@ -32,7 +33,6 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
-import { albumButtons, ButtonSpecs } from '../../constants/buttons';
 import AlbumsRow from './AlbumsRow';
 import Header from './Header';
 import type { Album, Artist as TArtist, Library, PlayQueueItem, Track } from 'hex-plex';
@@ -110,7 +110,7 @@ export interface ArtistContext {
   isPlaying: boolean;
   library: Library;
   measurements: Measurements;
-  menuTarget: number | undefined;
+  menuTarget: Album[];
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   playArtist: (artist: TArtist, shuffle?: boolean) => Promise<void>;
@@ -177,7 +177,7 @@ const Artist = () => {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
-  const [menuTarget, setMenuTarget] = useState<number | undefined>();
+  const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -286,31 +286,21 @@ const Artist = () => {
       return;
     }
     menuSection.current = section;
-    setMenuTarget(parseInt(target, 10));
+    const targetId = parseInt(target, 10);
+    setMenuTarget(data.releases.filter((album) => album.id === targetId));
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
-  }, [toggleMenu]);
+  }, [data.releases, toggleMenu]);
 
   const handleHideAlbum = useCallback(async () => {
-    if (!data || !artist.data) {
+    if (!artist.data || menuTarget.length === 0) {
       return;
     }
-    const album = data.releases.find((x) => x.id === menuTarget);
-    if (!album) {
-      return;
-    }
+    const [album] = menuTarget;
     const appearanceCount = data.releases.filter((x) => x.section === 'Appears On').length;
     if (appearanceCount === 1) setFilter('All Releases');
     await hideAlbum(artist.data.artist, album);
   }, [artist.data, data, hideAlbum, menuTarget]);
-
-  const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
-    if (!data) {
-      return;
-    }
-    const album = data.releases.find((x) => x.id === menuTarget);
-    await playSwitch(button.action, { album, shuffle: button.shuffle });
-  }, [data, menuTarget, playSwitch]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -454,23 +444,19 @@ const Artist = () => {
                 }}
               />
             </motion.div>
-            <ControlledMenu
-              {...menuProps}
-              portal
+            <AlbumMenu
+              albums={menuTarget}
               anchorPoint={anchorPoint}
-              boundingBoxPadding="10"
+              artistLink={false}
+              playSwitch={playSwitch}
+              toggleMenu={toggleMenu}
               onClose={() => {
                 menuSection.current = null;
-                setMenuTarget(undefined);
                 toggleMenu(false);
+                setMenuTarget([]);
               }}
+              {...menuProps}
             >
-              {albumButtons.map((button: ButtonSpecs) => (
-                <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
-                  {button.icon}
-                  {button.name}
-                </MenuItem>
-              ))}
               {menuSection.current === 'Appears On' && (
               <>
                 <MenuDivider />
@@ -483,7 +469,7 @@ const Artist = () => {
                 </MenuItem>
               </>
               )}
-            </ControlledMenu>
+            </AlbumMenu>
           </>
         );
       }}

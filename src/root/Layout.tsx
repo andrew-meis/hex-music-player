@@ -42,9 +42,11 @@ const Layout = ({ settings }: {settings: IAppSettings}) => {
   return (
     <>
       <Box
-        bgcolor={settings.colorMode === 'light' ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.04)'}
         height="100vh"
         id="background"
+        sx={{
+          backgroundImage: 'var(--mui-palette-common-overlay)',
+        }}
         width="100vw"
       />
       <Titlebar searchContainer={searchContainer} />

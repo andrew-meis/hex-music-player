@@ -1,7 +1,7 @@
 import { SvgIcon } from '@mui/material';
 import React from 'react';
 import {
-  BsPlayFill, FiRadio, MdPlaylistAdd, RiShuffleFill, TiArrowForward,
+  BsPlayFill, FiRadio, RiShuffleFill, TiArrowForward,
 } from 'react-icons/all';
 import { PlayActions } from 'types/enums';
 
@@ -68,13 +68,6 @@ export const allButtons: ButtonSpecs[] = [
     icon: <SvgIcon sx={{ mr: '8px', transform: 'scale(1,-1)' }}><TiArrowForward /></SvgIcon>,
     name: 'Play last',
     action: PlayActions.ADD_TRACKS_LAST,
-    shuffle: false,
-  },
-  {
-    type: 'album',
-    icon: <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>,
-    name: 'Add to playlist',
-    action: PlayActions.DO_NOTHING,
     shuffle: false,
   },
   {

@@ -29,15 +29,8 @@ const ScrollSeekPlaceholder = ({ context }: { context?: AlbumsContext }) => {
             variant="rectangular"
             width={measurements.IMAGE_SIZE - 24}
           />
-          <Skeleton
-            height="20"
-            sx={{
-              borderRadius: '4px',
-              marginLeft: '12px',
-            }}
-            variant="rectangular"
-            width={measurements.IMAGE_SIZE - 64}
-          />
+          <Skeleton sx={{ marginLeft: '12px' }} variant="text" width="70%" />
+          <Skeleton sx={{ marginLeft: '12px' }} variant="text" width="60%" />
         </Box>
       ))}
     </Box>

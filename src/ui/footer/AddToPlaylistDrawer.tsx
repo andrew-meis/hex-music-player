@@ -17,6 +17,10 @@ const AddToPlaylistDrawer = () => {
     <Drawer
       PaperProps={{
         square: false,
+        sx: {
+          backgroundColor: 'var(--mui-palette-background-default)',
+          backgroundImage: 'var(--mui-palette-common-overlay)',
+        },
       }}
       anchor="right"
       open={tracks.length > 0}

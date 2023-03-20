@@ -30,14 +30,8 @@ const ScrollSeekPlaceholder = ({ context }: { context?: ArtistsContext }) => {
             variant="rectangular"
             width={measurements.IMAGE_SIZE - 24}
           />
-          <Skeleton
-            height="20"
-            sx={{
-              borderRadius: '4px',
-            }}
-            variant="rectangular"
-            width={measurements.IMAGE_SIZE - 64}
-          />
+          <Skeleton variant="text" width="40%" />
+          <Skeleton variant="text" width="60%" />
         </Box>
       ))}
     </Box>

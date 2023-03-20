@@ -187,6 +187,40 @@ const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
           library={library}
           tracks={tracks}
         />
+        <Box
+          borderRadius="4px"
+          component="form"
+          height="32px"
+          marginY="4px"
+          sx={{
+            backgroundColor: 'background.paper',
+            backgroundImage: 'var(--mui-overlays-2)',
+          }}
+          width="calc(100% - 10px)"
+          onSubmit={handleSubmit}
+        >
+          <InputBase
+            fullWidth
+            endAdornment={(
+              <InputAdornment position="end" sx={{ cursor: 'pointer' }} onClick={handleSubmit}>
+                <SvgIcon sx={{
+                  mr: '12px',
+                  color: 'text.secondary',
+                  height: '18px',
+                  width: '18px',
+                  transform: 'rotate(45deg)',
+                }}
+                >
+                  <RiSendPlaneLine />
+                </SvgIcon>
+              </InputAdornment>
+            )}
+            inputProps={{ style: { padding: '4px 8px 4px' }, spellCheck: false }}
+            placeholder="Create playlist..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Box>
         <Virtuoso
           className="scroll-container"
           components={{
@@ -223,83 +257,44 @@ const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
           style={{ height: 'calc(100% - 142px)' }}
         />
         <Box
+          alignItems="center"
           display="flex"
-          flexDirection="column"
+          height={40}
+          justifyContent="flex-end"
+          width="calc(100% - 10px)"
         >
-          <Box
-            borderRadius="4px"
-            component="form"
-            height="32px"
-            marginY="4px"
+          <Button
+            disableRipple
+            color="error"
+            size="small"
             sx={{
-              backgroundColor: 'background.paper',
-              backgroundImage: 'var(--mui-overlays-2)',
+              fontSize: '0.95rem',
+              height: 32,
+              lineHeight: 1,
+              marginLeft: '4px',
+              textTransform: 'none',
             }}
-            width="calc(100% - 10px)"
-            onSubmit={handleSubmit}
+            variant="outlined"
+            onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
           >
-            <InputBase
-              fullWidth
-              endAdornment={(
-                <InputAdornment position="end" sx={{ cursor: 'pointer' }} onClick={handleSubmit}>
-                  <SvgIcon sx={{
-                    mr: '12px',
-                    color: 'text.secondary',
-                    height: '18px',
-                    width: '18px',
-                    transform: 'rotate(45deg)',
-                  }}
-                  >
-                    <RiSendPlaneLine />
-                  </SvgIcon>
-                </InputAdornment>
-              )}
-              inputProps={{ style: { padding: '4px 8px 4px' }, spellCheck: false }}
-              placeholder="Create playlist..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Box>
-          <Box
-            alignItems="center"
-            display="flex"
-            height={40}
-            justifyContent="flex-end"
-            width="calc(100% - 10px)"
+            Cancel
+          </Button>
+          <Button
+            disableRipple
+            color="success"
+            size="small"
+            sx={{
+              fontSize: '0.95rem',
+              height: 32,
+              lineHeight: 1,
+              marginLeft: '4px',
+              textTransform: 'none',
+            }}
+            variant="outlined"
+            onClick={handleSave}
           >
-            <Button
-              disableRipple
-              color="error"
-              size="small"
-              sx={{
-                fontSize: '0.95rem',
-                height: 32,
-                lineHeight: 1,
-                marginLeft: '4px',
-                textTransform: 'none',
-              }}
-              variant="outlined"
-              onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
-            >
-              Cancel
-            </Button>
-            <Button
-              disableRipple
-              color="success"
-              size="small"
-              sx={{
-                fontSize: '0.95rem',
-                height: 32,
-                lineHeight: 1,
-                marginLeft: '4px',
-                textTransform: 'none',
-              }}
-              variant="outlined"
-              onClick={handleSave}
-            >
-              Save
-            </Button>
-          </Box>
+            Save
+          </Button>
         </Box>
       </Box>
     </Box>

@@ -16,8 +16,9 @@ interface AlbumCardProps {
 
 const AlbumCard = ({ album, context }: AlbumCardProps) => {
   const {
-    library, measurements, navigate,
+    handleContextMenu, library, measurements, menuTarget, navigate,
   } = context;
+  const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
@@ -32,12 +33,17 @@ const AlbumCard = ({ album, context }: AlbumCardProps) => {
       height={measurements.ROW_HEIGHT}
       key={album.id}
       sx={{
+        backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
         borderRadius: '4px',
         contain: 'paint',
+        '&:hover': {
+          backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
+        },
       }}
       whileHover="hover"
       width={measurements.IMAGE_SIZE}
       onClick={() => navigate(`/albums/${album.id}`)}
+      onContextMenu={handleContextMenu}
     >
       <MotionBox
         bgcolor="action.selected"

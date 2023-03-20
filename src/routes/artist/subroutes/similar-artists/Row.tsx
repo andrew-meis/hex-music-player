@@ -1,7 +1,7 @@
 import { Box, Collapse, SvgIcon } from '@mui/material';
 import { Artist } from 'hex-plex';
 import React from 'react';
-import { FaAngleDown, IoMdMicrophone } from 'react-icons/all';
+import { BiChevronDown, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
@@ -122,15 +122,15 @@ const ArtistCard = ({ artist, context, index, rowIndex }: ArtistCardProps) => {
         }}
         viewBox="1 0 24 24"
       >
-        <FaAngleDown />
+        <BiChevronDown />
       </SvgIcon>
     </MotionBox>
   );
 };
 
 const getCaretPos = (cols: number, openIndex: number, width: number) => {
-  const colWidth = Math.floor((width - VIEW_PADDING) / cols);
-  return (colWidth * openIndex) + (colWidth / 2);
+  const colWidth = Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols));
+  return (((colWidth * openIndex) + (8 * openIndex) + (colWidth / 2)) - 1);
 };
 
 const Row = React.memo(({ index: rowIndex, context }: RowProps) => {

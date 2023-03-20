@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { Library } from 'hex-plex';
+import { Album, Library } from 'hex-plex';
 import moment from 'moment';
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
@@ -60,7 +60,7 @@ interface AlbumCoverProps {
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   library: Library;
   measurements: Measurements;
-  menuTarget: number | undefined;
+  menuTarget: Album[];
   navigate: NavigateFunction;
   settings: IAppSettings;
   sort: { by: string, order: string };
@@ -69,6 +69,7 @@ interface AlbumCoverProps {
 const AlbumCover = ({
   album, handleContextMenu, library, measurements, menuTarget, navigate, settings, sort,
 }: AlbumCoverProps) => {
+  const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
@@ -85,11 +86,11 @@ const AlbumCover = ({
         height={measurements.CARD_HEIGHT}
         key={album.id}
         sx={{
-          backgroundColor: menuTarget === album.id ? 'var(--mui-palette-action-selected)' : '',
+          backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
           borderRadius: '4px',
           contain: 'paint',
           '&:hover': {
-            backgroundColor: menuTarget === album.id ? 'var(--mui-palette-action-selected)' : '',
+            backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
           },
         }}
         whileHover="hover"
@@ -104,7 +105,7 @@ const AlbumCover = ({
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
-          variants={menuTarget === album.id ? {} : imageMotion}
+          variants={menuOpen ? {} : imageMotion}
           width={measurements.CARD_WIDTH - 24}
         />
         <Title marginX="12px">{album.title}</Title>
@@ -148,7 +149,7 @@ const AlbumCover = ({
           style={{
             '--img': `url(${thumbSrc})`,
           } as React.CSSProperties}
-          variants={menuTarget === album.id ? {} : imageMotion}
+          variants={menuOpen ? {} : imageMotion}
           width={measurements.CARD_WIDTH}
           onClick={() => navigate(`/albums/${album.id}`)}
         />
