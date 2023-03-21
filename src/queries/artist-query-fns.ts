@@ -5,6 +5,21 @@ import { parseHubContainer } from 'hex-plex/dist/types/hub';
 import { deburr, isEmpty } from 'lodash';
 import { IConfig } from 'types/interfaces';
 
+export const artistByGenreQueryFn = async (fastKey: string, library: Library) => {
+  const [path] = fastKey.split('?');
+  const [, key] = fastKey.split('=');
+  const url = library.api.getAuthenticatedUrl(
+    path,
+    {
+      genre: key,
+      sort: 'viewCount:desc',
+    },
+  );
+  const response = await axios.get(url);
+  const { artists } = parseContainerType(MediaType.ARTIST, response.data);
+  return artists;
+};
+
 export const artistQueryFn = async (id: number, library: Library) => {
   const url = library.api.getAuthenticatedUrl(
     `/library/metadata/${id}`,
