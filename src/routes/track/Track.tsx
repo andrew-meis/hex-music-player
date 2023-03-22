@@ -1,8 +1,8 @@
 import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import moment from 'moment';
-import { useMemo } from 'react';
-import { useLocation, useOutletContext, useParams } from 'react-router-dom';
+import { useMemo, useRef } from 'react';
+import { useLocation, useNavigationType, useOutletContext, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
@@ -17,9 +17,11 @@ import Info from './Info';
 import Similar from './Similar';
 
 const Track = () => {
+  const box = useRef<HTMLDivElement>(null);
   const config = useConfig();
   const library = useLibrary();
   const location = useLocation();
+  const navigationType = useNavigationType();
   const { data: settings } = useSettings();
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const { data: track } = useTrack({
@@ -51,6 +53,21 @@ const Track = () => {
     [trackHistory],
   );
 
+  const initialScrollTop = useMemo(() => {
+    let top;
+    top = sessionStorage.getItem(`track-scroll ${id}`);
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    sessionStorage.setItem(
+      `track-scroll ${id}`,
+      0 as unknown as string,
+    );
+    return 0;
+  }, [id, navigationType]);
+
   if (!track || !trackHistory || !lastfmTrack || !album) {
     return null;
   }
@@ -71,13 +88,23 @@ const Track = () => {
             initial={{ opacity: 0 }}
             key={location.pathname}
             style={{ height: '100%' }}
+            onAnimationComplete={() => box.current
+              ?.scrollTo({ top: initialScrollTop })}
           >
             <Box
               className="scroll-container"
               height={1}
+              ref={box}
               sx={{
                 overflowX: 'hidden',
                 overflowY: 'overlay',
+              }}
+              onScroll={(e) => {
+                const target = e.currentTarget as unknown as HTMLDivElement;
+                sessionStorage.setItem(
+                  `track-scroll ${id}`,
+                  target.scrollTop as unknown as string,
+                );
               }}
             >
               <Box maxWidth="900px" mx="auto" pb="48px" width={WIDTH_CALC}>

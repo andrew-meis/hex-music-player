@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { MdMusicNote } from 'react-icons/all';
+import { BsMusicNote } from 'react-icons/all';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC_PADDING } from 'constants/measures';
 
@@ -35,7 +35,7 @@ const FixedHeader = ({ handlePlay, handleShuffle }: FixedHeaderProps) => (
       variant="rounded"
     >
       <SvgIcon sx={{ height: 40, width: 40 }}>
-        <MdMusicNote />
+        <BsMusicNote />
       </SvgIcon>
     </Avatar>
     <Typography

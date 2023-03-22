@@ -7,6 +7,7 @@ import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
 import emoji from 'react-easy-emoji';
 import { SiMusicbrainz, TbBrandLastfm, TbExternalLink } from 'react-icons/all';
+import { NavigateFunction } from 'react-router-dom';
 import IconMenuButton from 'components/buttons/IconMenuButton';
 import Tooltip from 'components/tooltip/Tooltip';
 import useRestoreAlbums from 'hooks/useRestoreAlbums';
@@ -61,9 +62,10 @@ const FlagAndPlaycount = ({ artist }: {artist: Artist}) => (
 interface GenreChipsProps {
   artist: Artist;
   colors: string[] | undefined;
+  navigate: NavigateFunction;
 }
 
-const GenreChips = ({ artist, colors }: GenreChipsProps) => (
+const GenreChips = ({ artist, colors, navigate }: GenreChipsProps) => (
   <Box
     display="flex"
     flexWrap="wrap"
@@ -82,10 +84,12 @@ const GenreChips = ({ artist, colors }: GenreChipsProps) => (
             backgroundColor: color,
             transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
             color: fontColorContrast(color),
+            cursor: 'pointer',
             '&:hover': {
               boxShadow: `inset 0 0 0 1000px ${chroma(color).brighten()}`,
             },
           }}
+          onClick={() => navigate(`/genres/${genre.id}`, { state: { title: genre.tag } })}
         />
       );
     })}
@@ -160,12 +164,15 @@ const MenuBox = ({ artist, refreshMetadata, refreshPage, width }: MenuBoxProps) 
 interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
+  navigate: NavigateFunction;
   refreshMetadata: (id: number) => Promise<void>
   refreshPage: () => void;
   width: number;
 }
 
-const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage, width }: InfoRowProps) => {
+const InfoRow = ({
+  artistData, colors, navigate, refreshMetadata, refreshPage, width,
+}: InfoRowProps) => {
   const { artist } = artistData!;
 
   if (width < 500) {
@@ -185,7 +192,7 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage, width }: In
           width={32}
         />
         <FlagAndPlaycount artist={artist} />
-        <GenreChips artist={artist} colors={colors} />
+        <GenreChips artist={artist} colors={colors} navigate={navigate} />
       </Box>
     );
   }
@@ -200,7 +207,7 @@ const InfoRow = ({ artistData, colors, refreshMetadata, refreshPage, width }: In
       justifyContent="space-between"
     >
       <FlagAndPlaycount artist={artist} />
-      <GenreChips artist={artist} colors={colors} />
+      <GenreChips artist={artist} colors={colors} navigate={navigate} />
       <MenuBox
         artist={artist}
         refreshMetadata={refreshMetadata}

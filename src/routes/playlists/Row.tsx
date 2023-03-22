@@ -1,7 +1,7 @@
 import { Box, SvgIcon } from '@mui/material';
 import { Playlist } from 'hex-plex';
 import React from 'react';
-import { TbPlaylist } from 'react-icons/all';
+import { BsMusicNoteList } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
@@ -57,7 +57,7 @@ const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
             className="generic-icon"
             sx={{ color: 'common.grey' }}
           >
-            <TbPlaylist />
+            <BsMusicNoteList />
           </SvgIcon>
         )}
       </MotionBox>

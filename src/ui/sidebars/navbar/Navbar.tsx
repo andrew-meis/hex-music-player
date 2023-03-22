@@ -4,9 +4,9 @@ import {
 import React, { useRef, useState } from 'react';
 import {
   BiChevronRight,
-  MdMusicNote,
+  BsMusicNote,
   IoMdMicrophone,
-  IoMdPricetag,
+  FaTags,
   RiAlbumFill,
   TiChartLine,
 } from 'react-icons/all';
@@ -169,7 +169,7 @@ const Navbar = () => {
                   }}
                 >
                   <Box sx={activeBox(isActive)} />
-                  <SvgIcon sx={{ mx: '8px' }}><MdMusicNote /></SvgIcon>
+                  <SvgIcon sx={{ mx: '8px' }}><BsMusicNote /></SvgIcon>
                   Tracks
                   <SvgIcon
                     className="listsvg"
@@ -190,7 +190,7 @@ const Navbar = () => {
                   }}
                 >
                   <Box sx={activeBox(isActive)} />
-                  <SvgIcon sx={{ mx: '8px' }}><IoMdPricetag /></SvgIcon>
+                  <SvgIcon sx={{ mx: '8px' }}><FaTags /></SvgIcon>
                   Genres
                   <SvgIcon
                     className="listsvg"

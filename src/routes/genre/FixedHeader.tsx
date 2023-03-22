@@ -1,11 +1,12 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { BsMusicNoteList } from 'react-icons/all';
+import { FaTags } from 'react-icons/all';
+import { WIDTH_CALC_PADDING } from 'constants/measures';
 
 interface FixedHeaderProps {
-  width: number;
+  title: string;
 }
 
-const FixedHeader = ({ width }: FixedHeaderProps) => (
+const FixedHeader = ({ title }: FixedHeaderProps) => (
   <Box
     alignItems="center"
     bgcolor="background.paper"
@@ -17,10 +18,10 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
     marginX="auto"
     maxWidth="1588px"
     paddingX="6px"
-    width={width - 12}
+    width={WIDTH_CALC_PADDING}
   >
     <Avatar
-      alt="Chart"
+      alt="Genre"
       sx={{
         background: `linear-gradient(
           to bottom right,
@@ -32,7 +33,7 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
       variant="rounded"
     >
       <SvgIcon sx={{ height: 40, width: 40 }}>
-        <BsMusicNoteList />
+        <FaTags />
       </SvgIcon>
     </Avatar>
     <Typography
@@ -41,7 +42,7 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
       variant="header"
       width={1}
     >
-      Playlists
+      {title}
     </Typography>
   </Box>
 );

@@ -3,12 +3,12 @@ import {
   List, ListItem, SvgIcon,
 } from '@mui/material';
 import {
-  MdMusicNote,
+  BsMusicNote,
   IoMdMicrophone,
-  IoMdPricetag,
+  FaTags,
   IoSettingsSharp,
   RiAlbumFill,
-  TbPlaylist,
+  BsMusicNoteList,
   TiChartLine,
 } from 'react-icons/all';
 import { HiHome } from 'react-icons/hi';
@@ -80,21 +80,21 @@ const MiniNavbar = () => (
       <NavLink className="nav-link" to="/tracks">
         {({ isActive }) => (
           <ListItem sx={isActive ? activeStyle : listStyle} title="Tracks">
-            <SvgIcon sx={{ mx: '8px' }}><MdMusicNote /></SvgIcon>
+            <SvgIcon sx={{ mx: '8px' }}><BsMusicNote /></SvgIcon>
           </ListItem>
         )}
       </NavLink>
       <NavLink className="nav-link" to="/genres">
         {({ isActive }) => (
           <ListItem sx={isActive ? activeStyle : listStyle} title="Genres">
-            <SvgIcon sx={{ mx: '8px' }}><IoMdPricetag /></SvgIcon>
+            <SvgIcon sx={{ mx: '8px' }}><FaTags /></SvgIcon>
           </ListItem>
         )}
       </NavLink>
       <NavLink className="nav-link" to="/playlists">
         {({ isActive }) => (
           <ListItem sx={isActive ? activeStyle : listStyle} title="Playlists">
-            <SvgIcon sx={{ mx: '8px' }}><TbPlaylist /></SvgIcon>
+            <SvgIcon sx={{ mx: '8px' }}><BsMusicNoteList /></SvgIcon>
           </ListItem>
         )}
       </NavLink>

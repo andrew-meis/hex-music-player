@@ -36,6 +36,7 @@ const FilterAutocomplete = ({
   const library = useLibrary();
   const [count, setCount] = useState(0);
   const [disableInput, setDisableInput] = useState(false);
+  const [open, setOpen] = useState(false);
   const value = useRef<MediaTag>();
   const { data: options } = useQuery(
     [input.field, group],
@@ -46,6 +47,7 @@ const FilterAutocomplete = ({
       type: groups[group],
     }),
     {
+      enabled: open,
       initialData: [],
       refetchOnMount: true,
       refetchOnWindowFocus: false,
@@ -213,6 +215,8 @@ const FilterAutocomplete = ({
             [value.current] = values;
           }
         }}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
       />
     </Box>
   );

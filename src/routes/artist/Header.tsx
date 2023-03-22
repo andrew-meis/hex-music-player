@@ -96,6 +96,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     cols,
     filter,
     filters,
+    navigate,
     refreshMetadata,
     refreshPage,
     setFilter,
@@ -155,6 +156,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         <InfoRow
           artistData={artistData}
           colors={colors}
+          navigate={navigate}
           refreshMetadata={refreshMetadata}
           refreshPage={refreshPage}
           width={width}

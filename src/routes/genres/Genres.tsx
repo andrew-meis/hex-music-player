@@ -3,7 +3,13 @@ import { motion } from 'framer-motion';
 import { Genre, Library } from 'hex-plex';
 import { countBy, throttle } from 'lodash';
 import React, { useMemo, useRef } from 'react';
-import { useLocation, useNavigationType, useOutletContext } from 'react-router-dom';
+import {
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+  useNavigationType,
+  useOutletContext,
+} from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { VIEW_PADDING } from 'constants/measures';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -25,6 +31,7 @@ export interface GenresContext {
   grid: { cols: number };
   library: Library;
   measurements: Measurements;
+  navigate: NavigateFunction;
   width: number;
 }
 
@@ -63,10 +70,11 @@ const Genres = () => {
   const { data: config } = useConfig();
   const library = useLibrary();
   const location = useLocation();
+  const navigate = useNavigate();
   const navigationType = useNavigationType();
   const virtuoso = useRef<VirtuosoHandle>(null);
   const { data: artists } = useArtists({ config, library });
-  const { data: genres } = useQuery(
+  const { data: artistGenres } = useQuery(
     ['genre', 'Artist'],
     () => filterOptionsQueryFn({
       config,
@@ -92,9 +100,9 @@ const Genres = () => {
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const rows = useMemo(() => {
-    if (!artists || !genres || !genreCounts) return [];
+    if (!artists || !artistGenres || !genreCounts) return [];
     const arrays: GenreWithWidth[][] = [];
-    const genresToSort = structuredClone(genres) as Genre[];
+    const genresToSort = structuredClone(artistGenres) as Genre[];
     let newArray: GenreWithWidth[] = [];
     let widthCount = 0;
     while (genresToSort.length > -1) {
@@ -122,7 +130,7 @@ const Genres = () => {
       }
     }
     return arrays;
-  }, [artists, genreCounts, genres, grid.cols]);
+  }, [artistGenres, artists, genreCounts, grid.cols]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -152,12 +160,14 @@ const Genres = () => {
     grid,
     library,
     measurements,
+    navigate,
     width,
   }), [
     config,
     grid,
     library,
     measurements,
+    navigate,
     width,
   ]);
 

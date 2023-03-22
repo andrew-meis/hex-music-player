@@ -19,6 +19,7 @@ import RecentFavorites from 'routes/artist/subroutes/recent-favorites/RecentFavo
 import SimilarArtists from 'routes/artist/subroutes/similar-artists/SimilarArtists';
 import Artists from 'routes/artists/Artists';
 import Charts from 'routes/charts/Charts';
+import Genre from 'routes/genre/Genre';
 import Genres from 'routes/genres/Genres';
 import Home from 'routes/home/Home';
 import Login, { loginLoader } from 'routes/login/Login';
@@ -110,6 +111,11 @@ const router = createHashRouter([
       {
         path: '/genres',
         element: <Genres />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/genres/:id',
+        element: <Genre />,
         errorElement: <ErrorElement />,
       },
       {

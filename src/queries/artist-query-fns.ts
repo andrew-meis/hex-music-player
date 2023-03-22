@@ -7,11 +7,11 @@ import { IConfig } from 'types/interfaces';
 
 export const artistByGenreQueryFn = async (fastKey: string, library: Library) => {
   const [path] = fastKey.split('?');
-  const [, key] = fastKey.split('=');
+  const [, id] = fastKey.split('=');
   const url = library.api.getAuthenticatedUrl(
     path,
     {
-      genre: key,
+      genre: id,
       sort: 'viewCount:desc',
     },
   );

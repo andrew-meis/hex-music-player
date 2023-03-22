@@ -1,6 +1,6 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
 import React, { useMemo } from 'react';
-import { IoMdPricetag } from 'react-icons/all';
+import { FaTags } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { useArtistsByGenre } from 'queries/artist-queries';
@@ -13,7 +13,7 @@ interface GenreCardProps {
 }
 
 const GenreCard = ({ genre, context }: GenreCardProps) => {
-  const { library, measurements } = context;
+  const { library, measurements, navigate } = context;
   const { data, isLoading } = useArtistsByGenre({ fastKey: genre.fastKey, library });
   const imgSrc = useMemo(() => {
     if (!data) return undefined;
@@ -48,7 +48,7 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
       }}
       whileHover="hover"
       width={(measurements.IMAGE_SIZE * genre.width) + (8 * (genre.width - 1))}
-      onClick={() => {}}
+      onClick={() => navigate(`/genres/${genre.id}`, { state: { title: genre.title } })}
     >
       <svg height="0" width="0">
         <defs>
@@ -92,7 +92,7 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
               className="generic-icon"
               sx={{ color: 'common.grey' }}
             >
-              <IoMdPricetag />
+              <FaTags />
             </SvgIcon>
           )}
         </MotionBox>
@@ -100,6 +100,7 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
       <Typography
         bottom="20px"
         fontSize="2rem"
+        lineHeight={1.2}
         marginX="12px"
         position="absolute"
         textAlign="center"

@@ -113,7 +113,7 @@ const SimilarArtistsCards = ({
                   <Subtitle
                     marginX="8px"
                   >
-                    {similarArtist.genre.map(
+                    {similarArtist.genre.slice(0, 2).map(
                       // eslint-disable-next-line max-len
                       (genre, i, a) => `${genre.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
                     )}

@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { IoMdPricetag } from 'react-icons/all';
+import { FaTags } from 'react-icons/all';
 
 interface FixedHeaderProps {
   width: number;
@@ -17,7 +17,7 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
     marginX="auto"
     maxWidth="1588px"
     paddingX="6px"
-    width={width - 12}
+    width={width - 6}
   >
     <Avatar
       alt="Chart"
@@ -32,7 +32,7 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
       variant="rounded"
     >
       <SvgIcon sx={{ height: 40, width: 40 }}>
-        <IoMdPricetag />
+        <FaTags />
       </SvgIcon>
     </Avatar>
     <Typography
