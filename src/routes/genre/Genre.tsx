@@ -37,11 +37,25 @@ const Genre = () => {
   const { data: artists, isLoading } = useArtistsByGenre({
     fastKey: `/library/sections/${config.data.sectionId}/all?genre=${id}`,
     library,
+    limit: 0,
+    sort: 'viewCount:desc',
   });
   const { width } = useOutletContext() as { width: number };
 
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
+
+  const thumbs = useMemo(() => {
+    if (!artists) return [];
+    const allThumbs = artists.map((artist) => artist.thumb).filter((el) => el);
+    const thumbUrls = allThumbs.map((thumb) => library.api.getAuthenticatedUrl(
+      '/photo/:/transcode',
+      {
+        url: thumb, width: 390, height: 390, minSize: 1, upscale: 1,
+      },
+    ));
+    return thumbUrls;
+  }, [artists, library]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -95,8 +109,7 @@ const Genre = () => {
         >
           <Banner
             cols={grid.cols}
-            library={library}
-            srcs={artists.map((artist) => artist.thumb).filter((el) => el).slice(0, grid.cols)}
+            thumbs={thumbs}
             title={location.state.title}
             width={width}
           />

@@ -81,13 +81,15 @@ export const useArtists = ({
 );
 
 export const useArtistsByGenre = ({
-  fastKey, library,
+  fastKey, library, limit, sort,
 }: {
   fastKey: string,
   library: Library,
+  limit: number,
+  sort: string,
 }) => useQuery(
-  [QueryKeys.ARTISTS, fastKey],
-  () => artistByGenreQueryFn(fastKey, library),
+  [QueryKeys.ARTISTS, fastKey, limit, sort],
+  () => artistByGenreQueryFn(fastKey, library, limit, sort),
   {
     enabled: !!library,
     keepPreviousData: true,

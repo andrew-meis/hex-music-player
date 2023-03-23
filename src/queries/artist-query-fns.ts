@@ -5,14 +5,20 @@ import { parseHubContainer } from 'hex-plex/dist/types/hub';
 import { deburr, isEmpty } from 'lodash';
 import { IConfig } from 'types/interfaces';
 
-export const artistByGenreQueryFn = async (fastKey: string, library: Library) => {
+export const artistByGenreQueryFn = async (
+  fastKey: string,
+  library: Library,
+  limit: number,
+  sort: string,
+) => {
   const [path] = fastKey.split('?');
   const [, id] = fastKey.split('=');
   const url = library.api.getAuthenticatedUrl(
     path,
     {
       genre: id,
-      sort: 'viewCount:desc',
+      sort,
+      ...(limit && { limit }),
     },
   );
   const response = await axios.get(url);

@@ -1,13 +1,17 @@
 import { Box, Fade, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { motion } from 'framer-motion';
-import { Library } from 'hex-plex';
-import { useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { sample, sampleSize } from 'lodash';
+import hash from 'object-hash';
+import { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
+import { MotionBox } from 'components/motion-components/motion-components';
 import { thresholds } from 'routes/artist/Header';
 import mergeRefs from 'scripts/merge-refs';
 import FixedHeader from './FixedHeader';
+
+const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const getMeta = (url: string) => new Promise((resolve, reject) => {
   const img = new Image();
@@ -16,41 +20,109 @@ const getMeta = (url: string) => new Promise((resolve, reject) => {
   img.src = url;
 });
 
+interface Thumb {
+  height: number;
+  src: string;
+  width: number;
+}
+
+const getPrevThumbs = (thumbs: string[]) => {
+  const prev = sessionStorage.getItem(`banner-thumbs ${hash.sha1({ thumbs })}`);
+  try {
+    return JSON.parse(prev!) as Thumb[];
+  } catch {
+    return [];
+  }
+};
+
 interface BannerProps {
   cols: number;
-  library: Library;
-  srcs: string[];
+  thumbs: string[];
   title: string;
   width: number;
 }
 
-const Banner = ({ cols, library, srcs, title, width }: BannerProps) => {
+const Banner = ({ cols, thumbs, title, width: viewWidth }: BannerProps) => {
   const box = useRef<HTMLDivElement>(null);
   const bannerInView = useInView({ threshold: thresholds });
+  const currentThumbs = useRef<Thumb[]>(getPrevThumbs(thumbs));
 
-  const bannerSrcs = srcs.map((src) => library.api.getAuthenticatedUrl(
-    '/photo/:/transcode',
-    {
-      url: src, width: 390, height: 390, minSize: 1, upscale: 1,
-    },
-  ));
-
-  const { data: bannerDimensions } = useQuery(
-    ['banner-dimensions', bannerSrcs],
+  const { data: staticThumbs } = useQuery(
+    ['static-thumbs', hash.sha1({ thumbs }), cols],
     async () => {
-      const dimensions = [];
+      const array = [];
       // eslint-disable-next-line no-restricted-syntax
-      for (const [, src] of bannerSrcs.entries()) {
+      for (const [, src] of thumbs.entries()) {
         // eslint-disable-next-line no-await-in-loop
         const img = await getMeta(src) as HTMLImageElement;
-        dimensions.push({ height: img.height, width: img.width });
+        array.push({ height: img.height, src, width: img.width });
       }
-      return dimensions;
+      currentThumbs.current = array;
+      return array as Thumb[];
     },
     {
-      enabled: !!bannerSrcs,
+      enabled: thumbs.length <= cols,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
     },
   );
+
+  const { data: randomizedThumbs } = useQuery(
+    ['random-thumbs', hash.sha1({ thumbs }), cols],
+    async () => {
+      if (!currentThumbs.current || currentThumbs.current.length === 0) {
+        const newThumbs = sampleSize(thumbs, cols);
+        const array = [];
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [, src] of newThumbs.entries()) {
+          // eslint-disable-next-line no-await-in-loop
+          const img = await getMeta(src) as HTMLImageElement;
+          array.push({ height: img.height, src, width: img.width });
+        }
+        currentThumbs.current = array;
+        return array as Thumb[];
+      }
+      const unusedThumbs = thumbs
+        .filter((thumb) => !currentThumbs.current.map((el) => el.src).includes(thumb));
+      if (currentThumbs.current.length < cols) {
+        const array = structuredClone(currentThumbs.current);
+        const newThumbs = sampleSize(unusedThumbs, cols - currentThumbs.current.length);
+        // eslint-disable-next-line no-restricted-syntax
+        for (const [, src] of newThumbs.entries()) {
+          // eslint-disable-next-line no-await-in-loop
+          const img = await getMeta(src) as HTMLImageElement;
+          array.push({ height: img.height, src, width: img.width });
+        }
+        currentThumbs.current = array;
+        return array as Thumb[];
+      }
+      if (currentThumbs.current.length > cols) {
+        const array = structuredClone(currentThumbs.current).slice(0, cols);
+        currentThumbs.current = array;
+        return array;
+      }
+      const array = structuredClone(currentThumbs.current);
+      const newThumb = sample(unusedThumbs)!;
+      const img = await getMeta(newThumb) as HTMLImageElement;
+      const randomN = randomInt(0, cols - 1);
+      array.splice(randomN, 1, { height: img.height, src: newThumb, width: img.width });
+      currentThumbs.current = array;
+      return array as Thumb[];
+    },
+    {
+      enabled: thumbs.length > cols,
+      refetchInterval: 15000,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  useEffect(() => () => {
+    sessionStorage.setItem(
+      `banner-thumbs ${hash.sha1({ thumbs })}`,
+      JSON.stringify(randomizedThumbs),
+    );
+  }, [randomizedThumbs, thumbs]);
 
   const { x } = box.current?.getBoundingClientRect() || { x: 0 };
 
@@ -65,7 +137,7 @@ const Banner = ({ cols, library, srcs, title, width }: BannerProps) => {
         <Box
           height={71}
           position="fixed"
-          width={width}
+          width={viewWidth}
           zIndex={400}
         >
           <FixedHeader
@@ -80,7 +152,7 @@ const Banner = ({ cols, library, srcs, title, width }: BannerProps) => {
         minHeight={390}
         ref={mergeRefs(bannerInView.ref, box)}
       >
-        {!!bannerDimensions && (
+        {(!!randomizedThumbs || !!staticThumbs) && (
           <motion.div
             animate={{ opacity: 1 }}
             initial={{ opacity: 0 }}
@@ -110,32 +182,60 @@ const Banner = ({ cols, library, srcs, title, width }: BannerProps) => {
                 </filter>
               </defs>
             </svg>
-            {bannerSrcs.map((bannerSrc, index) => {
-              const dims = bannerDimensions[index];
-              return (
-                <Box
-                  key={bannerSrc}
+            {staticThumbs && staticThumbs.map(({ height, src, width }, index) => (
+              <Box
+                key={src}
+                sx={{
+                  flexBasis: viewWidth / cols,
+                  height: '100%',
+                  marginLeft: index === 0 ? '' : '3px',
+                }}
+              >
+                <MotionBox
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0 }}
                   sx={{
-                    flexBasis: width / cols,
+                    background: `url(${src}) no-repeat fixed`,
+                    backgroundPositionX:
+                      x + ((viewWidth / cols) * index) - ((width - (viewWidth / cols)) / 2),
+                    backgroundPositionY: '51px',
+                    backgroundSize: Math.max(height, width),
+                    height: '100%',
+                    filter: 'grayscale(1) url("#monochrome")',
+                  }}
+                  transition={{ duration: 0.4 }}
+                />
+              </Box>
+            ))}
+            {randomizedThumbs && randomizedThumbs.map(({ height, src, width }, index) => (
+              <AnimatePresence key={src}>
+                <Box
+                  key={src}
+                  sx={{
+                    flexBasis: viewWidth / cols,
                     height: '100%',
                     marginLeft: index === 0 ? '' : '3px',
                   }}
                 >
-                  <Box
+                  <MotionBox
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    initial={{ opacity: 0 }}
                     sx={{
-                      background: `url(${bannerSrc}) no-repeat fixed`,
+                      background: `url(${src}) no-repeat fixed`,
                       backgroundPositionX:
-                        x + ((width / cols) * index) - ((dims.width - (width / cols)) / 2),
+                        x + ((viewWidth / cols) * index) - ((width - (viewWidth / cols)) / 2),
                       backgroundPositionY: '51px',
-                      backgroundSize: Math.max(dims.height, dims.width),
-                      flexBasis: width / cols,
+                      backgroundSize: Math.max(height, width),
                       height: '100%',
                       filter: 'grayscale(1) url("#monochrome")',
                     }}
+                    transition={{ duration: 0.4 }}
                   />
                 </Box>
-              );
-            })}
+              </AnimatePresence>
+            ))}
           </motion.div>
         )}
       </Box>

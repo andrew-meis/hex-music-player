@@ -14,7 +14,12 @@ interface GenreCardProps {
 
 const GenreCard = ({ genre, context }: GenreCardProps) => {
   const { library, measurements, navigate } = context;
-  const { data, isLoading } = useArtistsByGenre({ fastKey: genre.fastKey, library });
+  const { data, isLoading } = useArtistsByGenre({
+    fastKey: genre.fastKey,
+    library,
+    limit: 5,
+    sort: 'viewCount:desc',
+  });
   const imgSrc = useMemo(() => {
     if (!data) return undefined;
     let src: string;
