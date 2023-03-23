@@ -129,6 +129,11 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               display: 'flex',
               width: '100%',
             }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              setOpen(false);
+              navigate(`/search?query=${input}`);
+            }}
           >
             <IconButton
               disableRipple

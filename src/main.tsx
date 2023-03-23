@@ -26,6 +26,7 @@ import Login, { loginLoader } from 'routes/login/Login';
 import LyricsComponent from 'routes/lyrics/LyricsComponent';
 import Playlist from 'routes/playlist/Playlist';
 import Playlists from 'routes/playlists/Playlists';
+import SearchResults from 'routes/search/SearchResults';
 import Settings from 'routes/settings/Settings';
 import SimilarTracks from 'routes/track/subroutes/similar-tracks/SimilarTracks';
 import Track from 'routes/track/Track';
@@ -126,6 +127,11 @@ const router = createHashRouter([
       {
         path: '/playlists/:id',
         element: <Playlist />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/search',
+        element: <SearchResults />,
         errorElement: <ErrorElement />,
       },
       {
