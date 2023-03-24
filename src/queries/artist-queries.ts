@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Album, Artist, Hub, Library } from 'hex-plex';
 import {
   artistAppearancesQueryFn,
-  artistByGenreQueryFn,
   artistQueryFn,
   artistTracksQueryFn,
 } from 'queries/artist-query-fns';
@@ -81,19 +80,25 @@ export const useArtists = ({
 );
 
 export const useArtistsByGenre = ({
-  fastKey, library, limit, sort,
+  config, id, library, limit, sort,
 }: {
-  fastKey: string,
+  config: IConfig,
+  id: number,
   library: Library,
   limit: number,
   sort: string,
 }) => useQuery(
-  [QueryKeys.ARTISTS_BY_GENRE, fastKey, limit, sort],
-  () => artistByGenreQueryFn(fastKey, library, limit, sort),
+  [QueryKeys.ARTISTS_BY_GENRE, id, limit, sort],
+  () => library.artists(config.sectionId!, {
+    genre: id,
+    sort,
+    ...(limit && { limit }),
+  }),
   {
     enabled: !!library,
     keepPreviousData: true,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    select: (data) => data.artists,
   },
 );

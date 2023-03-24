@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { QueryKeys } from 'types/enums';
-import { lastfmSearchQueryFn, lastfmSimilarQueryFn, lastfmTrackQueryFn } from './last-fm-query-fns';
+import { lastfmSearchQueryFn, lastfmSimilarQueryFn, lastfmTagQueryFn, lastfmTrackQueryFn } from './last-fm-query-fns';
 
 export const useLastfmSearch = (
   {
@@ -30,6 +30,23 @@ export const useLastfmSimilar = (
   () => lastfmSimilarQueryFn(artist, title, apikey),
   {
     enabled: !!apikey && !!artist && !!title,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 60,
+  },
+);
+
+export const useLastfmTag = (
+  {
+    apikey, tag,
+  } : {
+    apikey?: string, tag?: string,
+  },
+) => useQuery(
+  [QueryKeys.LASTFM_TAG, tag],
+  () => lastfmTagQueryFn(tag, apikey),
+  {
+    enabled: !!apikey && !!tag,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60,

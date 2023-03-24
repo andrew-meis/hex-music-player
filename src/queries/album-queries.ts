@@ -50,6 +50,30 @@ export const useAlbumTracks = (id: number, library: Library) => useQuery(
   },
 );
 
+export const useAlbumsByGenre = ({
+  config, id, library, limit, sort,
+}: {
+  config: IConfig,
+  id: number,
+  library: Library,
+  limit: number,
+  sort: string,
+}) => useQuery(
+  [QueryKeys.ALBUMS_BY_GENRE, id, limit, sort],
+  () => library.albums(config.sectionId!, {
+    genre: id,
+    sort,
+    ...(limit && { limit }),
+  }),
+  {
+    enabled: !!library,
+    keepPreviousData: true,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    select: (data) => data.albums,
+  },
+);
+
 export const useTopAlbums = (
   {
     config, library, limit, start, end, seconds,

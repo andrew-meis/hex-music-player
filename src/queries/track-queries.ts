@@ -93,3 +93,28 @@ export const useTrackHistory = (
     refetchOnWindowFocus: false,
   },
 );
+
+export const useTracksByGenre = ({
+  artistIds, config, id, library, limit, sort,
+}: {
+  artistIds: number[];
+  config: IConfig,
+  id: number;
+  library: Library,
+  limit: number,
+  sort: string,
+}) => useQuery(
+  [QueryKeys.TRACKS_BY_GENRE, id, limit, sort],
+  () => library.tracks(config.sectionId!, {
+    'artist.id': artistIds.join(','),
+    sort,
+    ...(limit && { limit }),
+  }),
+  {
+    enabled: !!library && artistIds.length > 0,
+    keepPreviousData: true,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    select: (data) => data.tracks,
+  },
+);

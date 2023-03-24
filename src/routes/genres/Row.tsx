@@ -13,9 +13,10 @@ interface GenreCardProps {
 }
 
 const GenreCard = ({ genre, context }: GenreCardProps) => {
-  const { library, measurements, navigate } = context;
+  const { config, library, measurements, navigate } = context;
   const { data, isLoading } = useArtistsByGenre({
-    fastKey: genre.fastKey,
+    config,
+    id: genre.id,
     library,
     limit: 5,
     sort: 'viewCount:desc',

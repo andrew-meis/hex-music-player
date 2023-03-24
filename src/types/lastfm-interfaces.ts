@@ -42,6 +42,13 @@ export interface LastFmWiki {
   content: string;
 }
 
+export interface LastFmGenreTag {
+  name: string;
+  reach: number;
+  total: number;
+  wiki: LastFmWiki;
+}
+
 export interface LastFmSearchResult {
   artist: string;
   image: LastFmImage[];

@@ -182,11 +182,11 @@ const Banner = React.memo(({ cols, id, thumbs, title, width: viewWidth }: Banner
                 </filter>
               </defs>
             </svg>
-            {staticThumbs && staticThumbs.map(({ height, src, width }, index) => (
+            {staticThumbs && staticThumbs.map(({ height, src, width }, index, array) => (
               <Box
                 key={src}
                 sx={{
-                  flexBasis: viewWidth / cols,
+                  flexBasis: viewWidth / array.length,
                   height: '100%',
                   marginLeft: index === 0 ? '' : '3px',
                 }}
@@ -198,7 +198,8 @@ const Banner = React.memo(({ cols, id, thumbs, title, width: viewWidth }: Banner
                   sx={{
                     background: `url(${src}) no-repeat fixed`,
                     backgroundPositionX:
-                      x + ((viewWidth / cols) * index) - ((width - (viewWidth / cols)) / 2),
+                      x + ((viewWidth / array.length) * index)
+                       - ((width - (viewWidth / array.length)) / 2),
                     backgroundPositionY: '51px',
                     backgroundSize: Math.max(height, width),
                     height: '100%',

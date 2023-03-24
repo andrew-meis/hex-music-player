@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LastFmSearchResult, LastFmTrack } from 'types/lastfm-interfaces';
+import { LastFmGenreTag, LastFmSearchResult, LastFmTrack } from 'types/lastfm-interfaces';
 
 const LASTFM_ROOT = 'https://ws.audioscrobbler.com/2.0/';
 
@@ -28,6 +28,17 @@ const getSimilar = async (apikey: string, artist: string, title: string) => {
   return response.data.similartracks.track as LastFmTrack[];
 };
 
+const getTag = async (apikey: string, tag: string) => {
+  const params = new URLSearchParams();
+  params.append('method', 'tag.getInfo');
+  params.append('api_key', apikey);
+  params.append('tag', tag);
+  params.append('format', 'json');
+  const url = `${LASTFM_ROOT}?${params.toString()}`;
+  const response = await axios.get(url);
+  return response.data.tag as LastFmGenreTag;
+};
+
 const search = async (apikey: string, artist: string, title: string) => {
   const params = new URLSearchParams();
   params.append('method', 'track.search');
@@ -49,6 +60,11 @@ export const lastfmSearchQueryFn = async (artist?: string, title?: string, apike
 export const lastfmSimilarQueryFn = async (artist?: string, title?: string, apikey?: string) => {
   const similar = await getSimilar(apikey!, artist!, title!);
   return similar;
+};
+
+export const lastfmTagQueryFn = async (tag?: string, apikey?: string) => {
+  const tagInfo = await getTag(apikey!, tag!);
+  return tagInfo;
 };
 
 export const lastfmTrackQueryFn = async (artist?: string, title?: string, apikey?: string) => {
