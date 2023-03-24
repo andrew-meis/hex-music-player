@@ -22,7 +22,11 @@ const PlaylistHighlights = ({
 }: PlaylistHighlightsProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
-  const difference = prevIndex ? activeIndex - prevIndex : 1;
+  const difference = useMemo(() => {
+    if (prevIndex) return activeIndex - prevIndex;
+    return 1;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
 
   const playlistPage = playlists
     .slice((activeIndex * cols), (activeIndex * cols + cols));

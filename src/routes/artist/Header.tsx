@@ -109,7 +109,11 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
   const tracksInView = useInView({ threshold: 0 });
-  const difference = prevIndex ? activeIndex - prevIndex : 1;
+  const difference = useMemo(() => {
+    if (prevIndex) return activeIndex - prevIndex;
+    return 1;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
   const colLength = (cols - 1) * 2;
 
   const similarArtists = useMemo(() => {

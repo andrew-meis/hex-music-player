@@ -65,7 +65,11 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
   const toast = useToast();
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
-  const difference = prevIndex ? activeIndex - prevIndex : 1;
+  const difference = useMemo(() => {
+    if (prevIndex) return activeIndex - prevIndex;
+    return 1;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { data: similarTracks, isLoading } = useLastfmSimilar({

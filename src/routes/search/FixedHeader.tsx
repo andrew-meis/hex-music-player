@@ -1,11 +1,7 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { FaTags } from 'react-icons/all';
+import { CgSearch } from 'react-icons/all';
 
-interface FixedHeaderProps {
-  width: number;
-}
-
-const FixedHeader = ({ width }: FixedHeaderProps) => (
+const FixedHeader = () => (
   <Box
     alignItems="center"
     bgcolor="background.paper"
@@ -17,10 +13,10 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
     marginX="auto"
     maxWidth="1588px"
     paddingX="6px"
-    width={width - 6}
+    width="calc(100% - 12px)"
   >
     <Avatar
-      alt="Genre"
+      alt="Search"
       sx={{
         background: `linear-gradient(
           to bottom right,
@@ -31,8 +27,8 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
       }}
       variant="rounded"
     >
-      <SvgIcon sx={{ height: 40, width: 40 }}>
-        <FaTags />
+      <SvgIcon sx={{ height: 40, width: 40 }} viewBox="1 -1 24 24">
+        <CgSearch />
       </SvgIcon>
     </Avatar>
     <Typography
@@ -41,7 +37,7 @@ const FixedHeader = ({ width }: FixedHeaderProps) => (
       variant="header"
       width={1}
     >
-      Genres
+      Search
     </Typography>
   </Box>
 );

@@ -1,7 +1,7 @@
 import { Box, SvgIcon } from '@mui/material';
 import { Album } from 'hex-plex';
 import React from 'react';
-import { IoMdMicrophone } from 'react-icons/all';
+import { RiAlbumFill } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
@@ -64,7 +64,7 @@ const AlbumCard = ({ album, context }: AlbumCardProps) => {
             className="generic-icon"
             sx={{ color: 'common.grey' }}
           >
-            <IoMdMicrophone />
+            <RiAlbumFill />
           </SvgIcon>
         )}
       </MotionBox>

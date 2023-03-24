@@ -1,36 +1,44 @@
 import { Box, ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import { Track } from 'hex-plex';
+import { AnimatePresence } from 'framer-motion';
+import { Library, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+import { usePrevious } from 'react-use';
 import TrackMenu from 'components/menus/TrackMenu';
+import { MotionBox } from 'components/motion-components/motion-components';
+import { tracklistMotion } from 'components/motion-components/motion-variants';
+import PaginationDots from 'components/pagination-dots/PaginationDots';
 import TrackRow from 'components/track-row/TrackRow';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
+import { PlayParams } from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { ArtistContext } from 'routes/artist/Artist';
-import { DragTypes } from 'types/enums';
-
-type ContextProps = Pick<
-  ArtistContext,
-  'getFormattedTime' | 'isPlaying' | 'library' | 'nowPlaying' | 'playSwitch'
->
+import { DragTypes, PlayActions } from 'types/enums';
 
 interface TrackHighlightsProps {
-  activeIndex: number;
-  context: ContextProps | undefined;
+  getFormattedTime: (inMs: number) => string;
+  isPlaying: boolean;
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   tracks: Track[];
-  // eslint-disable-next-line react/require-default-props
-  pageLength?: number;
+  rows: number;
 }
 
-// TODO double-click behavior
-const TrackHighlights = React.memo(({
-  activeIndex, context, tracks: allTracks = [], pageLength = 4,
+const TrackHighlights = ({
+  getFormattedTime, isPlaying, library, nowPlaying, playSwitch, tracks, rows,
 }: TrackHighlightsProps) => {
-  const tracks = allTracks
-    .slice((activeIndex * pageLength), (activeIndex * pageLength + pageLength));
-  const { getFormattedTime, isPlaying, library, nowPlaying, playSwitch } = context!;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndex = usePrevious(activeIndex);
+  const difference = useMemo(() => {
+    if (prevIndex) return activeIndex - prevIndex;
+    return 1;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
+  const trackPage = tracks
+    .slice((activeIndex * rows), (activeIndex * rows + rows));
+
   const hoverIndex = useRef<number | null>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
@@ -80,6 +88,10 @@ const TrackHighlights = React.memo(({
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
 
+  const handleDoubleClick = async (key: string) => {
+    await playSwitch(PlayActions.PLAY_TRACKS, { tracks, shuffle: false, key });
+  };
+
   const handleMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
     const target = event.currentTarget.getAttribute('data-item-index');
     if (!target) {
@@ -88,88 +100,96 @@ const TrackHighlights = React.memo(({
     hoverIndex.current = parseInt(target, 10);
   };
 
-  if (!tracks) {
-    return null;
-  }
-
   return (
     <>
-      <Box
-        className="list-box"
-        display="flex"
-        flex="0 0 100%"
-        flexDirection="column"
-        height={tracks.length * 56}
-        maxHeight={pageLength * 56}
-        minHeight={allTracks.length > pageLength ? pageLength * 56 : 0}
-        ref={drag}
-        onDragEndCapture={() => {
-          document.querySelectorAll('div.track-row')
-            .forEach((node) => node.classList.remove('non-dragged-track', 'dragged-track'));
-          handleClickAway();
-        }}
-        onDragStartCapture={() => {
-          if (hoverIndex.current === null) {
-            return;
-          }
-          document.querySelectorAll('div.track-row')
-            .forEach((node) => node.classList.add('non-dragged-track'));
-          if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
-            const draggedNodes = selectedRows.map((row) => document
-              .querySelector(`div.track-row[data-item-index='${row}'`));
-            draggedNodes
-              .forEach((node) => node?.classList.add('dragged-track'));
-          } else {
-            const draggedNode = document
-              .querySelector(`div.track-row[data-item-index='${hoverIndex.current}'`);
-            draggedNode?.classList.add('dragged-track');
-          }
-        }}
-      >
-        <ClickAwayListener onClickAway={handleClickAway}>
-          <Box
-            display="flex"
-            flexDirection="column"
-            flexWrap="wrap"
-            maxHeight="100%"
-          >
-            {tracks.map((track, index) => {
-              const playing = nowPlaying?.track.id === track.id;
-              const selected = selectedRows.includes(index);
-              const selUp = selected && selectedRows.includes(index - 1);
-              const selDown = selected && selectedRows.includes(index + 1);
-              return (
-                <Box
-                  alignItems="center"
-                  className="track-row"
-                  color="text.secondary"
-                  data-item-index={index}
-                  display="flex"
-                  height={56}
-                  key={track.id}
-                  sx={selected
-                    ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-                    : { ...rowStyle }}
-                  width={1}
-                  onClick={(event) => handleRowClick(event, index)}
-                  onContextMenu={handleContextMenu}
-                  onMouseEnter={handleMouseEnter}
-                >
-                  <TrackRow
-                    getFormattedTime={getFormattedTime}
-                    index={(activeIndex * pageLength) + index + 1}
-                    isPlaying={isPlaying}
-                    library={library}
-                    options={{ showAlbumTitle: true, showArtwork: true }}
-                    playing={playing}
-                    track={track}
-                  />
-                </Box>
-              );
-            })}
-          </Box>
-        </ClickAwayListener>
-      </Box>
+      <AnimatePresence custom={difference} initial={false} mode="wait">
+        <MotionBox
+          animate={{ x: 0, opacity: 1 }}
+          custom={difference}
+          display="flex"
+          exit="exit"
+          initial="enter"
+          key={activeIndex}
+          transition={{ duration: 0.2 }}
+          variants={tracklistMotion}
+        >
+          <ClickAwayListener onClickAway={handleClickAway}>
+            <Box
+              className="list-box"
+              display="flex"
+              flexDirection="column"
+              height={trackPage.length * 56}
+              maxHeight={rows * 56}
+              minHeight={tracks.length > rows ? rows * 56 : 0}
+              ref={drag}
+              onDragEndCapture={() => {
+                document.querySelectorAll('div.track-row')
+                  .forEach((node) => node.classList.remove('non-dragged-track', 'dragged-track'));
+                handleClickAway();
+              }}
+              onDragStartCapture={() => {
+                if (hoverIndex.current === null) {
+                  return;
+                }
+                document.querySelectorAll('div.track-row')
+                  .forEach((node) => node.classList.add('non-dragged-track'));
+                if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
+                  const draggedNodes = selectedRows.map((row) => document
+                    .querySelector(`div.track-row[data-item-index='${row}'`));
+                  draggedNodes
+                    .forEach((node) => node?.classList.add('dragged-track'));
+                } else {
+                  const draggedNode = document
+                    .querySelector(`div.track-row[data-item-index='${hoverIndex.current}'`);
+                  draggedNode?.classList.add('dragged-track');
+                }
+              }}
+            >
+              {trackPage.map((track, index) => {
+                const playing = nowPlaying?.track.id === track.id;
+                const selected = selectedRows.includes(index);
+                const selUp = selected && selectedRows.includes(index - 1);
+                const selDown = selected && selectedRows.includes(index + 1);
+                return (
+                  <Box
+                    alignItems="center"
+                    className="track-row"
+                    color="text.secondary"
+                    data-item-index={index}
+                    display="flex"
+                    height={56}
+                    key={track.id}
+                    sx={selected
+                      ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
+                      : { ...rowStyle }}
+                    width={1}
+                    onClick={(event) => handleRowClick(event, index)}
+                    onContextMenu={handleContextMenu}
+                    onDoubleClick={() => handleDoubleClick(track.key)}
+                    onMouseEnter={handleMouseEnter}
+                  >
+                    <TrackRow
+                      getFormattedTime={getFormattedTime}
+                      index={(activeIndex * rows) + index + 1}
+                      isPlaying={isPlaying}
+                      library={library}
+                      options={{ showAlbumTitle: true, showArtwork: true }}
+                      playing={playing}
+                      track={track}
+                    />
+                  </Box>
+                );
+              })}
+            </Box>
+          </ClickAwayListener>
+        </MotionBox>
+      </AnimatePresence>
+      <PaginationDots
+        activeIndex={activeIndex}
+        array={tracks}
+        colLength={rows}
+        setActiveIndex={setActiveIndex}
+      />
       <TrackMenu
         anchorPoint={anchorPoint}
         playSwitch={playSwitch}
@@ -179,6 +199,6 @@ const TrackHighlights = React.memo(({
       />
     </>
   );
-});
+};
 
 export default TrackHighlights;

@@ -1,8 +1,8 @@
 import { SvgIcon } from '@mui/material';
-import { Album, Library } from 'hex-plex';
+import { Artist, Library } from 'hex-plex';
 import React from 'react';
-import { RiAlbumFill } from 'react-icons/all';
-import { Link, NavigateFunction } from 'react-router-dom';
+import { IoMdMicrophone } from 'react-icons/all';
+import { NavigateFunction } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
@@ -14,35 +14,35 @@ export interface Measurements {
   ROW_WIDTH: number;
 }
 
-interface AlbumCardProps {
-  album: Album;
+interface ArtistCardProps {
+  artist: Artist;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   library: Library;
   measurements: Measurements;
-  menuTarget: Album[];
+  menuTarget: Artist[];
   navigate: NavigateFunction;
 }
 
-const AlbumCard = ({
-  album, handleContextMenu, library, measurements, menuTarget, navigate,
-}: AlbumCardProps) => {
-  const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
+const ArtistCard = ({
+  artist, handleContextMenu, library, measurements, menuTarget, navigate,
+}: ArtistCardProps) => {
+  const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(artist.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
-      url: album.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
+      url: artist.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
     },
   );
 
   return (
     <MotionBox
       className={styles.container}
-      data-id={album.id}
+      data-id={artist.id}
       height={measurements.ROW_HEIGHT}
-      key={album.id}
+      key={artist.id}
       sx={{
         backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
-        borderRadius: '4px',
+        borderRadius: '32px',
         contain: 'paint',
         '&:hover': {
           backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
@@ -50,54 +50,48 @@ const AlbumCard = ({
       }}
       whileHover="hover"
       width={measurements.IMAGE_SIZE}
-      onClick={() => navigate(`/albums/${album.id}`)}
+      onClick={() => navigate(
+        `/artists/${artist.id}`,
+        { state: { guid: artist.guid, title: artist.title } },
+      )}
       onContextMenu={handleContextMenu}
     >
       <MotionBox
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
-        height={measurements.IMAGE_SIZE - 24}
+        height={(measurements.IMAGE_SIZE * 0.70) - 24}
         margin="12px"
         style={{
-          borderRadius: '4px',
+          borderRadius: '32px',
           transition: '0.2s',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={imageMotion}
         width={measurements.IMAGE_SIZE - 24}
       >
-        {!album.thumb && (
+        {!artist.thumb && (
           <SvgIcon
             className="generic-icon"
             sx={{ color: 'common.grey' }}
           >
-            <RiAlbumFill />
+            <IoMdMicrophone />
           </SvgIcon>
         )}
       </MotionBox>
-      <Title
-        marginX="12px"
-      >
-        {album.title}
+      <Title marginX="12px" textAlign="center">
+        {artist.title}
       </Title>
       <Subtitle
         marginX="12px"
+        textAlign="center"
       >
-        <Link
-          className="link"
-          state={{
-            guid: album.parentGuid,
-            title: album.parentTitle,
-          }}
-          to={`/artists/${album.parentId}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {album.parentTitle}
-        </Link>
+        {artist.genre.slice(0, 2).map(
+          (genre, i, a) => `${genre.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
+        )}
       </Subtitle>
     </MotionBox>
   );
 };
 
-export default AlbumCard;
+export default ArtistCard;

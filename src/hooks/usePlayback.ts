@@ -14,6 +14,7 @@ import type {
 export interface PlayParams {
   album?: Album;
   artist?: Artist;
+  key?: string;
   playlist?: Playlist;
   shuffle?: boolean;
   track?: Track;
@@ -233,7 +234,7 @@ const usePlayback = () => {
           break;
         case PlayActions.PLAY_TRACKS:
           if (params.tracks) {
-            await playTracks(params.tracks, params.shuffle);
+            await playTracks(params.tracks, params.shuffle, params.key);
           }
           break;
         default: break;

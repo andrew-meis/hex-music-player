@@ -1,15 +1,9 @@
 import { Box, Typography } from '@mui/material';
-import { AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
-import { usePrevious } from 'react-use';
-import {
-  MotionBox, MotionSvg, MotionTypography,
-} from 'components/motion-components/motion-components';
-import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
-import PaginationDots from 'components/pagination-dots/PaginationDots';
+import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
+import { iconMotion } from 'components/motion-components/motion-variants';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { thresholds } from 'routes/artist/Header';
@@ -21,17 +15,18 @@ interface CollapseContentProps {
 }
 
 const CollapseContent = ({ context }: CollapseContentProps) => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const prevIndex = usePrevious(activeIndex);
   const { ref, entry } = useInView({ threshold: thresholds });
   const {
+    getFormattedTime,
     height,
+    isPlaying,
+    library,
+    nowPlaying,
     openArtist,
     openArtistQuery,
     openArtistTracksQuery,
     playSwitch,
   } = context;
-  const difference = prevIndex ? activeIndex - prevIndex : 1;
 
   const handlePlay = () => playSwitch(
     PlayActions.PLAY_ARTIST,
@@ -100,43 +95,27 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
       </Typography>
       <Box
         display="flex"
-        flex="1 1 100%"
-        overflow="hidden"
+        flexDirection="column"
         ref={ref}
       >
         {
           entry && entry.intersectionRatio > 0.3
             ? (
-              <AnimatePresence custom={difference} initial={false} mode="wait">
-                <MotionBox
-                  animate={{ x: 0, opacity: 1 }}
-                  custom={difference}
-                  exit="exit"
-                  initial="enter"
-                  key={activeIndex}
-                  transition={{ duration: 0.2 }}
-                  variants={tracklistMotion}
-                >
-                  <TrackHighlights
-                    activeIndex={activeIndex}
-                    context={context}
-                    pageLength={height < 639 ? 3 : 4}
-                    tracks={openArtistTracksQuery.data!}
-                  />
-                </MotionBox>
-              </AnimatePresence>
+              <TrackHighlights
+                getFormattedTime={getFormattedTime}
+                isPlaying={isPlaying}
+                library={library}
+                nowPlaying={nowPlaying}
+                playSwitch={playSwitch}
+                rows={height < 639 ? 3 : 4}
+                tracks={openArtistTracksQuery.data!}
+              />
             )
             : (
               <Box height={224} width={1} />
             )
         }
       </Box>
-      <PaginationDots
-        activeIndex={activeIndex}
-        array={openArtistTracksQuery.data!}
-        colLength={height < 639 ? 3 : 4}
-        setActiveIndex={setActiveIndex}
-      />
     </Box>
   );
 };

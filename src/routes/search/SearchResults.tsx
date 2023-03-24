@@ -17,11 +17,16 @@ import ArtistHighlights from 'components/artist-highlights/ArtistHighlights';
 import { MotionTypography, MotionSvg } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import PlaylistHighlights from 'components/playlist-highlights/PlaylistHighlights';
-import TrackCarousel from 'components/track-highlights/TrackCarousel';
+import TrackHighlights from 'components/track-highlights/TrackHighlights';
 import { WIDTH_CALC } from 'constants/measures';
+import useFormattedTime from 'hooks/useFormattedTime';
+import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
+import { useIsPlaying } from 'queries/player-queries';
+import { useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
+import Header from './Header';
 import TopResult from './TopResult';
 
 const getCols = (width: number) => {
@@ -70,6 +75,10 @@ const SearchResults = () => {
   const library = useLibrary();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const { data: isPlaying } = useIsPlaying();
+  const { data: nowPlaying } = useNowPlaying();
+  const { getFormattedTime } = useFormattedTime();
+  const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
   const urlParams = new URLSearchParams(location.search);
@@ -96,7 +105,8 @@ const SearchResults = () => {
       .find((hub) => hub.type === 'track')?.items as Track[];
     const playlistsArray = searchResults?.hubs
       .find((hub) => hub.type === 'playlist')?.items as Playlist[];
-    const top = searchResults?.hubs[0].items[0] as Result;
+    const top = searchResults?.hubs
+      .filter((hub) => hub.size > 0)[0].items[0] as Result;
     return [
       artistsArray,
       albumsArray,
@@ -181,14 +191,19 @@ const SearchResults = () => {
           mx="auto"
           width={WIDTH_CALC}
         >
+          <Header />
           <Box
             alignItems="center"
+            borderBottom="1px solid"
+            borderColor="border.main"
             color="text.primary"
             display="flex"
-            height={70}
-            paddingX="6px"
+            height={30}
+            px="6px"
           >
-            <Typography variant="h1">Search</Typography>
+            <Typography fontWeight={600} variant="h6">
+              {`Results for: "${params.query}"`}
+            </Typography>
           </Box>
           <Box
             display="flex"
@@ -213,8 +228,13 @@ const SearchResults = () => {
               {showTracks() && (
                 <>
                   <Subheader text="Tracks" />
-                  <TrackCarousel
+                  <TrackHighlights
+                    getFormattedTime={getFormattedTime}
+                    isPlaying={isPlaying}
                     library={library}
+                    nowPlaying={nowPlaying}
+                    playSwitch={playSwitch}
+                    rows={4}
                     tracks={tracks}
                   />
                 </>

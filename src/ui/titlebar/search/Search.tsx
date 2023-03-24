@@ -42,10 +42,12 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     if (data.length === 0) {
       setDisplay('no-results');
       setLoading(false);
+      setOpen(true);
       return;
     }
     setDisplay('results');
     setLoading(false);
+    setOpen(true);
   };
   const searchResults = useSearch({ query: inputDebounced, onSuccess });
 
