@@ -109,6 +109,7 @@ const Genre = () => {
         >
           <Banner
             cols={grid.cols}
+            id={+id}
             thumbs={thumbs}
             title={location.state.title}
             width={width}

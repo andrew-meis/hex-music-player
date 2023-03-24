@@ -48,6 +48,7 @@ export enum QueryKeys {
   ARTIST_APPEARANCES = 'artist-appearances',
   ARTIST_TRACKS = 'artist-tracks',
   ARTISTS = 'artists',
+  ARTISTS_BY_GENRE = 'artists',
   FILTERS = 'filters',
   GENRES = 'genres',
   HISTORY = 'history',

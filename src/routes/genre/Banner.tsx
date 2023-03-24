@@ -2,8 +2,7 @@ import { Box, Fade, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { sample, sampleSize } from 'lodash';
-import hash from 'object-hash';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import { MotionBox } from 'components/motion-components/motion-components';
@@ -26,8 +25,8 @@ interface Thumb {
   width: number;
 }
 
-const getPrevThumbs = (thumbs: string[]) => {
-  const prev = sessionStorage.getItem(`banner-thumbs ${hash.sha1({ thumbs })}`);
+const getPrevThumbs = (id: number) => {
+  const prev = sessionStorage.getItem(`banner-thumbs ${id}`);
   try {
     return JSON.parse(prev!) as Thumb[];
   } catch {
@@ -37,18 +36,19 @@ const getPrevThumbs = (thumbs: string[]) => {
 
 interface BannerProps {
   cols: number;
+  id: number;
   thumbs: string[];
   title: string;
   width: number;
 }
 
-const Banner = ({ cols, thumbs, title, width: viewWidth }: BannerProps) => {
+const Banner = React.memo(({ cols, id, thumbs, title, width: viewWidth }: BannerProps) => {
   const box = useRef<HTMLDivElement>(null);
   const bannerInView = useInView({ threshold: thresholds });
-  const currentThumbs = useRef<Thumb[]>(getPrevThumbs(thumbs));
+  const currentThumbs = useRef<Thumb[]>(getPrevThumbs(id));
 
   const { data: staticThumbs } = useQuery(
-    ['static-thumbs', hash.sha1({ thumbs }), cols],
+    ['static-thumbs', id, cols],
     async () => {
       const array = [];
       // eslint-disable-next-line no-restricted-syntax
@@ -68,7 +68,7 @@ const Banner = ({ cols, thumbs, title, width: viewWidth }: BannerProps) => {
   );
 
   const { data: randomizedThumbs } = useQuery(
-    ['random-thumbs', hash.sha1({ thumbs }), cols],
+    ['random-thumbs', id, cols],
     async () => {
       if (!currentThumbs.current || currentThumbs.current.length === 0) {
         const newThumbs = sampleSize(thumbs, cols);
@@ -119,10 +119,10 @@ const Banner = ({ cols, thumbs, title, width: viewWidth }: BannerProps) => {
 
   useEffect(() => () => {
     sessionStorage.setItem(
-      `banner-thumbs ${hash.sha1({ thumbs })}`,
+      `banner-thumbs ${id}`,
       JSON.stringify(randomizedThumbs),
     );
-  }, [randomizedThumbs, thumbs]);
+  }, [randomizedThumbs, id]);
 
   const { x } = box.current?.getBoundingClientRect() || { x: 0 };
 
@@ -251,6 +251,6 @@ const Banner = ({ cols, thumbs, title, width: viewWidth }: BannerProps) => {
       </Box>
     </>
   );
-};
+});
 
 export default Banner;
