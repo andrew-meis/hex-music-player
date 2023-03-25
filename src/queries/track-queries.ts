@@ -95,9 +95,9 @@ export const useTrackHistory = (
 );
 
 export const useTracksByGenre = ({
-  artistIds, config, id, library, limit, sort,
+  albumIds, config, id, library, limit, sort,
 }: {
-  artistIds: number[];
+  albumIds: number[];
   config: IConfig,
   id: number;
   library: Library,
@@ -106,12 +106,12 @@ export const useTracksByGenre = ({
 }) => useQuery(
   [QueryKeys.TRACKS_BY_GENRE, id, limit, sort],
   () => library.tracks(config.sectionId!, {
-    'artist.id': artistIds.join(','),
+    'album.id': albumIds.join(','),
     sort,
     ...(limit && { limit }),
   }),
   {
-    enabled: !!library && artistIds.length > 0,
+    enabled: !!library && albumIds.length > 0,
     keepPreviousData: true,
     refetchOnMount: false,
     refetchOnWindowFocus: false,

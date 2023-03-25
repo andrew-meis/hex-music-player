@@ -1,17 +1,18 @@
 import { Box, Grid, Paper, SvgIcon, Typography } from '@mui/material';
 import { UseQueryResult } from '@tanstack/react-query';
 import { uniq } from 'lodash';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IoCloseSharp } from 'react-icons/all';
+import { Link } from 'react-router-dom';
 import { useWindowSize } from 'react-use';
+import { isGenre } from 'types/type-guards';
 import Results from './results/Results';
-import TopResult from './results/TopResult';
 import quotes from './search_quotes.json';
-import type { Album, Artist, Track } from 'hex-plex';
 import type { Result } from 'types/types';
 
 interface Props {
   display: string;
+  input: string;
   searchHistory: string[];
   searchResults: UseQueryResult<Result[], unknown>;
   setInput: React.Dispatch<React.SetStateAction<string>>;
@@ -19,46 +20,16 @@ interface Props {
   setSearchHistory: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const isEmpty = (xs: string | any[]) => xs.length === 0;
-
-const head = (xs: any[]) => xs[0];
-
-const tail = (xs: string | any[]) => xs.slice(1);
-
-// eslint-disable-next-line symbol-description
-const None = Symbol();
-
-// @ts-ignore
-const roundRobin = ([a = None, ...rest]): Result[] =>
-  // base: no `a`
-  // eslint-disable-next-line implicit-arrow-linebreak,no-nested-ternary
-  (a === None
-    ? []
-  // inductive: some `a`
-    : isEmpty(a)
-      ? roundRobin(rest)
-    // inductive: some non-empty `a`
-    // @ts-ignore
-      : [head(a), ...roundRobin([...rest, tail(a)])]);
-
 const SearchResultBox = ({
-  display, searchHistory, searchResults, setInput, setOpen, setSearchHistory,
+  display, input, searchHistory, searchResults, setInput, setOpen, setSearchHistory,
 }: Props) => {
   const { height } = useWindowSize();
-  let topResult;
-  let rest;
-  let sortedData;
-  if (searchResults.data && searchResults.data.length > 0) {
-    [topResult, ...rest] = searchResults.data;
-    const resultsData = [
-      rest.filter((result): result is Artist => result.type === 'artist'),
-      rest.filter((result): result is Album => result.type === 'album'),
-      rest.filter((result): result is Track => result.type === 'track'),
-    ];
-    const sectionCount = resultsData.filter((array) => array.length >= 1).length;
-    const listHeight = height - 152 - 174 - (sectionCount * 24);
+  const results = useMemo(() => {
+    if (!searchResults.data || searchResults.data.length === 0) return [];
+    const { data } = searchResults;
+    const listHeight = height - 152 - 32;
     const sectionHeight = () => {
-      const listItemsCount = listHeight / 56;
+      const listItemsCount = listHeight / 64;
       if (listItemsCount % 1 > 0.001) {
         return Math.floor(listItemsCount);
       }
@@ -68,8 +39,11 @@ const SearchResultBox = ({
       return Math.floor(listItemsCount - 1);
     };
     // @ts-ignore
-    sortedData = roundRobin(resultsData).slice(0, sectionHeight());
-  }
+    return data
+      .sort((a, b) => b.score - a.score
+        || (!isGenre(b) ? b.viewCount || 0 : 0) - (!isGenre(a) ? a.viewCount || 0 : 0))
+      .slice(0, sectionHeight());
+  }, [height, searchResults]);
 
   if (display === 'history') {
     return (
@@ -138,7 +112,7 @@ const SearchResultBox = ({
     );
   }
 
-  if (display === 'no-results' || !topResult || !sortedData) {
+  if (display === 'no-results' || !results || results.length === 0) {
     return (
       <Grid
         container
@@ -165,42 +139,35 @@ const SearchResultBox = ({
   }
 
   return (
-    <Grid
-      container
+    <Box
       color="text.primary"
       height="fit-content"
       maxHeight={`calc(${height}px - 146px)`}
       padding="4px"
       width="auto"
     >
-      <Grid item xs={12}>
-        <TopResult setOpen={setOpen} topResult={topResult} />
-      </Grid>
-      <Grid item xs={12}>
-        <Results
-          options={{ showLabel: true, showNumber: false }}
-          results={sortedData.filter((result) => result.type === 'artist')}
-          setOpen={setOpen}
-          type="artist"
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <Results
-          options={{ showLabel: true, showNumber: false }}
-          results={sortedData.filter((result) => result.type === 'album')}
-          setOpen={setOpen}
-          type="album"
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <Results
-          options={{ showLabel: true, showNumber: false }}
-          results={sortedData.filter((result) => result.type === 'track')}
-          setOpen={setOpen}
-          type="track"
-        />
-      </Grid>
-    </Grid>
+      <Results
+        results={results}
+        setOpen={setOpen}
+      />
+      <Box
+        alignItems="center"
+        color="text.secondary"
+        display="flex"
+        height={24}
+        justifyContent="center"
+        padding="4px"
+        width={1}
+      >
+        <Link
+          className="link"
+          to={`/search?query=${input}`}
+          onClick={() => setOpen(false)}
+        >
+          View all results
+        </Link>
+      </Box>
+    </Box>
   );
 };
 

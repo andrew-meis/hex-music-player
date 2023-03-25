@@ -9,7 +9,7 @@ import {
   Portal,
   SvgIcon,
 } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   IoIosArrowBack,
@@ -21,12 +21,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
 import useHistoryStack from 'hooks/useHistoryStack';
-import { useSearch } from 'queries/plex-queries';
+import { useLibrary } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import SearchResultBox from './SearchResultBox';
 
 const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivElement>}) => {
+  const library = useLibrary();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const searchInput = useRef<HTMLInputElement>(null);
@@ -47,7 +48,20 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     setDisplay('results');
     setLoading(false);
   };
-  const searchResults = useSearch({ query: inputDebounced, onSuccess });
+  const searchResults = useQuery(
+    [QueryKeys.SEARCH, inputDebounced],
+    () => library.searchAll(inputDebounced, 10),
+    {
+      enabled: inputDebounced.length > 1,
+      keepPreviousData: true,
+      onSuccess,
+      refetchOnWindowFocus: false,
+      select: (data) => {
+        if (!data.hubs) return [];
+        return data.hubs.map((hub) => hub.items).flat() as Result[];
+      },
+    },
+  );
 
   useDebounce(() => {
     setInputDebounced(input);
@@ -132,6 +146,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
             onSubmit={(e) => {
               e.preventDefault();
               setOpen(false);
+              setSearchHistory((prev) => [input, ...prev]);
               navigate(`/search?query=${input}`);
             }}
           >
@@ -231,6 +246,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
                   />
                   <SearchResultBox
                     display={display}
+                    input={input}
                     searchHistory={searchHistory}
                     searchResults={searchResults}
                     setInput={setInput}

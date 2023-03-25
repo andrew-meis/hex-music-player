@@ -74,13 +74,13 @@ const Genres = () => {
   const navigationType = useNavigationType();
   const virtuoso = useRef<VirtuosoHandle>(null);
   const { data: artists } = useArtists({ config, library });
-  const { data: artistGenres } = useQuery(
-    ['genre', 'Artist'],
+  const { data: genres } = useQuery(
+    ['genre', 'Album'],
     () => filterOptionsQueryFn({
       config,
       field: 'genre',
       library,
-      type: 8,
+      type: 9,
     }),
     {
       initialData: [],
@@ -100,15 +100,15 @@ const Genres = () => {
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const rows = useMemo(() => {
-    if (!artists || !artistGenres || !genreCounts) return [];
+    if (!artists || !genres || !genreCounts) return [];
     const arrays: GenreWithWidth[][] = [];
-    const genresToSort = structuredClone(artistGenres) as Genre[];
+    const genresToSort = structuredClone(genres) as Genre[];
     let newArray: GenreWithWidth[] = [];
     let widthCount = 0;
     while (genresToSort.length > -1) {
       const genreToSort = genresToSort.shift() as GenreWithWidth;
       if (!genreToSort) {
-        arrays.push(newArray);
+        if (newArray.length > 0) arrays.push(newArray);
         newArray = [];
         widthCount = 0;
         break;
@@ -130,7 +130,7 @@ const Genres = () => {
       }
     }
     return arrays;
-  }, [artistGenres, artists, genreCounts, grid.cols]);
+  }, [artists, genreCounts, genres, grid.cols]);
 
   const initialScrollTop = useMemo(() => {
     let top;

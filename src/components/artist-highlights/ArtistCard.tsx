@@ -6,7 +6,9 @@ import { NavigateFunction } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
+import { ArtistPreview } from 'routes/genre/Genre';
 import styles from 'styles/MotionImage.module.scss';
+import { isArtist } from 'types/type-guards';
 
 export interface Measurements {
   IMAGE_SIZE: number;
@@ -15,7 +17,7 @@ export interface Measurements {
 }
 
 interface ArtistCardProps {
-  artist: Artist;
+  artist: Artist | ArtistPreview;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   library: Library;
   measurements: Measurements;
@@ -86,8 +88,13 @@ const ArtistCard = ({
         marginX="12px"
         textAlign="center"
       >
-        {artist.genre.slice(0, 2).map(
-          (genre, i, a) => `${genre.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
+        {isArtist(artist) && artist.genre.slice(0, 2).map(
+          (g, i, a) => `${g.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
+        )}
+        {!isArtist(artist) && (
+          artist.viewCount
+            ? `${artist.viewCount} ${artist.viewCount > 1 ? 'plays in genre' : 'play in genre'}`
+            : 'unplayed'
         )}
       </Subtitle>
     </MotionBox>

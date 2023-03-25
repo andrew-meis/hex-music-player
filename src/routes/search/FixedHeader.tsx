@@ -1,7 +1,7 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { CgSearch } from 'react-icons/all';
 
-const FixedHeader = () => (
+const FixedHeader = ({ query }: { query: string }) => (
   <Box
     alignItems="center"
     bgcolor="background.paper"
@@ -37,7 +37,7 @@ const FixedHeader = () => (
       variant="header"
       width={1}
     >
-      Search
+      {`Search results for "${query}"`}
     </Typography>
   </Box>
 );

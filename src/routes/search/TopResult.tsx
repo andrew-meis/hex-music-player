@@ -1,15 +1,16 @@
+/* eslint-disable no-underscore-dangle */
 import {
   Avatar, Box, SvgIcon, Typography,
 } from '@mui/material';
 import { useEffect, useMemo, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { IoMdMicrophone } from 'react-icons/all';
+import { FaTags, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import { useLibrary, useSettings } from 'queries/app-queries';
 import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
-import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import TopResultButtons from './TopResultButtons';
 import type { Result } from 'types/types';
 
@@ -39,6 +40,10 @@ const getDragType = (resultType: string) => {
       return DragTypes.ARTIST;
     case 'album':
       return DragTypes.ALBUM;
+    case 'genre':
+      return DragTypes.GENRE;
+    case 'playlist':
+      return DragTypes.PLAYLIST;
     case 'track':
       return DragTypes.TRACK;
     default: throw new Error('no matching type');
@@ -55,19 +60,39 @@ const TopResult = ({ topResult }: TopResultProps) => {
   const { data: settings } = useSettings();
   const { colorMode } = settings;
 
-  const thumbSrc = topResult.thumb
-    ? library.api.getAuthenticatedUrl(
+  const thumbSrc = useMemo(() => {
+    if (isGenre(topResult)) return { src: undefined, url: undefined };
+    if (isPlaylist(topResult) && (topResult.thumb || topResult.composite)) {
+      const url = library.api.getAuthenticatedUrl(
+        '/photo/:/transcode',
+        {
+          url: topResult.thumb || topResult.composite,
+          width: 300,
+          height: 300,
+          minSize: 1,
+          upscale: 1,
+        },
+      );
+      return { src: topResult.thumb || topResult.composite, url };
+    }
+    if (!topResult.thumb) return { src: undefined, url: undefined };
+    const url = library.api.getAuthenticatedUrl(
       '/photo/:/transcode',
       {
-        url: topResult.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
+        url: topResult.thumb,
+        width: 300,
+        height: 300,
+        minSize: 1,
+        upscale: 1,
       },
-    )
-    : '';
-  const thumbUrl = library.api.getAuthenticatedUrl(topResult.thumb);
-  const { data: palette, isError } = usePalette(topResult.thumb, thumbUrl);
+    );
+    return { src: topResult.thumb, url };
+  }, [library, topResult]);
+
+  const { data: palette, isError } = usePalette(thumbSrc.src || '', thumbSrc.url || '');
 
   const [, drag, dragPreview] = useDrag(() => ({
-    type: getDragType(topResult.type),
+    type: getDragType(topResult._type),
     item: [topResult],
   }), [topResult]);
 
@@ -89,6 +114,13 @@ const TopResult = ({ topResult }: TopResultProps) => {
         ? topResult.originalTitle
         : topResult.grandparentTitle;
     }
+    if (isPlaylist(topResult)) {
+      const { leafCount } = topResult;
+      return `${leafCount} ${leafCount > 1 || leafCount === 0 ? 'tracks' : 'track'}`;
+    }
+    if (isGenre(topResult)) {
+      return '';
+    }
     throw new Error('no matching type');
   }, [topResult]);
 
@@ -109,6 +141,12 @@ const TopResult = ({ topResult }: TopResultProps) => {
     if (isTrack(topResult)) {
       return { guid: topResult.grandparentGuid, title: topResult.grandparentTitle };
     }
+    if (isPlaylist(topResult)) {
+      return {};
+    }
+    if (isGenre(topResult)) {
+      return { title: topResult.title };
+    }
     throw new Error('no matching type');
   }, [topResult]);
 
@@ -127,7 +165,7 @@ const TopResult = ({ topResult }: TopResultProps) => {
   }, [topResult.title.length]);
 
   const resultType = useMemo(() => {
-    switch (topResult.type) {
+    switch (topResult._type) {
       case 'artist':
         return (
           <Typography fontSize="0.75rem" letterSpacing="0.5px" sx={textStyle}>artist</Typography>
@@ -145,7 +183,7 @@ const TopResult = ({ topResult }: TopResultProps) => {
       default:
         return null;
     }
-  }, [topResult.type]);
+  }, [topResult._type]);
 
   const backgroundColor = useMemo(() => {
     if (isError || !palette) {
@@ -183,9 +221,9 @@ const TopResult = ({ topResult }: TopResultProps) => {
       >
         <Avatar
           alt={topResult.title}
-          src={thumbSrc}
+          src={thumbSrc.url}
           sx={{
-            borderRadius: topResult.type === 'artist' ? '50%' : '4px',
+            borderRadius: topResult._type === 'artist' ? '50%' : '4px',
             height: 295 - 71 - 12,
             mb: '6px',
             ml: '6px',
@@ -194,7 +232,8 @@ const TopResult = ({ topResult }: TopResultProps) => {
           variant="rounded"
         >
           <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
-            <IoMdMicrophone />
+            {isGenre(topResult) ? <FaTags /> : null}
+            {isArtist(topResult) ? <IoMdMicrophone /> : null}
           </SvgIcon>
         </Avatar>
         {resultType}
@@ -223,12 +262,14 @@ const TopResult = ({ topResult }: TopResultProps) => {
             >
               <Link
                 className="link"
-                state={isArtist(topResult) ? linkState : null}
+                state={isArtist(topResult) || isGenre(topResult) ? linkState : null}
                 to={{
                   artist: isArtist(topResult) ? `/artists/${topResult.id}` : '',
                   album: isAlbum(topResult) ? `/albums/${topResult.id}` : '',
                   track: isTrack(topResult) ? `/albums/${topResult.parentId}` : '',
-                }[topResult.type] || '/'}
+                  playlist: isPlaylist(topResult) ? `/playlists/${topResult.id}` : '',
+                  genre: isGenre(topResult) ? `/genres/${topResult.id}` : '',
+                }[topResult._type] || '/home'}
               >
                 {topResult.title}
               </Link>
@@ -244,11 +285,14 @@ const TopResult = ({ topResult }: TopResultProps) => {
               <Link
                 className="link"
                 state={linkState}
+                style={{
+                  pointerEvents: (isPlaylist(topResult) ? 'none' : 'auto'),
+                }}
                 to={{
                   artist: isArtist(topResult) ? `/artists/${topResult.id}/discography` : '',
                   album: isAlbum(topResult) ? `/artists/${topResult.parentId}` : '',
                   track: isTrack(topResult) ? `/artists/${topResult.grandparentId}` : '',
-                }[topResult.type] || '/'}
+                }[topResult._type] || '/'}
               >
                 {additionalText}
               </Link>

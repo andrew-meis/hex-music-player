@@ -1,10 +1,10 @@
 import { Box, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
-import { throttle } from 'lodash';
-import { useMemo, useRef } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Artist } from 'hex-plex';
+import { throttle, uniqBy } from 'lodash';
+import { useMemo, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import {
-  Link,
   useLocation,
   useNavigate,
   useNavigationType,
@@ -21,13 +21,15 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbumsByGenre } from 'queries/album-queries';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
-import { useArtistsByGenre } from 'queries/artist-queries';
 import { useLastfmTag } from 'queries/last-fm-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useTracksByGenre } from 'queries/track-queries';
 import { LocationWithState, RouteParams } from 'types/interfaces';
 import Banner from './Banner';
+
+export type ArtistPreview = Pick<Artist,
+  'guid' | 'id' | 'key' | 'ratingKey' | 'thumb' | 'title' | 'viewCount'>;
 
 const getCols = (width: number) => {
   if (width >= 1350) {
@@ -48,35 +50,32 @@ const getCols = (width: number) => {
   return 5;
 };
 
-const Subheader = ({ text }: { text: string }) => (
+const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => (
   <MotionTypography
+    className="link"
     color="text.primary"
     fontFamily="TT Commons"
     fontSize="1.625rem"
     marginRight="auto"
     whileHover="hover"
     width="fit-content"
+    onClick={onClick}
   >
-    <Link
-      className="link"
-      to="/home"
-    >
-      {text}
-      <MotionSvg variants={iconMotion} viewBox="0 -5 24 24">
-        <BiChevronRight />
-      </MotionSvg>
-    </Link>
+    {text}
+    <MotionSvg variants={iconMotion} viewBox="0 -5 24 24">
+      <BiChevronRight />
+    </MotionSvg>
   </MotionTypography>
 );
 
 const Genre = () => {
-  const { data: config } = useConfig();
-  const library = useLibrary();
-
   const box = useRef<HTMLDivElement>(null);
+  const library = useLibrary();
   const location = useLocation() as LocationWithState;
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const [expandedText, setExpandedText] = useState(false);
+  const { data: config } = useConfig();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
@@ -88,32 +87,62 @@ const Genre = () => {
   const throttledCols = throttle(() => getCols(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
-  const { data: artists, isLoading: artistsLoading } = useArtistsByGenre({
+  const { data: albums, isLoading: albumsLoading } = useAlbumsByGenre({
     config,
     id: +id,
     library,
     limit: 0,
     sort: 'viewCount:desc',
   });
-  const { data: albums, isLoading: albumsLoading } = useAlbumsByGenre({
-    config,
-    id: +id,
-    library,
-    limit: (grid.cols - 1) * 5,
-    sort: 'viewCount:desc',
-  });
   const { data: tracks, isLoading: tracksLoading } = useTracksByGenre({
-    artistIds: artists?.map((artist) => artist.id) || [],
+    albumIds: albums?.map((album) => album.id) || [],
     config,
     id: +id,
     library,
     limit: 24,
     sort: 'viewCount:desc',
   });
-  const { data: lastfmTag } = useLastfmTag({
+  const { data: lastfmTag, isLoading: lastfmLoading } = useLastfmTag({
     apikey: settings?.apiKey,
     tag: location.state.title,
   });
+
+  const artists = useMemo(() => {
+    if (!albums) return [];
+    const artistsFromAlbums = albums.map(({
+      parentGuid,
+      parentId,
+      parentKey,
+      parentRatingKey,
+      parentThumb,
+      parentTitle,
+      viewCount,
+    }) => ({
+      guid: parentGuid,
+      id: parentId,
+      key: parentKey,
+      ratingKey: parentRatingKey,
+      thumb: parentThumb,
+      title: parentTitle,
+      viewCount,
+    }));
+    const uniqArtists = uniqBy(artistsFromAlbums, 'guid');
+    const viewCountArrays = uniqArtists
+      .map((artist) => ({
+        id: artist.id,
+        viewCount: artistsFromAlbums
+          .filter((prev) => prev.id === artist.id)
+          .map((v) => v.viewCount)
+          .filter((v) => v)
+          .reduce((partialSum, a) => (partialSum + a), 0),
+      }));
+    return uniqArtists
+      .map((artist) => ({
+        ...artist,
+        viewCount: viewCountArrays.find((v) => v.id === artist.id)?.viewCount,
+      }))
+      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)) as ArtistPreview[];
+  }, [albums]);
 
   const thumbs = useMemo(() => {
     if (!artists) return [];
@@ -142,7 +171,7 @@ const Genre = () => {
     return 0;
   }, [id, navigationType]);
 
-  if (!artists || artistsLoading || albumsLoading || tracksLoading) {
+  if (albumsLoading || tracksLoading || lastfmLoading) {
     return null;
   }
 
@@ -192,7 +221,10 @@ const Genre = () => {
         >
           {lastfmTag && lastfmTag.wiki.content && (
             <Box paddingY="32px">
-              <Subheader text="About" />
+              <Subheader
+                text="About"
+                onClick={() => setExpandedText(!expandedText)}
+              />
               <Typography
                 color="text.primary"
                 fontFamily="Rubik"
@@ -200,7 +232,7 @@ const Genre = () => {
                   display: '-webkit-box',
                   overflow: 'hidden',
                   WebkitBoxOrient: 'vertical',
-                  WebkitLineClamp: 5,
+                  WebkitLineClamp: expandedText ? Infinity : 3,
                   wordBreak: 'break-word',
                 }}
               >
@@ -208,40 +240,60 @@ const Genre = () => {
               </Typography>
             </Box>
           )}
-          {tracks && tracks.length > 0 && (
-            <>
-              <Subheader text="Top Tracks" />
-              <TrackHighlights
-                getFormattedTime={getFormattedTime}
-                isPlaying={isPlaying}
-                library={library}
-                nowPlaying={nowPlaying}
-                playSwitch={playSwitch}
-                rows={4}
-                tracks={tracks}
-              />
-            </>
+          {lastfmTag && lastfmTag.wiki.content.length === 0 && (
+            <Box paddingTop="32px" />
           )}
-          <Subheader text="Top Artists" />
-          <ArtistHighlights
-            artists={artists.slice(0, (grid.cols - 1) * 5)}
-            cols={grid.cols - 1}
-            library={library}
-            navigate={navigate}
-            width={width}
-          />
-          {albums && albums.length > 0 && (
-            <>
-              <Subheader text="Top Albums" />
-              <AlbumHighlights
-                albums={albums}
+          <AnimatePresence initial={false} mode="wait">
+            {!!tracks && tracks.length > 0 && (
+              <Box key={location.pathname}>
+                <Subheader
+                  text="Top Tracks"
+                  onClick={() => {}}
+                />
+                <TrackHighlights
+                  getFormattedTime={getFormattedTime}
+                  isPlaying={isPlaying}
+                  library={library}
+                  nowPlaying={nowPlaying}
+                  playSwitch={playSwitch}
+                  rows={4}
+                  tracks={tracks}
+                />
+              </Box>
+            )}
+          </AnimatePresence>
+          <AnimatePresence initial={false} mode="wait">
+            <Box key={location.pathname}>
+              <Subheader
+                text="Top Artists"
+                onClick={() => {}}
+              />
+              <ArtistHighlights
+                artists={artists.slice(0, (grid.cols - 1) * 5)}
                 cols={grid.cols - 1}
                 library={library}
                 navigate={navigate}
                 width={width}
               />
-            </>
-          )}
+            </Box>
+          </AnimatePresence>
+          <AnimatePresence initial={false} mode="wait">
+            {!!albums && albums.length > 0 && (
+              <Box key={location.pathname}>
+                <Subheader
+                  text="Top Albums"
+                  onClick={() => {}}
+                />
+                <AlbumHighlights
+                  albums={albums.slice(0, (grid.cols - 1) * 6)}
+                  cols={grid.cols - 1}
+                  library={library}
+                  navigate={navigate}
+                  width={width}
+                />
+              </Box>
+            )}
+          </AnimatePresence>
         </Box>
       </Box>
     </motion.div>

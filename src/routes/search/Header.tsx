@@ -3,7 +3,7 @@ import { useInView } from 'react-intersection-observer';
 import { WIDTH_CALC } from 'constants/measures';
 import FixedHeader from './FixedHeader';
 
-const Header = () => {
+const Header = ({ query }: { query: string }) => {
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   return (
@@ -20,7 +20,7 @@ const Header = () => {
           width={WIDTH_CALC}
           zIndex={400}
         >
-          <FixedHeader />
+          <FixedHeader query={query} />
         </Box>
       </Fade>
       <Box
@@ -28,11 +28,12 @@ const Header = () => {
         color="text.primary"
         display="flex"
         height={70}
-        paddingX="6px"
         ref={ref}
         width="auto"
       >
-        <Typography variant="h1">Search</Typography>
+        <Typography fontWeight={600} variant="header">
+          {`Search results for "${query}"`}
+        </Typography>
       </Box>
     </>
   );

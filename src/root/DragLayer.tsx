@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Album, Artist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
+import { Album, Artist, Playlist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useEffect, useRef } from 'react';
 import { useDragLayer, XYCoord } from 'react-dnd';
 import { DragTypes } from 'types/enums';
@@ -61,6 +61,10 @@ const getText = (item: any, itemType: any) => {
   if (itemType === DragTypes.TRACK) {
     const [track] = item as Track[];
     return `${track.title} — ${track.originalTitle || track.grandparentTitle}`;
+  }
+  if (itemType === DragTypes.PLAYLIST) {
+    const [playlist] = item as Playlist[];
+    return `${playlist.title}`;
   }
   return '';
 };

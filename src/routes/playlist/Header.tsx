@@ -98,6 +98,7 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
               </Typography>
               <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
                 <Typography
+                  fontFamily="Rubik"
                   sx={{
                     overflow: 'hidden',
                     display: '-webkit-box',

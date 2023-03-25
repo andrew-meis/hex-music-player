@@ -1,14 +1,13 @@
-import {
-  Avatar, Box, ListItem, SvgIcon, Typography,
-} from '@mui/material';
+/* eslint-disable no-underscore-dangle */
+import { Avatar, Box, ListItem, SvgIcon } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { IoMdMicrophone } from 'react-icons/all';
+import { FaTags, IoMdMicrophone } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
 import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
-import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import styles from '../Search.module.scss';
 import ResultTooltip from '../tooltip/ResultTooltip';
 import type { Result } from 'types/types';
@@ -16,7 +15,7 @@ import type { Result } from 'types/types';
 const resultStyle = {
   display: 'flex',
   alignItems: 'center',
-  height: '56px',
+  height: '64px',
 };
 
 const linkBoxStyle = {
@@ -32,6 +31,10 @@ const getDragType = (resultType: string) => {
       return DragTypes.ARTIST;
     case 'album':
       return DragTypes.ALBUM;
+    case 'genre':
+      return DragTypes.GENRE;
+    case 'playlist':
+      return DragTypes.PLAYLIST;
     case 'track':
       return DragTypes.TRACK;
     default: throw new Error('no matching type');
@@ -41,28 +44,45 @@ const getDragType = (resultType: string) => {
 interface ResultRowProps {
   result: Result;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  options: { showLabel: boolean, showNumber: boolean };
-  index: number;
 }
 
 const ResultRow = ({
-  result, setOpen, options, index,
+  result, setOpen,
 }: ResultRowProps) => {
   const library = useLibrary();
   const navigate = useNavigate();
   const [isHovered, setHovered] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);
-  const thumbSrc = result.thumb
-    ? library.api.getAuthenticatedUrl(
+
+  const thumbSrc = useMemo(() => {
+    if (isGenre(result)) return undefined;
+    if (isPlaylist(result) && (result.thumb || result.composite)) {
+      return library.api.getAuthenticatedUrl(
+        '/photo/:/transcode',
+        {
+          url: result.thumb || result.composite,
+          width: 100,
+          height: 100,
+          minSize: 1,
+          upscale: 1,
+        },
+      );
+    }
+    if (!result.thumb) return undefined;
+    return library.api.getAuthenticatedUrl(
       '/photo/:/transcode',
       {
-        url: result.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
+        url: result.thumb,
+        width: 100,
+        height: 100,
+        minSize: 1,
+        upscale: 1,
       },
-    )
-    : undefined;
+    );
+  }, [library, result]);
 
   const [, drag, dragPreview] = useDrag(() => ({
-    type: getDragType(result.type),
+    type: getDragType(result._type),
     item: [result],
   }), [result]);
 
@@ -88,6 +108,10 @@ const ResultRow = ({
     if (isArtist(result)) {
       return (
         <Box display="flex">
+          {result._type}
+          &nbsp;
+          ·
+          &nbsp;
           <Box
             className="link"
             sx={linkBoxStyle}
@@ -114,6 +138,10 @@ const ResultRow = ({
     if (isAlbum(result)) {
       return (
         <Box display="flex">
+          {result._type}
+          &nbsp;
+          ·
+          &nbsp;
           <Box
             className="link"
             sx={linkBoxStyle}
@@ -131,6 +159,10 @@ const ResultRow = ({
     if (isTrack(result)) {
       return (
         <Box display="flex">
+          {result._type}
+          &nbsp;
+          ·
+          &nbsp;
           <Box
             className="link"
             sx={{ ...linkBoxStyle, flexShrink: 0 }}
@@ -157,6 +189,27 @@ const ResultRow = ({
         </Box>
       );
     }
+    if (isGenre(result)) {
+      return (
+        <Box display="flex">
+          {result._type}
+        </Box>
+      );
+    }
+    if (isPlaylist(result)) {
+      const { leafCount } = result;
+      return (
+        <Box display="flex">
+          {result._type}
+          &nbsp;
+          ·
+          &nbsp;
+          {leafCount}
+          &nbsp;
+          {leafCount > 1 || leafCount === 0 ? 'tracks' : 'track'}
+        </Box>
+      );
+    }
     return '';
   }, [handleNavigate, result]);
 
@@ -177,6 +230,17 @@ const ResultRow = ({
       setOpen(false);
       return;
     }
+    if (isPlaylist(result)) {
+      navigate(`/playlists/${result.id}`);
+      setOpen(false);
+      return;
+    }
+    if (isGenre(result)) {
+      const state = { title: result.title };
+      navigate(`/genres/${result.id}`, { state });
+      setOpen(false);
+      return;
+    }
     setOpen(false);
   };
 
@@ -187,29 +251,21 @@ const ResultRow = ({
       ref={drag}
       sx={resultStyle}
       onClick={handleClick}
+      onDragStart={(e) => {
+        if (isGenre(result)) e.preventDefault();
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {options.showNumber
-        && (
-          <Box
-            display="flex"
-            flexShrink={0}
-            justifyContent="center"
-            textAlign="center"
-            width="40px"
-          >
-            <Typography ml="8px">{index + 1}</Typography>
-          </Box>
-        )}
       <Avatar
         alt={result.title}
         src={thumbSrc}
-        sx={{ marginLeft: '8px', marginRight: '8px' }}
+        sx={{ height: '52px', marginLeft: '8px', marginRight: '8px', width: '52px' }}
         variant={result.type !== 'artist' ? 'rounded' : 'circular'}
       >
         <SvgIcon>
-          <IoMdMicrophone />
+          {isGenre(result) ? <FaTags /> : null}
+          {isArtist(result) ? <IoMdMicrophone /> : null}
         </SvgIcon>
       </Avatar>
       <Box
@@ -217,6 +273,7 @@ const ResultRow = ({
           display: 'table',
           tableLayout: 'fixed',
           width: '100%',
+          marginBottom: '4px',
         }}
       >
         <Box
@@ -236,13 +293,15 @@ const ResultRow = ({
           </span>
         </Box>
       </Box>
-      <ResultTooltip
-        color="text.primary"
-        result={result}
-        setOpen={setOpen}
-        setTooltipOpen={setTooltipOpen}
-        tooltipOpen={tooltipOpen}
-      />
+      {!isPlaylist(result) && !isGenre(result) && (
+        <ResultTooltip
+          color="text.primary"
+          result={result}
+          setOpen={setOpen}
+          setTooltipOpen={setTooltipOpen}
+          tooltipOpen={tooltipOpen}
+        />
+      )}
     </ListItem>
   );
 };

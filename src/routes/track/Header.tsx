@@ -86,7 +86,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
               </Typography>
             </Box>
             <Typography sx={titleStyle} variant="h4">{track.title}</Typography>
-            <Box alignItems="center" display="flex" height={32}>
+            <Box alignItems="center" display="flex" height={36}>
               <Box
                 alignItems="center"
                 borderRadius="16px"
@@ -124,7 +124,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
               </Box>
             </Box>
             <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
-              <Typography variant="subtitle2">
+              <Typography fontFamily="Rubik" lineHeight="20px" variant="subtitle2">
                 {track.media[0].audioCodec.toUpperCase()}
                 &nbsp;
               </Typography>
@@ -132,7 +132,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                 track.media[0].parts[0].streams[0].bitDepth
                 && track.media[0].parts[0].streams[0].samplingRate
                 && (
-                  <Typography variant="subtitle2">
+                  <Typography fontFamily="Rubik" lineHeight="20px" variant="subtitle2">
                     {track.media[0].parts[0].streams[0].bitDepth}
                     /
                     {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}

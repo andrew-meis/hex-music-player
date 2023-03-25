@@ -13,6 +13,7 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 import { BiPaste } from 'react-icons/all';
+import { useOutletContext } from 'react-router-dom';
 import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
@@ -67,6 +68,7 @@ const Settings = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { data: settings } = useSettings();
+  const { height } = useOutletContext() as { height: number };
   const updateConfig = useCallback(async (key: keyof IAppSettings, value: any) => {
     const newSettings = structuredClone(settings);
     newSettings[key] = value;
@@ -113,17 +115,18 @@ const Settings = () => {
   return (
     <Box
       className="scroll-container"
+      height={height}
       overflow="auto"
       width={1}
     >
       <Paper
         elevation={0}
         sx={{
-          width: WIDTH_CALC,
-          maxWidth: '600px',
           backgroundColor: 'transparent',
-          pt: 2,
           margin: 'auto',
+          maxWidth: '600px',
+          pt: 2,
+          width: WIDTH_CALC,
         }}
       >
         <Typography variant="h1">Settings</Typography>

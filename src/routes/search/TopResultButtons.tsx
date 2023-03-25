@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { Box, Button, SvgIcon } from '@mui/material';
 import React from 'react';
 import {
@@ -7,7 +8,7 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import usePlayback from 'hooks/usePlayback';
 import { useSettings } from 'queries/app-queries';
 import { PlayActions } from 'types/enums';
-import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import type { Result } from 'types/types';
 
 const allButtons = [
@@ -53,13 +54,41 @@ const allButtons = [
     action: PlayActions.PLAY_ARTIST_RADIO,
     shuffle: false,
   },
+  {
+    type: 'playlist',
+    icon: <SvgIcon sx={{ ml: '-5px' }}><BsPlayFill /></SvgIcon>,
+    name: 'Play now',
+    action: PlayActions.PLAY_PLAYLIST,
+    shuffle: false,
+  },
+  {
+    type: 'playlist',
+    icon: <SvgIcon sx={{ width: '0.9em', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    name: 'Shuffle',
+    action: PlayActions.PLAY_PLAYLIST,
+    shuffle: true,
+  },
+  {
+    type: 'genre',
+    icon: <SvgIcon sx={{ ml: '-5px' }}><BsPlayFill /></SvgIcon>,
+    name: 'Play now',
+    action: PlayActions.DO_NOTHING,
+    shuffle: false,
+  },
+  {
+    type: 'genre',
+    icon: <SvgIcon sx={{ width: '0.9em', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    name: 'Shuffle',
+    action: PlayActions.DO_NOTHING,
+    shuffle: true,
+  },
 ];
 
 const TopResultButtons = ({ topResult }: { topResult: Result }) => {
   const { data: settings } = useSettings();
   const { playSwitch } = usePlayback();
   const { colorMode } = settings;
-  const buttons = allButtons.filter((button) => button.type === topResult.type);
+  const buttons = allButtons.filter((button) => button.type === topResult._type);
 
   const handleButtonGroup = async (action: PlayActions, shuffle?: boolean) => {
     if (isArtist(topResult)) {
@@ -72,6 +101,14 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
     }
     if (isTrack(topResult)) {
       await playSwitch(action, { track: topResult });
+      return;
+    }
+    if (isPlaylist(topResult)) {
+      await playSwitch(action, { playlist: topResult, shuffle });
+      return;
+    }
+    if (isGenre(topResult)) {
+      await playSwitch(action, {});
       return;
     }
     throw new Error('no matching type');

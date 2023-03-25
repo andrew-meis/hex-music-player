@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Playlist, Track } from 'hex-plex';
@@ -191,20 +191,7 @@ const SearchResults = () => {
           mx="auto"
           width={WIDTH_CALC}
         >
-          <Header />
-          <Box
-            alignItems="center"
-            borderBottom="1px solid"
-            borderColor="border.main"
-            color="text.primary"
-            display="flex"
-            height={30}
-            px="6px"
-          >
-            <Typography fontWeight={600} variant="h6">
-              {`Results for: "${params.query}"`}
-            </Typography>
-          </Box>
+          <Header query={params.query} />
           <Box
             display="flex"
             flexWrap="wrap"

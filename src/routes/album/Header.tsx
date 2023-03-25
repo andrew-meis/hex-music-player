@@ -2,11 +2,10 @@ import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import { Album } from 'hex-plex';
-import moment from 'moment';
 import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
@@ -25,6 +24,39 @@ const titleStyle = {
   marginBottom: '5px',
 };
 
+interface GenreLinksProps {
+  album: Album;
+}
+
+const GenreLinks = ({ album }: GenreLinksProps) => (
+  <Box
+    display="flex"
+    flexWrap="wrap"
+    height={22}
+    justifyContent="center"
+    mt="4px"
+    overflow="hidden"
+  >
+    <Typography fontFamily="Rubik" variant="subtitle2">
+      {album.year}
+    </Typography>
+    {album.genre.map((genre) => (
+      <Typography fontFamily="Rubik" key={genre.id} variant="subtitle2">
+        <>
+          &nbsp;·&nbsp;
+          <Link
+            className="link"
+            state={{ title: genre.tag }}
+            to={`/genres/${genre.id}`}
+          >
+            {genre.tag.toLowerCase()}
+          </Link>
+        </>
+      </Typography>
+    ))}
+  </Box>
+);
+
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: AlbumContext }) => {
   const { album: albumData, navigate } = context!;
@@ -33,11 +65,9 @@ const Header = ({ context }: { context?: AlbumContext }) => {
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
   // calculated values
-  const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
   const [parentThumbSrc] = useThumbnail(album.parentThumb || 'none', 100);
   const [thumbSrc, thumbUrl] = useThumbnail(album.thumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
-  const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
 
   const handlePlay = () => playAlbum(album as Album);
   const handleShuffle = () => playAlbum(album as Album, true);
@@ -98,7 +128,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                 })}
               </Box>
               <Typography sx={titleStyle} variant="h4">{album.title}</Typography>
-              <Box alignItems="center" display="flex" height={32}>
+              <Box alignItems="center" display="flex" height={36}>
                 <Palette id={album.thumb} url={thumbUrl}>
                   {({ data: colors, isLoading }) => {
                     if (isLoading) {
@@ -144,23 +174,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                   }}
                 </Palette>
               </Box>
-              <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
-                <Typography
-                  sx={{
-                    overflow: 'hidden',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 1,
-                    WebkitBoxOrient: 'vertical',
-                  }}
-                  variant="subtitle2"
-                  width="fit-content"
-                >
-                  {
-                    // eslint-disable-next-line max-len
-                    `${releaseDate} · ${album.leafCount} ${countNoun}${album.studio ? ` · ${album.studio}` : ''}`
-                  }
-                </Typography>
-              </Box>
+              <GenreLinks album={album} />
             </Box>
             <PlayShuffleButton
               handlePlay={handlePlay}

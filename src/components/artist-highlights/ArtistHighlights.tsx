@@ -6,11 +6,12 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
+import { ArtistPreview } from 'routes/genre/Genre';
 import ArtistCard from './ArtistCard';
 import type { Artist, Library } from 'hex-plex';
 
 interface ArtistHighlightsProps {
-  artists: Artist[];
+  artists: Artist[] | ArtistPreview[];
   cols: number;
   library: Library;
   navigate: NavigateFunction;

@@ -1,9 +1,10 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
+import { sample } from 'lodash';
 import React, { useMemo } from 'react';
 import { FaTags } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
-import { useArtistsByGenre } from 'queries/artist-queries';
+import { useAlbumsByGenre } from 'queries/album-queries';
 import styles from 'styles/MotionImage.module.scss';
 import { GenresContext, GenreWithWidth, RowProps } from './Genres';
 
@@ -14,7 +15,7 @@ interface GenreCardProps {
 
 const GenreCard = ({ genre, context }: GenreCardProps) => {
   const { config, library, measurements, navigate } = context;
-  const { data, isLoading } = useArtistsByGenre({
+  const { data, isLoading } = useAlbumsByGenre({
     config,
     id: genre.id,
     library,
@@ -22,15 +23,15 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
     sort: 'viewCount:desc',
   });
   const imgSrc = useMemo(() => {
-    if (!data) return undefined;
-    let src: string;
+    if (!data) return { src: undefined, url: undefined };
+    let src: string | undefined;
     if (genre.width === 1) {
-      const thumbs = data.map((artist) => artist.thumb).filter((thumb) => thumb);
-      [src] = thumbs;
+      const thumbs = data.map((album) => album.parentThumb).filter((thumb) => thumb);
+      src = sample(thumbs);
     }
     if (genre.width === 2) {
-      const arts = data.map((artist) => artist.art).filter((art) => art);
-      [src] = arts;
+      const arts = data.map((album) => album.art).filter((art) => art);
+      src = sample(arts);
     }
     const url = library.api.getAuthenticatedUrl(
       '/photo/:/transcode',
@@ -38,7 +39,7 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
         url: src!, height: 300, width: 300 * genre.width, minSize: 1, upscale: 1,
       },
     );
-    return url;
+    return { src: src!, url };
   }, [data, genre, library]);
 
   return (
@@ -88,12 +89,12 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
             borderRadius: '32px',
             filter: 'grayscale(1) url("#monochrome")',
             transition: '0.2s',
-            '--img': `url(${imgSrc})`,
+            '--img': `url(${imgSrc.url})`,
           } as React.CSSProperties}
           variants={imageMotion}
           width={1}
         >
-          {!imgSrc && (
+          {!imgSrc.src && (
             <SvgIcon
               className="generic-icon"
               sx={{ color: 'common.grey' }}

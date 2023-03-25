@@ -3,8 +3,7 @@ import { Account } from 'hex-plex';
 import useQueue from 'hooks/useQueue';
 import { useAccount, useLibrary, useQueueId } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
-import { Result } from 'types/types';
-import { searchQueryFn, searchTracksQueryFn } from './plex-query-fns';
+import { searchTracksQueryFn } from './plex-query-fns';
 
 export const useCurrentQueue = () => {
   const library = useLibrary();
@@ -36,24 +35,6 @@ export const useNowPlaying = () => {
         const currentIndex = data.items.findIndex((item) => item.id === data.selectedItemId);
         return data.items[currentIndex];
       },
-    },
-  );
-};
-
-export const useSearch = ({
-  query, onSuccess,
-}: {
-  query: string, onSuccess: (data: Result[]) => void,
-}) => {
-  const library = useLibrary();
-  return useQuery(
-    [QueryKeys.SEARCH, query],
-    () => searchQueryFn(library, query),
-    {
-      enabled: query.length > 1,
-      keepPreviousData: true,
-      onSuccess,
-      refetchOnWindowFocus: false,
     },
   );
 };

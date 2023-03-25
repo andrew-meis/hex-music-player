@@ -1,6 +1,8 @@
 export enum DragTypes {
   ALBUM = 'album',
   ARTIST = 'artist',
+  GENRE = 'genre',
+  PLAYLIST = 'playlist',
   PLAYLIST_ITEM = 'playlist-item',
   PLAYQUEUE_ITEM = 'playqueue-item',
   TRACK = 'track',
@@ -42,7 +44,7 @@ export enum QueryKeys {
   ALBUM_QUICK = 'album-quick',
   ALBUM_TRACKS = 'album-tracks',
   ALBUMS = 'albums',
-  ALBUMS_BY_GENRE = 'albums-genre',
+  ALBUMS_BY_GENRE = 'albums-by-genre',
   ALL_ALBUMS = 'all-albums',
   ALL_TRACKS = 'all-tracks',
   ARTIST = 'artist',
@@ -71,7 +73,7 @@ export enum QueryKeys {
   TOAST = 'toast',
   TOP = 'top',
   TRACK = 'track',
-  TRACKS_BY_GENRE = 'tracks-genre',
+  TRACKS_BY_GENRE = 'tracks-by-genre',
   USER = 'user',
 }
 
