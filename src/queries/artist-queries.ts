@@ -6,7 +6,7 @@ import {
   artistTracksQueryFn,
 } from 'queries/artist-query-fns';
 import { QueryKeys } from 'types/enums';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 export interface ArtistQueryData {
   albums: Album[],
@@ -26,7 +26,7 @@ export const useArtist = (id: number, library: Library) => useQuery(
 );
 
 export const useArtistAppearances = (
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   id: number,
   title: string,
@@ -43,7 +43,7 @@ export const useArtistAppearances = (
 export const useArtistTracks = ({
   config, library, id, title, guid, sort, removeDupes, slice,
 }: {
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   id: number,
   title: string,
@@ -66,7 +66,7 @@ export const useArtistTracks = ({
 export const useArtists = ({
   config, library,
 }: {
-  config: IConfig,
+  config: AppConfig,
   library: Library,
 }) => useQuery(
   [QueryKeys.ARTISTS],
@@ -82,7 +82,7 @@ export const useArtists = ({
 export const useArtistsByGenre = ({
   config, id, library, limit, sort,
 }: {
-  config: IConfig,
+  config: AppConfig,
   id: number,
   library: Library,
   limit: number,

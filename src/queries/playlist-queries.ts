@@ -12,16 +12,18 @@ export const usePlaylists = (library: Library) => useQuery(
 );
 
 export const usePlaylist = (id: number, library: Library) => useQuery(
-  [QueryKeys.PLAYLISTS],
-  () => library.playlists({ playlistType: 'audio' }),
+  [QueryKeys.PLAYLIST, id],
+  () => library.playlist(id),
   {
-    refetchOnMount: true,
-    select: (data) => data.playlists.find((playlist) => playlist.id === id),
+    keepPreviousData: true,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    select: (data) => data.playlists[0],
   },
 );
 
 export const usePlaylistItems = (id: number, library: Library) => useQuery(
-  [QueryKeys.PLAYLIST, id],
+  [QueryKeys.PLAYLIST_ITEMS, id],
   () => library.playlistTracks(id),
   {
     staleTime: 5 * 60 * 1000,

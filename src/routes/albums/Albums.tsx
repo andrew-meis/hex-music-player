@@ -19,8 +19,9 @@ import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
+import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
-import { IConfig } from 'types/interfaces';
+import { AppConfig, CardMeasurements } from 'types/interfaces';
 import { FilterObject } from 'ui/sidebars/filter/Filter';
 import Header from './Header';
 import Row from './Row';
@@ -68,44 +69,19 @@ const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) =>
     ));
 };
 
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
-
 const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
 export interface AlbumsContext {
-  config: IConfig;
+  config: AppConfig;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   hoverIndex: React.MutableRefObject<number | null>;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
   menuTarget: Album[];
   navigate: NavigateFunction;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   uri: string;
-}
-
-export interface Measurements {
-  IMAGE_SIZE: number;
-  ROW_HEIGHT: number;
-  ROW_WIDTH: number;
 }
 
 export interface RowProps {
@@ -187,7 +163,7 @@ const Albums = () => {
     return array as Album[];
   }, [data]);
 
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {

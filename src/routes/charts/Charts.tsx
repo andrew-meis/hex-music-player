@@ -20,12 +20,12 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { DragTypes } from 'types/enums';
-import { IConfig, IVirtuosoContext } from 'types/interfaces';
+import { AppConfig, VirtuosoContext } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
 
-export interface ChartsContext extends IVirtuosoContext {
-  config: IConfig;
+export interface ChartsContext extends VirtuosoContext {
+  config: AppConfig;
   days: number;
   endDate: moment.Moment;
   startDate: moment.Moment;

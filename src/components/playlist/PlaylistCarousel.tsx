@@ -9,7 +9,7 @@ import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
 import PlaylistCard from './PlaylistCard';
 
-interface PlaylistHighlightsProps {
+interface PlaylistCarouselProps {
   cols: number;
   library: Library;
   navigate: NavigateFunction;
@@ -17,9 +17,9 @@ interface PlaylistHighlightsProps {
   width: number;
 }
 
-const PlaylistHighlights = ({
+const PlaylistCarousel = ({
   cols, library, navigate, playlists, width,
-}: PlaylistHighlightsProps) => {
+}: PlaylistCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
@@ -30,6 +30,7 @@ const PlaylistHighlights = ({
 
   const playlistPage = playlists
     .slice((activeIndex * cols), (activeIndex * cols + cols));
+
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
@@ -55,12 +56,12 @@ const PlaylistHighlights = ({
           {playlistPage.map((playlist) => (
             <PlaylistCard
               handleContextMenu={() => {}}
+              id={playlist.id}
               key={playlist.id}
               library={library}
               measurements={measurements}
               menuTarget={[]}
               navigate={navigate}
-              playlist={playlist}
             />
           ))}
         </MotionBox>
@@ -75,4 +76,4 @@ const PlaylistHighlights = ({
   );
 };
 
-export default PlaylistHighlights;
+export default PlaylistCarousel;

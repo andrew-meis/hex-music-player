@@ -3,8 +3,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { BiChevronRight } from 'react-icons/all';
+import { Result } from 'types/types';
 import TooltipMenu from './TooltipMenu';
-import type { Result } from 'types/types';
 
 interface Props {
   color: 'text.primary' | 'common.black'

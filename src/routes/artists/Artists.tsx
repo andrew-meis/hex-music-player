@@ -2,7 +2,7 @@ import { UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { throttle } from 'lodash';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
@@ -15,51 +15,25 @@ import { useArtist, useArtists, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
+import { getColumns } from 'scripts/get-columns';
 import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
-import { IConfig } from 'types/interfaces';
+import { AppConfig, CardMeasurements } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from './ScrollSeekPlaceholder';
 
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
-
-export interface Measurements {
-  IMAGE_SIZE: number;
-  ROW_HEIGHT: number;
-  ROW_WIDTH: number;
-}
-
-export interface OpenArtist {
-  id: number;
-  guid: string;
-  title: string;
-}
+type OpenArtist = Pick<Artist, 'id' | 'guid' | 'title'>;
 
 export interface ArtistsContext {
-  config: IConfig;
+  config: AppConfig;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   height: number;
   isPlaying: boolean;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
+  menuTarget: Artist[];
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   open: boolean;
@@ -94,6 +68,7 @@ const Artists = () => {
   const navigationType = useNavigationType();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
@@ -121,7 +96,7 @@ const Artists = () => {
   });
 
   // create array for virtualization
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const items = useMemo(() => {
     if (!artists) {
@@ -134,6 +109,11 @@ const Artists = () => {
     }
     return rows;
   }, [artists, grid]);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setMenuTarget([]);
+  }, []);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -169,10 +149,12 @@ const Artists = () => {
     config,
     getFormattedTime,
     grid,
+    handleContextMenu,
     height,
     isPlaying,
     library,
     measurements,
+    menuTarget,
     navigate,
     nowPlaying,
     open,
@@ -194,10 +176,12 @@ const Artists = () => {
     config,
     getFormattedTime,
     grid,
+    handleContextMenu,
     height,
     isPlaying,
     library,
     measurements,
+    menuTarget,
     navigate,
     nowPlaying,
     open,

@@ -2,6 +2,7 @@ import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'hex-plex';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/all';
@@ -32,11 +33,16 @@ import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
+import { getColumns } from 'scripts/get-columns';
 import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
-import AlbumsRow from './AlbumsRow';
+import {
+  AppSettings,
+  CardMeasurements,
+  LocationWithState,
+  RouteParams,
+} from 'types/interfaces';
 import Header from './Header';
-import type { Album, Artist as TArtist, Library, PlayQueueItem, Track } from 'hex-plex';
-import type { IAppSettings, LocationWithState, RouteParams } from 'types/interfaces';
+import Row from './Row';
 
 const List = React
   .forwardRef((
@@ -56,49 +62,6 @@ const List = React
     </Box>
   ));
 
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
-
-export interface ArtistGroup {
-  _type: string;
-  identifier: string;
-  text: string;
-}
-
-export interface AlbumWithSection extends Album {
-  section: string;
-}
-
-export interface AlbumRow {
-  _type: string;
-  albums: AlbumWithSection[];
-  grid: { cols: number };
-  artist: TArtist;
-}
-
-export interface Measurements {
-  CARD_HEIGHT: number;
-  CARD_WIDTH: number;
-  ROW_WIDTH: number;
-  SIMILAR_CARD_WIDTH: number;
-}
-
 export interface ArtistContext {
   artist: ArtistQueryData | undefined;
   colors: string[] | undefined;
@@ -109,12 +72,12 @@ export interface ArtistContext {
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   isPlaying: boolean;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
   menuTarget: Album[];
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
-  playArtist: (artist: TArtist, shuffle?: boolean) => Promise<void>;
-  playArtistRadio: (artist: TArtist) => Promise<void>;
+  playArtist: (artist: TypeArtist, shuffle?: boolean) => Promise<void>;
+  playArtistRadio: (artist: TypeArtist) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   recentFavorites: Track[] | undefined;
   refreshMetadata: (id: number) => Promise<void>;
@@ -122,19 +85,23 @@ export interface ArtistContext {
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React
     .Dispatch<React.SetStateAction<{ by: string, order: string }>>;
-  settings: IAppSettings;
+  settings: AppSettings;
   sort: { by: string, order: string }
   topTracks: Track[] | undefined;
   width: number;
 }
 
+export interface AlbumWithSection extends Album {
+  section: string;
+}
+
 export interface RowProps {
+  albums: AlbumWithSection[];
   index: number;
-  item: AlbumRow;
   context: ArtistContext;
 }
 
-const RowContent = (props: RowProps) => <AlbumsRow {...props} />;
+const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Artist = () => {
   const config = useConfig();
@@ -187,7 +154,7 @@ const Artist = () => {
   const { refreshMetadata } = useLibraryMaintenance();
   const { width } = useOutletContext() as { width: number };
   // create array for virtualization
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const [sort, setSort] = useState(settings.albumSort!);
   const data = useMemo(() => {
@@ -271,9 +238,7 @@ const Artist = () => {
     const rows = [];
     for (let i = 0; i < filtered.length; i += grid.cols) {
       const row = filtered.slice(i, i + grid.cols);
-      rows.push({
-        _type: 'albums', albums: row, grid, artist: artist.data.artist,
-      });
+      rows.push(row);
     }
     return rows;
   }, [data, artist, filter, grid]);
@@ -329,10 +294,10 @@ const Artist = () => {
   const measurements = useMemo(() => {
     const { cols } = grid;
     return {
-      CARD_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) + (settings.albumText ? 54 : 0),
-      CARD_WIDTH: Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
+      IMAGE_SIZE:
+        Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
+      ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) + (settings.albumText ? 54 : 0),
       ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / cols)) * cols,
-      SIMILAR_CARD_WIDTH: (Math.floor((width - VIEW_PADDING) / (cols - 1))),
     };
   }, [grid, settings, width]);
 
@@ -429,10 +394,10 @@ const Artist = () => {
                 }}
                 context={{ ...artistContext, colors: Object.values(colors) as string[] }}
                 data={items}
-                fixedItemHeight={measurements.CARD_HEIGHT}
+                fixedItemHeight={measurements.ROW_HEIGHT}
                 increaseViewportBy={{ top: 0, bottom: 700 }}
                 isScrolling={handleScrollState}
-                itemContent={(index, item, context) => RowContent({ index, item, context })}
+                itemContent={(index, item, context) => RowContent({ albums: item, index, context })}
                 ref={virtuoso}
                 style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
                 onScroll={(e) => {

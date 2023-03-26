@@ -24,13 +24,13 @@ import { useNowPlaying } from 'queries/plex-queries';
 import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
 import { DragTypes } from 'types/enums';
+import { VirtuosoContext, RouteParams } from 'types/interfaces';
 import Footer from './Footer';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
-import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
-export interface AlbumContext extends IVirtuosoContext {
+export interface AlbumContext extends VirtuosoContext {
   album: {album: TAlbum, related: (Playlist | Track | TAlbum | Artist | Genre)[]} | undefined;
   navigate: NavigateFunction;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;

@@ -3,7 +3,7 @@ import { Library, Track } from 'hex-plex';
 import { parseTrackContainer } from 'hex-plex/dist/types/track';
 import { countBy } from 'lodash';
 import moment from 'moment';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 export interface Playcount {
   historyKey: string;
@@ -28,7 +28,7 @@ export interface Playcount {
 }
 
 export const recentTracksQueryFn = async (
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   id: number,
   days: number,
@@ -83,7 +83,7 @@ export const similarTracksQueryFn = async (
 };
 
 export const trackHistoryQueryFn = async (
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   id: number,
 ) => {

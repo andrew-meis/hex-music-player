@@ -17,7 +17,7 @@ import { useOutletContext } from 'react-router-dom';
 import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
-import { IAppSettings } from 'types/interfaces';
+import { AppSettings } from 'types/interfaces';
 
 const boxStyle = {
   alignItems: 'center',
@@ -69,7 +69,7 @@ const Settings = () => {
   const queryClient = useQueryClient();
   const { data: settings } = useSettings();
   const { height } = useOutletContext() as { height: number };
-  const updateConfig = useCallback(async (key: keyof IAppSettings, value: any) => {
+  const updateConfig = useCallback(async (key: keyof AppSettings, value: any) => {
     const newSettings = structuredClone(settings);
     newSettings[key] = value;
     window.electron.writeConfig('settings', newSettings);

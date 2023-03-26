@@ -1,9 +1,9 @@
+import { PlayQueueItem, Track } from 'hex-plex';
 import { useCallback } from 'react';
 import usePlayback from 'hooks/usePlayback';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId } from 'queries/app-queries';
 import { usePlayerContext } from 'root/Player';
-import type { PlayQueueItem, Track } from 'hex-plex';
 
 const useDragActions = () => {
   const library = useLibrary();

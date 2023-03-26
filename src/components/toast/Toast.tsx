@@ -3,7 +3,7 @@ import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { QueryKeys } from 'types/enums';
-import type { ToastMessage } from 'types/interfaces';
+import { ToastMessage } from 'types/interfaces';
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
   props,

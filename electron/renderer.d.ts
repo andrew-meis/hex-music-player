@@ -1,7 +1,7 @@
-import { IElectronAPI } from '../src/types/interfaces';
+import { ElectronAPI } from '../src/types/interfaces';
 
 declare global {
   interface Window {
-    electron: IElectronAPI
+    electron: ElectronAPI
   }
 }

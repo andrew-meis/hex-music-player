@@ -5,7 +5,7 @@ import { BiChevronRight } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import TrackHighlights from 'components/track-highlights/TrackHighlights';
+import TrackCarousel from 'components/track/TrackCarousel';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { ArtistContext } from '../Artist';
 
@@ -117,7 +117,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
     )}
       </Tabs>
       <TabPanel index={0} value={tab}>
-        <TrackHighlights
+        <TrackCarousel
           getFormattedTime={getFormattedTime}
           isPlaying={isPlaying}
           library={library}
@@ -128,7 +128,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
         />
       </TabPanel>
       <TabPanel index={1} value={tab}>
-        <TrackHighlights
+        <TrackCarousel
           getFormattedTime={getFormattedTime}
           isPlaying={isPlaying}
           library={library}

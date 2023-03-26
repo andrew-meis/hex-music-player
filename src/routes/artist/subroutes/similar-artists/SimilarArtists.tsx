@@ -2,7 +2,7 @@ import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { throttle } from 'lodash';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Location,
   NavigateFunction,
@@ -21,47 +21,18 @@ import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
+import { getColumns } from 'scripts/get-columns';
 import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { CardMeasurements, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
-import type { RouteParams } from 'types/interfaces';
-
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
 
 interface LocationWithState extends Location {
   state: { guid: Artist['guid'], title: Artist['title'] }
 }
 
-export interface Measurements {
-  IMAGE_HEIGHT: number;
-  IMAGE_WIDTH: number;
-  ROW_HEIGHT: number;
-  ROW_WIDTH: number;
-}
-
-export interface OpenArtist {
-  id: number;
-  guid: string;
-  title: string;
-}
+type OpenArtist = Pick<Artist, 'id' | 'guid' | 'title'>;
 
 export interface SimilarArtistGroup {
   _type: string;
@@ -86,15 +57,17 @@ export interface SimilarArtistContext {
   artist: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   height: number;
   isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
+  menuTarget: Artist[];
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   open: boolean;
-  openArtist: OpenArtist;
+  openArtist: Pick<Artist, 'id' | 'guid' | 'title'>;
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
   openArtistTracksQuery: UseQueryResult<Track[]>;
   openCard: {row: number, index: number};
@@ -127,6 +100,7 @@ const SimilarArtists = () => {
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
+  const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
@@ -157,7 +131,7 @@ const SimilarArtists = () => {
     );
 
   // create array for virtualization
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const items = useMemo(() => {
     if (!artist.data) {
@@ -204,6 +178,11 @@ const SimilarArtists = () => {
     return { rows, groups, groupCounts };
   }, [artist.data, grid]);
 
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setMenuTarget([]);
+  }, []);
+
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
       document.body.classList.add('disable-hover');
@@ -229,8 +208,7 @@ const SimilarArtists = () => {
   }, [id, navigationType]);
 
   const measurements = useMemo(() => ({
-    IMAGE_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70),
-    IMAGE_WIDTH:
+    IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
     ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / grid.cols) * 0.70) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
@@ -240,11 +218,13 @@ const SimilarArtists = () => {
     artist: artist.data,
     getFormattedTime,
     grid,
+    handleContextMenu,
     height,
     isPlaying,
     items,
     library,
     measurements,
+    menuTarget,
     navigate,
     nowPlaying,
     open,
@@ -263,11 +243,13 @@ const SimilarArtists = () => {
     artist.data,
     getFormattedTime,
     grid,
+    handleContextMenu,
     height,
     isPlaying,
     items,
     library,
     measurements,
+    menuTarget,
     navigate,
     nowPlaying,
     open,

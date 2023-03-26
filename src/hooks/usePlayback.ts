@@ -1,3 +1,4 @@
+import { Album, Artist, Playlist, PlayQueueItem, Track } from 'hex-plex';
 import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { v4 } from 'uuid';
@@ -7,9 +8,6 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 import { PlayActions } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
-import type {
-  Album, Artist, Playlist, PlayQueueItem, Track,
-} from 'hex-plex';
 
 export interface PlayParams {
   album?: Album;

@@ -1,5 +1,6 @@
 import { SvgIcon } from '@mui/material';
 import { Album, Library } from 'hex-plex';
+import moment from 'moment';
 import React from 'react';
 import { RiAlbumFill } from 'react-icons/all';
 import { Link, NavigateFunction } from 'react-router-dom';
@@ -7,24 +8,72 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import styles from 'styles/MotionImage.module.scss';
+import { CardMeasurements, Sort } from 'types/interfaces';
 
-export interface Measurements {
-  IMAGE_SIZE: number;
-  ROW_HEIGHT: number;
-  ROW_WIDTH: number;
+interface Map {
+  [key: string]: string;
 }
+
+const typeMap: Map = {
+  Albums: 'Album',
+  'Singles & EPs': 'Single / EP',
+  Soundtracks: 'Soundtrack',
+  Compilations: 'Compilation',
+  'Live Albums': 'Live Album',
+  Demos: 'Demo',
+  Remixes: 'Remix',
+  'Appears On': 'Guest Appearance',
+};
+
+const getAdditionalText = (album: Album, section: string, by: string) => {
+  if (by === 'added') {
+    return moment(album.addedAt).fromNow();
+  }
+  if (by === 'date') {
+    return moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
+  }
+  if (by === 'played') {
+    if (!album.lastViewedAt) return 'unplayed';
+    return moment(album.lastViewedAt).fromNow();
+  }
+  if (by === 'plays') {
+    return (album.viewCount
+      ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
+      : 'unplayed');
+  }
+  if (by === 'title') {
+    // @ts-ignore
+    const text = typeMap[section];
+    return text.toLowerCase();
+  }
+  if (by === 'type') {
+    // @ts-ignore
+    const text = typeMap[section];
+    return text.toLowerCase();
+  }
+  return '';
+};
 
 interface AlbumCardProps {
   album: Album;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
   menuTarget: Album[];
   navigate: NavigateFunction;
+  section?: string;
+  sort?: Sort;
 }
 
 const AlbumCard = ({
-  album, handleContextMenu, library, measurements, menuTarget, navigate,
+  album,
+  handleContextMenu,
+  library,
+  measurements,
+  menuTarget,
+  navigate,
+  section,
+  sort,
 }: AlbumCardProps) => {
   const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -38,6 +87,7 @@ const AlbumCard = ({
     <MotionBox
       className={styles.container}
       data-id={album.id}
+      data-section={section}
       height={measurements.ROW_HEIGHT}
       key={album.id}
       sx={{
@@ -84,20 +134,32 @@ const AlbumCard = ({
       <Subtitle
         marginX="12px"
       >
-        <Link
-          className="link"
-          state={{
-            guid: album.parentGuid,
-            title: album.parentTitle,
-          }}
-          to={`/artists/${album.parentId}`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {album.parentTitle}
-        </Link>
+        {!sort && (
+          <Link
+            className="link"
+            state={{
+              guid: album.parentGuid,
+              title: album.parentTitle,
+            }}
+            to={`/artists/${album.parentId}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {album.parentTitle}
+          </Link>
+        )}
+        {!!sort && !!section && (
+          <>
+            {getAdditionalText(album, section, sort.by)}
+          </>
+        )}
       </Subtitle>
     </MotionBox>
   );
+};
+
+AlbumCard.defaultProps = {
+  section: 'Albums',
+  sort: undefined,
 };
 
 export default AlbumCard;

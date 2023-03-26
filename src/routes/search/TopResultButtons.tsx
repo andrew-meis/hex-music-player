@@ -9,7 +9,7 @@ import usePlayback from 'hooks/usePlayback';
 import { useSettings } from 'queries/app-queries';
 import { PlayActions } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
-import type { Result } from 'types/types';
+import { Result } from 'types/types';
 
 const allButtons = [
   {

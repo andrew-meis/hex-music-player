@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { Library, MediaType } from 'hex-plex';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 type filterOptionsQueryFnParams = {
-  config: IConfig,
+  config: AppConfig,
   field: string,
   library: Library,
   type: MediaType,
@@ -47,7 +47,7 @@ export const filterOptionsQueryFn = async ({
 
 type topLibraryQueryFnParams = {
   type: 8 | 9 | 10,
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   limit: number,
   start?: number,

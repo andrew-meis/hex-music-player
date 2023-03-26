@@ -1,5 +1,6 @@
 import { Box, IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { PlayQueueItem } from 'hex-plex';
 import { useCallback, useEffect, useState } from 'react';
 import {
   IoPlaySkipBack,
@@ -21,7 +22,6 @@ import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 import { QueryKeys } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
-import type { PlayQueueItem } from 'hex-plex';
 
 const { platform } = window.electron.getAppInfo();
 

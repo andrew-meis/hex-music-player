@@ -12,41 +12,23 @@ import {
   useNavigationType,
   useOutletContext,
 } from 'react-router-dom';
-import AlbumHighlights from 'components/album-highlights/AlbumHighlights';
-import ArtistHighlights from 'components/artist-highlights/ArtistHighlights';
+import AlbumCarousel from 'components/album/AlbumCarousel';
+import ArtistCarousel from 'components/artist/ArtistCarousel';
 import { MotionTypography, MotionSvg } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import PlaylistHighlights from 'components/playlist-highlights/PlaylistHighlights';
-import TrackHighlights from 'components/track-highlights/TrackHighlights';
+import PlaylistCarousel from 'components/playlist/PlaylistCarousel';
+import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import Header from './Header';
 import TopResult from './TopResult';
-
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
 
 const Subheader = ({ text }: { text: string }) => (
   <MotionTypography
@@ -84,7 +66,7 @@ const SearchResults = () => {
   const urlParams = new URLSearchParams(location.search);
   const params = Object.fromEntries(urlParams.entries());
 
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const { data: searchResults, isLoading } = useQuery(
@@ -215,7 +197,7 @@ const SearchResults = () => {
               {showTracks() && (
                 <>
                   <Subheader text="Tracks" />
-                  <TrackHighlights
+                  <TrackCarousel
                     getFormattedTime={getFormattedTime}
                     isPlaying={isPlaying}
                     library={library}
@@ -231,7 +213,7 @@ const SearchResults = () => {
           {showArtists() && (
             <>
               <Subheader text="Artists" />
-              <ArtistHighlights
+              <ArtistCarousel
                 artists={artists}
                 cols={grid.cols}
                 library={library}
@@ -243,7 +225,7 @@ const SearchResults = () => {
           {showAlbums() && (
             <>
               <Subheader text="Albums" />
-              <AlbumHighlights
+              <AlbumCarousel
                 albums={albums}
                 cols={grid.cols}
                 library={library}
@@ -255,7 +237,7 @@ const SearchResults = () => {
           {showPlaylists() && (
             <>
               <Subheader text="Playlists" />
-              <PlaylistHighlights
+              <PlaylistCarousel
                 cols={grid.cols}
                 library={library}
                 navigate={navigate}

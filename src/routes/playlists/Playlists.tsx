@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Library, Playlist, PlayQueueItem } from 'hex-plex';
 import { throttle } from 'lodash';
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
@@ -14,41 +14,19 @@ import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
+import { getColumns } from 'scripts/get-columns';
 import { PlayActions } from 'types/enums';
-import { IConfig } from 'types/interfaces';
+import { AppConfig, CardMeasurements } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
 
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
-
-export interface Measurements {
-  IMAGE_SIZE: number;
-  ROW_HEIGHT: number;
-  ROW_WIDTH: number;
-}
-
 export interface PlaylistsContext {
-  config: IConfig;
+  config: AppConfig;
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   isPlaying: boolean;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
+  menuTarget: Playlist[];
   navigate: NavigateFunction;
   nowPlaying: PlayQueueItem | undefined;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
@@ -69,6 +47,7 @@ const Playlists = () => {
   const navigationType = useNavigationType();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const { data: config } = useConfig();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -77,9 +56,9 @@ const Playlists = () => {
   const { data: playlists, isLoading } = usePlaylists(library);
   const { width } = useOutletContext() as { width: number };
 
-  // create array for virtualization
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
+
   const items = useMemo(() => {
     if (!playlists) {
       return [];
@@ -91,6 +70,11 @@ const Playlists = () => {
     }
     return rows;
   }, [playlists, grid]);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setMenuTarget([]);
+  }, []);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -117,18 +101,22 @@ const Playlists = () => {
   const playlistsContext = useMemo(() => ({
     config,
     getFormattedTime,
+    handleContextMenu,
     isPlaying,
     library,
     measurements,
+    menuTarget,
     navigate,
     nowPlaying,
     playSwitch,
   }), [
     config,
     getFormattedTime,
+    handleContextMenu,
     isPlaying,
     library,
     measurements,
+    menuTarget,
     navigate,
     nowPlaying,
     playSwitch,

@@ -63,6 +63,7 @@ export enum QueryKeys {
   PALETTE = 'palette',
   PLAYER_STATE= 'player-state',
   PLAYLIST = 'playlist',
+  PLAYLIST_ITEMS = 'playlist-items',
   PLAYLISTS = 'playlists',
   PLAYQUEUE = 'play-queue',
   RECENT_TRACKS = 'recent-tracks',

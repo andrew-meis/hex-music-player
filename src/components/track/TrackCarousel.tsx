@@ -9,14 +9,14 @@ import TrackMenu from 'components/menus/TrackMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
-import TrackRow from 'components/track-row/TrackRow';
+import TrackRow from 'components/track/TrackRow';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import { PlayParams } from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { DragTypes, PlayActions } from 'types/enums';
 
-interface TrackHighlightsProps {
+interface TrackCarouselProps {
   getFormattedTime: (inMs: number) => string;
   isPlaying: boolean;
   library: Library;
@@ -26,9 +26,9 @@ interface TrackHighlightsProps {
   rows: number;
 }
 
-const TrackHighlights = ({
+const TrackCarousel = ({
   getFormattedTime, isPlaying, library, nowPlaying, playSwitch, tracks, rows,
-}: TrackHighlightsProps) => {
+}: TrackCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
@@ -201,4 +201,4 @@ const TrackHighlights = ({
   );
 };
 
-export default TrackHighlights;
+export default TrackCarousel;

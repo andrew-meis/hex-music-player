@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import initializeApp from 'scripts/initialize-app';
-import { IAppSettings, IAuth, IConfig } from 'types/interfaces';
+import { AppSettings, AuthParams, AppConfig } from 'types/interfaces';
 
 export const appQueryKeys = {
   config: ['core', { data: 'config' }],
@@ -8,7 +8,7 @@ export const appQueryKeys = {
   settings: ['core', { data: 'settings' }],
 };
 
-export const defaultSettings: IAppSettings = {
+export const defaultSettings: AppSettings = {
   albumSort: { by: 'date', order: 'asc' },
   albumText: true,
   colorMode: 'dark',
@@ -18,11 +18,11 @@ export const defaultSettings: IAppSettings = {
   repeat: 'repeat-none',
 };
 
-export const useConfig = (initialData?: IConfig) => useQuery(
+export const useConfig = (initialData?: AppConfig) => useQuery(
   appQueryKeys.config,
-  () => window.electron.readConfig('config') as IConfig,
+  () => window.electron.readConfig('config') as AppConfig,
   {
-    initialData: initialData || window.electron.readConfig('config') as IConfig,
+    initialData: initialData || window.electron.readConfig('config') as AppConfig,
     refetchOnMount: false,
     refetchOnReconnect: 'always',
     refetchOnWindowFocus: false,
@@ -37,11 +37,11 @@ export const useQueueId = () => {
   return 0;
 };
 
-export const useAuth = (initialData?: IAuth) => {
+export const useAuth = (initialData?: AuthParams) => {
   const config = useConfig();
   return useQuery(
     appQueryKeys.auth,
-    () => initializeApp(config.data as IConfig),
+    () => initializeApp(config.data as AppConfig),
     {
       initialData,
       refetchOnMount: false,
@@ -76,10 +76,10 @@ export const useServer = () => {
   throw new Error('no server');
 };
 
-export const useSettings = (initialData?: IAppSettings) => useQuery(
+export const useSettings = (initialData?: AppSettings) => useQuery(
   appQueryKeys.settings,
   () => {
-    const savedSettings = window.electron.readConfig('settings') as IAppSettings;
+    const savedSettings = window.electron.readConfig('settings') as AppSettings;
     return { ...defaultSettings, ...savedSettings };
   },
   {
@@ -87,7 +87,7 @@ export const useSettings = (initialData?: IAppSettings) => useQuery(
       if (Object.keys(window.electron.readConfig('settings')).length === 0) {
         return defaultSettings;
       }
-      const savedSettings = window.electron.readConfig('settings') as IAppSettings;
+      const savedSettings = window.electron.readConfig('settings') as AppSettings;
       return { ...defaultSettings, ...savedSettings };
     }),
     refetchOnMount: false,

@@ -6,9 +6,9 @@ import { IoCloseSharp } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'react-use';
 import { isGenre } from 'types/type-guards';
+import { Result } from 'types/types';
 import Results from './results/Results';
 import quotes from './search_quotes.json';
-import type { Result } from 'types/types';
 
 interface Props {
   display: string;

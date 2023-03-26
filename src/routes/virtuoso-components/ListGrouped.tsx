@@ -3,7 +3,7 @@ import React from 'react';
 import { ListProps } from 'react-virtuoso';
 import { WIDTH_CALC } from 'constants/measures';
 import mergeRefs from 'scripts/merge-refs';
-import { IVirtuosoContext } from 'types/interfaces';
+import { VirtuosoContext } from 'types/interfaces';
 
 const ListGrouped = React
   .forwardRef((
@@ -11,7 +11,7 @@ const ListGrouped = React
     { style, children, context, 'data-test-id': testId }: ListProps,
     listRef: React.ForwardedRef<HTMLDivElement>,
   ) => {
-    const { drag, handleClickAway, hoverIndex, selectedRows } = context as IVirtuosoContext;
+    const { drag, handleClickAway, hoverIndex, selectedRows } = context as VirtuosoContext;
     if (!context) {
       return null;
     }

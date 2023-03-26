@@ -1,9 +1,15 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosResponse } from 'axios';
 import { Playlist, PlaylistItem } from 'hex-plex';
 import useToast from 'hooks/useToast';
 import { useLibrary, useServer } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
+
+const refetchPlaylistQueries = async (queryClient: QueryClient, id: number) => {
+  await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
+  await queryClient.refetchQueries([QueryKeys.PLAYLIST, id]);
+  await queryClient.refetchQueries([QueryKeys.PLAYLIST_ITEMS, id]);
+};
 
 export const useAddToPlaylist = () => {
   const library = useLibrary();
@@ -17,8 +23,7 @@ export const useAddToPlaylist = () => {
       `server://${server.clientIdentifier}/com.plexapp.plugins.library/library/metadata/${idsToAdd.join(',')}`,
     );
     if (response.MediaContainer.leafCountAdded > 0) {
-      await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
-      await queryClient.refetchQueries([QueryKeys.PLAYLIST, id]);
+      await refetchPlaylistQueries(queryClient, id);
       toast({ type: 'success', text: 'Added to playlist' });
     }
     if (!response || response.MediaContainer.leafCountAdded === 0) {
@@ -75,8 +80,7 @@ export const useMoveManyPlaylistItems = () => {
         await library.movePlaylistItem(playlistId, id, playlistItemIds[index - 1]);
       }
     }
-    await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
-    await queryClient.refetchQueries([QueryKeys.PLAYLIST, playlistId]);
+    await refetchPlaylistQueries(queryClient, playlistId);
   };
 };
 
@@ -86,8 +90,7 @@ export const useRemoveFromPlaylist = () => {
   const toast = useToast();
   return async (playlistId: Playlist['id'], itemId: PlaylistItem['id']) => {
     await library.removeFromPlaylist(playlistId, itemId);
-    await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
-    await queryClient.refetchQueries([QueryKeys.PLAYLIST, playlistId]);
+    await refetchPlaylistQueries(queryClient, playlistId);
     toast({ type: 'error', text: 'Removed from playlist' });
   };
 };

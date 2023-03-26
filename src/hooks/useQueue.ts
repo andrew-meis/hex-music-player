@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { Album, PlayQueue, PlayQueueItem, Track } from 'hex-plex';
 import { parsePlayQueue } from 'hex-plex/dist/types/play-queue';
 import { useCallback } from 'react';
 import useToast from 'hooks/useToast';
@@ -8,10 +9,7 @@ import {
   useAccount, useLibrary, useQueueId, useServer,
 } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
-import type {
-  Album, PlayQueue, PlayQueueItem, Track,
-} from 'hex-plex';
-import type { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 const useQueue = () => {
   const account = useAccount();
@@ -64,8 +62,8 @@ const useQueue = () => {
   const setQueueId = useCallback(async (id: number) => {
     const newConfig = queryClient.setQueryData(
       appQueryKeys.config,
-      (oldData: IConfig | undefined): IConfig | undefined => (
-        { ...oldData as IConfig, queueId: id }
+      (oldData: AppConfig | undefined): AppConfig | undefined => (
+        { ...oldData as AppConfig, queueId: id }
       ),
     );
     window.electron.writeConfig('config', newConfig);

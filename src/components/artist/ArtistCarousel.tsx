@@ -1,5 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
-import { Album, Library } from 'hex-plex';
+import { Artist, Library } from 'hex-plex';
 import { useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
@@ -7,19 +7,20 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
-import AlbumCard from './AlbumCard';
+import { ArtistPreview } from 'routes/genre/Genre';
+import ArtistCard from './ArtistCard';
 
-interface AlbumHighlightsProps {
-  albums: Album[];
+interface ArtistCarouselProps {
+  artists: Artist[] | ArtistPreview[];
   cols: number;
   library: Library;
   navigate: NavigateFunction;
   width: number;
 }
 
-const AlbumHighlights = ({
-  albums, cols, library, navigate, width,
-}: AlbumHighlightsProps) => {
+const ArtistCarousel = ({
+  artists, cols, library, navigate, width,
+}: ArtistCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
@@ -28,14 +29,20 @@ const AlbumHighlights = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
 
-  const albumPage = albums
+  const artistPage = artists
     .slice((activeIndex * cols), (activeIndex * cols + cols));
+
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) + 54,
+    ROW_HEIGHT: Math.floor(((width - VIEW_PADDING) / cols) * 0.70) + 54,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / cols)) * cols,
   }), [cols, width]);
+
+  const handleClick = (artist: Artist | ArtistPreview) => navigate(
+    `/artists/${artist.id}`,
+    { state: { guid: artist.guid, title: artist.title } },
+  );
 
   return (
     <>
@@ -52,22 +59,22 @@ const AlbumHighlights = ({
           transition={{ duration: 0.2 }}
           variants={tracklistMotion}
         >
-          {albumPage.map((album) => (
-            <AlbumCard
-              album={album}
+          {artistPage.map((artist) => (
+            <ArtistCard
+              artist={artist}
               handleContextMenu={() => {}}
-              key={album.id}
+              key={artist.id}
               library={library}
               measurements={measurements}
               menuTarget={[]}
-              navigate={navigate}
+              onClick={() => handleClick(artist)}
             />
           ))}
         </MotionBox>
       </AnimatePresence>
       <PaginationDots
         activeIndex={activeIndex}
-        array={albums}
+        array={artists}
         colLength={cols}
         setActiveIndex={setActiveIndex}
       />
@@ -75,4 +82,4 @@ const AlbumHighlights = ({
   );
 };
 
-export default AlbumHighlights;
+export default ArtistCarousel;

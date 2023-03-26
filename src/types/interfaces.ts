@@ -1,10 +1,10 @@
 import { AlertColor, PaletteMode } from '@mui/material';
-import { Account, Artist, Device, Library, PlayQueueItem } from 'hex-plex';
+import { Account, Device, Library, PlayQueueItem } from 'hex-plex';
 import React from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { Location } from 'react-router-dom';
 
-export interface IAppInfo {
+export interface AppInfo {
   appName: string;
   appVersion: string;
   hostname: string;
@@ -12,7 +12,7 @@ export interface IAppInfo {
   version: string;
 }
 
-export interface IAppSettings {
+export interface AppSettings {
   albumSort?: { by: string, order: string };
   albumText?: boolean;
   apiKey?: string;
@@ -23,13 +23,7 @@ export interface IAppSettings {
   repeat?: 'repeat-none' | 'repeat-one' | 'repeat-all'
 }
 
-export interface IAuth {
-  account: Account;
-  server: Device;
-  library: Library;
-}
-
-export interface IConfig {
+export interface AppConfig {
   clientId?: string;
   queueId?: number;
   sectionId?: number;
@@ -37,36 +31,35 @@ export interface IConfig {
   token?: string;
 }
 
-export interface Filter {
-  artist: Artist['guid'];
-  exclusions: Artist['guid'][];
+export interface AuthParams {
+  account: Account;
+  server: Device;
+  library: Library;
 }
 
-export interface IElectronAPI {
+export interface Filter {
+  artist: string;
+  exclusions: string[];
+}
+
+export interface ElectronAPI {
   maximize: () => void;
   minimize: () => void;
   quit: () => void;
   unmaximize: () => void;
-  getAppInfo: () => IAppInfo;
-  readConfig: (key: string) => IAppSettings | IConfig;
-  writeConfig: (key: string, value: any) => IAppSettings | IConfig;
+  getAppInfo: () => AppInfo;
+  readConfig: (key: string) => AppSettings | AppConfig;
+  writeConfig: (key: string, value: any) => AppSettings | AppConfig;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
   updatePlaying: (key: 'playing', value: boolean) => void;
   receive: (channel: string, func: (action: { event: string }) => void) => () => void;
 }
 
-export interface IVirtuosoContext {
-  drag: ConnectDragSource,
-  getFormattedTime: (inMs: number) => string;
-  handleClickAway: () => void;
-  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleRowClick: (event: React.MouseEvent, index: number) => void;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  selectedRows: number[];
+export interface CardMeasurements {
+  IMAGE_SIZE: number;
+  ROW_HEIGHT: number;
+  ROW_WIDTH: number;
 }
 
 export interface LocationWithState extends Location {
@@ -83,7 +76,25 @@ export interface RouteParams {
   id: string;
 }
 
+export interface Sort {
+  by: string;
+  order: string;
+}
+
 export interface ToastMessage {
   type: AlertColor | undefined;
   text: string;
+}
+
+export interface VirtuosoContext {
+  drag: ConnectDragSource,
+  getFormattedTime: (inMs: number) => string;
+  handleClickAway: () => void;
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
+  handleRowClick: (event: React.MouseEvent, index: number) => void;
+  hoverIndex: React.MutableRefObject<number | null>;
+  isPlaying: boolean;
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
+  selectedRows: number[];
 }

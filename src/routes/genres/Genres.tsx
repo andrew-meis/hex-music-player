@@ -16,7 +16,8 @@ import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtists } from 'queries/artist-queries';
 import { filterOptionsQueryFn } from 'queries/library-query-fns';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
-import { IConfig } from 'types/interfaces';
+import { getColumns } from 'scripts/get-columns';
+import { AppConfig } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
 
@@ -27,7 +28,7 @@ export interface Measurements {
 }
 
 export interface GenresContext {
-  config: IConfig;
+  config: AppConfig;
   grid: { cols: number };
   library: Library;
   measurements: Measurements;
@@ -38,25 +39,6 @@ export interface GenresContext {
 export interface GenreWithWidth extends Genre {
   width: number;
 }
-
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 6;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
-};
 
 export interface RowProps {
   context: GenresContext;
@@ -97,7 +79,7 @@ const Genres = () => {
     return countBy(valueArray);
   }, [artists]);
 
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const rows = useMemo(() => {
     if (!artists || !genres || !genreCounts) return [];

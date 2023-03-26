@@ -6,19 +6,19 @@ import {
   useSettings,
 } from 'queries/app-queries';
 import initializeApp from 'scripts/initialize-app';
+import { AppSettings, AppConfig } from 'types/interfaces';
 import CssTheme from './CssTheme';
 import DragLayer from './DragLayer';
 import Layout from './Layout';
 import Player from './Player';
 import PlexWebSocket from './PlexWebSocket';
 import ThemeMode from './ThemeMode';
-import type { IAppSettings, IConfig } from 'types/interfaces';
 
 export const rootLoader = async () => {
-  const config = window.electron.readConfig('config') as IConfig;
+  const config = window.electron.readConfig('config') as AppConfig;
   const auth = await initializeApp(config);
-  const savedSettings = window.electron.readConfig('settings') as IAppSettings;
-  const settings = { ...defaultSettings, ...savedSettings } as IAppSettings;
+  const savedSettings = window.electron.readConfig('settings') as AppSettings;
+  const settings = { ...defaultSettings, ...savedSettings } as AppSettings;
   if (!config || !auth || !settings) {
     throw redirect('/login');
   }

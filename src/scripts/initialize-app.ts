@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Account, Client, Connection, Library, ServerConnection } from 'hex-plex';
-import type { IAuth, IConfig } from 'types/interfaces';
+import { AuthParams, AppConfig } from 'types/interfaces';
 
 const sysInfo = window.electron.getAppInfo();
 
@@ -13,7 +13,7 @@ const normalizedPlatform = (platform: string): string => {
   }
 };
 
-const initializeApp = async (config: IConfig) => {
+const initializeApp = async (config: AppConfig) => {
   try {
     const client = new Client({
       identifier: config.clientId,
@@ -43,7 +43,7 @@ const initializeApp = async (config: IConfig) => {
       const newAccount = new Account(client, server.accessToken);
       const serverConnection = new ServerConnection(connection.uri, newAccount);
       const library = new Library(serverConnection);
-      return { account, server, library } as IAuth;
+      return { account, server, library } as AuthParams;
     }
   } catch {
     return undefined;

@@ -11,8 +11,8 @@ import usePalette, { defaultColors } from 'hooks/usePalette';
 import { useLibrary, useSettings } from 'queries/app-queries';
 import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
+import { Result } from 'types/types';
 import TopResultButtons from './TopResultButtons';
-import type { Result } from 'types/types';
 
 const typographyStyle = {
   overflow: 'hidden',

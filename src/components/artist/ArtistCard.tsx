@@ -2,31 +2,35 @@ import { SvgIcon } from '@mui/material';
 import { Artist, Library } from 'hex-plex';
 import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
-import { NavigateFunction } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import { ArtistPreview } from 'routes/genre/Genre';
 import styles from 'styles/MotionImage.module.scss';
+import { CardMeasurements } from 'types/interfaces';
 import { isArtist } from 'types/type-guards';
-
-export interface Measurements {
-  IMAGE_SIZE: number;
-  ROW_HEIGHT: number;
-  ROW_WIDTH: number;
-}
 
 interface ArtistCardProps {
   artist: Artist | ArtistPreview;
+  children?: React.ReactNode;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   library: Library;
-  measurements: Measurements;
+  measurements: CardMeasurements;
   menuTarget: Artist[];
-  navigate: NavigateFunction;
+  open?: boolean;
+  onClick?: () => void;
 }
 
 const ArtistCard = ({
-  artist, handleContextMenu, library, measurements, menuTarget, navigate,
+  artist,
+  children,
+  handleContextMenu,
+  library,
+  measurements,
+  menuTarget,
+  open,
+  onClick,
 }: ArtistCardProps) => {
   const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(artist.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -43,19 +47,16 @@ const ArtistCard = ({
       height={measurements.ROW_HEIGHT}
       key={artist.id}
       sx={{
-        backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
+        backgroundColor: open || menuOpen ? 'var(--mui-palette-action-selected)' : '',
         borderRadius: '32px',
         contain: 'paint',
         '&:hover': {
-          backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
+          backgroundColor: open || menuOpen ? 'var(--mui-palette-action-selected)' : '',
         },
       }}
       whileHover="hover"
       width={measurements.IMAGE_SIZE}
-      onClick={() => navigate(
-        `/artists/${artist.id}`,
-        { state: { guid: artist.guid, title: artist.title } },
-      )}
+      onClick={onClick}
       onContextMenu={handleContextMenu}
     >
       <MotionBox
@@ -69,7 +70,7 @@ const ArtistCard = ({
           transition: '0.2s',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
-        variants={imageMotion}
+        variants={open || menuOpen ? {} : imageMotion}
         width={measurements.IMAGE_SIZE - 24}
       >
         {!artist.thumb && (
@@ -82,7 +83,16 @@ const ArtistCard = ({
         )}
       </MotionBox>
       <Title marginX="12px" textAlign="center">
-        {artist.title}
+        <Link
+          className="link"
+          state={{
+            guid: artist.guid,
+            title: artist.title,
+          }}
+          to={`/artists/${artist.id}`}
+        >
+          {artist.title}
+        </Link>
       </Title>
       <Subtitle
         marginX="12px"
@@ -97,8 +107,15 @@ const ArtistCard = ({
             : 'unplayed'
         )}
       </Subtitle>
+      {children}
     </MotionBox>
   );
+};
+
+ArtistCard.defaultProps = {
+  children: undefined,
+  open: false,
+  onClick: () => {},
 };
 
 export default ArtistCard;

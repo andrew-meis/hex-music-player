@@ -24,14 +24,14 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { DragTypes } from 'types/enums';
-import { IConfig, IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
+import { AppConfig, VirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
 
-export interface ArtistTracksContext extends IVirtuosoContext {
+export interface ArtistTracksContext extends VirtuosoContext {
   albums: Album[];
   artist: ArtistQueryData | undefined;
-  config: IConfig;
+  config: AppConfig;
   filter: string;
   items: Track[];
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;

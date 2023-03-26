@@ -1,5 +1,6 @@
 import { Avatar, Box, SvgIcon } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
+import { Artist } from 'hex-plex';
 import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import {
@@ -7,9 +8,8 @@ import {
 } from 'components/motion-components/motion-components';
 import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
-import { WIDTH_CALC } from 'constants/measures';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { ArtistContext } from '../Artist';
-import type { Artist } from 'hex-plex';
 
 interface SimilarArtistsCardsProps {
   activeIndex: number;
@@ -22,7 +22,8 @@ interface SimilarArtistsCardsProps {
 const SimilarArtistsCards = ({
   activeIndex, artist, context, difference, similarArtists: allSimilarArtists,
 }: SimilarArtistsCardsProps) => {
-  const { cols, library, measurements, navigate } = context;
+  const { cols, library, navigate, width } = context;
+  const cardWidth = (Math.floor((width - VIEW_PADDING) / (cols - 1)));
   const length = (cols - 1) * 2;
   const similarArtists = allSimilarArtists
     .slice((activeIndex * length), (activeIndex * length + length));
@@ -87,7 +88,7 @@ const SimilarArtistsCards = ({
                     },
                   },
                 }}
-                width={measurements.SIMILAR_CARD_WIDTH - (8 / ((cols - 1) / (cols - 2)))}
+                width={cardWidth - (8 / ((cols - 1) / (cols - 2)))}
                 onClick={() => navigate(
                   `/artists/${similarArtist.id}`,
                   { state: { guid: similarArtist.guid, title: similarArtist.title } },

@@ -29,12 +29,12 @@ import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
 import TopItemList from 'routes/virtuoso-components/TopItemList';
 import { DragTypes } from 'types/enums';
-import { IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
+import { VirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import Row from './Row';
 
-export interface ArtistDiscographyContext extends IVirtuosoContext {
+export interface ArtistDiscographyContext extends VirtuosoContext {
   artist: ArtistQueryData | undefined;
   filter: string;
   filters: string[];

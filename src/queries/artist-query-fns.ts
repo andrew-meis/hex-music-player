@@ -3,7 +3,7 @@ import { Account, Library, MediaType } from 'hex-plex';
 import { parseContainerType } from 'hex-plex/dist/library';
 import { parseHubContainer } from 'hex-plex/dist/types/hub';
 import { deburr, isEmpty } from 'lodash';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 export const artistQueryFn = async (id: number, library: Library) => {
   const url = library.api.getAuthenticatedUrl(
@@ -35,7 +35,7 @@ export const artistQueryFn = async (id: number, library: Library) => {
 };
 
 export const artistAppearancesQueryFn = async (
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   id: number,
   title: string,
@@ -77,7 +77,7 @@ export const artistAppearancesQueryFn = async (
 };
 
 type artistTracksQueryFnParams = {
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   id: number,
   title: string,

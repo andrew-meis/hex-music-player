@@ -1,9 +1,8 @@
 import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import React, {
-  useCallback, useEffect, useMemo, useRef, useState,
-} from 'react';
+import { Playlist as TypePlaylist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/all';
@@ -26,10 +25,9 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { DragTypes } from 'types/enums';
+import { VirtuosoContext, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
-import type { Playlist as TPlaylist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
-import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
 // eslint-disable-next-line react/require-default-props
 const Footer = ({ context }: { context?: PlaylistContext }) => {
@@ -70,13 +68,13 @@ const Footer = ({ context }: { context?: PlaylistContext }) => {
   );
 };
 
-export interface PlaylistContext extends Omit<IVirtuosoContext, 'drag'> {
+export interface PlaylistContext extends Omit<VirtuosoContext, 'drag'> {
   drag: (node: any) => void;
   dropIndex: React.MutableRefObject<number | null>;
   filter: string;
   handleDrop: (array: any[], index: number | null, itemType: null | string | symbol) => void;
   items: PlaylistItem[];
-  playlist: TPlaylist | undefined;
+  playlist: TypePlaylist | undefined;
   playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }

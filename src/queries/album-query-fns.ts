@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Library, MediaType } from 'hex-plex';
 import { parseContainerType } from 'hex-plex/dist/library';
 import { parseHubContainer } from 'hex-plex/dist/types/hub';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 export const albumQueryFn = async (id: number, library: Library) => {
   const url = library.api.getAuthenticatedUrl(
@@ -24,7 +24,7 @@ export const albumQueryFn = async (id: number, library: Library) => {
 };
 
 export const albumSearchQueryFn = async (
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   searchParams: Record<string, string>,
 ) => {

@@ -1,8 +1,8 @@
 import { useColorScheme } from '@mui/material';
 import { useEffect } from 'react';
-import { IAppSettings } from 'types/interfaces';
+import { AppSettings } from 'types/interfaces';
 
-export const ThemeMode = ({ settings }: {settings: IAppSettings}) => {
+export const ThemeMode = ({ settings }: { settings: AppSettings }) => {
   const { setMode } = useColorScheme();
 
   useEffect(() => {

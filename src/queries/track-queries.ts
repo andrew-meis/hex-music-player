@@ -4,14 +4,14 @@ import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 import { recentTracksQueryFn, similarTracksQueryFn, trackHistoryQueryFn } from './track-query-fns';
 
 export const useRecentTracks = (
   {
     config, library, id, days,
   } : {
-    config: IConfig, library: Library, id: number, days: number
+    config: AppConfig, library: Library, id: number, days: number
   },
 ) => useQuery(
   [QueryKeys.RECENT_TRACKS, { id, days }],
@@ -44,7 +44,12 @@ export const useTopTracks = (
   {
     config, library, limit, start, end, seconds,
   } : {
-    config: IConfig, library: Library, limit: number, start?: number, end?: number, seconds?: number
+    config: AppConfig,
+    library: Library,
+    limit: number,
+    start?: number,
+    end?: number,
+    seconds?: number,
   },
 ) => useQuery(
   [QueryKeys.TOP, { type: 10, limit, seconds, start, end }],
@@ -82,7 +87,7 @@ export const useTrackHistory = (
   {
     config, library, id,
   } : {
-    config: IConfig, library: Library, id: number,
+    config: AppConfig, library: Library, id: number,
   },
 ) => useQuery(
   [QueryKeys.HISTORY, { id }],
@@ -98,7 +103,7 @@ export const useTracksByGenre = ({
   albumIds, config, id, library, limit, sort,
 }: {
   albumIds: number[];
-  config: IConfig,
+  config: AppConfig,
   id: number;
   library: Library,
   limit: number,

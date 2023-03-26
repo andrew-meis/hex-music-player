@@ -10,11 +10,11 @@ import { defaultSettings, useSettings } from 'queries/app-queries';
 import CssTheme from 'root/CssTheme';
 import ThemeMode from 'root/ThemeMode';
 import initializeApp from 'scripts/initialize-app';
-import { IAppSettings, IConfig } from 'types/interfaces';
+import { AppSettings, AppConfig } from 'types/interfaces';
 import favicon from '../../assets/imgs/favicon.svg';
 import Titlebar from './Titlebar';
 
-const config = window.electron.readConfig('config') as IConfig;
+const config = window.electron.readConfig('config') as AppConfig;
 const sysInfo = window.electron.getAppInfo();
 
 const normalizedPlatform = (platform: string): string => {
@@ -55,10 +55,10 @@ const createAuthUrl = (pinCode: string): string => {
 };
 
 export const loginLoader = async () => {
-  const newConfig = window.electron.readConfig('config') as IConfig;
+  const newConfig = window.electron.readConfig('config') as AppConfig;
   const auth = await initializeApp(newConfig);
-  const savedSettings = window.electron.readConfig('settings') as IAppSettings;
-  const settings = { ...defaultSettings, ...savedSettings } as IAppSettings;
+  const savedSettings = window.electron.readConfig('settings') as AppSettings;
+  const settings = { ...defaultSettings, ...savedSettings } as AppSettings;
   if (newConfig && auth && settings) {
     throw redirect('/');
   }

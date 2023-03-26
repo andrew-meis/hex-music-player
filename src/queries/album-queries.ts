@@ -5,7 +5,7 @@ import { uniqBy } from 'lodash';
 import { albumQueryFn, albumSearchQueryFn, albumTracksQueryFn } from 'queries/album-query-fns';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
-import { IConfig } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 
 export const useAlbum = (id: number, library: Library) => useQuery(
   [QueryKeys.ALBUM, id],
@@ -29,7 +29,7 @@ export const useAlbumQuick = (library: Library, id?: number) => useQuery(
 );
 
 export const useAlbumSearch = (
-  config: IConfig,
+  config: AppConfig,
   library: Library,
   searchParams: Record<string, string>,
 ) => useQuery(
@@ -53,7 +53,7 @@ export const useAlbumTracks = (id: number, library: Library) => useQuery(
 export const useAlbumsByGenre = ({
   config, id, library, limit, sort,
 }: {
-  config: IConfig,
+  config: AppConfig,
   id: number,
   library: Library,
   limit: number,
@@ -78,7 +78,12 @@ export const useTopAlbums = (
   {
     config, library, limit, start, end, seconds,
   } : {
-    config: IConfig, library: Library, limit: number, start?: number, end?: number, seconds?: number
+    config: AppConfig,
+    library: Library,
+    limit: number,
+    start?: number,
+    end?: number,
+    seconds?: number,
   },
 ) => useQuery(
   [QueryKeys.TOP, { type: 9, limit, seconds, start, end }],

@@ -19,12 +19,12 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { DragTypes } from 'types/enums';
-import { IConfig, IVirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
+import { AppConfig, VirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
 
-export interface SimilarTracksContext extends IVirtuosoContext {
-  config: IConfig;
+export interface SimilarTracksContext extends VirtuosoContext {
+  config: AppConfig;
   currentTrack: Track | undefined;
   filter: string;
   items: Track[];

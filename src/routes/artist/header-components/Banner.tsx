@@ -12,7 +12,7 @@ import { Textfit } from 'react-textfit';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail, useUploadArt } from 'hooks/plexHooks';
-import { IAppSettings } from 'types/interfaces';
+import { AppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
 import FixedHeader from '../FixedHeader';
 import { thresholds } from '../Header';
@@ -25,7 +25,7 @@ const getMeta = (url: string) => new Promise((resolve, reject) => {
   img.src = url;
 });
 
-const getPosX = (settings: IAppSettings) => {
+const getPosX = (settings: AppSettings) => {
   let leftWidth = 300;
   let rightWidth = 0;
   if (settings.compactNav) {

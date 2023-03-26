@@ -1,82 +1,11 @@
-import { Box, SvgIcon } from '@mui/material';
-import { Playlist } from 'hex-plex';
+import { Box } from '@mui/material';
 import React from 'react';
-import { BsMusicNoteList } from 'react-icons/all';
-import { MotionBox } from 'components/motion-components/motion-components';
-import { imageMotion } from 'components/motion-components/motion-variants';
-import { Subtitle, Title } from 'components/typography/TitleSubtitle';
-import styles from 'styles/MotionImage.module.scss';
-import { PlaylistsContext, RowProps } from './Playlists';
-
-interface PlaylistCardProps {
-  playlist: Playlist;
-  context: PlaylistsContext;
-}
-
-const PlaylistCard = ({ playlist, context }: PlaylistCardProps) => {
-  const {
-    library, measurements, navigate,
-  } = context;
-  const thumbSrc = library.api.getAuthenticatedUrl(
-    '/photo/:/transcode',
-    {
-      url: playlist.thumb || playlist.composite, width: 300, height: 300, minSize: 1, upscale: 1,
-    },
-  );
-
-  return (
-    <MotionBox
-      className={styles.container}
-      data-id={playlist.id}
-      height={measurements.ROW_HEIGHT}
-      key={playlist.id}
-      sx={{
-        borderRadius: '32px',
-        contain: 'paint',
-      }}
-      whileHover="hover"
-      width={measurements.IMAGE_SIZE}
-      onClick={() => navigate(`/playlists/${playlist.id}`)}
-    >
-      <MotionBox
-        bgcolor="action.selected"
-        className={styles.image}
-        flexDirection="column-reverse"
-        height={measurements.IMAGE_SIZE - 24}
-        margin="12px"
-        style={{
-          borderRadius: '32px',
-          transition: '0.2s',
-          '--img': `url(${thumbSrc})`,
-        } as React.CSSProperties}
-        variants={imageMotion}
-        width={measurements.IMAGE_SIZE - 24}
-      >
-        {!playlist.thumb && !playlist.composite && (
-          <SvgIcon
-            className="generic-icon"
-            sx={{ color: 'common.grey' }}
-          >
-            <BsMusicNoteList />
-          </SvgIcon>
-        )}
-      </MotionBox>
-      <Title marginX="12px" textAlign="center">
-        {playlist.title}
-      </Title>
-      <Subtitle
-        marginX="12px"
-        textAlign="center"
-      >
-        {`${playlist.leafCount} ${playlist.leafCount === 1 ? 'track' : 'tracks'}`}
-      </Subtitle>
-    </MotionBox>
-  );
-};
+import PlaylistCard from 'components/playlist/PlaylistCard';
+import { RowProps } from './Playlists';
 
 const Row = React.memo(({ playlists, context }: RowProps) => {
   const {
-    measurements,
+    handleContextMenu, measurements, menuTarget,
   } = context;
 
   return (
@@ -93,9 +22,13 @@ const Row = React.memo(({ playlists, context }: RowProps) => {
       >
         {playlists.map((playlist) => (
           <PlaylistCard
-            context={context}
+            handleContextMenu={handleContextMenu}
+            id={playlist.id}
             key={playlist.id}
-            playlist={playlist}
+            library={context.library}
+            measurements={context.measurements}
+            menuTarget={menuTarget}
+            navigate={context.navigate}
           />
         ))}
       </Box>

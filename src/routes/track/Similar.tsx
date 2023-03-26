@@ -18,7 +18,7 @@ import { getTrackMatch } from 'queries/plex-query-fns';
 import { PlayActions } from 'types/enums';
 import { LastFmTrack } from 'types/lastfm-interfaces';
 
-const getCols = (width: number) => {
+const getColumns = (width: number) => {
   if (width >= 800) {
     return 4;
   }
@@ -57,7 +57,7 @@ interface SimilarProps {
 }
 
 const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarProps) => {
-  const cols = throttle(() => getCols(width || 900), 300, { leading: true })();
+  const cols = throttle(() => getColumns(width || 900), 300, { leading: true })();
   const config = useConfig();
   const hoverIndex = useRef(0);
   const length = (cols || 4) * 4;

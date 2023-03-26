@@ -11,11 +11,11 @@ import {
   useOutletContext,
   useParams,
 } from 'react-router-dom';
-import AlbumHighlights from 'components/album-highlights/AlbumHighlights';
-import ArtistHighlights from 'components/artist-highlights/ArtistHighlights';
+import AlbumCarousel from 'components/album/AlbumCarousel';
+import ArtistCarousel from 'components/artist/ArtistCarousel';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import TrackHighlights from 'components/track-highlights/TrackHighlights';
+import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -25,30 +25,12 @@ import { useLastfmTag } from 'queries/last-fm-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useTracksByGenre } from 'queries/track-queries';
+import { getColumnsNarrow } from 'scripts/get-columns';
 import { LocationWithState, RouteParams } from 'types/interfaces';
 import Banner from './Banner';
 
 export type ArtistPreview = Pick<Artist,
   'guid' | 'id' | 'key' | 'ratingKey' | 'thumb' | 'title' | 'viewCount'>;
-
-const getCols = (width: number) => {
-  if (width >= 1350) {
-    return 7;
-  }
-  if (width < 1350 && width >= 1100) {
-    return 6;
-  }
-  if (width < 1100 && width >= 850) {
-    return 5;
-  }
-  if (width < 850 && width >= 650) {
-    return 4;
-  }
-  if (width < 650) {
-    return 3;
-  }
-  return 5;
-};
 
 const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => (
   <MotionTypography
@@ -84,7 +66,7 @@ const Genre = () => {
   const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
-  const throttledCols = throttle(() => getCols(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumnsNarrow(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const { data: albums, isLoading: albumsLoading } = useAlbumsByGenre({
@@ -250,7 +232,7 @@ const Genre = () => {
                   text="Top Tracks"
                   onClick={() => {}}
                 />
-                <TrackHighlights
+                <TrackCarousel
                   getFormattedTime={getFormattedTime}
                   isPlaying={isPlaying}
                   library={library}
@@ -268,7 +250,7 @@ const Genre = () => {
                 text="Top Artists"
                 onClick={() => {}}
               />
-              <ArtistHighlights
+              <ArtistCarousel
                 artists={artists.slice(0, (grid.cols - 1) * 5)}
                 cols={grid.cols - 1}
                 library={library}
@@ -284,7 +266,7 @@ const Genre = () => {
                   text="Top Albums"
                   onClick={() => {}}
                 />
-                <AlbumHighlights
+                <AlbumCarousel
                   albums={albums.slice(0, (grid.cols - 1) * 6)}
                   cols={grid.cols - 1}
                   library={library}

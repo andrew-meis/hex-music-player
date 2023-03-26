@@ -1,32 +1,41 @@
 import { Box, Typography } from '@mui/material';
+import { UseQueryResult } from '@tanstack/react-query';
+import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { BiChevronRight } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import TrackHighlights from 'components/track-highlights/TrackHighlights';
+import TrackCarousel from 'components/track/TrackCarousel';
+import { PlayParams } from 'hooks/usePlayback';
 import { thresholds } from 'routes/artist/Header';
 import { PlayActions } from 'types/enums';
-import { ArtistsContext } from './Artists';
 
-interface CollapseContentProps {
-  context: ArtistsContext;
+interface ArtistPreviewProps {
+  getFormattedTime: (inMs: number) => string;
+  height: number;
+  isPlaying: boolean;
+  library: Library,
+  nowPlaying: PlayQueueItem | undefined;
+  openArtist: Pick<Artist, 'id' | 'guid' | 'title'>;
+  openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
+  openArtistTracksQuery: UseQueryResult<Track[]>;
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
 }
 
-const CollapseContent = ({ context }: CollapseContentProps) => {
+const ArtistPreview = ({
+  getFormattedTime,
+  height,
+  isPlaying,
+  library,
+  nowPlaying,
+  openArtist,
+  openArtistQuery,
+  openArtistTracksQuery,
+  playSwitch,
+}: ArtistPreviewProps) => {
   const { ref, entry } = useInView({ threshold: thresholds });
-  const {
-    getFormattedTime,
-    height,
-    isPlaying,
-    library,
-    nowPlaying,
-    openArtist,
-    openArtistQuery,
-    openArtistTracksQuery,
-    playSwitch,
-  } = context;
 
   const handlePlay = () => playSwitch(
     PlayActions.PLAY_ARTIST,
@@ -101,7 +110,7 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
         {
           entry && entry.intersectionRatio > 0.3
             ? (
-              <TrackHighlights
+              <TrackCarousel
                 getFormattedTime={getFormattedTime}
                 isPlaying={isPlaying}
                 library={library}
@@ -120,4 +129,4 @@ const CollapseContent = ({ context }: CollapseContentProps) => {
   );
 };
 
-export default CollapseContent;
+export default ArtistPreview;

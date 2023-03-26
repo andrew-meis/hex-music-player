@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { Album } from 'hex-plex';
 import React from 'react';
-import TrackRow from 'components/track-row/TrackRow';
+import TrackRow from 'components/track/TrackRow';
 import { rowStyle, selectBorderRadius, selectedStyle } from 'constants/style';
 import { RowProps } from './Discography';
 

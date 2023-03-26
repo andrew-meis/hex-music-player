@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { allButtons, ButtonSpecs } from 'constants/buttons';
 import usePlayback from 'hooks/usePlayback';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
-import type { Result } from 'types/types';
+import { Result } from 'types/types';
 
 const buttonStyle = {
   width: '-webkit-fill-available',

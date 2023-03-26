@@ -8,7 +8,7 @@ const invalidateTrackQueries = async (queryClient: QueryClient) => {
   await queryClient.invalidateQueries([QueryKeys.ALBUM_TRACKS]);
   await queryClient.invalidateQueries([QueryKeys.ARTIST_TRACKS]);
   await queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES]);
-  await queryClient.invalidateQueries([QueryKeys.PLAYLIST]);
+  await queryClient.invalidateQueries([QueryKeys.PLAYLIST_ITEMS]);
   await queryClient.invalidateQueries([QueryKeys.PLAYQUEUE]);
   await queryClient.invalidateQueries([QueryKeys.TOP]);
   await queryClient.invalidateQueries([QueryKeys.TRACK]);

@@ -1,5 +1,6 @@
 import { Gapless5, LogLevel } from '@regosen/gapless-5';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Updater, useQuery, useQueryClient } from '@tanstack/react-query';
+import { PlayQueue, PlayQueueItem, Track } from 'hex-plex';
 import React, {
   ReactNode, useCallback, useContext, useEffect, useRef,
 } from 'react';
@@ -7,9 +8,7 @@ import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
-import type { Updater } from '@tanstack/react-query';
-import type { PlayQueue, PlayQueueItem, Track } from 'hex-plex';
-import type { PlayerState } from 'types/interfaces';
+import { PlayerState } from 'types/interfaces';
 
 const playerOptions = {
   loadLimit: 2,

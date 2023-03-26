@@ -14,8 +14,8 @@ import { useConfig, useLibrary } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying, useUser } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
+import { AppConfig } from 'types/interfaces';
 import { isPlayQueueItem } from 'types/type-guards';
-import type { IConfig } from 'types/interfaces';
 
 interface User {
   admin: string;
@@ -90,7 +90,7 @@ const AppMenu = () => {
       await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
     }
     player.resetApp();
-    const newConfig = window.electron.readConfig('config') as IConfig;
+    const newConfig = window.electron.readConfig('config') as AppConfig;
     newConfig.token = token;
     window.electron.writeConfig('config', newConfig);
     navigate('/');

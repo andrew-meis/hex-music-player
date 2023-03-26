@@ -8,9 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
 import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
+import { Result } from 'types/types';
 import styles from '../Search.module.scss';
 import ResultTooltip from '../tooltip/ResultTooltip';
-import type { Result } from 'types/types';
 
 const resultStyle = {
   display: 'flex',

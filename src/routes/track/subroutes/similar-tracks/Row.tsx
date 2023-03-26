@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import React from 'react';
-import TrackRow from 'components/track-row/TrackRow';
+import TrackRow from 'components/track/TrackRow';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import { RowProps } from './SimilarTracks';
 

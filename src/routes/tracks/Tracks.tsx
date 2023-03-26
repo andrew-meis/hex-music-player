@@ -21,7 +21,7 @@ import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { DragTypes, QueryKeys } from 'types/enums';
-import { IConfig, IVirtuosoContext } from 'types/interfaces';
+import { AppConfig, VirtuosoContext } from 'types/interfaces';
 import { FilterObject } from 'ui/sidebars/filter/Filter';
 import Header from './Header';
 import Row from './Row';
@@ -70,8 +70,8 @@ const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) =>
 
 const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
-export interface TracksContext extends IVirtuosoContext {
-  config: IConfig;
+export interface TracksContext extends VirtuosoContext {
+  config: AppConfig;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   uri: string;
 }

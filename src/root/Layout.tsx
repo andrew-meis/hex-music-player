@@ -7,7 +7,7 @@ import Toast from 'components/toast/Toast';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtists } from 'queries/artist-queries';
 import { usePlaylists } from 'queries/playlist-queries';
-import { IAppSettings } from 'types/interfaces';
+import { AppSettings } from 'types/interfaces';
 import Footer from 'ui/footer/Footer';
 import MiniNavbar from 'ui/sidebars/navbar/MiniNavbar';
 import Navbar from 'ui/sidebars/navbar/Navbar';
@@ -15,7 +15,7 @@ import CompactQueue from 'ui/sidebars/queue/CompactQueue';
 import Queue from 'ui/sidebars/queue/Queue';
 import Titlebar from 'ui/titlebar/Titlebar';
 
-const Layout = ({ settings }: {settings: IAppSettings}) => {
+const Layout = ({ settings }: {settings: AppSettings}) => {
   const library = useLibrary();
   const location = useLocation();
   const searchContainer = useRef<HTMLDivElement>(null);

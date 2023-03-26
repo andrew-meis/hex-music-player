@@ -3,7 +3,7 @@ import React from 'react';
 import { ListProps } from 'react-virtuoso';
 import { WIDTH_CALC } from 'constants/measures';
 import mergeRefs from 'scripts/merge-refs';
-import { IVirtuosoContext } from 'types/interfaces';
+import { VirtuosoContext } from 'types/interfaces';
 
 const List = React
   .forwardRef((
@@ -11,7 +11,7 @@ const List = React
     { style, children, context }: ListProps,
     listRef: React.ForwardedRef<HTMLDivElement>,
   ) => {
-    const { handleClickAway, hoverIndex, selectedRows } = context as IVirtuosoContext;
+    const { handleClickAway, hoverIndex, selectedRows } = context as VirtuosoContext;
     return (
       <ClickAwayListener onClickAway={context.handleClickAway}>
         <Box

@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import TrackRow from 'components/track-row/TrackRow';
+import TrackRow from 'components/track/TrackRow';
 import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
 import { RowProps } from './Playlist';
 

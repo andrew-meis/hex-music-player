@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from 'types/enums';
-import type { ToastMessage } from 'types/interfaces';
+import { ToastMessage } from 'types/interfaces';
 
 const useToast = () => {
   const queryClient = useQueryClient();
