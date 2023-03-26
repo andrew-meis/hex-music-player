@@ -273,7 +273,6 @@ const ResultRow = ({
           display: 'table',
           tableLayout: 'fixed',
           width: '100%',
-          marginBottom: '4px',
         }}
       >
         <Box

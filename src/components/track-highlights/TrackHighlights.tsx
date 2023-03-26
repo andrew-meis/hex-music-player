@@ -147,15 +147,15 @@ const TrackHighlights = ({
             >
               {trackPage.map((track, index) => {
                 const playing = nowPlaying?.track.id === track.id;
-                const selected = selectedRows.includes(index);
-                const selUp = selected && selectedRows.includes(index - 1);
-                const selDown = selected && selectedRows.includes(index + 1);
+                const selected = selectedRows.includes((activeIndex * rows) + index);
+                const selUp = selected && selectedRows.includes((activeIndex * rows) + index - 1);
+                const selDown = selected && selectedRows.includes((activeIndex * rows) + index + 1);
                 return (
                   <Box
                     alignItems="center"
                     className="track-row"
                     color="text.secondary"
-                    data-item-index={index}
+                    data-item-index={(activeIndex * rows) + index}
                     display="flex"
                     height={56}
                     key={track.id}
@@ -163,7 +163,7 @@ const TrackHighlights = ({
                       ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
                       : { ...rowStyle }}
                     width={1}
-                    onClick={(event) => handleRowClick(event, index)}
+                    onClick={(event) => handleRowClick(event, (activeIndex * rows) + index)}
                     onContextMenu={handleContextMenu}
                     onDoubleClick={() => handleDoubleClick(track.key)}
                     onMouseEnter={handleMouseEnter}

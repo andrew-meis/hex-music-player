@@ -1,6 +1,6 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Artist, Album as TAlbum, Playlist, Track } from 'hex-plex';
+import { Artist, Album as TAlbum, Playlist, Track, Genre } from 'hex-plex';
 import { countBy, inRange } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -31,7 +31,7 @@ import Row from './Row';
 import type { IVirtuosoContext, RouteParams } from 'types/interfaces';
 
 export interface AlbumContext extends IVirtuosoContext {
-  album: {album: TAlbum, related: (Playlist | Track | TAlbum | Artist)[]} | undefined;
+  album: {album: TAlbum, related: (Playlist | Track | TAlbum | Artist | Genre)[]} | undefined;
   navigate: NavigateFunction;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   selectedRows: number[];
