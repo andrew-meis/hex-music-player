@@ -1,10 +1,12 @@
 import { Drawer } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { Track } from 'hex-plex';
+import { Album, Track } from 'hex-plex';
 import AddToPlaylist from 'ui/sidebars/add-to-playlist/AddToPlaylist';
 
+type Item = Album | Track;
+
 const AddToPlaylistDrawer = () => {
-  const { data: tracks } = useQuery<Track[]>(
+  const { data: items } = useQuery<Item[]>(
     ['playlist-dialog-open'],
     () => ([]),
     {
@@ -23,11 +25,11 @@ const AddToPlaylistDrawer = () => {
         },
       }}
       anchor="right"
-      open={tracks.length > 0}
+      open={items.length > 0}
       transitionDuration={300}
       variant="persistent"
     >
-      <AddToPlaylist tracks={tracks} />
+      <AddToPlaylist items={items} />
     </Drawer>
   );
 };

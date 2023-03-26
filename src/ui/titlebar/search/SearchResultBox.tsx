@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, SvgIcon, Typography } from '@mui/material';
+import { Box, Grid, List, Paper, SvgIcon, Typography } from '@mui/material';
 import { UseQueryResult } from '@tanstack/react-query';
 import { uniq } from 'lodash';
 import React, { useMemo } from 'react';
@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useWindowSize } from 'react-use';
 import { isGenre } from 'types/type-guards';
 import { Result } from 'types/types';
-import Results from './results/Results';
+import ResultRow from './ResultRow';
 import quotes from './search_quotes.json';
 
 interface Props {
@@ -146,10 +146,23 @@ const SearchResultBox = ({
       padding="4px"
       width="auto"
     >
-      <Results
-        results={results}
-        setOpen={setOpen}
-      />
+      <Box
+        sx={{
+          borderRadius: '4px',
+          display: 'block',
+        }}
+        width="auto"
+      >
+        <List disablePadding>
+          {results.map((result) => (
+            <ResultRow
+              key={result.id}
+              result={result}
+              setOpen={setOpen}
+            />
+          ))}
+        </List>
+      </Box>
       <Box
         alignItems="center"
         color="text.secondary"

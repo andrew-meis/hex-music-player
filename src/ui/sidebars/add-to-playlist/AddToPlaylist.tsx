@@ -8,17 +8,17 @@ import {
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { Library, Track } from 'hex-plex';
+import { Album, Library, Track } from 'hex-plex';
 import React, { useEffect, useState } from 'react';
 import { GoCheck, RiSendPlaneLine } from 'react-icons/all';
 import { ListProps, Virtuoso } from 'react-virtuoso';
-import Subtext from 'components/subtext/Subtext';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { QueryKeys } from 'types/enums';
+import { isAlbum, isTrack } from 'types/type-guards';
 
 const List = React
   .forwardRef((
@@ -35,13 +35,15 @@ const List = React
     </Box>
   ));
 
-const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) => {
-  if (tracks.length === 0) {
+type Item = Album | Track;
+
+const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) => {
+  if (items.length === 0) {
     return (
       <Box height={56} />
     );
   }
-  const [track] = tracks;
+  const [item] = items;
   return (
     <Box
       alignItems="center"
@@ -50,12 +52,12 @@ const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) =
       width="calc(100% - 10px)"
     >
       <Avatar
-        alt={track.title}
+        alt={item.title}
         src={
           library.api.getAuthenticatedUrl(
             '/photo/:/transcode',
             {
-              url: track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
+              url: item.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
             },
           )
         }
@@ -75,17 +77,20 @@ const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) =
           fontSize="0.95rem"
           sx={{ ...typographyStyle }}
         >
-          {track.title}
+          {item.title}
         </Typography>
         <Typography
           color="text.secondary"
           fontSize="0.875rem"
           sx={{ ...typographyStyle, pointerEvents: 'none' }}
         >
-          <Subtext showAlbum track={track} />
+          {isAlbum(item) && item.parentTitle}
+          {isTrack(item)
+            // eslint-disable-next-line max-len
+            && `${item.originalTitle ? item.originalTitle : item.grandparentTitle} — ${item.parentTitle}`}
         </Typography>
       </Box>
-      {tracks.length > 1 && (
+      {items.length > 1 && (
         <Box
           alignItems="center"
           bgcolor="action.selected"
@@ -98,14 +103,14 @@ const TracksToAdd = ({ library, tracks }: {library: Library, tracks: Track[]}) =
           width={40}
         >
           +
-          {tracks.length - 1}
+          {items.length - 1}
         </Box>
       )}
     </Box>
   );
 };
 
-const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
+const AddToPlaylist = ({ items }: { items: Item[] }) => {
   const addToPlaylist = useAddToPlaylist();
   const createPlaylist = useCreatePlaylist();
   const library = useLibrary();
@@ -115,7 +120,7 @@ const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
   const [selected, setSelected] = useState<number[]>([]);
   const [title, setTitle] = useState('');
 
-  useEffect(() => setSelected([]), [tracks]);
+  useEffect(() => setSelected([]), [items]);
 
   const handleRowClick = (id: number) => {
     if (selected.includes(id)) {
@@ -128,13 +133,13 @@ const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
   };
 
   const handleSave = async () => {
-    if (tracks.length === 0) {
+    if (items.length === 0) {
       queryClient.setQueryData(['playlist-dialog-open'], []);
       return;
     }
-    const trackIds = tracks.map((track) => track.id);
+    const itemIds = items.map((item) => item.id);
     selected.forEach(async (id) => {
-      await addToPlaylist(id, trackIds);
+      await addToPlaylist(id, itemIds);
     });
     queryClient.setQueryData(['playlist-dialog-open'], []);
   };
@@ -184,8 +189,8 @@ const AddToPlaylist = ({ tracks }: {tracks: Track[]}) => {
       </Box>
       <Box height="-webkit-fill-available" width={1}>
         <TracksToAdd
+          items={items}
           library={library}
-          tracks={tracks}
         />
         <Box
           borderRadius="4px"

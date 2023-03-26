@@ -5,6 +5,7 @@ import {
   MenuDivider,
   MenuItem,
 } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import { Album } from 'hex-plex';
 import React, { useCallback } from 'react';
 import {
@@ -34,6 +35,7 @@ const AlbumMenu = ({
   ...props
 }: AlbumMenuProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleArtistNavigate = (album: Album) => {
     const state = { guid: album.parentGuid, title: album.parentTitle };
@@ -66,7 +68,10 @@ const AlbumMenu = ({
         </MenuItem>
       ))}
       <MenuDivider />
-      <MenuItem onClick={() => {}}>
+      <MenuItem
+        onClick={() => queryClient
+          .setQueryData(['playlist-dialog-open'], albums)}
+      >
         <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
         Add to playlist
       </MenuItem>

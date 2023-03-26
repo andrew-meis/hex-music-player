@@ -96,6 +96,21 @@ const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
             {button.name}
           </Button>
         ))}
+        {isAlbum(result) && (
+          <>
+            <div className="szh-menu__divider" style={{ width: '-webkit-fill-available' }} />
+            <Button
+              sx={buttonStyle}
+              onClick={(event) => {
+                handleButtonGeneric(event);
+                queryClient.setQueryData(['playlist-dialog-open'], [result]);
+              }}
+            >
+              <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
+              Add to playlist
+            </Button>
+          </>
+        )}
         {isTrack(result) && (
           <>
             <div className="szh-menu__divider" style={{ width: '-webkit-fill-available' }} />

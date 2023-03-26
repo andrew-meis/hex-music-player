@@ -147,6 +147,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               e.preventDefault();
               setOpen(false);
               setSearchHistory((prev) => [input, ...prev]);
+              handleClear();
               navigate(`/search?query=${input}`);
             }}
           >

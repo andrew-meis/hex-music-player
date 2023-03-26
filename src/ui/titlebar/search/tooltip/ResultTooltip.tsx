@@ -6,7 +6,7 @@ import { BiChevronRight } from 'react-icons/all';
 import { Result } from 'types/types';
 import TooltipMenu from './TooltipMenu';
 
-interface Props {
+interface ResultTooltipProps {
   color: 'text.primary' | 'common.black'
   result: Result;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,11 +16,25 @@ interface Props {
 
 const ResultTooltip = ({
   color, result, tooltipOpen, setOpen, setTooltipOpen,
-}: Props) => (
+}: ResultTooltipProps) => (
   <Tooltip
     arrow
     TransitionComponent={Zoom}
     componentsProps={{
+      popper: {
+        modifiers: [
+          {
+            name: 'preventOverflow',
+            enabled: true,
+            options: {
+              altAxis: true,
+              altBoundary: true,
+              tether: true,
+              padding: 8,
+            },
+          },
+        ],
+      },
       tooltip: {
         sx: {
           width: '152px',
