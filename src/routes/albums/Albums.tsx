@@ -112,14 +112,11 @@ const Albums = () => {
   const range = useRef<ListRange>();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [menuProps, toggleMenu] = useMenuState();
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const { data: config } = useConfig();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { playSwitch, playUri } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 

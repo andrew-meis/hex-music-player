@@ -14,9 +14,9 @@ import { useAddToPlaylist } from 'hooks/playlistHooks';
 import { DragTypes } from 'types/enums';
 
 interface PlaylistLinkProps {
-  handleContextMenu: (event: React.MouseEvent) => void;
+  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void
   menuState: MenuState | undefined;
-  menuTarget: number | undefined;
+  menuTarget: Playlist[] | undefined;
   playlist: Playlist;
 }
 
@@ -72,7 +72,8 @@ const PlaylistLink = ({
           >
             <Box sx={navlistActiveBox(isActive)} />
             <Typography
-              sx={isActive || (menuState === 'open' && menuTarget === playlist.id)
+              sx={isActive
+                || (menuState === 'open' && !!menuTarget && menuTarget[0].id === playlist.id)
                 ? navlistTypeActiveStyle
                 : navlistTypeStyle}
             >

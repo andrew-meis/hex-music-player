@@ -1,12 +1,15 @@
+import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
 import { Playlist, Library } from 'hex-plex';
-import { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
+import PlaylistMenu from 'components/menus/PlaylistMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
+import usePlayback from 'hooks/usePlayback';
 import PlaylistCard from './PlaylistCard';
 
 interface PlaylistCarouselProps {
@@ -21,6 +24,9 @@ const PlaylistCarousel = ({
   cols, library, navigate, playlists, width,
 }: PlaylistCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
+  const { playSwitch } = usePlayback();
+
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
     if (prevIndex) return activeIndex - prevIndex;
@@ -30,6 +36,23 @@ const PlaylistCarousel = ({
 
   const playlistPage = playlists
     .slice((activeIndex * cols), (activeIndex * cols + cols));
+
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(playlists
+      .filter((playlist) => playlist)
+      .filter((playlist) => playlist.id === targetId));
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [playlists, toggleMenu]);
 
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
@@ -55,12 +78,12 @@ const PlaylistCarousel = ({
         >
           {playlistPage.map((playlist) => (
             <PlaylistCard
-              handleContextMenu={() => {}}
+              handleContextMenu={handleContextMenu}
               id={playlist.id}
               key={playlist.id}
               library={library}
               measurements={measurements}
-              menuTarget={[]}
+              menuTarget={menuTarget}
               navigate={navigate}
             />
           ))}
@@ -71,6 +94,17 @@ const PlaylistCarousel = ({
         array={playlists}
         colLength={cols}
         setActiveIndex={setActiveIndex}
+      />
+      <PlaylistMenu
+        anchorPoint={anchorPoint}
+        playSwitch={playSwitch}
+        playlists={menuTarget}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
+        }}
+        {...menuProps}
       />
     </>
   );

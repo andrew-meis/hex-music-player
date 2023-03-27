@@ -1,3 +1,4 @@
+import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { Library, Playlist, PlayQueueItem } from 'hex-plex';
 import { throttle } from 'lodash';
@@ -6,6 +7,7 @@ import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import PlaylistMenu from 'components/menus/PlaylistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
@@ -47,6 +49,8 @@ const Playlists = () => {
   const navigationType = useNavigationType();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const { data: config } = useConfig();
   const { data: isPlaying } = useIsPlaying();
@@ -73,8 +77,18 @@ const Playlists = () => {
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    setMenuTarget([]);
-  }, []);
+    if (!playlists) return;
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(playlists
+      .filter((playlist) => playlist)
+      .filter((playlist) => playlist.id === targetId));
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [playlists, toggleMenu]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -125,43 +139,56 @@ const Playlists = () => {
   if (isLoading || !playlists) return null;
 
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-      key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
-    >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer: FooterWide,
-          Header,
+    <>
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={location.pathname}
+        style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
+      >
+        <Virtuoso
+          className="scroll-container"
+          components={{
+            Footer: FooterWide,
+            Header,
+          }}
+          context={playlistsContext}
+          data={items}
+          itemContent={(index, item, context) => RowContent({ context, index, playlists: item })}
+          ref={virtuoso}
+          scrollSeekConfiguration={{
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
+            exit: (velocity) => Math.abs(velocity) < 100,
+          }}
+          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              'playlists',
+              target.scrollTop as unknown as string,
+            );
+          }}
+        />
+      </motion.div>
+      <PlaylistMenu
+        anchorPoint={anchorPoint}
+        playSwitch={playSwitch}
+        playlists={menuTarget}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
         }}
-        context={playlistsContext}
-        data={items}
-        itemContent={(index, item, context) => RowContent({ context, index, playlists: item })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            'playlists',
-            target.scrollTop as unknown as string,
-          );
-        }}
+        {...menuProps}
       />
-    </motion.div>
+    </>
   );
 };
 

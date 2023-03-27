@@ -1,19 +1,14 @@
 import {
-  Box, Collapse, List, ListItem, SvgIcon, Typography,
+  Box, Collapse, List, ListItem, Typography,
 } from '@mui/material';
-import {
-  ControlledMenu, MenuDivider, MenuItem, useMenuState,
-} from '@szhsin/react-menu';
-import React, { useState } from 'react';
-import {
-  FaCaretDown, FaCaretRight, MdDelete, TiFolder,
-} from 'react-icons/all';
-import { useDeletePlaylist } from 'hooks/playlistHooks';
+import { useMenuState } from '@szhsin/react-menu';
+import { Playlist } from 'hex-plex';
+import React, { useCallback, useState } from 'react';
+import { FaCaretDown, FaCaretRight, TiFolder } from 'react-icons/all';
+import PlaylistMenu from 'components/menus/PlaylistMenu';
 import usePlayback from 'hooks/usePlayback';
-import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
-import { ButtonSpecs, playlistButtons } from '../../../../constants/buttons';
 import PlaylistLink from './PlaylistLink';
 
 const listItemStyle = {
@@ -48,41 +43,28 @@ const activeBox = (isActive: boolean) => ({
 });
 
 const PlaylistLinks = () => {
-  const deletePlaylist = useDeletePlaylist();
   const library = useLibrary();
-  const toast = useToast();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
-  const [menuTarget, setMenuTarget] = useState<number>();
+  const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const [open, setOpen] = useState(false);
   const { data: playlists } = usePlaylists(library);
-  const { playPlaylist } = usePlayback();
+  const { playSwitch } = usePlayback();
 
-  const handleContextMenu = (event: React.MouseEvent) => {
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
+    if (!playlists) return;
     const target = event.currentTarget.getAttribute('data-id');
     if (!target) {
       return;
     }
-    setMenuTarget(parseInt(target, 10));
+    const targetId = parseInt(target, 10);
+    setMenuTarget(playlists
+      .filter((playlist) => playlist)
+      .filter((playlist) => playlist.id === targetId));
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
-  };
-
-  const handleMenuSelection = async (button: ButtonSpecs) => {
-    if (!menuTarget || !playlists) {
-      return;
-    }
-    const playlistTarget = playlists.find((playlist) => playlist.id === menuTarget);
-    if (!playlistTarget) {
-      return;
-    }
-    if (playlistTarget.leafCount === 0) {
-      toast({ type: 'info', text: 'No tracks in playlist' });
-      return;
-    }
-    await playPlaylist(playlistTarget, button.shuffle);
-  };
+  }, [playlists, toggleMenu]);
 
   const handleOpen = () => {
     setOpen(!open);
@@ -128,28 +110,17 @@ const PlaylistLinks = () => {
           );
         })}
       </List>
-      <ControlledMenu
-        {...menuProps}
-        portal
+      <PlaylistMenu
         anchorPoint={anchorPoint}
-        boundingBoxPadding="10"
-        onClose={() => toggleMenu(false)}
-      >
-        {playlistButtons.map((button: ButtonSpecs) => (
-          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
-            {button.icon}
-            {button.name}
-          </MenuItem>
-        ))}
-        <MenuDivider />
-        <MenuItem
-          className="error"
-          onClick={() => deletePlaylist(menuTarget as number)}
-        >
-          <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>
-          Delete
-        </MenuItem>
-      </ControlledMenu>
+        playSwitch={playSwitch}
+        playlists={menuTarget}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
+        }}
+        {...menuProps}
+      />
     </>
   );
 };

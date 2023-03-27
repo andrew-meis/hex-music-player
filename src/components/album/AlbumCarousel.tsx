@@ -1,12 +1,15 @@
+import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
 import { Album, Library } from 'hex-plex';
-import { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
+import AlbumMenu from 'components/menus/AlbumMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
+import usePlayback from 'hooks/usePlayback';
 import AlbumCard from './AlbumCard';
 
 interface AlbumCarouselProps {
@@ -21,6 +24,9 @@ const AlbumCarousel = ({
   albums, cols, library, navigate, width,
 }: AlbumCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [menuTarget, setMenuTarget] = useState<Album[]>([]);
+  const { playSwitch } = usePlayback();
+
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
     if (prevIndex) return activeIndex - prevIndex;
@@ -30,6 +36,21 @@ const AlbumCarousel = ({
 
   const albumPage = albums
     .slice((activeIndex * cols), (activeIndex * cols + cols));
+
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(albums.filter((album) => album).filter((album) => album.id === targetId));
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [albums, toggleMenu]);
 
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
@@ -56,11 +77,11 @@ const AlbumCarousel = ({
           {albumPage.map((album) => (
             <AlbumCard
               album={album}
-              handleContextMenu={() => {}}
+              handleContextMenu={handleContextMenu}
               key={album.id}
               library={library}
               measurements={measurements}
-              menuTarget={[]}
+              menuTarget={menuTarget}
               navigate={navigate}
             />
           ))}
@@ -71,6 +92,18 @@ const AlbumCarousel = ({
         array={albums}
         colLength={cols}
         setActiveIndex={setActiveIndex}
+      />
+      <AlbumMenu
+        artistLink
+        albums={menuTarget}
+        anchorPoint={anchorPoint}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
+        }}
+        {...menuProps}
       />
     </>
   );
