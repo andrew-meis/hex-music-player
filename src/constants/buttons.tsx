@@ -51,7 +51,7 @@ export const allButtons: ButtonSpecs[] = [
   },
   {
     type: 'album',
-    icon: <SvgIcon sx={{ mr: '8px', width: '0.9em', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    icon: <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
     name: 'Shuffle',
     action: PlayActions.PLAY_ALBUM,
     shuffle: true,
@@ -79,7 +79,7 @@ export const allButtons: ButtonSpecs[] = [
   },
   {
     type: 'artist',
-    icon: <SvgIcon sx={{ mr: '8px', width: '0.9em', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    icon: <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
     name: 'Shuffle',
     action: PlayActions.PLAY_ARTIST,
     shuffle: true,
@@ -95,6 +95,8 @@ export const allButtons: ButtonSpecs[] = [
 
 export const albumButtons = allButtons.filter((button) => button.type === 'album');
 
+export const artistButtons = allButtons.filter((button) => button.type === 'artist');
+
 export const playlistButtons: ButtonSpecs[] = [
   {
     type: 'playlist',
@@ -105,7 +107,7 @@ export const playlistButtons: ButtonSpecs[] = [
   },
   {
     type: 'playlist',
-    icon: <SvgIcon sx={{ mr: '8px', width: '0.9em', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    icon: <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
     name: 'Shuffle',
     action: PlayActions.PLAY_PLAYLIST,
     shuffle: true,

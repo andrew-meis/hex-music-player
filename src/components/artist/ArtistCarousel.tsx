@@ -1,12 +1,15 @@
+import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
 import { Artist, Library } from 'hex-plex';
-import { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
+import ArtistMenu from 'components/menus/ArtistMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
+import usePlayback from 'hooks/usePlayback';
 import { ArtistPreview } from 'routes/genre/Genre';
 import ArtistCard from './ArtistCard';
 
@@ -22,6 +25,9 @@ const ArtistCarousel = ({
   artists, cols, library, navigate, width,
 }: ArtistCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
+  const { playSwitch } = usePlayback();
+
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
     if (prevIndex) return activeIndex - prevIndex;
@@ -31,6 +37,22 @@ const ArtistCarousel = ({
 
   const artistPage = artists
     .slice((activeIndex * cols), (activeIndex * cols + cols));
+
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(artists
+      .filter((artist) => artist).filter((artist) => artist.id === targetId) as Artist[]);
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [artists, toggleMenu]);
 
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
@@ -62,11 +84,11 @@ const ArtistCarousel = ({
           {artistPage.map((artist) => (
             <ArtistCard
               artist={artist}
-              handleContextMenu={() => {}}
+              handleContextMenu={handleContextMenu}
               key={artist.id}
               library={library}
               measurements={measurements}
-              menuTarget={[]}
+              menuTarget={menuTarget}
               onClick={() => handleClick(artist)}
             />
           ))}
@@ -77,6 +99,17 @@ const ArtistCarousel = ({
         array={artists}
         colLength={cols}
         setActiveIndex={setActiveIndex}
+      />
+      <ArtistMenu
+        anchorPoint={anchorPoint}
+        artists={menuTarget}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
+        }}
+        {...menuProps}
       />
     </>
   );

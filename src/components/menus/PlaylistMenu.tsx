@@ -60,7 +60,7 @@ const PlaylistMenu = ({
       ))}
       <MenuDivider />
       <MenuItem onClick={() => navigate(`/playlists/${playlists[0].id}`)}>
-        <SvgIcon sx={{ mr: '8px' }}><BsMusicNoteList /></SvgIcon>
+        <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><BsMusicNoteList /></SvgIcon>
         Go to playlist
       </MenuItem>
       {children}

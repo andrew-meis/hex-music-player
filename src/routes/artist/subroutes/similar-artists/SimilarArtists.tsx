@@ -1,3 +1,4 @@
+import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
@@ -13,6 +14,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
+import ArtistMenu from 'components/menus/ArtistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
@@ -100,6 +102,8 @@ const SimilarArtists = () => {
   const queryClient = useQueryClient();
   const topMostGroup = useRef<SimilarArtistGroup | null>(null);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
   const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
@@ -180,8 +184,18 @@ const SimilarArtists = () => {
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    setMenuTarget([]);
-  }, []);
+    if (!items.rows) return;
+    const artists = items.rows.map((row) => row.artists).flat();
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(artists
+      .filter((el) => el.id === targetId));
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [items, toggleMenu]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -271,50 +285,65 @@ const SimilarArtists = () => {
   }
 
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-      key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
-    >
-      <GroupedVirtuoso
-        className="scroll-container"
-        components={{
-          Footer: FooterWide,
-          Header,
-        }}
-        context={similarArtistContext}
-        groupContent={(index) => GroupRowContent(
-          { index, context: similarArtistContext },
-        )}
-        groupCounts={items.groupCounts}
-        isScrolling={handleScrollState}
-        itemContent={
-          (index, _groupIndex, _item, context) => RowContent({ index, context })
-        }
-        itemsRendered={(list) => {
-          // @ts-ignore
-          const renderedGroupIndices = (list).map((listEl) => listEl.groupIndex);
-          if (topMostGroup.current !== items.groups![renderedGroupIndices[0]]) {
-            queryClient
-              .setQueryData(['similar-header-text'], items.groups![renderedGroupIndices[0]]?.text);
-            topMostGroup.current = items.groups![renderedGroupIndices[0]];
+    <>
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={location.pathname}
+        style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
+      >
+        <GroupedVirtuoso
+          className="scroll-container"
+          components={{
+            Footer: FooterWide,
+            Header,
+          }}
+          context={similarArtistContext}
+          groupContent={(index) => GroupRowContent(
+            { index, context: similarArtistContext },
+          )}
+          groupCounts={items.groupCounts}
+          isScrolling={handleScrollState}
+          itemContent={
+            (index, _groupIndex, _item, context) => RowContent({ index, context })
           }
+          itemsRendered={(list) => {
+            // @ts-ignore
+            const renderedGroupIndices = (list).map((listEl) => listEl.groupIndex);
+            if (topMostGroup.current !== items.groups![renderedGroupIndices[0]]) {
+              queryClient.setQueryData(
+                ['similar-header-text'],
+                items.groups![renderedGroupIndices[0]]?.text,
+              );
+              topMostGroup.current = items.groups![renderedGroupIndices[0]];
+            }
+          }}
+          ref={virtuoso}
+          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          onScroll={(e) => {
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              `similar-artists-scroll ${id}`,
+              target.scrollTop as unknown as string,
+            );
+          }}
+        />
+      </motion.div>
+      <ArtistMenu
+        anchorPoint={anchorPoint}
+        artists={menuTarget}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
         }}
-        ref={virtuoso}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        onScroll={(e) => {
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `similar-artists-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
+        {...menuProps}
       />
-    </motion.div>
+    </>
   );
 };
 

@@ -72,9 +72,11 @@ const NowPlayingMenu = ({
   return (
     <ControlledMenu
       portal
+      boundingBoxPadding="10"
+      submenuCloseDelay={0}
+      submenuOpenDelay={0}
       onClose={() => toggleMenu(false)}
       {...props}
-      boundingBoxPadding="10"
     >
       {tracks.length === 1 && trackButtons.slice(1).map((button: ButtonSpecs) => (
         <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>

@@ -97,8 +97,8 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     filter,
     filters,
     navigate,
+    playSwitch,
     refreshMetadata,
-    refreshPage,
     setFilter,
     setSort,
     sort,
@@ -161,8 +161,8 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           artistData={artistData}
           colors={colors}
           navigate={navigate}
+          playSwitch={playSwitch}
           refreshMetadata={refreshMetadata}
-          refreshPage={refreshPage}
           width={width}
         />
         <Box sx={{ height: 24, width: '100%' }} />

@@ -65,6 +65,8 @@ const QueueMenu = ({
       <ControlledMenu
         portal
         boundingBoxPadding="10"
+        submenuCloseDelay={0}
+        submenuOpenDelay={0}
         onClose={() => toggleMenu(false)}
         {...props}
       >
@@ -104,6 +106,8 @@ const QueueMenu = ({
     <ControlledMenu
       portal
       boundingBoxPadding="10"
+      submenuCloseDelay={0}
+      submenuOpenDelay={0}
       onClose={() => toggleMenu(false)}
       {...props}
     >

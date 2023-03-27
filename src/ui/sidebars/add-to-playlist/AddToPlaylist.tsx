@@ -18,7 +18,7 @@ import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { QueryKeys } from 'types/enums';
-import { isAlbum, isTrack } from 'types/type-guards';
+import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 
 const List = React
   .forwardRef((
@@ -62,7 +62,7 @@ const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) =>
           )
         }
         sx={{ width: 40, height: 40, marginRight: '8px' }}
-        variant="rounded"
+        variant={isArtist(item) ? 'circular' : 'rounded'}
       />
       <Box
         sx={{

@@ -78,7 +78,7 @@ const PlaylistCard = ({
               transition: '0.2s',
               '--img': `url(${thumbSrc})`,
             } as React.CSSProperties}
-            variants={imageMotion}
+            variants={menuOpen ? {} : imageMotion}
             width={measurements.IMAGE_SIZE - 24}
           >
             {!thumbSrc && (

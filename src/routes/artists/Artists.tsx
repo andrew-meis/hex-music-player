@@ -1,3 +1,4 @@
+import { useMenuState } from '@szhsin/react-menu';
 import { UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
@@ -7,6 +8,7 @@ import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import ArtistMenu from 'components/menus/ArtistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
@@ -68,6 +70,8 @@ const Artists = () => {
   const navigationType = useNavigationType();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState();
   const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
@@ -112,8 +116,16 @@ const Artists = () => {
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    setMenuTarget([]);
-  }, []);
+    if (!artists) return;
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(artists.filter((artist) => artist).filter((artist) => artist.id === targetId));
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [artists, toggleMenu]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -204,44 +216,57 @@ const Artists = () => {
   if (isLoading || !artists) return null;
 
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-      key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
-    >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer: FooterWide,
-          Header,
-          ScrollSeekPlaceholder,
+    <>
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={location.pathname}
+        style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
+      >
+        <Virtuoso
+          className="scroll-container"
+          components={{
+            Footer: FooterWide,
+            Header,
+            ScrollSeekPlaceholder,
+          }}
+          context={artistsContext}
+          data={items}
+          itemContent={(index, item, context) => RowContent({ context, index, artists: item })}
+          ref={virtuoso}
+          scrollSeekConfiguration={{
+            enter: (velocity) => {
+              if (scrollCount.current < 10) return false;
+              return Math.abs(velocity) > 500;
+            },
+            exit: (velocity) => Math.abs(velocity) < 100,
+          }}
+          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          onScroll={(e) => {
+            if (scrollCount.current < 10) scrollCount.current += 1;
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              'artists',
+              target.scrollTop as unknown as string,
+            );
+          }}
+        />
+      </motion.div>
+      <ArtistMenu
+        anchorPoint={anchorPoint}
+        artists={menuTarget}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
         }}
-        context={artistsContext}
-        data={items}
-        itemContent={(index, item, context) => RowContent({ context, index, artists: item })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            'artists',
-            target.scrollTop as unknown as string,
-          );
-        }}
+        {...menuProps}
       />
-    </motion.div>
+    </>
   );
 };
 

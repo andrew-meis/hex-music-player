@@ -5,12 +5,16 @@ import { flag } from 'country-emoji';
 import fontColorContrast from 'font-color-contrast';
 import { Album, Artist, Hub } from 'hex-plex';
 import { isEmpty } from 'lodash';
+import { useCallback } from 'react';
 import emoji from 'react-easy-emoji';
 import { SiMusicbrainz, TbBrandLastfm, TbExternalLink } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
 import IconMenuButton from 'components/buttons/IconMenuButton';
 import Tooltip from 'components/tooltip/Tooltip';
+import { artistButtons, ButtonSpecs } from 'constants/buttons';
+import { PlayParams } from 'hooks/usePlayback';
 import useRestoreAlbums from 'hooks/useRestoreAlbums';
+import { PlayActions } from 'types/enums';
 
 const countryMapper = (country: string) => {
   switch (country) {
@@ -98,16 +102,23 @@ const GenreChips = ({ artist, colors, navigate }: GenreChipsProps) => (
 
 interface MenuBoxProps {
   artist: Artist;
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   refreshMetadata: (id: number) => Promise<void>
-  refreshPage: () => void;
   width: number;
 }
 
-const MenuBox = ({ artist, refreshMetadata, refreshPage, width }: MenuBoxProps) => {
+const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) => {
   const mbid = (artist.mbid[0].id as unknown as string).slice(7);
   const filters = window.electron.readFilters('filters');
   const hasHiddenReleases = filters.findIndex((obj) => obj.artist === artist.guid) !== -1;
   const restoreAlbums = useRestoreAlbums();
+
+  const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
+    if (!artist) {
+      return;
+    }
+    await playSwitch(button.action, { artist, shuffle: button.shuffle });
+  }, [playSwitch, artist]);
 
   return (
     <Box
@@ -125,15 +136,18 @@ const MenuBox = ({ artist, refreshMetadata, refreshPage, width }: MenuBoxProps) 
         direction={width < 180 ? 'right' : 'left'}
         menuButton={({ open }) => <IconMenuButton open={open} width={16} />}
       >
-        <MenuItem onClick={() => refreshPage()}>
-          Reload Page
-        </MenuItem>
+        {artistButtons.map((button: ButtonSpecs) => (
+          <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
+            {button.icon}
+            {button.name}
+          </MenuItem>
+        ))}
+        <MenuDivider />
         {hasHiddenReleases && (
           <MenuItem onClick={() => restoreAlbums(artist)}>
             Restore Hidden
           </MenuItem>
         )}
-        <MenuDivider />
         <MenuItem onClick={() => refreshMetadata(artist.id)}>
           Refresh Metadata
         </MenuItem>
@@ -165,13 +179,13 @@ interface InfoRowProps {
   artistData: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
   colors: string[] | undefined;
   navigate: NavigateFunction;
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   refreshMetadata: (id: number) => Promise<void>
-  refreshPage: () => void;
   width: number;
 }
 
 const InfoRow = ({
-  artistData, colors, navigate, refreshMetadata, refreshPage, width,
+  artistData, colors, navigate, playSwitch, refreshMetadata, width,
 }: InfoRowProps) => {
   const { artist } = artistData!;
 
@@ -187,8 +201,8 @@ const InfoRow = ({
       >
         <MenuBox
           artist={artist}
+          playSwitch={playSwitch}
           refreshMetadata={refreshMetadata}
-          refreshPage={refreshPage}
           width={32}
         />
         <FlagAndPlaycount artist={artist} />
@@ -210,8 +224,8 @@ const InfoRow = ({
       <GenreChips artist={artist} colors={colors} navigate={navigate} />
       <MenuBox
         artist={artist}
+        playSwitch={playSwitch}
         refreshMetadata={refreshMetadata}
-        refreshPage={refreshPage}
         width={180}
       />
     </Box>

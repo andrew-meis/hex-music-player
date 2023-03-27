@@ -1,6 +1,5 @@
 import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'hex-plex';
 import { isEmpty, throttle } from 'lodash';
@@ -34,7 +33,7 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
-import { PlayActions, PlexSortKeys, QueryKeys, SortOrders } from 'types/enums';
+import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import {
   AppSettings,
   CardMeasurements,
@@ -81,7 +80,6 @@ export interface ArtistContext {
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   recentFavorites: Track[] | undefined;
   refreshMetadata: (id: number) => Promise<void>;
-  refreshPage: () => void;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React
     .Dispatch<React.SetStateAction<{ by: string, order: string }>>;
@@ -140,7 +138,6 @@ const Artist = () => {
   const menuSection = useRef<string | null>();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const queryClient = useQueryClient();
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
@@ -301,14 +298,6 @@ const Artist = () => {
     };
   }, [grid, settings, width]);
 
-  const refreshPage = useCallback(() => {
-    queryClient.invalidateQueries([QueryKeys.ARTIST]);
-    queryClient.invalidateQueries([QueryKeys.ARTIST_APPEARANCES]);
-    queryClient.invalidateQueries([QueryKeys.ARTIST_TRACKS]);
-    queryClient.invalidateQueries([QueryKeys.RECENT_TRACKS]);
-    queryClient.invalidateQueries([QueryKeys.PALETTE]);
-  }, [queryClient]);
-
   const artistContext = useMemo(() => ({
     artist: artist.data,
     cols: grid.cols,
@@ -327,7 +316,6 @@ const Artist = () => {
     playSwitch,
     recentFavorites: recentTracks.data.slice(0, 12),
     refreshMetadata,
-    refreshPage,
     setFilter,
     setSort,
     settings,
@@ -352,7 +340,6 @@ const Artist = () => {
     playSwitch,
     recentTracks.data,
     refreshMetadata,
-    refreshPage,
     setFilter,
     setSort,
     settings,
