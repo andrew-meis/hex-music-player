@@ -5,13 +5,13 @@ import {
   MenuDivider,
   MenuItem,
 } from '@szhsin/react-menu';
-import { Playlist } from 'hex-plex';
 import React, { useCallback } from 'react';
 import {
   BsMusicNoteList,
   MdDelete,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { Playlist } from 'api/index';
 import { ButtonSpecs, playlistButtons } from 'constants/buttons';
 import { useDeletePlaylist } from 'hooks/playlistHooks';
 import { PlayParams } from 'hooks/usePlayback';

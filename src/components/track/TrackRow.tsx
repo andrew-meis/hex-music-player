@@ -1,7 +1,7 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import { Library, Track } from 'hex-plex';
 import moment from 'moment';
 import { NavLink } from 'react-router-dom';
+import { Library, Track } from 'api/index';
 import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';

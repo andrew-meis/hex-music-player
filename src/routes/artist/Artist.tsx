@@ -1,7 +1,6 @@
 import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'hex-plex';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/all';
@@ -14,6 +13,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'api/index';
 import AlbumMenu from 'components/menus/AlbumMenu';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING } from 'constants/measures';

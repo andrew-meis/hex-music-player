@@ -1,7 +1,7 @@
 import { Box, Collapse, SvgIcon } from '@mui/material';
-import { Artist } from 'hex-plex';
 import React from 'react';
 import { BiChevronDown } from 'react-icons/all';
+import { Artist } from 'api/index';
 import ArtistCard from 'components/artist/ArtistCard';
 import ArtistPreview from 'components/artist/ArtistPreview';
 import { VIEW_PADDING } from 'constants/measures';

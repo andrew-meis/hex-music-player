@@ -1,11 +1,11 @@
 import { Box, Chip, SvgIcon, Typography } from '@mui/material';
 import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
-import { Artist } from 'hex-plex';
 import React, { useMemo, useState } from 'react';
 import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { usePrevious } from 'react-use';
+import { Artist } from 'api/index';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';

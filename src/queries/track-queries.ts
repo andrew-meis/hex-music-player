@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Library, MediaType, Track } from 'hex-plex';
-import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
+import { Library, MediaType, Track, parseContainerType } from 'api/index';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
@@ -58,7 +57,7 @@ export const useTopTracks = (
       type: 10, config, library, limit, start, end, seconds,
     });
     if (!response) return undefined;
-    const { tracks } = parseContainerType(MediaType.TRACK, response.data);
+    const { tracks } = parseContainerType(MediaType.TRACK, response);
     return uniqBy(tracks, 'guid');
   },
   {

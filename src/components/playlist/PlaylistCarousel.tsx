@@ -1,9 +1,9 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
-import { Playlist, Library } from 'hex-plex';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
+import { Playlist, Library } from 'api/index';
 import PlaylistMenu from 'components/menus/PlaylistMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';

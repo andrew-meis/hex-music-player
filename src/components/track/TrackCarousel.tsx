@@ -1,10 +1,10 @@
 import { Box, ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
-import { Library, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { usePrevious } from 'react-use';
+import { Library, PlayQueueItem, Track } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';

@@ -1,10 +1,10 @@
 import { Box, CircularProgress, Grid, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
-import { Library, Track } from 'hex-plex';
 import { throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import { usePrevious } from 'react-use';
+import { Library, Track } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';

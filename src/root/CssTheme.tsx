@@ -25,6 +25,7 @@ declare module '@mui/material/Typography' {
     banner: true;
     header: true;
     home: true;
+    title: true;
   }
 }
 
@@ -241,6 +242,19 @@ const theme = extendTheme({
             overflow: 'hidden',
             WebkitBoxOrient: 'vertical',
             WebkitLineClamp: 3,
+          },
+        },
+        {
+          props: { variant: 'title' },
+          style: {
+            display: '-webkit-box',
+            fontFamily: 'TT Commons, sans-serif',
+            fontSize: '2.125rem',
+            fontWeight: 600,
+            lineHeight: 1.235,
+            overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: 2,
           },
         },
       ],

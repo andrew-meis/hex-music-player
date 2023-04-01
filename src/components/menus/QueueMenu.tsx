@@ -7,7 +7,6 @@ import {
   SubMenu,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import { Artist, PlayQueueItem, Track } from 'hex-plex';
 import {
   BsPlayFill,
   IoMdMicrophone,
@@ -19,6 +18,7 @@ import {
   TiInfoLarge,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { Artist, PlayQueueItem, Track } from 'api/index';
 import useArtistMatch from 'hooks/useArtistMatch';
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';

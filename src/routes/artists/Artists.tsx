@@ -1,13 +1,13 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
 import ArtistMenu from 'components/menus/ArtistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';

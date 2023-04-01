@@ -1,7 +1,7 @@
 import { Box, Divider, Grid, Typography } from '@mui/material';
-import { Album, Track } from 'hex-plex';
 import moment from 'moment';
 import React from 'react';
+import { Album, Track } from 'api/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import { LastFmTrack } from 'types/lastfm-interfaces';
 

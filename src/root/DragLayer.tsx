@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Album, Artist, Playlist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useEffect, useRef } from 'react';
 import { useDragLayer, XYCoord } from 'react-dnd';
+import { Album, Artist, Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { DragTypes } from 'types/enums';
 
 const layerStyles: React.CSSProperties = {

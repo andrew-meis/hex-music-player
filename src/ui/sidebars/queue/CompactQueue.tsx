@@ -1,11 +1,11 @@
 import { Avatar, Box, Tooltip, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import { Library, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import { isNumber } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
+import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import QueueMenu from 'components/menus/QueueMenu';
 import useDragActions from 'hooks/useDragActions';
 import { useLibrary } from 'queries/app-queries';

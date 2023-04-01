@@ -1,6 +1,5 @@
 import { Box, IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { PlayQueueItem } from 'hex-plex';
 import { useCallback, useEffect, useState } from 'react';
 import {
   IoPlaySkipBack,
@@ -12,6 +11,7 @@ import {
   RiShuffleFill,
   RiStopCircleFill,
 } from 'react-icons/all';
+import { PlayQueueItem } from 'api/index';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import useKeyPress from 'hooks/useKeyPress';

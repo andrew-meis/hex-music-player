@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Library, MediaType } from 'hex-plex';
-import { parseContainerType } from 'hex-plex/dist/library';
 import { uniqBy } from 'lodash';
+import { Library, MediaType, parseContainerType } from 'api/index';
 import { albumQueryFn, albumSearchQueryFn, albumTracksQueryFn } from 'queries/album-query-fns';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
@@ -92,7 +91,7 @@ export const useTopAlbums = (
       type: 9, config, library, limit, start, end, seconds,
     });
     if (!response) return undefined;
-    const { albums } = parseContainerType(MediaType.ALBUM, response.data);
+    const { albums } = parseContainerType(MediaType.ALBUM, response);
     return uniqBy(albums, 'guid');
   },
   {

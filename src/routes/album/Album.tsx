@@ -1,6 +1,5 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Artist, Album as TAlbum, Playlist, Track, Genre } from 'hex-plex';
 import { countBy, inRange } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -11,7 +10,8 @@ import {
   useNavigationType,
   useParams,
 } from 'react-router-dom';
-import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
+import { GroupedVirtuoso } from 'react-virtuoso';
+import { Artist, Album as TAlbum, Playlist, Track, Genre } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -25,9 +25,9 @@ import Item from 'routes/virtuoso-components/Item';
 import ListGrouped from 'routes/virtuoso-components/ListGrouped';
 import { DragTypes } from 'types/enums';
 import { VirtuosoContext, RouteParams } from 'types/interfaces';
+import AnimatedHeader from './AnimatedHeader';
 import Footer from './Footer';
 import GroupRow from './GroupRow';
-import Header from './Header';
 import Row from './Row';
 
 export interface AlbumContext extends VirtuosoContext {
@@ -65,9 +65,10 @@ const Album = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const virtuoso = useRef<GroupedVirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState();
+  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
+  const [shrink, setShrink] = useState(false);
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
@@ -177,7 +178,7 @@ const Album = () => {
     selectedRows,
   ]);
 
-  if (album.isLoading || albumTracks.isLoading) {
+  if (album.isLoading || albumTracks.isLoading || !album.data?.album) {
     return null;
   }
 
@@ -185,39 +186,56 @@ const Album = () => {
     <>
       <motion.div
         animate={{ opacity: 1 }}
+        className="scroll-container"
         exit={{ opacity: 0 }}
         initial={{ opacity: 0 }}
         key={location.pathname}
-        style={{ height: '100%' }}
-        onAnimationComplete={() => virtuoso.current
-          ?.scrollTo({ top: initialScrollTop })}
+        ref={setScroller}
+        style={{
+          height: '100%',
+          overflowY: 'overlay',
+        } as unknown as React.CSSProperties}
+        onAnimationComplete={() => scroller?.scrollTo({ top: initialScrollTop })}
+        onScroll={(e) => {
+          const target = e.currentTarget as unknown as HTMLDivElement;
+          sessionStorage.setItem(
+            `album-scroll ${id}`,
+            target.scrollTop as unknown as string,
+          );
+          if (target.scrollTop > 199) {
+            setShrink(true);
+          }
+          if (target.scrollTop < 200) {
+            setShrink(false);
+          }
+        }}
       >
+        <AnimatedHeader
+          album={album.data.album}
+          navigate={navigate}
+          shrink={shrink}
+        />
         <GroupedVirtuoso
-          className="scroll-container"
+          useWindowScroll
           components={{
             Footer,
-            Header,
             Item,
             List: ListGrouped,
           }}
           context={albumContext}
+          customScrollParent={scroller || undefined}
           fixedItemHeight={56}
           groupContent={(index) => GroupRowContent(
             { context: albumContext, discNumber: groups[index] },
           )}
           groupCounts={groupCounts}
+          id="list-items"
           isScrolling={handleScrollState}
           itemContent={(index, _groupIndex, _item, context) => RowContent(
             { context, index, track: albumTracks.data![index] },
           )}
-          ref={virtuoso}
-          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          onScroll={(e) => {
-            const target = e.currentTarget as unknown as HTMLDivElement;
-            sessionStorage.setItem(
-              `album-scroll ${id}`,
-              target.scrollTop as unknown as string,
-            );
+          style={{
+            marginTop: 300,
           }}
         />
       </motion.div>

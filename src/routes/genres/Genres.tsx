@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Genre, Library } from 'hex-plex';
 import { countBy, throttle } from 'lodash';
 import React, { useMemo, useRef } from 'react';
 import {
@@ -11,6 +10,7 @@ import {
   useOutletContext,
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Genre, Library } from 'api/index';
 import { VIEW_PADDING } from 'constants/measures';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtists } from 'queries/artist-queries';

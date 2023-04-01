@@ -1,13 +1,12 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Track } from 'hex-plex';
-import { parseTrackContainer } from 'hex-plex/dist/types/track';
+import ky from 'ky';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Track, parseTrackContainer } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -124,8 +123,8 @@ const Tracks = () => {
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
       `&X-Plex-Token=${library.api.headers()['X-Plex-Token']}`,
     ].join('');
-    const newResponse = await axios.get(url);
-    const container = parseTrackContainer(newResponse.data);
+    const newResponse = await ky(url).json() as Record<string, any>;
+    const container = parseTrackContainer(newResponse);
     return container;
   };
 

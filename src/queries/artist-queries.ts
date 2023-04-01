@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Album, Artist, Hub, Library } from 'hex-plex';
+import { Album, Artist, Hub, Library } from 'api/index';
 import {
   artistAppearancesQueryFn,
   artistQueryFn,

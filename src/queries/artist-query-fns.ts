@@ -1,8 +1,6 @@
-import axios from 'axios';
-import { Account, Library, MediaType } from 'hex-plex';
-import { parseContainerType } from 'hex-plex/dist/library';
-import { parseHubContainer } from 'hex-plex/dist/types/hub';
+import ky from 'ky';
 import { deburr, isEmpty } from 'lodash';
+import { Account, Library, MediaType, parseContainerType, parseHubContainer } from 'api/index';
 import { AppConfig } from 'types/interfaces';
 
 export const artistQueryFn = async (id: number, library: Library) => {
@@ -15,8 +13,8 @@ export const artistQueryFn = async (id: number, library: Library) => {
       includeRelatedCount: 20,
     },
   );
-  const response = await axios.get(url);
-  const { hubs } = parseHubContainer(response.data.MediaContainer.Metadata[0].Related);
+  const response = await ky(url).json() as Record<string, any>;
+  const { hubs } = parseHubContainer(response.MediaContainer.Metadata[0].Related);
   const filterIds: number[] = [];
   hubs.forEach((hub) => {
     if (hub.type === 'album') {
@@ -25,11 +23,11 @@ export const artistQueryFn = async (id: number, library: Library) => {
   });
   const { albums } = parseContainerType(
     MediaType.ALBUM,
-    response.data.MediaContainer.Metadata[0].Children,
+    response.MediaContainer.Metadata[0].Children,
   );
   return {
     albums: albums.filter((album) => !filterIds.includes(album.id)),
-    artist: parseContainerType(MediaType.ARTIST, response.data.MediaContainer).artists[0],
+    artist: parseContainerType(MediaType.ARTIST, response.MediaContainer).artists[0],
     hubs,
   };
 };
@@ -102,13 +100,13 @@ export const artistTracksQueryFn = async ({
   if (removeDupes) params.append('group', 'guid');
   params.append('sort', sort);
   params.append('type', MediaType.TRACK.toString());
-  // eslint-disable-next-line prefer-template
-  const url = library.api.uri
-    + `/library/sections/${config?.sectionId!}`
-    + `/all?${params.toString()}`
-    + `&X-Plex-Token=${account.authToken}`;
-  const response = await axios.get(url, { headers: library.api.headers() });
-  const parsedData = parseContainerType(MediaType.TRACK, response.data);
+  params.append('X-Plex-Token', account.authToken);
+  const url = `${library.api.uri}/library/sections/${config?.sectionId!}/all`;
+  const response = await ky(
+    url,
+    { headers: library.api.headers(), searchParams: params },
+  ).json() as Record<string, any>;
+  const parsedData = parseContainerType(MediaType.TRACK, response);
   const tracks = parsedData.tracks
     .filter((track) => (track.originalTitle?.toLowerCase().includes(title.toLowerCase()))
       || (track.grandparentId === id));

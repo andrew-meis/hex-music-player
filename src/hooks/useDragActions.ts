@@ -1,5 +1,5 @@
-import { PlayQueueItem, Track } from 'hex-plex';
 import { useCallback } from 'react';
+import { PlayQueueItem, Track } from 'api/index';
 import usePlayback from 'hooks/usePlayback';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId } from 'queries/app-queries';

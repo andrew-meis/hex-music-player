@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Library, MediaType } from 'hex-plex';
+import ky from 'ky';
+import { Library, MediaType } from 'api/index';
 import { AppConfig } from 'types/interfaces';
 
 type filterOptionsQueryFnParams = {
@@ -72,7 +72,7 @@ export const topLibraryQueryFn = async ({
         accountID: 1,
       },
     );
-    response = await axios.get(url);
+    response = await ky(url).json() as Record<string, any>;
   }
   if (!seconds) {
     const url = library.api.getAuthenticatedUrl(
@@ -86,7 +86,7 @@ export const topLibraryQueryFn = async ({
         accountID: 1,
       },
     );
-    response = await axios.get(url);
+    response = await ky(url).json() as Record<string, any>;
   }
   return response;
 };

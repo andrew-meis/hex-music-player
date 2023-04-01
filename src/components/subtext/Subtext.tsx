@@ -1,5 +1,5 @@
-import { Track } from 'hex-plex';
 import { NavLink } from 'react-router-dom';
+import { Track } from 'api/index';
 
 const Subtext = ({ track, showAlbum }: {track: Track, showAlbum: boolean}) => (
   <>

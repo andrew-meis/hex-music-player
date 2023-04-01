@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Artist } from 'hex-plex';
 import { isEmpty } from 'lodash';
+import { Artist } from 'api/index';
 import { QueryKeys } from 'types/enums';
 
 const useRestoreAlbums = () => {

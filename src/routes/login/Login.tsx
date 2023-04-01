@@ -1,11 +1,11 @@
 import { LoadingButton } from '@mui/lab';
 import { Box, ButtonGroup, Fade, Paper, Typography } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { Account, Client, Device, Library, ServerConnection } from 'hex-plex';
+import ky from 'ky';
 import qs from 'qs';
 import React, { useState } from 'react';
 import { redirect, useLoaderData, useNavigate } from 'react-router-dom';
+import { Account, Client, Device, Library, ServerConnection } from 'api/index';
 import { defaultSettings, useSettings } from 'queries/app-queries';
 import CssTheme from 'root/CssTheme';
 import ThemeMode from 'root/ThemeMode';
@@ -75,20 +75,22 @@ const Login = () => {
   const { data: settings } = useSettings(loaderData.settings);
   const { data: pinData } = useQuery(
     ['auth-url'],
-    () => axios.post(
-      'https://plex.tv/api/v2/pins',
-      null,
-      {
-        headers: {
-          accept: 'application/json',
+    async () => {
+      const response = await ky.post(
+        'https://plex.tv/api/v2/pins',
+        {
+          headers: {
+            accept: 'application/json',
+          },
+          searchParams: {
+            'X-Plex-Client-Identifier': client.identifier,
+            'X-Plex-Product': client.product,
+            strong: true,
+          },
         },
-        params: {
-          'X-Plex-Client-Identifier': client.identifier,
-          'X-Plex-Product': client.product,
-          strong: true,
-        },
-      },
-    ).then((r) => ({ code: r.data.code, id: r.data.id })),
+      ).json() as Record<string, any>;
+      return { code: response.code, id: response.id };
+    },
     {
       enabled: loadingButton === 0 && step === 'init',
       refetchOnMount: false,
@@ -98,19 +100,21 @@ const Login = () => {
   );
   const { data: authToken } = useQuery(
     ['auth-token'],
-    () => axios.get(
-      `https://plex.tv/api/v2/pins/${pinData?.id}`,
-      {
-        headers: {
-          accept: 'application/json',
+    async () => {
+      const response = await ky(
+        `https://plex.tv/api/v2/pins/${pinData?.id}`,
+        {
+          headers: {
+            accept: 'application/json',
+          },
+          searchParams: {
+            code: pinData?.code,
+            'X-Plex-Client-Identifier': client.identifier,
+          },
         },
-        params: {
-          code: pinData?.code,
-          'X-Plex-Client-Identifier': client.identifier,
-        },
-      },
-    )
-      .then((r) => r.data.authToken),
+      ).json() as Record<string, any>;
+      return response.authToken;
+    },
     {
       enabled: loadingButton === 1,
       onSuccess: (data) => {
@@ -145,20 +149,16 @@ const Login = () => {
   );
   const { data: connection } = useQuery(
     ['connection', selectedServer?.name],
-    () => {
-      const promises = selectedServer?.connections.map((conn, index) => {
-        const { uri } = selectedServer.connections[index];
-        return axios.get(`${uri}/servers?X-Plex-Token=${selectedServer.accessToken}`, {
+    async () => {
+      const promises = selectedServer!.connections.map((conn, index) => {
+        const { uri } = selectedServer!.connections[index];
+        return ky(`${uri}/servers?X-Plex-Token=${selectedServer!.accessToken}`, {
           timeout: 10000,
-          data: conn,
         });
       });
-      if (promises) {
-        return Promise.race(promises)
-          .then((r) => JSON.parse(r.config.data))
-          .catch((e) => console.error(e));
-      }
-      return undefined;
+      const response = await Promise.race(promises);
+      return selectedServer!.connections
+        .find((conn) => conn.uri === response.url.split('/servers')[0])!;
     },
     {
       enabled: !!selectedServer,
@@ -169,12 +169,11 @@ const Login = () => {
   );
   const { data: librarySections } = useQuery(
     ['library-sections'],
-    () => {
-      const serverConnection = new ServerConnection(connection.uri, account);
+    async () => {
+      const serverConnection = new ServerConnection(connection!.uri, account);
       const library = new Library(serverConnection);
-      return library.sections()
-        .then((sectionContainer) => sectionContainer.sections
-          .filter((section) => section.type === 'artist'));
+      const sectionContainer = await library.sections();
+      return sectionContainer.sections.filter((section) => section.type === 'artist');
     },
     {
       enabled: !!connection,

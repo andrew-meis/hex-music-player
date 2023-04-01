@@ -1,8 +1,8 @@
 import { AlertColor, PaletteMode } from '@mui/material';
-import { Account, Device, Library, PlayQueueItem } from 'hex-plex';
 import React from 'react';
 import { ConnectDragSource } from 'react-dnd';
 import { Location } from 'react-router-dom';
+import { Account, Device, Library, PlayQueueItem } from 'api/index';
 
 export interface AppInfo {
   appName: string;

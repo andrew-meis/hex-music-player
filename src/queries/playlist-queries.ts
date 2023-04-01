@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Library } from 'hex-plex';
+import { Library } from 'api/index';
 import { QueryKeys } from 'types/enums';
 
 export const usePlaylists = (library: Library) => useQuery(
@@ -26,7 +26,8 @@ export const usePlaylistItems = (id: number, library: Library) => useQuery(
   [QueryKeys.PLAYLIST_ITEMS, id],
   () => library.playlistTracks(id),
   {
-    staleTime: 5 * 60 * 1000,
+    keepPreviousData: true,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
     select: (data) => data.items,
   },

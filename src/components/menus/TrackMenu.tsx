@@ -7,7 +7,6 @@ import {
   SubMenu,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import { Artist, Track } from 'hex-plex';
 import React, { useCallback } from 'react';
 import {
   IoMdMicrophone,
@@ -17,6 +16,7 @@ import {
   TiInfoLarge,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { Artist, Track } from 'api/index';
 import { ButtonSpecs, trackButtons, tracksButtons } from 'constants/buttons';
 import useArtistMatch from 'hooks/useArtistMatch';
 import { PlayParams } from 'hooks/usePlayback';

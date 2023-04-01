@@ -1,9 +1,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Album, Library } from 'hex-plex';
-import { parseAlbumContainer } from 'hex-plex/dist/types/album';
+import ky from 'ky';
 import { throttle } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -14,6 +12,7 @@ import {
   useOutletContext,
 } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Album, Library, parseAlbumContainer } from 'api/index';
 import AlbumMenu from 'components/menus/AlbumMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
@@ -131,8 +130,8 @@ const Albums = () => {
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
       `&X-Plex-Token=${library.api.headers()['X-Plex-Token']}`,
     ].join('');
-    const newResponse = await axios.get(url);
-    const container = parseAlbumContainer(newResponse.data);
+    const newResponse = await ky(url).json() as Record<string, any>;
+    const container = parseAlbumContainer(newResponse);
     return container;
   };
 

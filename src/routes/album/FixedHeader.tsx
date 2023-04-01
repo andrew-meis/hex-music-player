@@ -1,5 +1,5 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import { Album } from 'hex-plex';
+import { Album } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC_PADDING } from 'constants/measures';
 

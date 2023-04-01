@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Account, Client, Connection, Library, ServerConnection } from 'hex-plex';
+import ky from 'ky';
+import { Account, Client, Connection, Library, ServerConnection } from 'api/index';
 import { AuthParams, AppConfig } from 'types/interfaces';
 
 const sysInfo = window.electron.getAppInfo();
@@ -32,14 +32,13 @@ const initializeApp = async (config: AppConfig) => {
     }
     const promises = server?.connections.map((conn, index) => {
       const { uri } = server.connections[index];
-      return axios.get(`${uri}?X-Plex-Token=${server.accessToken}`, {
+      return ky(`${uri}/servers?X-Plex-Token=${server!.accessToken}`, {
         timeout: 10000,
-        data: conn,
       });
     });
     if (promises) {
       const connection: Connection = await Promise.race(promises)
-        .then((r) => JSON.parse(r.config.data));
+        .then((r) => server!.connections.find((conn) => conn.uri === r.url.split('/servers')[0])!);
       const newAccount = new Account(client, server.accessToken);
       const serverConnection = new ServerConnection(connection.uri, newAccount);
       const library = new Library(serverConnection);

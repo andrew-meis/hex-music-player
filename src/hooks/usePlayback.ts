@@ -1,7 +1,7 @@
-import { Album, Artist, Playlist, PlayQueueItem, Track } from 'hex-plex';
 import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { v4 } from 'uuid';
+import { Album, Artist, Playlist, PlayQueueItem, Track } from 'api/index';
 import useQueue from 'hooks/useQueue';
 import { useAccount, useLibrary, useQueueId, useServer } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';

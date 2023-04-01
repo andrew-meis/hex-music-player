@@ -1,6 +1,5 @@
 import { Box, Typography } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Artist } from 'hex-plex';
 import { throttle, uniqBy } from 'lodash';
 import { useMemo, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
@@ -11,6 +10,7 @@ import {
   useOutletContext,
   useParams,
 } from 'react-router-dom';
+import { Artist } from 'api/index';
 import AlbumCarousel from 'components/album/AlbumCarousel';
 import ArtistCarousel from 'components/artist/ArtistCarousel';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';

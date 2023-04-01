@@ -1,6 +1,5 @@
-import axios from 'axios';
-import { Account, Library, MediaType, Track } from 'hex-plex';
-import { parseTrackContainer } from 'hex-plex/dist/types/track';
+import ky from 'ky';
+import { Account, Library, MediaType, Track, parseTrackContainer } from 'api/index';
 import { Result } from 'types/types';
 
 export const searchQueryFn = async (library: Library, query: string) => {
@@ -54,8 +53,8 @@ export const searchTracksQueryFn = async ({
     + `/library/sections/${sectionId}`
     + `/search?${params.toString()}`
     + `&X-Plex-Token=${account.authToken}`;
-  const response = await axios.get(url, { headers: library.api.headers() });
-  return parseTrackContainer(response.data).tracks;
+  const response = await ky(url, { headers: library.api.headers() }).json() as Record<string, any>;
+  return parseTrackContainer(response).tracks;
 };
 
 export const getTrackMatch = async ({

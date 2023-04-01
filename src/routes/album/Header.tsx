@@ -1,11 +1,11 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
-import { Album } from 'hex-plex';
 import React from 'react';
 import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link, useOutletContext } from 'react-router-dom';
+import { Album } from 'api/index';
 import Palette from 'components/palette/Palette';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';

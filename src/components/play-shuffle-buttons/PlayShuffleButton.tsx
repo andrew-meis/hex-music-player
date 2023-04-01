@@ -2,6 +2,7 @@ import {
   Box, Fab, IconButton, SvgIcon,
 } from '@mui/material';
 import { FiRadio, RiPlayFill, RiShuffleFill } from 'react-icons/all';
+import { MotionBox } from 'components/motion-components/motion-components';
 import useKeyPress from 'hooks/useKeyPress';
 
 const { platform } = window.electron.getAppInfo();
@@ -30,69 +31,82 @@ const PlayShuffleButton = ({
       sx={{ transform: 'translateZ(0px)' }}
       width={60}
     >
-      <Fab
-        color="primary"
-        size="medium"
-        sx={{
-          transition: '200ms',
-          zIndex: 0,
-          '&:hover': {
-            backgroundColor: 'primary.light',
-            transform: 'scale(1.1)',
-          },
-        }}
-        onClick={handlePlay}
+      <MotionBox
+        transition={{ type: 'spring', stiffness: 100 }}
+        whileHover={{ scale: [null, 1.2, 1.1] }}
       >
-        <SvgIcon sx={{ width: '1.3em', height: '1.3em', color: 'background.default' }}>
-          <RiPlayFill />
-        </SvgIcon>
-      </Fab>
-      <IconButton
+        <Fab
+          color="primary"
+          size="medium"
+          sx={{
+            zIndex: 0,
+            '&:hover': {
+              backgroundColor: 'primary.light',
+            },
+          }}
+          onClick={handlePlay}
+        >
+          <SvgIcon sx={{ width: '1.3em', height: '1.3em', color: 'background.default' }}>
+            <RiPlayFill />
+          </SvgIcon>
+        </Fab>
+      </MotionBox>
+      <MotionBox
         sx={{
           position: 'absolute',
           right: '2px',
           bottom: '2px',
-          width: '22px',
-          height: '22px',
-          color: 'primary.main',
-          backgroundColor: 'background.default',
-          transition: '200ms',
-          '&:hover': {
-            color: 'primary.light',
-            backgroundColor: 'background.default',
-            transform: 'scale(1.2)',
-          },
         }}
-        onClick={handleShuffle}
+        transition={{ type: 'spring', stiffness: 100 }}
+        whileHover={{ scale: [null, 1.3, 1.2] }}
       >
-        <SvgIcon sx={{ fontSize: '1rem' }} viewBox="0 0 16 16">
-          <RiShuffleFill />
-        </SvgIcon>
-      </IconButton>
-      {ctrlPress && !!handleRadio && (
         <IconButton
           sx={{
-            position: 'absolute',
-            right: '2px',
-            bottom: '2px',
             width: '22px',
             height: '22px',
             color: 'primary.main',
             backgroundColor: 'background.default',
-            transition: '200ms',
             '&:hover': {
               color: 'primary.light',
               backgroundColor: 'background.default',
-              transform: 'scale(1.2)',
             },
           }}
-          onClick={handleRadio}
+          onClick={handleShuffle}
         >
           <SvgIcon sx={{ fontSize: '1rem' }} viewBox="0 0 16 16">
-            <FiRadio />
+            <RiShuffleFill />
           </SvgIcon>
         </IconButton>
-      )}
+      </MotionBox>
+      <MotionBox
+        sx={{
+          position: 'absolute',
+          right: '2px',
+          bottom: '2px',
+        }}
+        transition={{ type: 'spring', stiffness: 100 }}
+        whileHover={{ scale: [null, 1.3, 1.2] }}
+      >
+        {ctrlPress && !!handleRadio && (
+          <IconButton
+            sx={{
+              width: '22px',
+              height: '22px',
+              color: 'primary.main',
+              backgroundColor: 'background.default',
+              '&:hover': {
+                color: 'primary.light',
+                backgroundColor: 'background.default',
+              },
+            }}
+            onClick={handleRadio}
+          >
+            <SvgIcon sx={{ fontSize: '1rem' }} viewBox="0 0 16 16">
+              <FiRadio />
+            </SvgIcon>
+          </IconButton>
+        )}
+      </MotionBox>
     </Box>
   );
 };

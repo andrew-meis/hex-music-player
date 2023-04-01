@@ -1,9 +1,9 @@
 import { Box, Typography } from '@mui/material';
 import { UseQueryResult } from '@tanstack/react-query';
-import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'hex-plex';
 import { BiChevronRight } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
+import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';

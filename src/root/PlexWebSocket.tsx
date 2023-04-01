@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { Connection } from 'hex-plex';
 import { useEffect } from 'react';
 import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
+import { Connection } from 'api/index';
 import { QueryKeys } from 'types/enums';
 
 interface PlexServerMessage {

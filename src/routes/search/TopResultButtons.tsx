@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 import { Box, Button, SvgIcon } from '@mui/material';
-import React from 'react';
 import {
   BsPlayFill, FiRadio, RiShuffleFill, TiArrowForward,
 } from 'react-icons/all';

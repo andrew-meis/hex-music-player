@@ -1,8 +1,7 @@
-import axios from 'axios';
-import { Library, Track } from 'hex-plex';
-import { parseTrackContainer } from 'hex-plex/dist/types/track';
+import ky from 'ky';
 import { countBy } from 'lodash';
 import moment from 'moment';
+import { Library, Track, parseTrackContainer } from 'api/index';
 import { AppConfig } from 'types/interfaces';
 
 export interface Playcount {
@@ -45,11 +44,11 @@ export const recentTracksQueryFn = async (
       accountID: 1,
     },
   );
-  const response = await axios.get(url);
-  if (response.data.MediaContainer.size === 0) {
+  const response = await ky(url).json() as Record<string, any>;
+  if (response.MediaContainer.size === 0) {
     return [];
   }
-  const keys = response.data.MediaContainer.Metadata.map((record: Track) => record.ratingKey);
+  const keys = response.MediaContainer.Metadata.map((record: Track) => record.ratingKey);
   const counts = countBy(keys, Math.floor);
   const { tracks } = await library.tracks(
     config?.sectionId!,
@@ -78,8 +77,8 @@ export const similarTracksQueryFn = async (
       sort: 'distance',
     },
   );
-  const response = await axios.get(url);
-  return parseTrackContainer(response.data).tracks;
+  const response = await ky(url).json() as Record<string, any>;
+  return parseTrackContainer(response).tracks;
 };
 
 export const trackHistoryQueryFn = async (
@@ -96,9 +95,9 @@ export const trackHistoryQueryFn = async (
       accountID: 1,
     },
   );
-  const response = await axios.get(url);
-  if (response.data.MediaContainer.size === 0) {
+  const response = await ky(url).json() as Record<string, any>;
+  if (response.MediaContainer.size === 0) {
     return [];
   }
-  return response.data.MediaContainer.Metadata as Playcount[];
+  return response.MediaContainer.Metadata as Playcount[];
 };

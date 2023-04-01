@@ -8,10 +8,10 @@ import {
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { Album, Library, Track } from 'hex-plex';
 import React, { useEffect, useState } from 'react';
 import { GoCheck, RiSendPlaneLine } from 'react-icons/all';
 import { ListProps, Virtuoso } from 'react-virtuoso';
+import { Album, Library, Track } from 'api/index';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
@@ -156,11 +156,11 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
     const response = await createPlaylist(title);
-    if (response.status === 200) {
+    if (response.size > 0) {
       await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
       toast({ type: 'success', text: 'Playlist created' });
     }
-    if (response.status !== 200) {
+    if (response.size === 0) {
       toast({ type: 'error', text: 'Failed to create playlist' });
     }
     setTitle('');

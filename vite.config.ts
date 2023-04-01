@@ -18,6 +18,7 @@ rmSync(path.join(__dirname, 'dist'), { recursive: true, force: true }); // v14.1
 export default defineConfig({
   resolve: {
     alias: {
+      api: path.join(__dirname, 'src/api'),
       components: path.join(__dirname, 'src/components'),
       constants: path.join(__dirname, 'src/constants'),
       hooks: path.join(__dirname, 'src/hooks'),

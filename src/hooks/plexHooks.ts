@@ -1,4 +1,4 @@
-import axios from 'axios';
+import ky from 'ky';
 import { useCallback } from 'react';
 import { useLibrary } from 'queries/app-queries';
 
@@ -9,7 +9,7 @@ export const useUploadArt = () => {
     const url = library.api.getAuthenticatedUrl(
       `/library/metadata/${id}/arts`,
     );
-    await axios.post(url, data);
+    await ky.post(url, { body: data });
   }, [library]);
 
   return { uploadArt };
@@ -22,7 +22,7 @@ export const useLibraryMaintenance = () => {
     const url = library.api.getAuthenticatedUrl(
       `/library/metadata/${id}/refresh`,
     );
-    await axios.put(url);
+    await ky.put(url);
   }, [library]);
 
   return { refreshMetadata };

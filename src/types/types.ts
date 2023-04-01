@@ -4,6 +4,6 @@ import {
   Genre,
   Playlist,
   Track,
-} from 'hex-plex';
+} from 'api/index';
 
 export type Result = Artist | Album | Track | Playlist | Genre

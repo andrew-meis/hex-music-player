@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { ArtistContainer } from 'hex-plex';
+import { ArtistContainer } from 'api/index';
 import { QueryKeys } from 'types/enums';
 
 const useArtistMatch = ({ name = '' }: {name: string}) => {

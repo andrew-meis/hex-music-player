@@ -1,7 +1,6 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Album, Artist, Playlist, Track } from 'hex-plex';
 import { throttle } from 'lodash';
 import { useMemo, useRef } from 'react';
 import { BiChevronRight } from 'react-icons/all';
@@ -12,6 +11,7 @@ import {
   useNavigationType,
   useOutletContext,
 } from 'react-router-dom';
+import { Album, Artist, Playlist, Track } from 'api/index';
 import AlbumCarousel from 'components/album/AlbumCarousel';
 import ArtistCarousel from 'components/artist/ArtistCarousel';
 import { MotionTypography, MotionSvg } from 'components/motion-components/motion-components';

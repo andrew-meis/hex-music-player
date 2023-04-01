@@ -1,6 +1,6 @@
-import { PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React from 'react';
 import { useDrag } from 'react-dnd';
+import { PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { DragTypes } from 'types/enums';
 
 const useTrackDragDrop = ({

@@ -1,12 +1,12 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Library, Playlist, PlayQueueItem } from 'hex-plex';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Library, Playlist, PlayQueueItem } from 'api/index';
 import PlaylistMenu from 'components/menus/PlaylistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';

@@ -1,8 +1,8 @@
 import { Avatar, Box, SvgIcon } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import { Artist } from 'hex-plex';
 import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
+import { Artist } from 'api/index';
 import {
   MotionBox, MotionSvg, MotionTypography,
 } from 'components/motion-components/motion-components';

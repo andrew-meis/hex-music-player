@@ -1,9 +1,9 @@
 import { Gapless5, LogLevel } from '@regosen/gapless-5';
 import { Updater, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PlayQueue, PlayQueueItem, Track } from 'hex-plex';
 import React, {
   ReactNode, useCallback, useContext, useEffect, useRef,
 } from 'react';
+import { PlayQueue, PlayQueueItem, Track } from 'api/index';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';

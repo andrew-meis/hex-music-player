@@ -2,9 +2,9 @@ import {
   Box, Collapse, List, ListItem, Typography,
 } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import { Playlist } from 'hex-plex';
 import React, { useCallback, useState } from 'react';
 import { FaCaretDown, FaCaretRight, TiFolder } from 'react-icons/all';
+import { Playlist } from 'api/index';
 import PlaylistMenu from 'components/menus/PlaylistMenu';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';

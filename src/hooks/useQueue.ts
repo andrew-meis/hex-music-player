@@ -1,8 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { Album, PlayQueue, PlayQueueItem, Track } from 'hex-plex';
-import { parsePlayQueue } from 'hex-plex/dist/types/play-queue';
+import ky from 'ky';
 import { useCallback } from 'react';
+import { Album, PlayQueue, PlayQueueItem, Track, parsePlayQueue } from 'api/index';
 import useToast from 'hooks/useToast';
 import {
   appQueryKeys,
@@ -51,12 +50,12 @@ const useQueue = () => {
         ...(next && { next: 1 }),
       },
     );
-    const response = await axios.put(url);
+    const response = await ky.put(url).json() as Record<string, any>;
     if (!sendToast) {
-      return parsePlayQueue(response.data);
+      return parsePlayQueue(response);
     }
     toast({ type: 'info', text: 'Added to queue' });
-    return parsePlayQueue(response.data);
+    return parsePlayQueue(response);
   }, [account.client.identifier, library, queueId, server.clientIdentifier, toast]);
 
   const setQueueId = useCallback(async (id: number) => {
@@ -80,8 +79,8 @@ const useQueue = () => {
         ...(center && { center }),
       },
     );
-    const response = await axios.get(url as string);
-    return parsePlayQueue(response.data);
+    const response = await ky(url).json() as Record<string, any>;
+    return parsePlayQueue(response);
   }, [library, queueId]);
 
   const playQueue = useCallback(async (uri: string, shuffle: boolean, key?: string | undefined) => {
@@ -95,8 +94,8 @@ const useQueue = () => {
     const url = library.api.getAuthenticatedUrl(
       `/playQueues/${queueId}/items/${queueItemId}`,
     );
-    const response = await axios.delete(url);
-    return parsePlayQueue(response.data);
+    const response = await ky.delete(url).json() as Record<string, any>;
+    return parsePlayQueue(response);
   }, [library, queueId]);
 
   const toggleShuffle = useCallback(async (action: 'shuffle' | 'unshuffle') => {

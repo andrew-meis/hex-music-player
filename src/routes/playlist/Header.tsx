@@ -1,8 +1,8 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import { Playlist } from 'hex-plex';
 import { BiHash, RiHeartLine, RiTimeLine, BsMusicNoteList } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
+import { Playlist } from 'api/index';
 import FilterInput from 'components/filter-input/FilterInput';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';

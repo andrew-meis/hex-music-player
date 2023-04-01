@@ -6,7 +6,6 @@ import {
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import { Artist } from 'hex-plex';
 import React, { useCallback } from 'react';
 import {
   IoMdMicrophone,
@@ -14,6 +13,7 @@ import {
   TbWaveSawTool,
 } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { Artist } from 'api/index';
 import { ButtonSpecs, artistButtons } from 'constants/buttons';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';

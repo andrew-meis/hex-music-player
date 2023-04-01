@@ -1,8 +1,8 @@
 import { SvgIcon } from '@mui/material';
-import { Album, Library } from 'hex-plex';
 import React from 'react';
 import { RiAlbumFill } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
+import { Album, Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';

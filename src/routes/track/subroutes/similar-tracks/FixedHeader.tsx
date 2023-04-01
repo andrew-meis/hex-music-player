@@ -1,7 +1,7 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { Track } from 'hex-plex';
 import { IoMdMicrophone } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
+import { Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC_PADDING } from 'constants/measures';
 

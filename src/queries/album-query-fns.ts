@@ -1,7 +1,5 @@
-import axios from 'axios';
-import { Library, MediaType } from 'hex-plex';
-import { parseContainerType } from 'hex-plex/dist/library';
-import { parseHubContainer } from 'hex-plex/dist/types/hub';
+import ky from 'ky';
+import { Library, parseAlbumContainer, parseHubContainer } from 'api/index';
 import { AppConfig } from 'types/interfaces';
 
 export const albumQueryFn = async (id: number, library: Library) => {
@@ -14,9 +12,9 @@ export const albumQueryFn = async (id: number, library: Library) => {
       includeFields: 'musicAnalysis,thumbBlurHash',
     },
   );
-  const response = await axios.get(url);
-  const [album] = parseContainerType(MediaType.ALBUM, response.data.MediaContainer).albums;
-  const related = parseHubContainer(response.data.MediaContainer.Metadata[0].Related);
+  const response = await ky(url).json() as Record<string, any>;
+  const [album] = parseAlbumContainer(response).albums;
+  const related = parseHubContainer(response.MediaContainer.Metadata[0].Related);
   return {
     album,
     related: related.hubs[0]?.items,

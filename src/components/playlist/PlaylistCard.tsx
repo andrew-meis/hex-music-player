@@ -1,8 +1,8 @@
 import { SvgIcon } from '@mui/material';
-import { Library, Playlist } from 'hex-plex';
 import React, { useMemo } from 'react';
 import { BsMusicNoteList } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
+import { Library, Playlist } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';

@@ -2,7 +2,6 @@ import {
   Box, Collapse, InputAdornment, InputBase, ListSubheader, SvgIcon,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { parsePlaylistContainer } from 'hex-plex/dist/types/playlist';
 import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine, TiPlus } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
@@ -27,14 +26,14 @@ const PlaylistSubheader = ({ show, setShow }: PlaylistSubheaderProps) => {
   const handleSubmit = async (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
     const response = await createPlaylist(title);
-    if (response.status === 200) {
-      const newPlaylist = parsePlaylistContainer(response.data);
+    if (response.size > 0) {
+      const [newPlaylist] = response.playlists;
       setShow(false);
       await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
-      navigate(`/playlists/${newPlaylist.playlists[0].id}`);
+      navigate(`/playlists/${newPlaylist.id}`);
       toast({ type: 'success', text: 'Playlist created' });
     }
-    if (response.status !== 200) {
+    if (response.size === 0) {
       setShow(false);
       toast({ type: 'error', text: 'Failed to create playlist' });
     }

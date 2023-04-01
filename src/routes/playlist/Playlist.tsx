@@ -1,7 +1,6 @@
 import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { Playlist as TypePlaylist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -9,6 +8,7 @@ import { MdDelete } from 'react-icons/all';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useKey } from 'react-use';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Playlist as TypePlaylist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
 import { WIDTH_CALC } from 'constants/measures';
 import { useMoveManyPlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';

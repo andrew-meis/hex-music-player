@@ -1,6 +1,6 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { Track } from 'hex-plex';
 import { IoMdMicrophone } from 'react-icons/all';
+import { Track } from 'api/index';
 
 interface FixedHeaderProps {
   thumbSrcSm: string;

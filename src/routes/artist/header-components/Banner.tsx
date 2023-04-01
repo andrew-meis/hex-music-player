@@ -56,7 +56,7 @@ interface BannerProps {
 const Banner = ({ context, tracksInView }: BannerProps) => {
   const {
     artist: artistData, colors, filter, library,
-    playArtist, playArtistRadio, refreshPage, settings, width,
+    playArtist, playArtistRadio, settings, width,
   } = context!;
   const { artist } = artistData!;
   const bannerInView = useInView({ threshold: thresholds });
@@ -87,7 +87,7 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
       }
       const reader = new FileReader();
       reader.addEventListener('load', (event) => {
-        uploadArt(artist.id, event.target!.result).then(() => refreshPage());
+        uploadArt(artist.id, event.target!.result);
       });
       reader.readAsArrayBuffer(files[0]);
     },

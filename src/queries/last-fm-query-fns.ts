@@ -1,4 +1,4 @@
-import axios from 'axios';
+import ky from 'ky';
 import { LastFmGenreTag, LastFmSearchResult, LastFmTrack } from 'types/lastfm-interfaces';
 
 const LASTFM_ROOT = 'https://ws.audioscrobbler.com/2.0/';
@@ -11,8 +11,8 @@ const getInfo = async (apikey: string, artist: string, title: string) => {
   params.append('track', title);
   params.append('format', 'json');
   const url = `${LASTFM_ROOT}?${params.toString()}`;
-  const response = await axios.get(url);
-  return response.data.track as LastFmTrack;
+  const response = await ky(url).json() as Record<string, any>;
+  return response.track as LastFmTrack;
 };
 
 const getSimilar = async (apikey: string, artist: string, title: string) => {
@@ -24,8 +24,8 @@ const getSimilar = async (apikey: string, artist: string, title: string) => {
   params.append('autocorrect', '1');
   params.append('format', 'json');
   const url = `${LASTFM_ROOT}?${params.toString()}`;
-  const response = await axios.get(url);
-  return response.data.similartracks.track as LastFmTrack[];
+  const response = await ky(url).json() as Record<string, any>;
+  return response.similartracks.track as LastFmTrack[];
 };
 
 const getTag = async (apikey: string, tag: string) => {
@@ -35,8 +35,8 @@ const getTag = async (apikey: string, tag: string) => {
   params.append('tag', tag);
   params.append('format', 'json');
   const url = `${LASTFM_ROOT}?${params.toString()}`;
-  const response = await axios.get(url);
-  return response.data.tag as LastFmGenreTag;
+  const response = await ky(url).json() as Record<string, any>;
+  return response.tag as LastFmGenreTag;
 };
 
 const search = async (apikey: string, artist: string, title: string) => {
@@ -48,8 +48,8 @@ const search = async (apikey: string, artist: string, title: string) => {
   params.append('limit', '1');
   params.append('format', 'json');
   const url = `${LASTFM_ROOT}?${params.toString()}`;
-  const response = await axios.get(url);
-  return response.data.results.trackmatches.track[0] as LastFmSearchResult;
+  const response = await ky(url).json() as Record<string, any>;
+  return response.results.trackmatches.track[0] as LastFmSearchResult;
 };
 
 export const lastfmSearchQueryFn = async (artist?: string, title?: string, apikey?: string) => {

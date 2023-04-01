@@ -7,7 +7,7 @@ import {
   PlaylistItem,
   PlayQueueItem,
   Track,
-} from 'hex-plex';
+} from 'api/index';
 
 export const isAlbum = (x: any): x is Album => x._type === 'album';
 export const isArtist = (x: any): x is Artist => x._type === 'artist';

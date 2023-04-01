@@ -1,12 +1,10 @@
 import { Avatar, Box, Dialog, SvgIcon, Typography } from '@mui/material';
 import { Menu, MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { XMLParser } from 'fast-xml-parser';
+import ky from 'ky';
 import { useState } from 'react';
-import {
-  FiLogOut, IoInformationCircleOutline, IoSettingsSharp,
-} from 'react-icons/all';
+import { FiLogOut, IoInformationCircleOutline, IoSettingsSharp } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
 import IconMenuButton from 'components/buttons/IconMenuButton';
 import useQueue from 'hooks/useQueue';
@@ -55,8 +53,8 @@ const AppMenu = () => {
     ['users'],
     async () => {
       const url = `https://plex.tv/api/home/users?X-Plex-Token=${config.token}`;
-      const response = await axios.get(url);
-      const json = await parse(response.data);
+      const response = await ky(url).text();
+      const json = await parse(response);
       return json.MediaContainer.User;
     },
     {
@@ -93,15 +91,16 @@ const AppMenu = () => {
     const newConfig = window.electron.readConfig('config') as AppConfig;
     newConfig.token = token;
     window.electron.writeConfig('config', newConfig);
-    navigate('/');
+    navigate('/login');
   };
 
   const handleSwitchUser = async (uuid: string) => {
     // eslint-disable-next-line max-len
     const url = `https://plex.tv/api/v2/home/users/${uuid}/switch?X-Plex-Client-Identifier=${config.clientId}&X-Plex-Token=${config.token}`;
-    const response = await axios.post(url, { headers: library.api.headers() });
+    const response = await ky.post(url, { headers: library.api.headers() })
+      .json() as Record<string, any>;
     setOpen(false);
-    await handleLogout(response.data.authToken);
+    await handleLogout(response.authToken);
   };
 
   return (

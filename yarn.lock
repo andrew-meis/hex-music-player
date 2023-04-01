@@ -2312,17 +2312,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.2.3":
-  version: 1.2.3
-  resolution: "axios@npm:1.2.3"
-  dependencies:
-    follow-redirects: ^1.15.0
-    form-data: ^4.0.0
-    proxy-from-env: ^1.1.0
-  checksum: 52802a1e317e8a6fd2c014aa06a6978ea8381142c98e91f2be5e9e213b77b541451e588e17a3d6db2d6e76faea82911239ca4981d7af959d67fb66018dab3ac9
-  languageName: node
-  linkType: hard
-
 "axobject-query@npm:^2.2.0":
   version: 2.2.0
   resolution: "axobject-query@npm:2.2.0"
@@ -4000,17 +3989,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^4.0.9":
-  version: 4.0.12
-  resolution: "fast-xml-parser@npm:4.0.12"
-  dependencies:
-    strnum: ^1.0.5
-  bin:
-    fxparser: src/cli/cli.js
-  checksum: afb800fdc39d3c53ce0be76dd57afafc5556790a798524c98bdb984af2adc0d35360d05d1360cdb37db3f6de1fa754ae5596f16934c60b490b22ffb47948846d
-  languageName: node
-  linkType: hard
-
 "fastest-stable-stringify@npm:^2.0.2":
   version: 2.0.2
   resolution: "fastest-stable-stringify@npm:2.0.2"
@@ -4110,16 +4088,6 @@ __metadata:
   version: 3.2.7
   resolution: "flatted@npm:3.2.7"
   checksum: 427633049d55bdb80201c68f7eb1cbd533e03eac541f97d3aecab8c5526f12a20ccecaeede08b57503e772c769e7f8680b37e8d482d1e5f8d7e2194687f9ea35
-  languageName: node
-  linkType: hard
-
-"follow-redirects@npm:^1.15.0":
-  version: 1.15.2
-  resolution: "follow-redirects@npm:1.15.2"
-  peerDependenciesMeta:
-    debug:
-      optional: true
-  checksum: faa66059b66358ba65c234c2f2a37fcec029dc22775f35d9ad6abac56003268baf41e55f9ee645957b32c7d9f62baf1f0b906e68267276f54ec4b4c597c2b190
   languageName: node
   linkType: hard
 
@@ -4567,7 +4535,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": ^5.45.0
     "@typescript-eslint/parser": ^5.45.0
     "@vitejs/plugin-react": ^2.0.1
-    axios: ^1.2.3
+    "@zwolf/prism": 2.8.0
     chroma-js: ^2.4.2
     country-emoji: ^1.5.6
     electron: ^22.1.0
@@ -4583,10 +4551,11 @@ __metadata:
     fast-xml-parser: ^4.0.13
     font-color-contrast: ^11.1.0
     framer-motion: ^8.4.6
-    hex-plex: "file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A."
+    ky: ^0.33.3
     lodash: ^4.17.21
     moment: ^2.29.4
     node-vibrant: ^3.2.1-alpha.1
+    normalizr: ^3.6.2
     object-hash: ^3.0.0
     qs: ^6.11.0
     react: ^18.2.0
@@ -4609,19 +4578,6 @@ __metadata:
     vite-plugin-electron: ^0.9.0
   languageName: unknown
   linkType: soft
-
-"hex-plex@file:./../hex-plex#./../hex-plex::hash=d43b99&locator=hex-music-player%40workspace%3A.":
-  version: 0.1.1
-  resolution: "hex-plex@file:./../hex-plex#./../hex-plex::hash=c83cf7&locator=hex-music-player%40workspace%3A."
-  dependencies:
-    "@zwolf/prism": 2.8.0
-    fast-xml-parser: ^4.0.9
-    ky: 0.18.0
-    normalizr: 3.6.0
-    uuid: 7.0.2
-  checksum: 0ad606cbe7e5e31f0b581f59e5a5bedfc4faa2edf010644d153889808e8e8c2ed6bfd626a5b7f72aaafce2ccf508f20dc237712f81cbe196edb3b6c916ef7407
-  languageName: node
-  linkType: hard
 
 "hey-listen@npm:^1.0.5, hey-listen@npm:^1.0.8":
   version: 1.0.8
@@ -5237,10 +5193,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ky@npm:0.18.0":
-  version: 0.18.0
-  resolution: "ky@npm:0.18.0"
-  checksum: 1cbc8f0b48366b7134d13925f3d56a6ade2e1d16d67c8ba5f88cb586ea0d0405f75124e10d842bffc3764e9390c039ed14c63e9aa9f70a459ef41f8d6a67dafc
+"ky@npm:^0.33.3":
+  version: 0.33.3
+  resolution: "ky@npm:0.33.3"
+  checksum: d1869e1f33c0165355f621b6726fcc1a9de20a31f4a826ca0cfd5753d83b9cba8723402d554a00194e0ee3959e0dda0638f4b99d54a3a7de928b55ff870b0bcc
   languageName: node
   linkType: hard
 
@@ -5784,10 +5740,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"normalizr@npm:3.6.0":
-  version: 3.6.0
-  resolution: "normalizr@npm:3.6.0"
-  checksum: bad907e2ad25109b7f0751819f01ca1d04a3b5d86639a766425ea1437cfc094ecfd708bce24cf130e9723eb261e1f75ce22496e210244bd88d87209b149d86b6
+"normalizr@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "normalizr@npm:3.6.2"
+  checksum: 40cea88ba95bf72f6819d9369e0f877782ed53201651740788849c8049178d7558561b146fc1788f1aefcce9a6b01ed8fdcf3fd406e2054514f6779fe069b5b9
   languageName: node
   linkType: hard
 
@@ -6164,13 +6120,6 @@ __metadata:
     object-assign: ^4.1.1
     react-is: ^16.13.1
   checksum: c056d3f1c057cb7ff8344c645450e14f088a915d078dcda795041765047fa080d38e5d626560ccaac94a4e16e3aa15f3557c1a9a8d1174530955e992c675e459
-  languageName: node
-  linkType: hard
-
-"proxy-from-env@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "proxy-from-env@npm:1.1.0"
-  checksum: ed7fcc2ba0a33404958e34d95d18638249a68c430e30fcb6c478497d72739ba64ce9810a24f53a7d921d0c065e5b78e3822759800698167256b04659366ca4d4
   languageName: node
   linkType: hard
 
@@ -7523,15 +7472,6 @@ __metadata:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
-  languageName: node
-  linkType: hard
-
-"uuid@npm:7.0.2":
-  version: 7.0.2
-  resolution: "uuid@npm:7.0.2"
-  bin:
-    uuid: dist/bin/uuid
-  checksum: f80af114b67e1f66020c70897be9ba889b1996fbfde8fc46eb7405e95d3448908a793bab36d16d11a082a16ca7e1d27ab5203e505dd3c1bab7efbb647bd94823
   languageName: node
   linkType: hard
 

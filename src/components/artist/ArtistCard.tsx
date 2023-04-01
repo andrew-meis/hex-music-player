@@ -1,8 +1,8 @@
 import { SvgIcon } from '@mui/material';
-import { Artist, Library } from 'hex-plex';
 import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
+import { Artist, Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';

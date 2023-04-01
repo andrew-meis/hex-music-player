@@ -1,9 +1,9 @@
 import { Box, ListItem, Typography } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
-import { Playlist, PlaylistItem, PlayQueueItem, Track } from 'hex-plex';
 import React, { useCallback } from 'react';
 import { useDrop } from 'react-dnd';
 import { NavLink } from 'react-router-dom';
+import { Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import {
   navlistBoxStyle,
   navlistActiveBox,

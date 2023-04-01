@@ -1,10 +1,10 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
-import { Library, PlayQueueItem } from 'hex-plex';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { TiArrowBack } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
+import { Library, PlayQueueItem } from 'api/index';
 import 'styles/queue.scss';
 import Subtext from 'components/subtext/Subtext';
 import { selectedStyle, selectBorderRadius, rowStyle, typographyStyle } from 'constants/style';

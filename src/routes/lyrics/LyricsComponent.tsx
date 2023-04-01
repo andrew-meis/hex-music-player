@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import ky from 'ky';
 import { useEffect, useRef, useState } from 'react';
 import { WIDTH_CALC } from 'constants/measures';
 import { usePlayerState } from 'queries/player-queries';
@@ -75,8 +75,8 @@ const LyricsComponent = () => {
         params.append('track_name', nowPlaying?.track.title.toLowerCase() || '');
         params
           .append('duration', (Math.floor((nowPlaying?.track.duration || 0) / 1000)).toString());
-        const response = await axios.get(`${url}?${params.toString()}`);
-        return processLyrics(response.data, nowPlaying?.track.duration || 0);
+        const response = await ky(`${url}?${params.toString()}`).json() as LyricsData;
+        return processLyrics(response, nowPlaying?.track.duration || 0);
       } catch {
         const params = new URLSearchParams();
         params.append('artist_name', nowPlaying?.track.originalTitle.toLowerCase() || '');
@@ -84,8 +84,8 @@ const LyricsComponent = () => {
         params.append('track_name', nowPlaying?.track.title.toLowerCase() || '');
         params
           .append('duration', (Math.floor((nowPlaying?.track.duration || 0) / 1000)).toString());
-        const response = await axios.get(`${url}?${params.toString()}`);
-        return processLyrics(response.data, nowPlaying?.track.duration || 0);
+        const response = await ky(`${url}?${params.toString()}`).json() as LyricsData;
+        return processLyrics(response, nowPlaying?.track.duration || 0);
       }
     },
     {

@@ -1,11 +1,11 @@
 import { Box, ListItem, SvgIcon, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { Album, Artist } from 'hex-plex';
 import { capitalize } from 'lodash';
 import React from 'react';
 import { BiChevronLeft } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import { Virtuoso } from 'react-virtuoso';
+import { Album, Artist } from 'api/index';
 import {
   navlistBoxStyle,
   navlistActiveBox,

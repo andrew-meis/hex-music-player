@@ -1,6 +1,6 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import axios, { AxiosResponse } from 'axios';
-import { Playlist, PlaylistItem } from 'hex-plex';
+import ky from 'ky';
+import { parsePlaylistContainer, Playlist, PlaylistItem } from 'api/index';
 import useToast from 'hooks/useToast';
 import { useLibrary, useServer } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
@@ -35,7 +35,7 @@ export const useAddToPlaylist = () => {
 export const useCreatePlaylist = () => {
   const library = useLibrary();
   const server = useServer();
-  return async (title: string): Promise<AxiosResponse> => {
+  return async (title: string) => {
     const url = library.api.getAuthenticatedUrl(
       '/playlists',
       {
@@ -45,7 +45,8 @@ export const useCreatePlaylist = () => {
         uri: `server://${server.clientIdentifier}/com.plexapp.plugins.libraryundefined`,
       },
     );
-    return axios.post(url);
+    const response = await ky.post(url).json() as Record<string, any>;
+    return parsePlaylistContainer(response);
   };
 };
 
@@ -73,7 +74,7 @@ export const useMoveManyPlaylistItems = () => {
       if (index === 0 && !afterId) {
         const url = library.api.getAuthenticatedUrl(`/playlists/${playlistId}/items/${id}/move`);
         // eslint-disable-next-line no-await-in-loop
-        await axios.put(url);
+        await ky.put(url);
       }
       if (index > 0) {
         // eslint-disable-next-line no-await-in-loop

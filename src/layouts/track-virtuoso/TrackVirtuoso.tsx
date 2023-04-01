@@ -1,5 +1,5 @@
-import { Track } from 'hex-plex';
 import { Components, Virtuoso } from 'react-virtuoso';
+import { Track } from 'api/index';
 import Footer from 'routes/virtuoso-components/Footer';
 import Item from 'routes/virtuoso-components/Item';
 import List from 'routes/virtuoso-components/List';
