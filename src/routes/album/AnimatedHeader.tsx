@@ -21,12 +21,15 @@ interface GenreLinksProps {
 }
 
 const GenreLinks = ({ album }: GenreLinksProps) => (
-  <Box
+  <MotionBox
+    layout
+    animate={{ opacity: 1 }}
     display="flex"
     flexWrap="wrap"
     height={22}
-    mt="4px"
+    initial={{ opacity: 0 }}
     overflow="hidden"
+    transition={{ duration: 0.3 }}
   >
     <Typography fontFamily="Rubik" variant="subtitle2">
       {album.year}
@@ -35,15 +38,7 @@ const GenreLinks = ({ album }: GenreLinksProps) => (
       <Typography
         fontFamily="Rubik"
         key={genre.id}
-        sx={{
-          pointerEvents: 'auto',
-        }}
         variant="subtitle2"
-        onWheel={(e) => {
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          target.style.pointerEvents = 'none';
-          setTimeout(() => { target.style.pointerEvents = 'auto'; }, 10);
-        }}
       >
         <>
           &nbsp;·&nbsp;
@@ -57,7 +52,7 @@ const GenreLinks = ({ album }: GenreLinksProps) => (
         </>
       </Typography>
     ))}
-  </Box>
+  </MotionBox>
 );
 
 interface AnimatedHeaderProps {
@@ -77,7 +72,7 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
   return (
     <MotionBox
       layout
-      bgcolor="background.paper"
+      bgcolor="background.default"
       display="flex"
       flexDirection="column"
       height={shrink ? 100 : 300}
@@ -86,17 +81,15 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
       maxWidth="900px"
       mx="auto"
       overflow="hidden"
-      position="fixed"
+      position="absolute"
       right={0}
+      sx={{
+        pointerEvents: 'auto',
+      }}
       top={0}
       transition={{ duration: 0.3 }}
       width={WIDTH_CALC}
       zIndex={2}
-      onWheel={(e) => {
-        const target = e.currentTarget as unknown as HTMLDivElement;
-        target.style.pointerEvents = 'none';
-        setTimeout(() => { target.style.pointerEvents = 'auto'; }, 10);
-      }}
     >
       <Box alignItems="flex-end" color="text.primary" display="flex" width={1}>
         <MotionAvatar
@@ -129,6 +122,7 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
             {!shrink && (
               <MotionBox
                 animate={{ opacity: 1 }}
+                display="flex"
                 height={18}
                 initial={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
@@ -161,11 +155,14 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
             </MotionTypography>
             {!shrink && (
               <MotionBox
+                layout
                 alignItems="center"
                 animate={{ opacity: 1 }}
                 display="flex"
                 height={36}
                 initial={{ opacity: 0 }}
+                mb="4px"
+                mt="4px"
                 transition={{ duration: 0.3 }}
               >
                 <Palette id={album.thumb} url={thumbUrl}>

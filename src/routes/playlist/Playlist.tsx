@@ -222,7 +222,7 @@ const Playlist = () => {
   }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleRemove = async () => {
-    if (!items) {
+    if (!items || selectedRows.length === 0) {
       return;
     }
     if (playlist.data!.smart) {

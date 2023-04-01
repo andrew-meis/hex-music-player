@@ -1,3 +1,4 @@
+import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import { countBy, inRange } from 'lodash';
@@ -210,11 +211,25 @@ const Album = () => {
           }
         }}
       >
-        <AnimatedHeader
-          album={album.data.album}
-          navigate={navigate}
-          shrink={shrink}
-        />
+        <Box
+          height={1}
+          left={0}
+          marginRight="-100%"
+          position="sticky"
+          sx={{
+            float: 'left',
+            pointerEvents: 'none',
+          }}
+          top={0}
+          width={1}
+          zIndex={2}
+        >
+          <AnimatedHeader
+            album={album.data.album}
+            navigate={navigate}
+            shrink={shrink}
+          />
+        </Box>
         <GroupedVirtuoso
           useWindowScroll
           components={{
