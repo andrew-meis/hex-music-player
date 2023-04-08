@@ -1,28 +1,22 @@
-import { useMenuState } from '@szhsin/react-menu';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import ky from 'ky';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Track, parseTrackContainer } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { Library, PlayQueueItem, Track, parseTrackContainer } from 'api/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
-import useRowSelect from 'hooks/useRowSelect';
-import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
-import Item from 'routes/virtuoso-components/Item';
-import List from 'routes/virtuoso-components/List';
-import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { DragTypes, QueryKeys } from 'types/enums';
-import { AppConfig, VirtuosoContext } from 'types/interfaces';
+import ScrollSeekPlaceholderNoIndex from 'routes/virtuoso-components/ScrollSeekPlaceholderNoIndex';
+import { QueryKeys } from 'types/enums';
+import { AppConfig } from 'types/interfaces';
 import { FilterObject } from 'ui/sidebars/filter/Filter';
 import Header from './Header';
+import List from './List';
 import Row from './Row';
 
 const containerSize = 100;
@@ -69,9 +63,15 @@ const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) =>
 
 const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
-export interface TracksContext extends VirtuosoContext {
+export interface TracksContext {
   config: AppConfig;
+  getFormattedTime: (inMs: number) => string;
+  hoverIndex: React.MutableRefObject<number | null>;
+  isPlaying: boolean;
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
+  tracks: Track[];
   uri: string;
 }
 
@@ -99,18 +99,16 @@ const Tracks = () => {
   const library = useLibrary();
   const location = useLocation();
   const navigationType = useNavigationType();
+  const queryClient = useQueryClient();
   const range = useRef<ListRange>();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
-  const [menuProps, toggleMenu] = useMenuState();
   const { getFormattedTime } = useFormattedTime();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: config } = useConfig();
-  const { playSwitch, playUri } = usePlayback();
-  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+  const { playUri } = usePlayback();
 
   const fetchTracks = async ({ pageParam = 0 }) => {
     const params = new URLSearchParams();
@@ -152,54 +150,9 @@ const Tracks = () => {
     return array as Track[];
   }, [data]);
 
-  const selectedTracks = useMemo(() => {
-    if (!flatTracks) {
-      return undefined;
-    }
-    if (selectedRows.length > 0) {
-      return selectedRows.map((n) => flatTracks[n]);
-    }
-    return undefined;
-  }, [selectedRows, flatTracks]);
-
-  const { drag, dragPreview } = useTrackDragDrop({
-    hoverIndex,
-    items: flatTracks || [],
-    selectedRows,
-    type: DragTypes.TRACK,
-  });
-
   useEffect(() => {
-    dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, [dragPreview, selectedRows]);
-
-  useEffect(() => {
-    setSelectedRows([]);
-  }, [location, setSelectedRows]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-index');
-    if (!target) {
-      return;
-    }
-    const targetIndex = parseInt(target, 10);
-    switch (true) {
-      case selectedRows.length === 0:
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      default:
-        break;
-    }
-    setAnchorPoint({ x: event.clientX, y: event.clientY });
-    toggleMenu(true);
-  }, [selectedRows, setSelectedRows, toggleMenu]);
+    queryClient.setQueryData(['selected-rows'], []);
+  }, [queryClient]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -246,103 +199,85 @@ const Tracks = () => {
     return `/library/sections/${config.sectionId}/all?${new URLSearchParams(uriParams as any).toString()}`;
   }, [config.sectionId]);
 
-  const tracksContext = useMemo(() => ({
+  const tracksContext: TracksContext = useMemo(() => ({
     config,
-    drag,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     library,
     nowPlaying,
     playUri,
-    selectedRows,
+    tracks: flatTracks,
     uri,
   }), [
     config,
-    drag,
+    flatTracks,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     library,
     nowPlaying,
     playUri,
-    selectedRows,
     uri,
   ]);
 
   if (isLoading || !data) return null;
 
   return (
-    <>
-      <motion.div
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        initial={{ opacity: 0 }}
-        key={location.pathname}
-        style={{ height: '100%' }}
-        onAnimationComplete={() => virtuoso.current
-          ?.scrollTo({ top: initialScrollTop })}
-      >
-        <Virtuoso
-          className="scroll-container"
-          components={{
-            Footer,
-            Header,
-            Item,
-            List,
-            ScrollSeekPlaceholder,
-          }}
-          context={tracksContext}
-          fixedItemHeight={56}
-          increaseViewportBy={168}
-          isScrolling={handleScrollState}
-          itemContent={(index, _item, context) => {
-            const trackContainer = data.pages.find((page) => page.offset === roundDown(index));
-            if (trackContainer) {
-              const track = trackContainer.tracks[index - trackContainer.offset];
-              return RowContent({ context, index, track });
-            }
-            return (
-              <ScrollSeekPlaceholder height={56} />
-            );
-          }}
-          rangeChanged={(newRange) => {
-            range.current = newRange;
-          }}
-          ref={virtuoso}
-          scrollSeekConfiguration={{
-            enter: (velocity) => {
-              if (scrollCount.current < 10) return false;
-              return Math.abs(velocity) > 500;
-            },
-            exit: (velocity) => Math.abs(velocity) < 100,
-          }}
-          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={data.pages[0].totalSize}
-          onScroll={(e) => {
-            if (scrollCount.current < 10) scrollCount.current += 1;
-            const target = e.currentTarget as unknown as HTMLDivElement;
-            sessionStorage.setItem(
-              'tracks-scroll',
-              target.scrollTop as unknown as string,
-            );
-          }}
-        />
-      </motion.div>
-      <TrackMenu
-        anchorPoint={anchorPoint}
-        playSwitch={playSwitch}
-        toggleMenu={toggleMenu}
-        tracks={selectedTracks}
-        {...menuProps}
+    <motion.div
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      key={location.pathname}
+      style={{ height: '100%' }}
+      onAnimationComplete={() => virtuoso.current
+        ?.scrollTo({ top: initialScrollTop })}
+    >
+      <Virtuoso
+        className="scroll-container"
+        components={{
+          Footer,
+          Header,
+          List,
+          ScrollSeekPlaceholder: ScrollSeekPlaceholderNoIndex,
+        }}
+        context={tracksContext}
+        fixedItemHeight={56}
+        increaseViewportBy={168}
+        isScrolling={handleScrollState}
+        itemContent={(index, _item, context) => {
+          const trackContainer = data.pages.find((page) => page.offset === roundDown(index));
+          if (trackContainer) {
+            const track = trackContainer.tracks[index - trackContainer.offset];
+            return RowContent({ context, index, track });
+          }
+          return (
+            <ScrollSeekPlaceholderNoIndex height={56} />
+          );
+        }}
+        rangeChanged={(newRange) => {
+          range.current = newRange;
+        }}
+        ref={virtuoso}
+        scrollSeekConfiguration={{
+          enter: (velocity) => {
+            if (scrollCount.current < 10) return false;
+            return Math.abs(velocity) > 500;
+          },
+          exit: (velocity) => Math.abs(velocity) < 100,
+        }}
+        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+        totalCount={data.pages[0].totalSize}
+        onScroll={(e) => {
+          if (scrollCount.current < 10) scrollCount.current += 1;
+          const target = e.currentTarget as unknown as HTMLDivElement;
+          sessionStorage.setItem(
+            'tracks-scroll',
+            target.scrollTop as unknown as string,
+          );
+        }}
       />
-    </>
+    </motion.div>
   );
 };
 

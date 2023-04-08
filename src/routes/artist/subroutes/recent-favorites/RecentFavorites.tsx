@@ -1,34 +1,33 @@
-import { useMenuState } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { Library, PlayQueueItem, Track } from 'api/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
-import useRowSelect from 'hooks/useRowSelect';
-import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { ArtistQueryData, useArtist } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
-import Item from 'routes/virtuoso-components/Item';
-import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { DragTypes } from 'types/enums';
-import { AppConfig, VirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
+import { AppConfig, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
+import List from './List';
 import Row from './Row';
 
-export interface RecentFavoritesContext extends VirtuosoContext {
+export interface RecentFavoritesContext {
   artist: ArtistQueryData | undefined;
   config: AppConfig;
   filter: string;
+  getFormattedTime: (inMs: number) => string;
+  hoverIndex: React.MutableRefObject<number | null>;
+  isPlaying: boolean;
   items: Track[];
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -57,75 +56,33 @@ const RecentFavorites = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
+  const queryClient = useQueryClient();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('');
-  const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playSwitch, playTracks } = usePlayback();
-  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+  const { playTracks } = usePlayback();
 
-  let items: Track[] = useMemo(() => [], []);
-  if (tracks) {
-    items = tracks.filter(
+  const items = useMemo(() => {
+    if (!tracks) {
+      return [];
+    }
+    if (filter === '') {
+      return tracks;
+    }
+    return tracks.filter(
       (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
       || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
       || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
       || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
     );
-  }
-
-  const { drag, dragPreview } = useTrackDragDrop({
-    hoverIndex,
-    items: items || [],
-    selectedRows,
-    type: DragTypes.TRACK,
-  });
-
-  useLayoutEffect(() => {
-    setSelectedRows([]);
-  }, [location, setSelectedRows]);
+  }, [filter, tracks]);
 
   useEffect(() => {
-    dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, [dragPreview, selectedRows]);
-
-  const selectedTracks = useMemo(() => {
-    if (!items) {
-      return undefined;
-    }
-    if (selectedRows.length > 0) {
-      return selectedRows.map((n) => items[n]);
-    }
-    return undefined;
-  }, [selectedRows, items]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-index');
-    if (!target) {
-      return;
-    }
-    const targetIndex = parseInt(target, 10);
-    switch (true) {
-      case selectedRows.length === 0:
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      default:
-        break;
-    }
-    setAnchorPoint({ x: event.clientX, y: event.clientY });
-    toggleMenu(true);
-  }, [selectedRows, setSelectedRows, toggleMenu]);
+    queryClient.setQueryData(['selected-rows'], []);
+  }, [id, queryClient]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -151,95 +108,75 @@ const RecentFavorites = () => {
     return 0;
   }, [id, navigationType]);
 
-  const recentFavoritesContext = useMemo(() => ({
+  const recentFavoritesContext: RecentFavoritesContext = useMemo(() => ({
     artist: artist.data,
     config: config.data,
-    drag,
     filter,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     items,
     library,
     nowPlaying,
     playTracks,
-    selectedRows,
     setFilter,
   }), [
     artist.data,
     config,
-    drag,
     filter,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     items,
     library,
     nowPlaying,
     playTracks,
-    selectedRows,
     setFilter,
   ]);
 
   return (
-    <>
-      <motion.div
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        initial={{ opacity: 0 }}
-        key={location.pathname}
-        style={{ height: '100%' }}
-        onAnimationComplete={() => virtuoso.current
-          ?.scrollTo({ top: initialScrollTop })}
-      >
-        <Virtuoso
-          className="scroll-container"
-          components={{
-            Footer,
-            Header,
-            Item,
-            List,
-            ScrollSeekPlaceholder,
-          }}
-          context={recentFavoritesContext}
-          data={artist.isLoading || isLoading ? [] : items}
-          fixedItemHeight={56}
-          isScrolling={handleScrollState}
-          itemContent={(index, item, context) => RowContent({ context, index, track: item })}
-          ref={virtuoso}
-          scrollSeekConfiguration={{
-            enter: (velocity) => {
-              if (scrollCount.current < 10) return false;
-              return Math.abs(velocity) > 500;
-            },
-            exit: (velocity) => Math.abs(velocity) < 100,
-          }}
-          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={isLoading || tracks === undefined ? 0 : items.length}
-          onScroll={(e) => {
-            if (scrollCount.current < 10) scrollCount.current += 1;
-            const target = e.currentTarget as unknown as HTMLDivElement;
-            sessionStorage.setItem(
-              `recent-favorites-scroll ${id}`,
-              target.scrollTop as unknown as string,
-            );
-          }}
-        />
-      </motion.div>
-      <TrackMenu
-        anchorPoint={anchorPoint}
-        playSwitch={playSwitch}
-        toggleMenu={toggleMenu}
-        tracks={selectedTracks}
-        {...menuProps}
+    <motion.div
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      key={location.pathname}
+      style={{ height: '100%' }}
+      onAnimationComplete={() => virtuoso.current
+        ?.scrollTo({ top: initialScrollTop })}
+    >
+      <Virtuoso
+        className="scroll-container"
+        components={{
+          Footer,
+          Header,
+          List,
+          ScrollSeekPlaceholder,
+        }}
+        context={recentFavoritesContext}
+        data={artist.isLoading || isLoading ? [] : items}
+        fixedItemHeight={56}
+        isScrolling={handleScrollState}
+        itemContent={(index, item, context) => RowContent({ context, index, track: item })}
+        ref={virtuoso}
+        scrollSeekConfiguration={{
+          enter: (velocity) => {
+            if (scrollCount.current < 10) return false;
+            return Math.abs(velocity) > 500;
+          },
+          exit: (velocity) => Math.abs(velocity) < 100,
+        }}
+        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+        totalCount={isLoading || tracks === undefined ? 0 : items.length}
+        onScroll={(e) => {
+          if (scrollCount.current < 10) scrollCount.current += 1;
+          const target = e.currentTarget as unknown as HTMLDivElement;
+          sessionStorage.setItem(
+            `recent-favorites-scroll ${id}`,
+            target.scrollTop as unknown as string,
+          );
+        }}
       />
-    </>
+    </motion.div>
   );
 };
 

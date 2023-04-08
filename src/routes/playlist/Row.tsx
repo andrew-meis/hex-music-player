@@ -2,33 +2,36 @@ import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import TrackRow from 'components/track/TrackRow';
-import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
+import useRowSelection from 'hooks/useRowSelection';
 import { RowProps } from './Playlist';
 
 const Row = React.memo(({ index, item, context }: RowProps) => {
+  const { isRowSelected, toggleRowSelection } = useRowSelection();
   const [over, setOver] = useState(false);
   const {
     dropIndex,
     getFormattedTime,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     library,
     nowPlaying,
     playlist,
     playPlaylistAtTrack,
-    selectedRows,
   } = context;
   const { track } = item;
   const { data: isDragging } = useQuery(
     ['is-dragging'],
     () => false,
+    {
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
   );
 
   const playing = nowPlaying?.track.id === track.id;
-  const selected = selectedRows.includes(index);
-  const selUp = selected && selectedRows.includes(index - 1);
-  const selDown = selected && selectedRows.includes(index + 1);
+  const selected = isRowSelected(index);
 
   const handleDoubleClick = async () => {
     await playPlaylistAtTrack(track, false);
@@ -46,19 +49,11 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   return (
     <Box
       alignItems="center"
-      className={over
-        ? 'playlist-track playlist-track-over'
-        : 'playlist-track'}
+      className={over ? 'playlist-track playlist-track-over' : 'playlist-track'}
       color="text.secondary"
-      data-index={index}
       data-smart={playlist?.smart}
       display="flex"
       height={56}
-      sx={selected
-        ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-        : { ...rowStyle }}
-      onClick={(event) => handleRowClick(event, index)}
-      onDoubleClick={handleDoubleClick}
       onDragEnter={() => setOver(true)}
       onDragLeave={() => setOver(false)}
       onDrop={handleDrop}
@@ -66,12 +61,16 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
     >
       <Box
         alignItems="center"
+        className={`track ${selected ? 'selected' : ''}`}
+        data-dragging={isDragging ? 'true' : 'false'}
+        data-item-index={index}
         display="flex"
-        sx={{ pointerEvents: isDragging ? 'none' : '' }}
+        height={52}
+        onClick={(event) => toggleRowSelection(index, event)}
+        onDoubleClick={handleDoubleClick}
       >
         <TrackRow
           getFormattedTime={getFormattedTime}
-          index={index + 1}
           isPlaying={isPlaying}
           library={library}
           options={{ showAlbumTitle: true, showArtwork: true }}

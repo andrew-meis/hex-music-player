@@ -47,37 +47,6 @@ export const navlistTypeActiveStyle = {
   fontWeight: 700,
 };
 
-export const rowStyle = {
-  borderRadius: '4px',
-  color: 'text.secondary',
-  '&:hover': {
-    color: 'text.primary',
-    backgroundColor: 'action.hover',
-  },
-};
-
-export const selectBorderRadius = (selUp: boolean, selDown: boolean) => {
-  if (selUp && selDown) {
-    return '0';
-  }
-  if (selUp) {
-    return '0 0 4px 4px';
-  }
-  if (selDown) {
-    return '4px 4px 0 0';
-  }
-  return '4px';
-};
-
-export const selectedStyle = {
-  ...rowStyle,
-  backgroundColor: 'action.selected',
-  color: 'text.primary',
-  '&:hover': {
-    backgroundColor: 'action.selected',
-  },
-};
-
 export const typographyStyle = {
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',

@@ -54,7 +54,7 @@ interface TrackTabsProps {
 
 const TrackTabs = ({ artist, context }: TrackTabsProps) => {
   const {
-    getFormattedTime, isPlaying, library, nowPlaying, playSwitch, topTracks, recentFavorites,
+    getFormattedTime, isPlaying, library, nowPlaying, topTracks, recentFavorites,
   } = context!;
   const listLength = topTracks!.length >= 4 || recentFavorites!.length >= 4
     ? 4
@@ -122,7 +122,6 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           isPlaying={isPlaying}
           library={library}
           nowPlaying={nowPlaying}
-          playSwitch={playSwitch}
           rows={4}
           tracks={topTracks!}
         />
@@ -133,7 +132,6 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           isPlaying={isPlaying}
           library={library}
           nowPlaying={nowPlaying}
-          playSwitch={playSwitch}
           rows={4}
           tracks={recentFavorites!}
         />

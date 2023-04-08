@@ -27,8 +27,7 @@ const textFieldStyle = {
   },
 };
 
-// eslint-disable-next-line react/require-default-props
-const Header = ({ context }: { context?: ChartsContext }) => {
+const Header = ({ context }: { context?: ChartsContext | undefined }) => {
   const {
     days,
     isFetching,
@@ -249,6 +248,10 @@ const Header = ({ context }: { context?: ChartsContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;

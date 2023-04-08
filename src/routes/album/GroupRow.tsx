@@ -9,7 +9,6 @@ const GroupRow = React.memo(({ context, discNumber }: GroupRowProps) => (
     color="text.primary"
     display="flex"
     height={56}
-    onClick={context.handleClickAway}
     onMouseEnter={() => {
       context.hoverIndex.current = null;
     }}

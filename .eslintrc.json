@@ -47,6 +47,7 @@
             }
         ],
         "react/jsx-filename-extension": [ "warn", { "extensions": [".tsx"] } ],
+        "react/jsx-no-useless-fragment": [2, { "allowExpressions": true }],
         "react/jsx-props-no-spreading": "off",
         "react/jsx-sort-props": ["warn", { "callbacksLast":  true, "shorthandFirst":  true }],
         "react/no-unstable-nested-components": ["error", { "allowAsProps":  true }],

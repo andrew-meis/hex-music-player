@@ -1,35 +1,34 @@
-import { useMenuState } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import moment, { Moment } from 'moment';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { Library, PlayQueueItem, Track } from 'api/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
-import useRowSelect from 'hooks/useRowSelect';
-import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useTopTracks } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
-import Item from 'routes/virtuoso-components/Item';
-import List from 'routes/virtuoso-components/List';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { DragTypes } from 'types/enums';
-import { AppConfig, VirtuosoContext } from 'types/interfaces';
+import { AppConfig } from 'types/interfaces';
 import Header from './Header';
+import List from './List';
 import Row from './Row';
 
-export interface ChartsContext extends VirtuosoContext {
+export interface ChartsContext {
   config: AppConfig;
   days: number;
   endDate: moment.Moment;
   startDate: moment.Moment;
+  getFormattedTime: (inMs: number) => string;
+  hoverIndex: React.MutableRefObject<number | null>;
   isFetching: boolean;
+  isPlaying: boolean;
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
   setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
@@ -81,20 +80,16 @@ const Charts = () => {
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
   const scrollCount = useRef(0);
+  const queryClient = useQueryClient();
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playSwitch, playUri } = usePlayback();
-  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
-  const { drag, dragPreview } = useTrackDragDrop({
-    hoverIndex,
-    items: topTracks || [],
-    selectedRows,
-    type: DragTypes.TRACK,
-  });
+  const { playUri } = usePlayback();
+
+  useEffect(() => {
+    queryClient.setQueryData(['selected-rows'], []);
+  }, [queryClient]);
 
   useEffect(
     () => () => sessionStorage.setItem(
@@ -103,10 +98,6 @@ const Charts = () => {
     ),
     [days, endDate, startDate],
   );
-
-  useLayoutEffect(() => {
-    setSelectedRows([]);
-  }, [location, setSelectedRows]);
 
   useEffect(() => {
     if (days === 0) {
@@ -119,44 +110,6 @@ const Charts = () => {
       .seconds(0));
     setEndDate(moment().hours(23).minutes(59).seconds(59));
   }, [days]);
-
-  useEffect(() => {
-    dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, [dragPreview, selectedRows]);
-
-  const selectedTracks = useMemo(() => {
-    if (!topTracks) {
-      return undefined;
-    }
-    if (selectedRows.length > 0) {
-      return selectedRows.map((n) => topTracks[n]);
-    }
-    return undefined;
-  }, [selectedRows, topTracks]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-index');
-    if (!target) {
-      return;
-    }
-    const targetIndex = parseInt(target, 10);
-    switch (true) {
-      case selectedRows.length === 0:
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      default:
-        break;
-    }
-    setAnchorPoint({ x: event.clientX, y: event.clientY });
-    toggleMenu(true);
-  }, [selectedRows, setSelectedRows, toggleMenu]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -194,23 +147,18 @@ const Charts = () => {
     return `/library/all/top?${new URLSearchParams(uriParams as any).toString()}`;
   }, [config.data, endDate, startDate]);
 
-  const chartsContext = useMemo(() => ({
+  const chartsContext: ChartsContext = useMemo(() => ({
     config: config.data,
     days,
-    drag,
     endDate,
     startDate,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isFetching,
     isPlaying,
     library,
     nowPlaying,
     playUri,
-    selectedRows,
     setDays,
     setEndDate,
     setStartDate,
@@ -219,20 +167,15 @@ const Charts = () => {
   }), [
     config,
     days,
-    drag,
     endDate,
     startDate,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isFetching,
     isPlaying,
     library,
     nowPlaying,
     playUri,
-    selectedRows,
     setDays,
     setEndDate,
     setStartDate,
@@ -241,58 +184,48 @@ const Charts = () => {
   ]);
 
   return (
-    <>
-      <motion.div
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        initial={{ opacity: 0 }}
-        key={location.pathname}
-        style={{ height: '100%' }}
-        onAnimationComplete={() => virtuoso.current
-          ?.scrollTo({ top: initialScrollTop })}
-      >
-        <Virtuoso
-          className="scroll-container"
-          components={{
-            Footer,
-            Header,
-            Item,
-            List,
-            ScrollSeekPlaceholder,
-          }}
-          context={chartsContext}
-          data={isLoading ? [] : topTracks}
-          fixedItemHeight={56}
-          isScrolling={handleScrollState}
-          itemContent={(index, item, context) => RowContent({ context, index, track: item })}
-          ref={virtuoso}
-          scrollSeekConfiguration={{
-            enter: (velocity) => {
-              if (scrollCount.current < 10) return false;
-              return Math.abs(velocity) > 500;
-            },
-            exit: (velocity) => Math.abs(velocity) < 100,
-          }}
-          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-          totalCount={isLoading || topTracks === undefined ? 0 : topTracks.length}
-          onScroll={(e) => {
-            if (scrollCount.current < 10) scrollCount.current += 1;
-            const target = e.currentTarget as unknown as HTMLDivElement;
-            sessionStorage.setItem(
-              'charts-scroll',
-              target.scrollTop as unknown as string,
-            );
-          }}
-        />
-      </motion.div>
-      <TrackMenu
-        anchorPoint={anchorPoint}
-        playSwitch={playSwitch}
-        toggleMenu={toggleMenu}
-        tracks={selectedTracks}
-        {...menuProps}
+    <motion.div
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      key={location.pathname}
+      style={{ height: '100%' }}
+      onAnimationComplete={() => virtuoso.current
+        ?.scrollTo({ top: initialScrollTop })}
+    >
+      <Virtuoso
+        className="scroll-container"
+        components={{
+          Footer,
+          Header,
+          List,
+          ScrollSeekPlaceholder,
+        }}
+        context={chartsContext}
+        data={isLoading ? [] : topTracks}
+        fixedItemHeight={56}
+        isScrolling={handleScrollState}
+        itemContent={(index, item, context) => RowContent({ context, index, track: item })}
+        ref={virtuoso}
+        scrollSeekConfiguration={{
+          enter: (velocity) => {
+            if (scrollCount.current < 10) return false;
+            return Math.abs(velocity) > 500;
+          },
+          exit: (velocity) => Math.abs(velocity) < 100,
+        }}
+        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+        totalCount={isLoading || topTracks === undefined ? 0 : topTracks.length}
+        onScroll={(e) => {
+          if (scrollCount.current < 10) scrollCount.current += 1;
+          const target = e.currentTarget as unknown as HTMLDivElement;
+          sessionStorage.setItem(
+            'charts-scroll',
+            target.scrollTop as unknown as string,
+          );
+        }}
       />
-    </>
+    </motion.div>
   );
 };
 

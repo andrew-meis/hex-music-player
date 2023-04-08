@@ -20,9 +20,8 @@ const titleStyle = {
   fontWeight: 600,
 };
 
-// eslint-disable-next-line react/require-default-props
-const Header = ({ context }: { context?: PlaylistContext }) => {
-  const { filter, playlist, setFilter } = context as PlaylistContext;
+const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
+  const { filter, playlist, setFilter } = context!;
   const { playPlaylist } = usePlayback();
   const { width } = useOutletContext() as { width: number };
   const countNoun = playlist!.leafCount > 1 || playlist!.leafCount === 0 ? 'tracks' : 'track';
@@ -159,6 +158,10 @@ const Header = ({ context }: { context?: PlaylistContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;

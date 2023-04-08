@@ -18,7 +18,6 @@ import { iconMotion } from 'components/motion-components/motion-variants';
 import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
-import usePlayback from 'hooks/usePlayback';
 import { useAlbumsByGenre } from 'queries/album-queries';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import { useLastfmTag } from 'queries/last-fm-queries';
@@ -63,7 +62,6 @@ const Genre = () => {
   const { data: settings } = useSettings();
   const { getFormattedTime } = useFormattedTime();
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
   const throttledCols = throttle(() => getColumnsNarrow(width), 300, { leading: true });
@@ -237,7 +235,6 @@ const Genre = () => {
                   isPlaying={isPlaying}
                   library={library}
                   nowPlaying={nowPlaying}
-                  playSwitch={playSwitch}
                   rows={4}
                   tracks={tracks}
                 />

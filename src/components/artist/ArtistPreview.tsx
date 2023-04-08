@@ -115,7 +115,6 @@ const ArtistPreview = ({
                 isPlaying={isPlaying}
                 library={library}
                 nowPlaying={nowPlaying}
-                playSwitch={playSwitch}
                 rows={height < 639 ? 3 : 4}
                 tracks={openArtistTracksQuery.data!}
               />

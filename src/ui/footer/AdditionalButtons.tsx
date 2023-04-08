@@ -16,11 +16,11 @@ const AdditionalButtons = () => (
     }}
     width={1}
   >
-    <AddToPlaylistDrawer />
     <LyricsButton />
     <FilterDrawer />
     <QueueDrawer />
     <VolumeSlider />
+    <AddToPlaylistDrawer />
   </Box>
 );
 

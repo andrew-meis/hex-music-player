@@ -337,26 +337,35 @@ select:focus-visible {
   -webkit-app-region: no-drag;
 }
 
-.non-dragged-track, .non-dragged-item > * {
+.track {
+  border-radius: 4px;
+  color: var(--mui-palette-text-secondary);
+}
+
+.track[data-dragging="true"] {
+  pointer-events: none;
+}
+
+.track:hover {
+  background-color: var(--mui-palette-action-hover);
+  color: var(--mui-palette-text-primary);
+}
+
+.selected {
+  background-color: var(--mui-palette-action-selected);
+  color: var(--mui-palette-text-primary);
+}
+
+.selected:hover {
+  background-color: rgba(var(--mui-palette-action-selectedChannel) / calc(var(--mui-palette-action-selectedOpacity) + var(--mui-palette-action-hoverOpacity)));
+}
+
+.non-dragged {
   background-color: transparent !important;
   color: var(--mui-palette-text-secondary) !important;
 }
 
-.dragged-track, .dragged-item > * {
+.dragged {
   background-color: var(--mui-palette-action-selected) !important;
   color: var(--mui-palette-text-primary) !important;
-}
-
-.drag-first > * {
-  border-bottom-left-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
-
-.drag-last > * {
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-.drag-middle > * {
-  border-radius: 0 !important;
 }

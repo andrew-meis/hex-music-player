@@ -25,7 +25,6 @@ const useTrackDragDrop = ({
       }
       return selectedRows.map((n) => items[n]);
     },
-    canDrag: selectedRows.length <= 10,
   }), [hoverIndex, items, selectedRows]);
 
   return { drag, dragPreview };

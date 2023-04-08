@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
-import { Avatar, Box, ListItem, SvgIcon } from '@mui/material';
+import { Avatar, Box, ListItem, SvgIcon, Typography } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { FaTags, IoMdMicrophone } from 'react-icons/all';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
 import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
@@ -16,13 +16,6 @@ const resultStyle = {
   display: 'flex',
   alignItems: 'center',
   height: '64px',
-};
-
-const linkBoxStyle = {
-  display: 'table-cell',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-  overflow: 'hidden',
 };
 
 const getDragType = (resultType: string) => {
@@ -95,111 +88,97 @@ const ResultRow = ({
   }, [tooltipOpen]);
 
   const handleNavigate = useCallback((
-    event: React.MouseEvent<HTMLDivElement>,
-    path: string,
-    state?: { guid: string, title: string, sort?: string },
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
   ) => {
     event.stopPropagation();
-    navigate(path, { state });
     setOpen(false);
-  }, [navigate, setOpen]);
+  }, [setOpen]);
 
   const additionalText = useMemo(() => {
     if (isArtist(result)) {
       return (
-        <Box display="flex">
+        <>
           {result._type}
           &nbsp;
           ·
           &nbsp;
-          <Box
+          <Link
             className="link"
-            sx={linkBoxStyle}
-            onClick={(event) => handleNavigate(
-              event,
-              `/artists/${result.id}/discography`,
-              {
-                guid: result.guid,
-                title: result.title,
-                sort: [
-                  PlexSortKeys.RELEASE_DATE,
-                  SortOrders.DESC,
-                ].join(''),
-              },
-            )}
+            state={{
+              guid: result.guid,
+              title: result.title,
+              sort: [
+                PlexSortKeys.RELEASE_DATE,
+                SortOrders.DESC,
+              ].join(''),
+            }}
+            to={`/artists/${result.id}/discography`}
+            onClick={(event) => handleNavigate(event)}
           >
             {result.childCount > 1
               ? `${result.childCount} releases`
               : `${result.childCount} release`}
-          </Box>
-        </Box>
+          </Link>
+        </>
       );
     }
     if (isAlbum(result)) {
       return (
-        <Box display="flex">
+        <>
           {result._type}
           &nbsp;
           ·
           &nbsp;
-          <Box
+          <Link
             className="link"
-            sx={linkBoxStyle}
-            onClick={(event) => handleNavigate(
-              event,
-              `/artists/${result.parentId}`,
-              { guid: result.parentGuid, title: result.parentTitle },
-            )}
+            state={{ guid: result.parentGuid, title: result.parentTitle }}
+            to={`/artists/${result.parentId}`}
+            onClick={(event) => handleNavigate(event)}
           >
             { result.parentTitle }
-          </Box>
-        </Box>
+          </Link>
+        </>
       );
     }
     if (isTrack(result)) {
       return (
-        <Box display="flex">
+        <>
           {result._type}
           &nbsp;
           ·
           &nbsp;
-          <Box
+          <Link
             className="link"
-            sx={{ ...linkBoxStyle, flexShrink: 0 }}
-            onClick={(event) => handleNavigate(
-              event,
-              `/artists/${result.grandparentId}`,
-              { guid: result.parentGuid, title: result.parentTitle },
-            )}
+            state={{ guid: result.parentGuid, title: result.parentTitle }}
+            to={`/artists/${result.grandparentId}`}
+            onClick={(event) => handleNavigate(event)}
           >
             { result.originalTitle ? result.originalTitle : result.grandparentTitle }
-          </Box>
-          <>
-            &nbsp;
-            —
-            &nbsp;
-            <Box
-              className="link"
-              sx={linkBoxStyle}
-              onClick={(event) => handleNavigate(event, `/albums/${result.parentId}`)}
-            >
-              { result.parentTitle }
-            </Box>
-          </>
-        </Box>
+          </Link>
+          &nbsp;
+          —
+          &nbsp;
+          <Link
+            className="link"
+            to={`/albums/${result.parentId}`}
+            onClick={(event) => handleNavigate(event)}
+          >
+            { result.parentTitle }
+          </Link>
+        </>
       );
     }
     if (isGenre(result)) {
       return (
-        <Box display="flex">
+        <>
           {result._type}
-        </Box>
+        </>
       );
     }
     if (isPlaylist(result)) {
       const { leafCount } = result;
       return (
-        <Box display="flex">
+        <>
           {result._type}
           &nbsp;
           ·
@@ -207,7 +186,7 @@ const ResultRow = ({
           {leafCount}
           &nbsp;
           {leafCount > 1 || leafCount === 0 ? 'tracks' : 'track'}
-        </Box>
+        </>
       );
     }
     return '';
@@ -270,27 +249,21 @@ const ResultRow = ({
       </Avatar>
       <Box
         sx={{
-          display: 'table',
-          tableLayout: 'fixed',
-          width: '100%',
+          WebkitLineClamp: 2,
+          display: '-webkit-box',
+          overflow: 'hidden',
+          WebkitBoxOrient: 'vertical',
+          width: 1,
         }}
       >
-        <Box
-          sx={{
-            display: 'table-cell',
-            whiteSpace: 'nowrap',
-            textOverflow: 'ellipsis',
-            overflow: 'hidden',
-          }}
+        <Typography
+          lineHeight="21px"
         >
-          <span style={{ fontFamily: 'Rubik, sans-serif' }}>
-            {result.title}
-          </span>
-          <br />
-          <span style={{ fontSize: '0.875rem' }}>
-            {additionalText}
-          </span>
-        </Box>
+          {result.title}
+        </Typography>
+        <Typography fontSize="0.875rem">
+          {additionalText}
+        </Typography>
       </Box>
       {!isPlaylist(result) && !isGenre(result) && (
         <ResultTooltip

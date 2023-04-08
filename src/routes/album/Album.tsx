@@ -1,9 +1,8 @@
 import { Box } from '@mui/material';
-import { useMenuState } from '@szhsin/react-menu';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { countBy, inRange } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import { countBy } from 'lodash';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction,
   useLocation,
@@ -12,30 +11,41 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso } from 'react-virtuoso';
-import { Artist, Album as TAlbum, Playlist, Track, Genre } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import {
+  Artist,
+  Album as AlbumType,
+  Playlist,
+  Track,
+  Genre,
+  Library,
+  PlayQueueItem,
+} from 'api/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
-import useRowSelect from 'hooks/useRowSelect';
-import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
 import { useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import Item from 'routes/virtuoso-components/Item';
-import ListGrouped from 'routes/virtuoso-components/ListGrouped';
-import { DragTypes } from 'types/enums';
-import { VirtuosoContext, RouteParams } from 'types/interfaces';
+import { RouteParams } from 'types/interfaces';
 import AnimatedHeader from './AnimatedHeader';
 import Footer from './Footer';
 import GroupRow from './GroupRow';
+import List from './List';
 import Row from './Row';
 
-export interface AlbumContext extends VirtuosoContext {
-  album: {album: TAlbum, related: (Playlist | Track | TAlbum | Artist | Genre)[]} | undefined;
+export interface AlbumContext {
+  album: {
+      album: AlbumType;
+      related: (AlbumType | Playlist | Track | Artist | Genre)[];
+  } | undefined;
+  getFormattedTime: (inMs: number) => string;
+  hoverIndex: React.MutableRefObject<number | null>;
+  isPlaying: boolean;
+  library: Library;
   navigate: NavigateFunction;
+  nowPlaying: PlayQueueItem | undefined;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
-  selectedRows: number[];
+  tracks: Track[];
 }
 
 export interface GroupRowProps {
@@ -66,64 +76,17 @@ const Album = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
+  const queryClient = useQueryClient();
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const [shrink, setShrink] = useState(false);
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playAlbumAtTrack, playSwitch } = usePlayback();
-  const {
-    selectedRows, setSelectedRows, handleClickAway, handleRowClick,
-  } = useRowSelect([]);
-  const { drag, dragPreview } = useTrackDragDrop({
-    hoverIndex,
-    items: albumTracks.data || [],
-    selectedRows,
-    type: DragTypes.TRACK,
-  });
+  const { playAlbumAtTrack } = usePlayback();
 
   useEffect(() => {
-    dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, [dragPreview, selectedRows]);
-
-  const selectedTracks = useMemo(() => {
-    if (!albumTracks.data) {
-      return undefined;
-    }
-    if (selectedRows.length === 1 && inRange(selectedRows[0], 0, albumTracks.data.length)) {
-      return selectedRows.map((n) => albumTracks.data[n]);
-    }
-    if (selectedRows.length > 1) {
-      return selectedRows.map((n) => albumTracks.data[n]);
-    }
-    return undefined;
-  }, [selectedRows, albumTracks.data]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-item-index');
-    if (!target) {
-      return;
-    }
-    const targetIndex = parseInt(target, 10);
-    switch (true) {
-      case selectedRows.length === 0:
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      default:
-        break;
-    }
-    setAnchorPoint({ x: event.clientX, y: event.clientY });
-    toggleMenu(true);
-  }, [selectedRows, setSelectedRows, toggleMenu]);
+    queryClient.setQueryData(['selected-rows'], []);
+  }, [id, queryClient]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -149,34 +112,26 @@ const Album = () => {
     return 0;
   }, [id, navigationType]);
 
-  const albumContext = useMemo(() => ({
+  const albumContext: AlbumContext = useMemo(() => ({
     album: album.data,
-    drag,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     library,
     navigate,
     nowPlaying,
     playAlbumAtTrack,
-    selectedRows,
+    tracks: albumTracks.data || [],
   }), [
     album.data,
-    drag,
+    albumTracks.data,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
     library,
     navigate,
     nowPlaying,
     playAlbumAtTrack,
-    selectedRows,
   ]);
 
   if (album.isLoading || albumTracks.isLoading || !album.data?.album) {
@@ -184,84 +139,73 @@ const Album = () => {
   }
 
   return (
-    <>
-      <motion.div
-        animate={{ opacity: 1 }}
-        className="scroll-container"
-        exit={{ opacity: 0 }}
-        initial={{ opacity: 0 }}
-        key={location.pathname}
-        ref={setScroller}
-        style={{
-          height: '100%',
-          overflowY: 'overlay',
-        } as unknown as React.CSSProperties}
-        onAnimationComplete={() => scroller?.scrollTo({ top: initialScrollTop })}
-        onScroll={(e) => {
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `album-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-          if (target.scrollTop > 199) {
-            setShrink(true);
-          }
-          if (target.scrollTop < 200) {
-            setShrink(false);
-          }
+    <motion.div
+      animate={{ opacity: 1 }}
+      className="scroll-container"
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      key={location.pathname}
+      ref={setScroller}
+      style={{
+        height: '100%',
+        overflowY: 'overlay',
+      } as unknown as React.CSSProperties}
+      onAnimationComplete={() => scroller?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          `album-scroll ${id}`,
+          target.scrollTop as unknown as string,
+        );
+        if (target.scrollTop > 199) {
+          setShrink(true);
+        }
+        if (target.scrollTop < 200) {
+          setShrink(false);
+        }
+      }}
+    >
+      <Box
+        height={1}
+        left={0}
+        marginRight="-100%"
+        position="sticky"
+        sx={{
+          float: 'left',
+          pointerEvents: 'none',
         }}
+        top={0}
+        width={1}
+        zIndex={2}
       >
-        <Box
-          height={1}
-          left={0}
-          marginRight="-100%"
-          position="sticky"
-          sx={{
-            float: 'left',
-            pointerEvents: 'none',
-          }}
-          top={0}
-          width={1}
-          zIndex={2}
-        >
-          <AnimatedHeader
-            album={album.data.album}
-            navigate={navigate}
-            shrink={shrink}
-          />
-        </Box>
-        <GroupedVirtuoso
-          useWindowScroll
-          components={{
-            Footer,
-            Item,
-            List: ListGrouped,
-          }}
-          context={albumContext}
-          customScrollParent={scroller || undefined}
-          fixedItemHeight={56}
-          groupContent={(index) => GroupRowContent(
-            { context: albumContext, discNumber: groups[index] },
-          )}
-          groupCounts={groupCounts}
-          id="list-items"
-          isScrolling={handleScrollState}
-          itemContent={(index, _groupIndex, _item, context) => RowContent(
-            { context, index, track: albumTracks.data![index] },
-          )}
-          style={{
-            marginTop: 300,
-          }}
+        <AnimatedHeader
+          album={album.data.album}
+          navigate={navigate}
+          shrink={shrink}
         />
-      </motion.div>
-      <TrackMenu
-        anchorPoint={anchorPoint}
-        playSwitch={playSwitch}
-        toggleMenu={toggleMenu}
-        tracks={selectedTracks}
-        {...menuProps}
+      </Box>
+      <GroupedVirtuoso
+        useWindowScroll
+        components={{
+          Footer,
+          List,
+        }}
+        context={albumContext}
+        customScrollParent={scroller || undefined}
+        fixedItemHeight={56}
+        groupContent={(index) => GroupRowContent(
+          { context: albumContext, discNumber: groups[index] },
+        )}
+        groupCounts={groupCounts}
+        isScrolling={handleScrollState}
+        itemContent={(index, _groupIndex, _item, context) => RowContent(
+          { context, index, track: albumTracks.data![index] },
+        )}
+        style={{
+          marginTop: 300,
+        }}
       />
-    </>
+    </motion.div>
   );
 };
 

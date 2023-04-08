@@ -1333,10 +1333,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.2.1":
-  version: 1.2.1
-  resolution: "@remix-run/router@npm:1.2.1"
-  checksum: 71c947f83e130bf006226332aca395f626ad599b6d35dfe936f6a8f139cf37278bc1b36bce38c30f6062724402358296329f31c385b11ae59b13b76a2716d701
+"@remix-run/router@npm:1.5.0":
+  version: 1.5.0
+  resolution: "@remix-run/router@npm:1.5.0"
+  checksum: 9c510c174af1553edd1f039ba16e7e3d34e04d53b3bac18814660e31cd0c48297ea4291ff86d0736b560123ebc63ecb62fa525829181d16a8dad15270d6672d7
   languageName: node
   linkType: hard
 
@@ -1347,7 +1347,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@szhsin/react-menu@npm:^3.3.1":
+"@szhsin/react-menu@npm:3.3.1":
   version: 3.3.1
   resolution: "@szhsin/react-menu@npm:3.3.1"
   dependencies:
@@ -1378,33 +1378,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.22.0":
-  version: 4.22.0
-  resolution: "@tanstack/query-core@npm:4.22.0"
-  checksum: d24c13f8e21b65380230055a6673ae670aca5ee550c2f9a24b89fd3ac5243b465bb25f61b29da8ca285fc7fb0f4c2f8add3864f742eafac5131e777f3e52767a
+"@tanstack/query-core@npm:4.27.0":
+  version: 4.27.0
+  resolution: "@tanstack/query-core@npm:4.27.0"
+  checksum: 914b4f01ac75632f4603b650e9105f64c739b79250baf76aad16cee216f7bad6060c04eda0c70838fe61a5f6c17883e19fcc3075b2433a906539da95ce785796
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^4.22.0":
-  version: 4.22.0
-  resolution: "@tanstack/react-query-devtools@npm:4.22.0"
+"@tanstack/react-query-devtools@npm:^4.29.0":
+  version: 4.29.0
+  resolution: "@tanstack/react-query-devtools@npm:4.29.0"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.7.0
     superjson: ^1.10.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.22.0
+    "@tanstack/react-query": 4.28.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: 458cbc23e00f8e798022bb22d42fcb833f8b3ffd69d7d99d78d050b77dbe34cde264f18d41e6372c72264de4550fbf3e2947ee2581cb10fb5b3aa90d9f92f6e4
+  checksum: cb66222ad9991284605480e61c24327ee1c8e7f44e13e5b8a0fbf1702e5a0b30cd5d6854954dfea96bfb3368ba59b1879a497aa7cb470068ab11dc4035de7659
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^4.22.0":
-  version: 4.22.0
-  resolution: "@tanstack/react-query@npm:4.22.0"
+"@tanstack/react-query@npm:^4.28.0":
+  version: 4.28.0
+  resolution: "@tanstack/react-query@npm:4.28.0"
   dependencies:
-    "@tanstack/query-core": 4.22.0
+    "@tanstack/query-core": 4.27.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1415,7 +1415,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: b146774b44a79dd5a6412d981ce04790e66da5a36f907a03c85c36f50a38fb4e4dfbfca7b1561c86b39fb0df1c0c1ae0a0ef2930c06b444da3f430b9bad450f1
+  checksum: 7baa70d22b55cfa22f8a1d92ba9f8379c5436ee81fce3f0e7df4a8c29bb26bfef4a83759cf10f752b40ae2940099fcce88ce91a773240f4999ae91136980c6e3
   languageName: node
   linkType: hard
 
@@ -1552,10 +1552,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.11.26":
-  version: 16.18.3
-  resolution: "@types/node@npm:16.18.3"
-  checksum: 6b8ba2ea5d842f7986e366cb9184c54d273d492784dc62e08fd5afeae938d9b61aec6e4222d2541cd18f9b1412ba361bbcb3f4204fb003608af80a2a6af959f9
+"@types/node@npm:^18.11.18":
+  version: 18.15.11
+  resolution: "@types/node@npm:18.15.11"
+  checksum: 977b4ad04708897ff0eb049ecf82246d210939c82461922d20f7d2dcfd81bbc661582ba3af28869210f7e8b1934529dcd46bff7d448551400f9d48b9d3bddec3
   languageName: node
   linkType: hard
 
@@ -3229,16 +3229,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^22.1.0":
-  version: 22.1.0
-  resolution: "electron@npm:22.1.0"
+"electron@npm:^24.0.0":
+  version: 24.0.0
+  resolution: "electron@npm:24.0.0"
   dependencies:
     "@electron/get": ^2.0.0
-    "@types/node": ^16.11.26
+    "@types/node": ^18.11.18
     extract-zip: ^2.0.1
   bin:
     electron: cli.js
-  checksum: d448cf785fe6c24c7338d48c8aa98765e384a3e3f91317ea6a6ebb363f6a25ceef40e05cec73de0bc3406e803ed5400e9fbbc1dd107249ac7a477c8ffc2da18a
+  checksum: 6b2fe2f25e996eed5aefaac481d9d1666e0d4666843887e9029a044640a7559933c1ae9d67215af88a018c2052821201ea23475396c7ead6a7ba6716b0913fdb
   languageName: node
   linkType: hard
 
@@ -4109,7 +4109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framer-motion@npm:^8.4.6":
+"framer-motion@npm:8.4.6":
   version: 8.4.6
   resolution: "framer-motion@npm:8.4.6"
   dependencies:
@@ -4521,9 +4521,9 @@ __metadata:
     "@mui/material": ^5.10.16
     "@popmotion/popcorn": ^0.4.4
     "@regosen/gapless-5": ^1.3.16
-    "@szhsin/react-menu": ^3.3.1
-    "@tanstack/react-query": ^4.22.0
-    "@tanstack/react-query-devtools": ^4.22.0
+    "@szhsin/react-menu": 3.3.1
+    "@tanstack/react-query": ^4.28.0
+    "@tanstack/react-query-devtools": ^4.29.0
     "@types/chroma-js": ^2.1.4
     "@types/lodash": ^4.14.191
     "@types/object-hash": ^3.0.2
@@ -4538,7 +4538,7 @@ __metadata:
     "@zwolf/prism": 2.8.0
     chroma-js: ^2.4.2
     country-emoji: ^1.5.6
-    electron: ^22.1.0
+    electron: ^24.0.0
     electron-builder: ^23.6.0
     electron-devtools-installer: ^3.2.0
     eslint: ^8.29.0
@@ -4550,7 +4550,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     fast-xml-parser: ^4.0.13
     font-color-contrast: ^11.1.0
-    framer-motion: ^8.4.6
+    framer-motion: 8.4.6
     ky: ^0.33.3
     lodash: ^4.17.21
     moment: ^2.29.4
@@ -4564,13 +4564,13 @@ __metadata:
     react-dom: ^18.2.0
     react-dropzone: ^14.2.3
     react-easy-emoji: ^1.8.1
-    react-icons: ^4.7.1
+    react-icons: ^4.8.0
     react-intersection-observer: ^9.4.1
-    react-router-dom: ^6.6.2
+    react-router-dom: ^6.10.0
     react-textfit: ^1.1.1
     react-use: ^17.4.0
     react-use-websocket: ^4.2.0
-    react-virtuoso: ^4.0.3
+    react-virtuoso: ^4.2.0
     sass: ^1.54.4
     typescript: ^4.7.4
     uuid: ^9.0.0
@@ -6251,12 +6251,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-icons@npm:^4.7.1":
-  version: 4.7.1
-  resolution: "react-icons@npm:4.7.1"
+"react-icons@npm:^4.8.0":
+  version: 4.8.0
+  resolution: "react-icons@npm:4.8.0"
   peerDependencies:
     react: "*"
-  checksum: ed3cbdc5fc0c4d7d2debf78fdc8c4c80aeacf85a506a9a3c11b1d5922de393ac0a6542012b7fb81761e9280c54d0f26827d50a92b54ec8f0c8e52364d89970b5
+  checksum: 4dbba7ad989c295b410e19b2a702722dae44368cb04b6515f9471353552f31ac80bd350f121d5bff79f81504b84039ede44d09e9f035f48bb1032e6eace126c4
   languageName: node
   linkType: hard
 
@@ -6290,27 +6290,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.6.2":
-  version: 6.6.2
-  resolution: "react-router-dom@npm:6.6.2"
+"react-router-dom@npm:^6.10.0":
+  version: 6.10.0
+  resolution: "react-router-dom@npm:6.10.0"
   dependencies:
-    "@remix-run/router": 1.2.1
-    react-router: 6.6.2
+    "@remix-run/router": 1.5.0
+    react-router: 6.10.0
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: e0ee89a2b3768d2eb406ecefedfa24b55428145359b4138f6d38b8a99b60a4f275418910f4cdb12c069ed0237711acced3787b0c7febfa6568d7ea9cd624ff3b
+  checksum: d048d8cc66e5aec782bd675097d6bf0e5f867f3f0539bff9acdc4a314b5e0e34093944762960ca0977a54c6255272edd262231242b18c4e260d68df6b5288464
   languageName: node
   linkType: hard
 
-"react-router@npm:6.6.2":
-  version: 6.6.2
-  resolution: "react-router@npm:6.6.2"
+"react-router@npm:6.10.0":
+  version: 6.10.0
+  resolution: "react-router@npm:6.10.0"
   dependencies:
-    "@remix-run/router": 1.2.1
+    "@remix-run/router": 1.5.0
   peerDependencies:
     react: ">=16.8"
-  checksum: 5960d774bb3a8f697a57ee2e82a3eb0a300b7186a62b27e02773c94f1682e59435bd876d6162a08cc8daf27cac72aaab66d348fcc4d8f59240a63a911cf0050b
+  checksum: c9fce46147c04257d7d6fa1f5bbfac96c5fdd0b15f26918bd12b2e5fe9143977c5a4452272f9b85795a22e29ec105a60d0bbe036118efc52b383d163cd8829ab
   languageName: node
   linkType: hard
 
@@ -6397,13 +6397,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "react-virtuoso@npm:4.0.3"
+"react-virtuoso@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "react-virtuoso@npm:4.2.0"
   peerDependencies:
     react: ">=16 || >=17 || >= 18"
     react-dom: ">=16 || >=17 || >= 18"
-  checksum: 828ec62afc4804d1e37373af57eedbbaf61e42e6fa5ab8dd8e6738c41ce607fa0efa403e976c13e340b369562929fc735eddc39166e102aa9732aa26d2547168
+  checksum: b8f6e7b80c1de31d37bfccbf7c859a86bd1b82bcc95ef2d1c7b735e63b09ea3c2690aefbe41f2056742e5cd66def903a9f1e7b7ab03a0ed4cfe34bf0c35c60a5
   languageName: node
   linkType: hard
 
@@ -7294,10 +7294,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0":
+"tslib@npm:^2.1.0, tslib@npm:^2.4.0":
   version: 2.4.1
   resolution: "tslib@npm:2.4.1"
   checksum: 19480d6e0313292bd6505d4efe096a6b31c70e21cf08b5febf4da62e95c265c8f571f7b36fcc3d1a17e068032f59c269fab3459d6cd3ed6949eafecf64315fca
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.3.1":
+  version: 2.5.0
+  resolution: "tslib@npm:2.5.0"
+  checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1
   languageName: node
   linkType: hard
 

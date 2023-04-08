@@ -46,7 +46,7 @@ interface TrackRowOptions {
 
 interface TrackRowProps {
   getFormattedTime: (inMs: number) => string;
-  index: number;
+  index?: number | undefined;
   isPlaying: boolean;
   library: Library;
   options: TrackRowOptions;
@@ -59,17 +59,20 @@ const TrackRow = ({
 }: TrackRowProps) => (
   <>
     <Box maxWidth="10px" width="10px" />
-    <Box
-      display="flex"
-      flexShrink={0}
-      justifyContent="center"
-      textAlign="center"
-      width={40}
-    >
-      {playing && isPlaying
-        ? (<PlayingAnimation />)
-        : (<Typography fontSize="0.95rem">{index}</Typography>)}
-    </Box>
+    {index && (
+      <Box
+        display="flex"
+        flexShrink={0}
+        justifyContent="center"
+        mr="8px"
+        textAlign="center"
+        width={40}
+      >
+        {playing && isPlaying
+          ? (<PlayingAnimation />)
+          : (<Typography fontSize="0.95rem">{index}</Typography>)}
+      </Box>
+    )}
     {options.showArtwork && (
       <Avatar
         alt={track.title}
@@ -79,9 +82,22 @@ const TrackRow = ({
             url: track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
           },
         )}
-        sx={{ marginLeft: '8px' }}
         variant="rounded"
       />
+    )}
+    {!index && playing && isPlaying && (
+      <Box
+        alignItems="center"
+        bgcolor="rgba(0,0,0,0.4)"
+        borderRadius="4px"
+        display="flex"
+        height={40}
+        left={10}
+        position="absolute"
+        width={40}
+      >
+        <PlayingAnimation />
+      </Box>
     )}
     <Box
       display="table"
@@ -93,7 +109,7 @@ const TrackRow = ({
       width={0.5}
     >
       <Box
-        alignItems="baseline"
+        alignItems="center"
         display="flex"
         height={20}
         justifyContent="space-between"
@@ -118,7 +134,8 @@ const TrackRow = ({
         >
           <TrackRating
             id={track.id}
-            userRating={track.userRating}
+            library={library}
+            userRating={track.userRating / 2}
           />
         </Box>
       </Box>
@@ -154,5 +171,9 @@ const TrackRow = ({
     <Box maxWidth="10px" width="10px" />
   </>
 );
+
+TrackRow.defaultProps = {
+  index: undefined,
+};
 
 export default TrackRow;

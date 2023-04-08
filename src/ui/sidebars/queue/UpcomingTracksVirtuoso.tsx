@@ -11,7 +11,7 @@ import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import 'styles/queue.scss';
 import QueueMenu from 'components/menus/QueueMenu';
 import Subtext from 'components/subtext/Subtext';
-import { selectedStyle, selectBorderRadius, rowStyle, typographyStyle } from 'constants/style';
+import { typographyStyle } from 'constants/style';
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
@@ -35,9 +35,8 @@ export interface UpcomingTracksContext {
 const Item = React
   .forwardRef((
     {
-      // @ts-ignore
       style, children, context, ...props
-    }: ItemProps<any>,
+    }: ItemProps<PlayQueueItem> & { context?: UpcomingTracksContext | undefined},
     itemRef: React.ForwardedRef<HTMLDivElement>,
   ) => (
     <div
@@ -45,11 +44,15 @@ const Item = React
       className="queue-item"
       ref={itemRef}
       style={style}
-      onContextMenu={(event) => context.handleContextMenu(event)}
+      onContextMenu={(event) => context!.handleContextMenu(event)}
     >
       {children}
     </div>
   ));
+
+Item.defaultProps = {
+  context: undefined,
+};
 
 export interface RowProps {
   index: number;
@@ -78,11 +81,15 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   const { data: isDragging } = useQuery(
     ['is-dragging'],
     () => false,
+    {
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
   );
 
   const selected = selectedRows.includes(index);
-  const selUp = selected && selectedRows.includes(index - 1);
-  const selDown = selected && selectedRows.includes(index + 1);
 
   const handleDoubleClick = async () => {
     await playQueueItem(item);
@@ -108,11 +115,6 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       data-index={index}
       display="flex"
       height={54}
-      sx={selected
-        ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-        : { ...rowStyle }}
-      onClick={(event) => handleRowClick(event, index)}
-      onDoubleClick={handleDoubleClick}
       onDragEnter={() => setOver(true)}
       onDragLeave={() => setOver(false)}
       onDrop={handleDrop}
@@ -120,8 +122,13 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
     >
       <Box
         alignItems="center"
+        className={`track ${selected ? 'selected' : ''}`}
+        data-dragging={isDragging ? 'true' : 'false'}
+        data-item-index={index}
         display="flex"
-        sx={{ pointerEvents: isDragging ? 'none' : '' }}
+        height={52}
+        onClick={(event) => handleRowClick(event, index)}
+        onDoubleClick={handleDoubleClick}
       >
         <Avatar
           alt={track.title}

@@ -1,8 +1,6 @@
 import { AlertColor, PaletteMode } from '@mui/material';
-import React from 'react';
-import { ConnectDragSource } from 'react-dnd';
 import { Location } from 'react-router-dom';
-import { Account, Device, Library, PlayQueueItem } from 'api/index';
+import { Account, Device, Library } from 'api/index';
 
 export interface AppInfo {
   appName: string;
@@ -84,17 +82,4 @@ export interface Sort {
 export interface ToastMessage {
   type: AlertColor | undefined;
   text: string;
-}
-
-export interface VirtuosoContext {
-  drag: ConnectDragSource,
-  getFormattedTime: (inMs: number) => string;
-  handleClickAway: () => void;
-  handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  handleRowClick: (event: React.MouseEvent, index: number) => void;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  selectedRows: number[];
 }

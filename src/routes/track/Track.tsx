@@ -110,6 +110,7 @@ const Track = () => {
               <Box maxWidth="900px" mx="auto" pb="48px" width={WIDTH_CALC}>
                 <Header
                   colors={colors}
+                  library={library}
                   playSwitch={playSwitch}
                   track={track}
                 />

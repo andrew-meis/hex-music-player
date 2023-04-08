@@ -15,8 +15,7 @@ import { WIDTH_CALC } from 'constants/measures';
 import FixedHeader from './FixedHeader';
 import { TracksContext } from './Tracks';
 
-// eslint-disable-next-line react/require-default-props
-const Header = ({ context }: { context?: TracksContext }) => {
+const Header = ({ context }: { context?: TracksContext | undefined }) => {
   const { playUri, uri } = context!;
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
@@ -102,6 +101,10 @@ const Header = ({ context }: { context?: TracksContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;

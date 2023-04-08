@@ -6,7 +6,7 @@ import { useRef } from 'react';
 import { FiMoreVertical } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import { Track } from 'api/index';
+import { Library, Track } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
 import TrackRating from 'components/rating/TrackRating';
 import { WIDTH_CALC } from 'constants/measures';
@@ -28,11 +28,12 @@ const titleStyle = {
 
 interface HeaderProps {
   colors: PaletteState;
+  library: Library;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   track: Track;
 }
 
-const Header = ({ colors, playSwitch, track }: HeaderProps) => {
+const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const [menuProps, toggleMenu] = useMenuState({ transition: true });
@@ -123,8 +124,8 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                 </Typography>
               </Box>
             </Box>
-            <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
-              <Typography fontFamily="Rubik" lineHeight="20px" variant="subtitle2">
+            <Box alignItems="center" display="flex" flexWrap="wrap" mt="4px">
+              <Typography fontFamily="Rubik" variant="subtitle2">
                 {track.media[0].audioCodec.toUpperCase()}
                 &nbsp;
               </Typography>
@@ -132,7 +133,7 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                 track.media[0].parts[0].streams[0].bitDepth
                 && track.media[0].parts[0].streams[0].samplingRate
                 && (
-                  <Typography fontFamily="Rubik" lineHeight="20px" variant="subtitle2">
+                  <Typography fontFamily="Rubik" variant="subtitle2">
                     {track.media[0].parts[0].streams[0].bitDepth}
                     /
                     {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}
@@ -144,9 +145,11 @@ const Header = ({ colors, playSwitch, track }: HeaderProps) => {
                 ·
                 &nbsp;
               </Typography>
-              <Box height={21}>
-                <TrackRating id={track.id} userRating={track.userRating} />
-              </Box>
+              <TrackRating
+                id={track.id}
+                library={library}
+                userRating={track.userRating / 2}
+              />
             </Box>
           </Box>
         </Box>

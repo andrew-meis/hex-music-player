@@ -63,6 +63,7 @@ const NowPlaying = () => {
         <Box
           sx={{
             display: 'table',
+            height: 59,
             tableLayout: 'fixed',
             width: '100%',
           }}
@@ -90,7 +91,8 @@ const NowPlaying = () => {
           </Typography>
           <TrackRating
             id={nowPlaying.track.id}
-            userRating={nowPlaying.track.userRating}
+            library={library}
+            userRating={nowPlaying.track.userRating / 2}
           />
         </Box>
       </Box>

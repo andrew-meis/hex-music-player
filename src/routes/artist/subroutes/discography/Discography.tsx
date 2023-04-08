@@ -1,18 +1,11 @@
-import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import React, {
-  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
-} from 'react';
-import { getEmptyImage } from 'react-dnd-html5-backend';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import { Album, Artist, Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { Album, Artist, Library, PlayQueueItem, Track } from 'api/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
-import useRowSelect from 'hooks/useRowSelect';
-import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import {
   ArtistQueryData,
@@ -25,21 +18,25 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { AlbumWithSection } from 'routes/artist/Artist';
 import Footer from 'routes/virtuoso-components/Footer';
 import Group from 'routes/virtuoso-components/Group';
-import Item from 'routes/virtuoso-components/Item';
-import ListGrouped from 'routes/virtuoso-components/ListGrouped';
 import TopItemList from 'routes/virtuoso-components/TopItemList';
-import { DragTypes } from 'types/enums';
-import { VirtuosoContext, LocationWithState, RouteParams } from 'types/interfaces';
+import { LocationWithState, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
+import List from './List';
 import Row from './Row';
 
-export interface ArtistDiscographyContext extends VirtuosoContext {
+export interface DiscographyContext {
   artist: ArtistQueryData | undefined;
   filter: string;
   filters: string[];
+  getFormattedTime: (inMs: number) => string;
   groupCounts: number[];
   groups: AlbumWithSection[];
+  hoverIndex: React.MutableRefObject<number | null>;
+  isPlaying: boolean;
+  items: Track[];
+  library: Library;
+  nowPlaying: PlayQueueItem | undefined;
   playAlbum: (album: Album, shuffle?: boolean) => Promise<void>;
   playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
   playArtist: (artist: Artist, shuffle?: boolean) => Promise<void>;
@@ -50,11 +47,11 @@ export interface ArtistDiscographyContext extends VirtuosoContext {
 
 export interface GroupRowProps {
   album: AlbumWithSection;
-  context: ArtistDiscographyContext;
+  context: DiscographyContext;
 }
 
 export interface RowProps {
-  context: ArtistDiscographyContext;
+  context: DiscographyContext;
   index: number;
   track: Track;
 }
@@ -90,14 +87,11 @@ const Discography = () => {
   const queryClient = useQueryClient();
   const topmostGroup = useRef<number>(0);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
-  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
-  const [menuProps, toggleMenu] = useMenuState();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playSwitch, playAlbum, playAlbumAtTrack, playArtist, playArtistRadio } = usePlayback();
-  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+  const { playAlbum, playAlbumAtTrack, playArtist, playArtistRadio } = usePlayback();
   const GROUP_ROW_HEIGHT = 200;
 
   useEffect(() => {
@@ -159,59 +153,9 @@ const Discography = () => {
     };
   }, [filter, releases, tracks]);
 
-  const { drag, dragPreview } = useTrackDragDrop({
-    hoverIndex,
-    items: items || [],
-    selectedRows,
-    type: DragTypes.TRACK,
-  });
-
-  useLayoutEffect(() => {
-    setSelectedRows([]);
-  }, [location, setSelectedRows]);
-
-  useLayoutEffect(() => {
-    queryClient.setQueriesData(['disc-header-opacity'], 1);
-    queryClient.setQueryData(['discography-header-album'], groups[topmostGroup.current]);
-  }, [groups, location, queryClient]);
-
   useEffect(() => {
-    dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, [dragPreview, selectedRows]);
-
-  const selectedTracks = useMemo(() => {
-    if (!items) {
-      return undefined;
-    }
-    if (selectedRows.length > 0) {
-      return selectedRows.map((n) => items[n]);
-    }
-    return undefined;
-  }, [selectedRows, items]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-item-index');
-    if (!target) {
-      return;
-    }
-    const targetIndex = parseInt(target, 10);
-    switch (true) {
-      case selectedRows.length === 0:
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      default:
-        break;
-    }
-    setAnchorPoint({ x: event.clientX, y: event.clientY });
-    toggleMenu(true);
-  }, [selectedRows, setSelectedRows, toggleMenu]);
+    queryClient.setQueryData(['selected-rows'], []);
+  }, [id, queryClient]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {
@@ -222,48 +166,40 @@ const Discography = () => {
     }
   };
 
-  const artistDiscographyContext = useMemo(() => ({
+  const discographyContext: DiscographyContext = useMemo(() => ({
     artist: artist.data,
-    drag,
     filter,
     filters,
     getFormattedTime,
     groupCounts,
     groups,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     isPlaying,
+    items,
     library,
     nowPlaying,
     playAlbum,
     playAlbumAtTrack,
     playArtist,
     playArtistRadio,
-    selectedRows,
     setFilter,
     topmostGroup,
   }), [
     artist.data,
-    drag,
     filter,
     filters,
     getFormattedTime,
-    handleClickAway,
-    handleContextMenu,
-    handleRowClick,
     hoverIndex,
     groupCounts,
     groups,
     isPlaying,
+    items,
     library,
     nowPlaying,
     playAlbum,
     playAlbumAtTrack,
     playArtist,
     playArtistRadio,
-    selectedRows,
     setFilter,
     topmostGroup,
   ]);
@@ -273,50 +209,40 @@ const Discography = () => {
   }
 
   return (
-    <>
-      <motion.div
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        initial={{ opacity: 0 }}
-        key={location.pathname}
-        style={{ height: '100%' }}
-      >
-        <GroupedVirtuoso
-          className="scroll-container grouped"
-          components={{
-            Footer,
-            Group,
-            Header,
-            Item,
-            List: ListGrouped,
-            TopItemList,
-          }}
-          context={artistDiscographyContext}
-          groupContent={
-            (index) => GroupRowContent(
-              { album: groups[index], context: artistDiscographyContext },
-            )
-          }
-          groupCounts={groupCounts}
-          increaseViewportBy={200}
-          isScrolling={handleScrollState}
-          itemContent={
-            (index, _groupIndex, _data, context) => RowContent(
-              { context, index, track: items[index] },
-            )
-          }
-          ref={virtuoso}
-          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        />
-      </motion.div>
-      <TrackMenu
-        anchorPoint={anchorPoint}
-        playSwitch={playSwitch}
-        toggleMenu={toggleMenu}
-        tracks={selectedTracks}
-        {...menuProps}
+    <motion.div
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      key={location.pathname}
+      style={{ height: '100%' }}
+    >
+      <GroupedVirtuoso
+        className="scroll-container grouped"
+        components={{
+          Footer,
+          Group,
+          Header,
+          List,
+          TopItemList,
+        }}
+        context={discographyContext}
+        groupContent={
+          (index) => GroupRowContent(
+            { album: groups[index], context: discographyContext },
+          )
+        }
+        groupCounts={groupCounts}
+        increaseViewportBy={200}
+        isScrolling={handleScrollState}
+        itemContent={
+          (index, _groupIndex, _data, context) => RowContent(
+            { context, index, track: items[index] },
+          )
+        }
+        ref={virtuoso}
+        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
       />
-    </>
+    </motion.div>
   );
 };
 

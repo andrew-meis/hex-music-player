@@ -1,7 +1,7 @@
 import { Box, ClickAwayListener } from '@mui/material';
-import { useMenuState } from '@szhsin/react-menu';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { usePrevious } from 'react-use';
 import { Library, PlayQueueItem, Track } from 'api/index';
@@ -10,10 +10,9 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import TrackRow from 'components/track/TrackRow';
-import { selectedStyle, selectBorderRadius, rowStyle } from 'constants/style';
-import { PlayParams } from 'hooks/usePlayback';
-import useRowSelect from 'hooks/useRowSelect';
+import useRowSelection from 'hooks/useRowSelection';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
+import useTrackMenu from 'hooks/useTrackMenu';
 import { DragTypes, PlayActions } from 'types/enums';
 
 interface TrackCarouselProps {
@@ -21,14 +20,15 @@ interface TrackCarouselProps {
   isPlaying: boolean;
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
-  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   tracks: Track[];
   rows: number;
 }
 
 const TrackCarousel = ({
-  getFormattedTime, isPlaying, library, nowPlaying, playSwitch, tracks, rows,
+  getFormattedTime, isPlaying, library, nowPlaying, tracks, rows,
 }: TrackCarouselProps) => {
+  const hoverIndex = useRef<number | null>(null);
+  const queryClient = useQueryClient();
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
@@ -39,65 +39,47 @@ const TrackCarousel = ({
   const trackPage = tracks
     .slice((activeIndex * rows), (activeIndex * rows + rows));
 
-  const hoverIndex = useRef<number | null>(null);
-  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
-  const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
+  const { clearRowSelection, isRowSelected, toggleRowSelection } = useRowSelection();
+  const { data: selectedRows } = useQuery(
+    ['selected-rows'],
+    () => [],
+    {
+      initialData: [] as number[],
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    },
+  );
   const { drag, dragPreview } = useTrackDragDrop({
     hoverIndex,
     items: tracks || [],
     selectedRows,
     type: DragTypes.TRACK,
   });
+  const {
+    anchorPoint,
+    handleContextMenu,
+    menuProps,
+    playSwitch,
+    selectedTracks,
+    toggleMenu,
+  } = useTrackMenu({ tracks: tracks || [] });
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, selectedRows]);
 
-  const selectedTracks = useMemo(() => {
-    if (!tracks) {
-      return undefined;
-    }
-    if (selectedRows.length > 0) {
-      return selectedRows.map((n) => tracks[n]);
-    }
-    return undefined;
-  }, [selectedRows, tracks]);
-
-  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const target = event.currentTarget.getAttribute('data-item-index');
-    if (!target) {
-      return;
-    }
-    const targetIndex = parseInt(target, 10);
-    switch (true) {
-      case selectedRows.length === 0:
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length === 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      case selectedRows.length > 1 && !selectedRows.includes(targetIndex):
-        setSelectedRows([targetIndex]);
-        break;
-      default:
-        break;
-    }
-    setAnchorPoint({ x: event.clientX, y: event.clientY });
-    toggleMenu(true);
-  }, [selectedRows, setSelectedRows, toggleMenu]);
+  useEffect(() => {
+    queryClient.setQueryData(['selected-rows'], []);
+  }, [queryClient]);
 
   const handleDoubleClick = async (key: string) => {
     await playSwitch(PlayActions.PLAY_TRACKS, { tracks, shuffle: false, key });
   };
 
-  const handleMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget.getAttribute('data-item-index');
-    if (!target) {
-      return;
-    }
-    hoverIndex.current = parseInt(target, 10);
+  const handleMouseEnter = (listIndex: number) => {
+    hoverIndex.current = listIndex;
   };
 
   return (
@@ -113,7 +95,7 @@ const TrackCarousel = ({
           transition={{ duration: 0.2 }}
           variants={tracklistMotion}
         >
-          <ClickAwayListener onClickAway={handleClickAway}>
+          <ClickAwayListener onClickAway={clearRowSelection}>
             <Box
               className="list-box"
               display="flex"
@@ -122,61 +104,62 @@ const TrackCarousel = ({
               maxHeight={rows * 56}
               minHeight={tracks.length > rows ? rows * 56 : 0}
               ref={drag}
+              onContextMenu={(event) => handleContextMenu(event, hoverIndex.current!)}
               onDragEndCapture={() => {
-                document.querySelectorAll('div.track-row')
-                  .forEach((node) => node.classList.remove('non-dragged-track', 'dragged-track'));
-                handleClickAway();
+                clearRowSelection();
+                const nodes = document.querySelectorAll('div.track');
+                nodes.forEach((node) => node.classList.remove('non-dragged', 'dragged'));
               }}
               onDragStartCapture={() => {
                 if (hoverIndex.current === null) {
                   return;
                 }
-                document.querySelectorAll('div.track-row')
-                  .forEach((node) => node.classList.add('non-dragged-track'));
+                const nodes = document.querySelectorAll('div.track');
+                nodes.forEach((node) => node.classList.add('non-dragged'));
                 if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
                   const draggedNodes = selectedRows.map((row) => document
-                    .querySelector(`div.track-row[data-item-index='${row}'`));
-                  draggedNodes
-                    .forEach((node) => node?.classList.add('dragged-track'));
+                    .querySelector(`div.track[data-item-index='${row}'`));
+                  draggedNodes.forEach((node) => node?.classList.add('dragged'));
                 } else {
                   const draggedNode = document
-                    .querySelector(`div.track-row[data-item-index='${hoverIndex.current}'`);
-                  draggedNode?.classList.add('dragged-track');
+                    .querySelector(`div.track[data-item-index='${hoverIndex.current}'`);
+                  draggedNode?.classList.add('dragged');
                 }
               }}
             >
               {trackPage.map((track, index) => {
+                const listIndex = (activeIndex * rows) + index;
                 const playing = nowPlaying?.track.id === track.id;
-                const selected = selectedRows.includes((activeIndex * rows) + index);
-                const selUp = selected && selectedRows.includes((activeIndex * rows) + index - 1);
-                const selDown = selected && selectedRows.includes((activeIndex * rows) + index + 1);
+                const selected = isRowSelected(listIndex);
                 return (
                   <Box
                     alignItems="center"
-                    className="track-row"
                     color="text.secondary"
-                    data-item-index={(activeIndex * rows) + index}
                     display="flex"
                     height={56}
                     key={track.id}
-                    sx={selected
-                      ? { ...selectedStyle, borderRadius: selectBorderRadius(selUp, selDown) }
-                      : { ...rowStyle }}
                     width={1}
-                    onClick={(event) => handleRowClick(event, (activeIndex * rows) + index)}
-                    onContextMenu={handleContextMenu}
-                    onDoubleClick={() => handleDoubleClick(track.key)}
-                    onMouseEnter={handleMouseEnter}
+                    onMouseEnter={() => handleMouseEnter(listIndex)}
                   >
-                    <TrackRow
-                      getFormattedTime={getFormattedTime}
-                      index={(activeIndex * rows) + index + 1}
-                      isPlaying={isPlaying}
-                      library={library}
-                      options={{ showAlbumTitle: true, showArtwork: true }}
-                      playing={playing}
-                      track={track}
-                    />
+                    <Box
+                      alignItems="center"
+                      className={`track ${selected ? 'selected' : ''}`}
+                      data-item-index={listIndex}
+                      display="flex"
+                      height={52}
+                      onClick={(event) => toggleRowSelection(listIndex, event)}
+                      onDoubleClick={() => handleDoubleClick(track.key)}
+                    >
+                      <TrackRow
+                        getFormattedTime={getFormattedTime}
+                        index={listIndex + 1}
+                        isPlaying={isPlaying}
+                        library={library}
+                        options={{ showAlbumTitle: true, showArtwork: true }}
+                        playing={playing}
+                        track={track}
+                      />
+                    </Box>
                   </Box>
                 );
               })}

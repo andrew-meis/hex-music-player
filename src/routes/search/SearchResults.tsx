@@ -20,7 +20,6 @@ import PlaylistCarousel from 'components/playlist/PlaylistCarousel';
 import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
-import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -60,7 +59,6 @@ const SearchResults = () => {
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
   const urlParams = new URLSearchParams(location.search);
@@ -202,7 +200,6 @@ const SearchResults = () => {
                     isPlaying={isPlaying}
                     library={library}
                     nowPlaying={nowPlaying}
-                    playSwitch={playSwitch}
                     rows={4}
                     tracks={tracks}
                   />
