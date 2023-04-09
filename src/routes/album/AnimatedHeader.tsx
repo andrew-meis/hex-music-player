@@ -75,7 +75,7 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
       bgcolor="background.default"
       display="flex"
       flexDirection="column"
-      height={shrink ? 100 : 300}
+      height={shrink ? 71 : 300}
       id="list-header"
       left={0}
       maxWidth="900px"
@@ -97,10 +97,11 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
           alt={album.title}
           src={thumbSrc}
           sx={{
-            height: shrink ? 82 : 254,
-            margin: '8px',
+            height: shrink ? 60 : 254,
+            marginRight: '8px',
+            marginY: '5px',
             ml: 0,
-            width: shrink ? 82 : 254,
+            width: shrink ? 60 : 254,
           }}
           variant="rounded"
         />
@@ -109,8 +110,7 @@ const AnimatedHeader = ({ album, navigate, shrink }: AnimatedHeaderProps) => {
           alignItems={shrink ? 'center' : 'flex-end'}
           display="flex"
           flexGrow={1}
-          height="calc(100% - 20px)"
-          my="10px"
+          height="calc(100% + 1px)"
         >
           <MotionBox
             layout

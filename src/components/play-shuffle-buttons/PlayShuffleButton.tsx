@@ -9,8 +9,7 @@ const { platform } = window.electron.getAppInfo();
 
 interface PlayShuffleButtonProps {
   handlePlay: () => Promise<void>;
-  // eslint-disable-next-line react/require-default-props
-  handleRadio?: () => Promise<void>;
+  handleRadio?: () => Promise<void> | undefined;
   handleShuffle: () => Promise<void>;
 }
 
@@ -111,6 +110,10 @@ const PlayShuffleButton = ({
       </MotionBox>
     </Box>
   );
+};
+
+PlayShuffleButton.defaultProps = {
+  handleRadio: undefined,
 };
 
 export default PlayShuffleButton;

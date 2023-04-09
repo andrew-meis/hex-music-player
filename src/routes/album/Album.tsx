@@ -157,10 +157,10 @@ const Album = () => {
           `album-scroll ${id}`,
           target.scrollTop as unknown as string,
         );
-        if (target.scrollTop > 199) {
+        if (target.scrollTop > 228) {
           setShrink(true);
         }
-        if (target.scrollTop < 200) {
+        if (target.scrollTop < 229) {
           setShrink(false);
         }
       }}

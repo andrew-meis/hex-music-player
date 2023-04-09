@@ -50,6 +50,9 @@ export const useIsPlaying = () => {
         isPlaying: false,
         position: 0,
       },
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
       select: (data) => data.isPlaying,
     },
   );

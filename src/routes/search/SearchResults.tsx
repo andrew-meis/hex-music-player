@@ -1,7 +1,6 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { throttle } from 'lodash';
 import { useMemo, useRef } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import {
@@ -23,7 +22,6 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import { useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import Header from './Header';
@@ -63,9 +61,6 @@ const SearchResults = () => {
 
   const urlParams = new URLSearchParams(location.search);
   const params = Object.fromEntries(urlParams.entries());
-
-  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
-  const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const { data: searchResults, isLoading } = useQuery(
     [QueryKeys.SEARCH_PAGE, params.query],
@@ -212,7 +207,6 @@ const SearchResults = () => {
               <Subheader text="Artists" />
               <ArtistCarousel
                 artists={artists}
-                cols={grid.cols}
                 library={library}
                 navigate={navigate}
                 width={width}
@@ -224,7 +218,6 @@ const SearchResults = () => {
               <Subheader text="Albums" />
               <AlbumCarousel
                 albums={albums}
-                cols={grid.cols}
                 library={library}
                 navigate={navigate}
                 width={width}
@@ -235,7 +228,6 @@ const SearchResults = () => {
             <>
               <Subheader text="Playlists" />
               <PlaylistCarousel
-                cols={grid.cols}
                 library={library}
                 navigate={navigate}
                 playlists={playlists}

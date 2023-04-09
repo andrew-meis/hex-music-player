@@ -16,7 +16,7 @@ import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
-import { getColumns } from 'scripts/get-columns';
+import { getColumnsWide } from 'scripts/get-columns';
 import { PlayActions } from 'types/enums';
 import { AppConfig, CardMeasurements } from 'types/interfaces';
 import Header from './Header';
@@ -60,7 +60,7 @@ const Playlists = () => {
   const { data: playlists, isLoading } = usePlaylists(library);
   const { width } = useOutletContext() as { width: number };
 
-  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
+  const throttledCols = throttle(() => getColumnsWide(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const items = useMemo(() => {
@@ -108,7 +108,7 @@ const Playlists = () => {
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) + 54,
+    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) * 0.33,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 

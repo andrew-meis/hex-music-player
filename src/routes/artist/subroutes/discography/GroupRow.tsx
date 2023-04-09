@@ -5,6 +5,7 @@ import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';
+import useRowSelection from 'hooks/useRowSelection';
 import { AlbumWithSection } from 'routes/artist/Artist';
 import { GroupRowProps } from './Discography';
 
@@ -92,6 +93,7 @@ export const GroupRowHeader = (
 };
 
 const GroupRow = React.memo(({ album, context }: GroupRowProps) => {
+  const { clearRowSelection } = useRowSelection();
   const {
     groupCounts, groups, playAlbum,
   } = context!;
@@ -111,7 +113,7 @@ const GroupRow = React.memo(({ album, context }: GroupRowProps) => {
         color="text.primary"
         display="flex"
         height={168}
-        onClick={context.handleClickAway}
+        onClick={clearRowSelection}
         onMouseEnter={() => {
           context.hoverIndex.current = null;
         }}

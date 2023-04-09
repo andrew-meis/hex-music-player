@@ -108,7 +108,10 @@ const QueueMenu = ({
       boundingBoxPadding="10"
       submenuCloseDelay={0}
       submenuOpenDelay={0}
-      onClose={() => toggleMenu(false)}
+      onClose={() => {
+        document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
+        toggleMenu(false);
+      }}
       {...props}
     >
       <MenuItem

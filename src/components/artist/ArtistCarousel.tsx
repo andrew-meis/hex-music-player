@@ -1,5 +1,6 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
+import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
@@ -11,22 +12,25 @@ import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { ArtistPreview } from 'routes/genre/Genre';
+import { getColumns } from 'scripts/get-columns';
 import ArtistCard from './ArtistCard';
 
 interface ArtistCarouselProps {
   artists: Artist[] | ArtistPreview[];
-  cols: number;
   library: Library;
   navigate: NavigateFunction;
   width: number;
 }
 
 const ArtistCarousel = ({
-  artists, cols, library, navigate, width,
+  artists, library, navigate, width,
 }: ArtistCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const { playSwitch } = usePlayback();
+
+  const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
+  const { cols } = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {

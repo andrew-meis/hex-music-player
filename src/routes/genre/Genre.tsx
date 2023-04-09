@@ -249,7 +249,6 @@ const Genre = () => {
               />
               <ArtistCarousel
                 artists={artists.slice(0, (grid.cols - 1) * 5)}
-                cols={grid.cols - 1}
                 library={library}
                 navigate={navigate}
                 width={width}
@@ -265,7 +264,6 @@ const Genre = () => {
                 />
                 <AlbumCarousel
                   albums={albums.slice(0, (grid.cols - 1) * 6)}
-                  cols={grid.cols - 1}
                   library={library}
                   navigate={navigate}
                   width={width}

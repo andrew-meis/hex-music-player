@@ -166,27 +166,29 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             <Subtext showAlbum track={track} />
           </Typography>
         </Box>
-        <Box title="Remove from queue">
-          <SvgIcon
-            sx={{
-              mx: '6px',
-              color: 'text.primary',
-              width: '0.9em',
-              height: '0.9em',
-              transition: 'transform 200ms ease-in-out',
-              '&:hover': {
-                color: 'error.main',
-                transform: 'scale(1.3)',
-              },
-            }}
-            onClick={async (event) => {
-              event.stopPropagation();
-              await removeTracks([item]);
-            }}
-          >
-            <RiCloseFill />
-          </SvgIcon>
-        </Box>
+        {!isDragging && (
+          <Box title="Remove from queue">
+            <SvgIcon
+              sx={{
+                mx: '6px',
+                color: 'text.primary',
+                width: '0.9em',
+                height: '0.9em',
+                transition: 'transform 200ms ease-in-out',
+                '&:hover': {
+                  color: 'error.main',
+                  transform: 'scale(1.3)',
+                },
+              }}
+              onClick={async (event) => {
+                event.stopPropagation();
+                await removeTracks([item]);
+              }}
+            >
+              <RiCloseFill />
+            </SvgIcon>
+          </Box>
+        )}
       </Box>
     </Box>
   );
@@ -242,6 +244,7 @@ const UpcomingTracksVirtuoso = () => {
         break;
     }
     menuRef.current = event.currentTarget;
+    document.querySelector('.titlebar')?.classList.add('titlebar-nodrag');
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
 

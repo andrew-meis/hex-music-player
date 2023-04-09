@@ -1,5 +1,6 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
+import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { usePrevious } from 'react-use';
@@ -10,10 +11,10 @@ import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
+import { getColumnsWide } from 'scripts/get-columns';
 import PlaylistCard from './PlaylistCard';
 
 interface PlaylistCarouselProps {
-  cols: number;
   library: Library;
   navigate: NavigateFunction;
   playlists: Playlist[];
@@ -21,11 +22,14 @@ interface PlaylistCarouselProps {
 }
 
 const PlaylistCarousel = ({
-  cols, library, navigate, playlists, width,
+  library, navigate, playlists, width,
 }: PlaylistCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const { playSwitch } = usePlayback();
+
+  const throttledCols = throttle(() => getColumnsWide(width), 300, { leading: true });
+  const { cols } = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
 
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
@@ -57,7 +61,7 @@ const PlaylistCarousel = ({
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) + 54,
+    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) * 0.33,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / cols)) * cols,
   }), [cols, width]);
 

@@ -1,37 +1,32 @@
 export const getColumns = (width: number) => {
-  if (width >= 1350) {
-    return 6;
+  let quotient = Infinity;
+  let i = 1;
+  while (quotient > 300) {
+    quotient = width / i;
+    if (quotient < 300) break;
+    i += 1;
   }
-  if (width < 1350 && width >= 1100) {
-    return 5;
-  }
-  if (width < 1100 && width >= 850) {
-    return 4;
-  }
-  if (width < 850 && width >= 650) {
-    return 3;
-  }
-  if (width < 650) {
-    return 2;
-  }
-  return 4;
+  return i;
 };
 
 export const getColumnsNarrow = (width: number) => {
-  if (width >= 1350) {
-    return 7;
+  let quotient = Infinity;
+  let i = 1;
+  while (quotient > 250) {
+    quotient = width / i;
+    if (quotient < 250) break;
+    i += 1;
   }
-  if (width < 1350 && width >= 1100) {
-    return 6;
+  return i;
+};
+
+export const getColumnsWide = (width: number) => {
+  let quotient = Infinity;
+  let i = 1;
+  while (quotient > 450) {
+    quotient = width / i;
+    if (quotient < 450) break;
+    i += 1;
   }
-  if (width < 1100 && width >= 850) {
-    return 5;
-  }
-  if (width < 850 && width >= 650) {
-    return 4;
-  }
-  if (width < 650) {
-    return 3;
-  }
-  return 5;
+  return i;
 };

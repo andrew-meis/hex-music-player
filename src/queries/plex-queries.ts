@@ -28,6 +28,7 @@ export const useNowPlaying = () => {
     {
       enabled: queueId !== 0 && !!library,
       refetchOnMount: false,
+      refetchOnReconnect: false,
       refetchOnWindowFocus: false,
       select: (data) => {
         const currentIndex = data.items.findIndex((item) => item.id === data.selectedItemId);

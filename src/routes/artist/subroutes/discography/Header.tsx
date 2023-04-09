@@ -4,7 +4,7 @@ import React from 'react';
 import { FaCaretDown, FaCaretUp, IoMdMicrophone } from 'react-icons/all';
 import { NavLink, useOutletContext } from 'react-router-dom';
 import { WIDTH_CALC_PADDING } from 'constants/measures';
-import { ArtistDiscographyContext } from './Discography';
+import { DiscographyContext } from './Discography';
 
 interface FilterMenuButtonProps extends MenuButtonProps{
   filter: string;
@@ -61,7 +61,7 @@ const FilterMenuItem = ({ label, setFilter }: FilterMenuItemProps) => (
 );
 
 // eslint-disable-next-line react/require-default-props
-const Header = ({ context }: { context?: ArtistDiscographyContext }) => {
+const Header = ({ context }: { context?: DiscographyContext }) => {
   const { width } = useOutletContext() as { width: number };
   const {
     artist: artistData, filter, filters, library, setFilter,

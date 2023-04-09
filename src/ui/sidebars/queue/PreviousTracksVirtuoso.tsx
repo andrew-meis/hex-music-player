@@ -1,5 +1,6 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useQuery } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { TiArrowBack } from 'react-icons/all';
@@ -73,6 +74,16 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       url: track.thumb, width: 100, height: 100, minSize: 1, upscale: 1,
     },
   );
+  const { data: isDragging } = useQuery(
+    ['is-dragging'],
+    () => false,
+    {
+      staleTime: Infinity,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   const selected = selectedRows.includes(index);
 
@@ -103,6 +114,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       <Box
         alignItems="center"
         className={`track ${selected ? 'selected' : ''}`}
+        data-dragging={isDragging ? 'true' : 'false'}
         data-item-index={index}
         display="flex"
         height={52}
@@ -145,28 +157,30 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             <Subtext showAlbum track={track} />
           </Typography>
         </Box>
-        <Box title="Move to queue">
-          <SvgIcon
-            sx={{
-              mx: '6px',
-              transform: 'rotate(90deg)',
-              color: 'text.primary',
-              width: '0.9em',
-              height: '0.9em',
-              transition: 'transform 200ms ease-in-out',
-              '&:hover': {
-                color: 'primary.main',
-                transform: 'rotate(90deg) scale(1.3)',
-              },
-            }}
-            onClick={async (event) => {
-              event.stopPropagation();
-              await handleMoveTrack(item);
-            }}
-          >
-            <TiArrowBack />
-          </SvgIcon>
-        </Box>
+        {!isDragging && (
+          <Box title="Move to queue">
+            <SvgIcon
+              sx={{
+                mx: '6px',
+                transform: 'rotate(90deg)',
+                color: 'text.primary',
+                width: '0.9em',
+                height: '0.9em',
+                transition: 'transform 200ms ease-in-out',
+                '&:hover': {
+                  color: 'primary.main',
+                  transform: 'rotate(90deg) scale(1.3)',
+                },
+              }}
+              onClick={async (event) => {
+                event.stopPropagation();
+                await handleMoveTrack(item);
+              }}
+            >
+              <TiArrowBack />
+            </SvgIcon>
+          </Box>
+        )}
       </Box>
     </Box>
   );
@@ -222,6 +236,7 @@ const PreviousTracksVirtuoso = () => {
         break;
     }
     menuRef.current = event.currentTarget;
+    document.querySelector('.titlebar')?.classList.add('titlebar-nodrag');
     toggleMenu(true);
   }, [selectedRows, setSelectedRows, toggleMenu]);
 

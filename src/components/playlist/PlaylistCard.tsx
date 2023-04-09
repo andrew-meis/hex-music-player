@@ -1,11 +1,13 @@
-import { SvgIcon } from '@mui/material';
-import React, { useMemo } from 'react';
+import { Box, SvgIcon } from '@mui/material';
+import React, { useMemo, useState } from 'react';
 import { BsMusicNoteList } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
 import { Library, Playlist } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
+import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
+import usePlayback from 'hooks/usePlayback';
 import { usePlaylist } from 'queries/playlist-queries';
 import styles from 'styles/MotionImage.module.scss';
 import { CardMeasurements } from 'types/interfaces';
@@ -27,7 +29,10 @@ const PlaylistCard = ({
   menuTarget,
   navigate,
 }: PlaylistCardProps) => {
+  const [hover, setHover] = useState(false);
+  const { playPlaylist } = usePlayback();
   const { data: playlist, isLoading } = usePlaylist(id, library);
+
   const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(id);
   const thumbSrc = useMemo(() => {
     if (!playlist || (!playlist.thumb && !playlist.composite)) return undefined;
@@ -42,6 +47,9 @@ const PlaylistCard = ({
       },
     );
   }, [library, playlist]);
+
+  const handlePlay = () => playPlaylist(playlist!);
+  const handleShuffle = () => playPlaylist(playlist!, true);
 
   return (
     <MotionBox
@@ -61,17 +69,21 @@ const PlaylistCard = ({
       width={measurements.IMAGE_SIZE}
       onClick={() => navigate(`/playlists/${id}`)}
       onContextMenu={handleContextMenu}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       {!isLoading && !!playlist && (
         <MotionBox
           animate={{ opacity: 1 }}
+          display="flex"
           initial={{ opacity: 0 }}
         >
           <MotionBox
             bgcolor="action.selected"
             className={styles.image}
             flexDirection="column-reverse"
-            height={measurements.IMAGE_SIZE - 24}
+            flexShrink={0}
+            height={measurements.ROW_HEIGHT - 24}
             margin="12px"
             style={{
               borderRadius: '32px',
@@ -79,7 +91,7 @@ const PlaylistCard = ({
               '--img': `url(${thumbSrc})`,
             } as React.CSSProperties}
             variants={menuOpen ? {} : imageMotion}
-            width={measurements.IMAGE_SIZE - 24}
+            width={measurements.ROW_HEIGHT - 24}
           >
             {!thumbSrc && (
               <SvgIcon
@@ -90,15 +102,33 @@ const PlaylistCard = ({
               </SvgIcon>
             )}
           </MotionBox>
-          <Title marginX="12px" textAlign="center">
-            {playlist.title}
-          </Title>
-          <Subtitle
-            marginX="12px"
-            textAlign="center"
+          <Box
+            alignItems="flex-start"
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
           >
-            {`${playlist.leafCount} ${playlist.leafCount === 1 ? 'track' : 'tracks'}`}
-          </Subtitle>
+            <Title marginX="12px" textAlign="center">
+              {playlist.title}
+            </Title>
+            <Subtitle
+              marginX="12px"
+              textAlign="center"
+            >
+              {`${playlist.leafCount} ${playlist.leafCount === 1 ? 'track' : 'tracks'}`}
+            </Subtitle>
+            {hover && (
+              <MotionBox
+                animate={{ opacity: 1, y: 0 }}
+                bottom={6}
+                initial={{ opacity: 0, y: 10 }}
+                position="absolute"
+                right={6}
+              >
+                <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
+              </MotionBox>
+            )}
+          </Box>
         </MotionBox>
       )}
     </MotionBox>

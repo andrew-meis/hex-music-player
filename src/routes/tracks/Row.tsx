@@ -33,6 +33,9 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
       color="text.secondary"
       display="flex"
       height={56}
+      sx={{
+        transform: 'translateZ(0px)',
+      }}
       onMouseEnter={handleMouseEnter}
     >
       <Box
