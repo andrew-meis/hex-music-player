@@ -1,8 +1,7 @@
-import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { countBy } from 'lodash';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   NavigateFunction,
   useLocation,
@@ -10,7 +9,7 @@ import {
   useNavigationType,
   useParams,
 } from 'react-router-dom';
-import { GroupedVirtuoso } from 'react-virtuoso';
+import { GroupedVirtuoso, VirtuosoHandle } from 'react-virtuoso';
 import {
   Artist,
   Album as AlbumType,
@@ -27,9 +26,9 @@ import { useLibrary } from 'queries/app-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { RouteParams } from 'types/interfaces';
-import AnimatedHeader from './AnimatedHeader';
 import Footer from './Footer';
 import GroupRow from './GroupRow';
+import Header from './Header';
 import List from './List';
 import Row from './Row';
 
@@ -77,8 +76,7 @@ const Album = () => {
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
-  const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
-  const [shrink, setShrink] = useState(false);
+  const virtuoso = useRef<VirtuosoHandle>(null);
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
@@ -141,57 +139,21 @@ const Album = () => {
   return (
     <motion.div
       animate={{ opacity: 1 }}
-      className="scroll-container"
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      ref={setScroller}
-      style={{
-        height: '100%',
-        overflowY: 'overlay',
-      } as unknown as React.CSSProperties}
-      onAnimationComplete={() => scroller?.scrollTo({ top: initialScrollTop })}
-      onScroll={(e) => {
-        const target = e.currentTarget as unknown as HTMLDivElement;
-        sessionStorage.setItem(
-          `album-scroll ${id}`,
-          target.scrollTop as unknown as string,
-        );
-        if (target.scrollTop > 228) {
-          setShrink(true);
-        }
-        if (target.scrollTop < 229) {
-          setShrink(false);
-        }
-      }}
+      style={{ height: '100%' }}
+      onAnimationComplete={() => virtuoso.current
+        ?.scrollTo({ top: initialScrollTop })}
     >
-      <Box
-        height={1}
-        left={0}
-        marginRight="-100%"
-        position="sticky"
-        sx={{
-          float: 'left',
-          pointerEvents: 'none',
-        }}
-        top={0}
-        width={1}
-        zIndex={2}
-      >
-        <AnimatedHeader
-          album={album.data.album}
-          navigate={navigate}
-          shrink={shrink}
-        />
-      </Box>
       <GroupedVirtuoso
-        useWindowScroll
+        className="scroll-container"
         components={{
           Footer,
+          Header,
           List,
         }}
         context={albumContext}
-        customScrollParent={scroller || undefined}
         fixedItemHeight={56}
         groupContent={(index) => GroupRowContent(
           { context: albumContext, discNumber: groups[index] },
@@ -201,8 +163,14 @@ const Album = () => {
         itemContent={(index, _groupIndex, _item, context) => RowContent(
           { context, index, track: albumTracks.data![index] },
         )}
-        style={{
-          marginTop: 300,
+        ref={virtuoso}
+        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+        onScroll={(e) => {
+          const target = e.currentTarget as unknown as HTMLDivElement;
+          sessionStorage.setItem(
+            `album-scroll ${id}`,
+            target.scrollTop as unknown as string,
+          );
         }}
       />
     </motion.div>

@@ -3,9 +3,11 @@ import {
 } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import React, { useCallback, useState } from 'react';
-import { FaCaretDown, FaCaretRight, TiFolder } from 'react-icons/all';
+import { BsGrid, FaCaretDown, FaCaretRight, TiFolder } from 'react-icons/all';
+import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
 import PlaylistMenu from 'components/menus/PlaylistMenu';
+import { navlistTypeActiveStyle, navlistTypeStyle } from 'constants/style';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
@@ -73,6 +75,24 @@ const PlaylistLinks = () => {
   return (
     <>
       <List disablePadding className="scroll-container" sx={{ overflow: 'overlay', mr: '4px' }}>
+        <NavLink end className="nav-link" to="/playlists">
+          {({ isActive }) => (
+            <ListItem sx={listItemStyle}>
+              <Box sx={activeBox(isActive)} />
+              <BsGrid
+                style={{
+                  color: isActive
+                    ? 'var(--mui-palette-text-primary)'
+                    : 'var(--mui-palette-text-secondary)',
+                  marginRight: '6px',
+                }}
+              />
+              <Typography sx={isActive ? navlistTypeActiveStyle : navlistTypeStyle}>
+                All playlists
+              </Typography>
+            </ListItem>
+          )}
+        </NavLink>
         <ListItem sx={listItemStyle} onClick={handleOpen}>
           <Box sx={activeBox(false)} />
           <TiFolder style={{ marginRight: '6px' }} />

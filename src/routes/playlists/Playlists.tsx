@@ -108,7 +108,7 @@ const Playlists = () => {
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) * 0.33,
+    ROW_HEIGHT: 128,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid, width]);
 

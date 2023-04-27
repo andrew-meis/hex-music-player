@@ -248,22 +248,38 @@ const ResultRow = ({
         </SvgIcon>
       </Avatar>
       <Box
-        sx={{
-          WebkitLineClamp: 2,
-          display: '-webkit-box',
-          overflow: 'hidden',
-          WebkitBoxOrient: 'vertical',
-          width: 1,
-        }}
+        display="flex"
+        flexDirection="column"
+        width={1}
       >
-        <Typography
-          lineHeight="21px"
+        <Box
+          sx={{
+            WebkitLineClamp: 1,
+            display: '-webkit-box',
+            overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+          }}
         >
-          {result.title}
-        </Typography>
-        <Typography fontSize="0.875rem">
-          {additionalText}
-        </Typography>
+          <Typography
+            lineHeight="21px"
+          >
+            {result.title}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            WebkitLineClamp: 1,
+            display: '-webkit-box',
+            overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
+          <Typography
+            fontSize="0.875rem"
+          >
+            {additionalText}
+          </Typography>
+        </Box>
       </Box>
       {!isPlaylist(result) && !isGenre(result) && (
         <ResultTooltip

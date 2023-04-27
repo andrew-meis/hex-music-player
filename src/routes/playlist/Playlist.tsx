@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, Playlist as TypePlaylist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem } from 'api/index';
 import { useMoveManyPlaylistItems } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -29,8 +29,9 @@ export interface PlaylistContext {
   items: PlaylistItem[];
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
-  playlist: TypePlaylist | undefined;
-  playPlaylistAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
+  playlist: PlaylistType | undefined;
+  playPlaylist:
+    (playlist: PlaylistType, shuffle?: boolean, key?: string | undefined) => Promise<void>;
   queryClient: QueryClient;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -62,7 +63,7 @@ const Playlist = () => {
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
-  const { playPlaylistAtTrack } = usePlayback();
+  const { playPlaylist } = usePlayback();
 
   const items = useMemo(() => {
     if (!playlistItems.data) {
@@ -152,7 +153,7 @@ const Playlist = () => {
     library,
     nowPlaying,
     playlist: playlist.data,
-    playPlaylistAtTrack,
+    playPlaylist,
     queryClient,
     setFilter,
   }), [
@@ -166,7 +167,7 @@ const Playlist = () => {
     library,
     nowPlaying,
     playlist.data,
-    playPlaylistAtTrack,
+    playPlaylist,
     queryClient,
     setFilter,
   ]);

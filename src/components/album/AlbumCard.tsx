@@ -1,14 +1,12 @@
 import { SvgIcon } from '@mui/material';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React from 'react';
 import { RiAlbumFill } from 'react-icons/all';
 import { Link, NavigateFunction } from 'react-router-dom';
 import { Album, Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
-import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
-import usePlayback from 'hooks/usePlayback';
 import styles from 'styles/MotionImage.module.scss';
 import { CardMeasurements, Sort } from 'types/interfaces';
 
@@ -77,9 +75,6 @@ const AlbumCard = ({
   section,
   sort,
 }: AlbumCardProps) => {
-  const [hover, setHover] = useState(false);
-  const { playAlbum } = usePlayback();
-
   const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
@@ -87,9 +82,6 @@ const AlbumCard = ({
       url: album.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
     },
   );
-
-  const handlePlay = () => playAlbum(album);
-  const handleShuffle = () => playAlbum(album, true);
 
   return (
     <MotionBox
@@ -110,8 +102,6 @@ const AlbumCard = ({
       width={measurements.IMAGE_SIZE}
       onClick={() => navigate(`/albums/${album.id}`)}
       onContextMenu={handleContextMenu}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
     >
       <MotionBox
         bgcolor="action.selected"
@@ -163,17 +153,6 @@ const AlbumCard = ({
           </>
         )}
       </Subtitle>
-      {hover && (
-        <MotionBox
-          animate={{ opacity: 1, y: 0 }}
-          bottom={6}
-          initial={{ opacity: 0, y: 10 }}
-          position="absolute"
-          right={6}
-        >
-          <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
-        </MotionBox>
-      )}
     </MotionBox>
   );
 };

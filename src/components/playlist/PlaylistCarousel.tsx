@@ -61,7 +61,7 @@ const PlaylistCarousel = ({
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / cols) - (((cols - 1) * 8) / cols)),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / cols) * 0.33,
+    ROW_HEIGHT: 128,
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / cols)) * cols,
   }), [cols, width]);
 

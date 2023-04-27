@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
 import { v4 } from 'uuid';
 import { Album, Artist, Playlist, PlayQueueItem, Track } from 'api/index';
 import useQueue from 'hooks/useQueue';
@@ -26,10 +25,13 @@ const usePlayback = () => {
   const queueId = useQueueId();
   const server = useServer();
   const {
-    addToQueue, getQueue, playQueue, updateQueue, updateTimeline,
+    addToQueue,
+    getQueue,
+    playQueue,
+    updateQueue,
+    updateTimeline,
   } = useQueue();
   const { data: nowPlaying } = useNowPlaying();
-  const { id: routeId } = useParams();
 
   const serverUri = `server://${server.clientIdentifier}/com.plexapp.plugins.library`;
 
@@ -58,20 +60,15 @@ const usePlayback = () => {
     player.initTracks(newQueue);
   }, [playQueue, player, serverUri]);
 
-  const playPlaylist = useCallback(async (playlist: Playlist, shuffle: boolean = false) => {
-    const uri = `${serverUri}${playlist.key}&playlistID=${playlist.id}`;
-    const newQueue = await playQueue(uri, shuffle);
+  const playPlaylist = useCallback(async (
+    playlist: Playlist,
+    shuffle: boolean = false,
+    key: string | undefined = undefined,
+  ) => {
+    const uri = `${serverUri}/playlists/${playlist.id}/items`;
+    const newQueue = await playQueue(uri, shuffle, key);
     player.initTracks(newQueue);
   }, [playQueue, player, serverUri]);
-
-  const playPlaylistAtTrack = useCallback(async (track: Track, shuffle: boolean = false) => {
-    if (!routeId) {
-      return;
-    }
-    const uri = `${serverUri}/playlists/${routeId}/items`;
-    const newQueue = await playQueue(uri, shuffle, track.key);
-    player.initTracks(newQueue);
-  }, [playQueue, player, routeId, serverUri]);
 
   const playQueueItem = useCallback(async (item: PlayQueueItem) => {
     if (isPlayQueueItem(nowPlaying)) {
@@ -215,11 +212,6 @@ const usePlayback = () => {
             await playPlaylist(params.playlist, params.shuffle);
           }
           break;
-        case PlayActions.PLAY_PLAYLIST_AT_TRACK:
-          if (params.track) {
-            await playPlaylistAtTrack(params.track, params.shuffle);
-          }
-          break;
         case PlayActions.PLAY_TRACK:
           if (params.track) {
             await playTrack(params.track, params.shuffle);
@@ -245,7 +237,6 @@ const usePlayback = () => {
       playArtist,
       playArtistRadio,
       playPlaylist,
-      playPlaylistAtTrack,
       playTrack,
       playTrackRadio,
       playTracks,
@@ -261,7 +252,6 @@ const usePlayback = () => {
     playArtist,
     playArtistRadio,
     playPlaylist,
-    playPlaylistAtTrack,
     playQueueItem,
     playSwitch,
     playTrack,

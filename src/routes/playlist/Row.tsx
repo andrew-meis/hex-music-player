@@ -16,7 +16,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
     library,
     nowPlaying,
     playlist,
-    playPlaylistAtTrack,
+    playPlaylist,
   } = context;
   const { track } = item;
   const { data: isDragging } = useQuery(
@@ -34,7 +34,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   const selected = isRowSelected(index);
 
   const handleDoubleClick = async () => {
-    await playPlaylistAtTrack(track, false);
+    await playPlaylist(playlist!, false, track.key);
   };
 
   const handleDrop = () => {

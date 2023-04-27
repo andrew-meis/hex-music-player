@@ -44,7 +44,10 @@ const PlayShuffleButton = ({
               backgroundColor: 'primary.light',
             },
           }}
-          onClick={handlePlay}
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePlay();
+          }}
         >
           <SvgIcon sx={{ width: '1.3em', height: '1.3em', color: 'background.default' }}>
             <RiPlayFill />
@@ -72,7 +75,10 @@ const PlayShuffleButton = ({
               backgroundColor: 'background.default',
             },
           }}
-          onClick={handleShuffle}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleShuffle();
+          }}
         >
           <SvgIcon sx={{ fontSize: '1rem' }} viewBox="0 0 16 16">
             <RiShuffleFill />
@@ -100,7 +106,10 @@ const PlayShuffleButton = ({
                 backgroundColor: 'background.default',
               },
             }}
-            onClick={handleRadio}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleRadio();
+            }}
           >
             <SvgIcon sx={{ fontSize: '1rem' }} viewBox="0 0 16 16">
               <FiRadio />
