@@ -32,6 +32,8 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
 
   const playing = nowPlaying?.track.id === track.id;
   const selected = isRowSelected(index);
+  const selectedAbove = isRowSelected(index - 1);
+  const selectedBelow = isRowSelected(index + 1);
 
   const handleDoubleClick = async () => {
     await playPlaylist(playlist!, false, track.key);
@@ -54,6 +56,8 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
       data-smart={playlist?.smart}
       display="flex"
       height={56}
+      onClick={(event) => toggleRowSelection(index, event)}
+      onDoubleClick={handleDoubleClick}
       onDragEnter={() => setOver(true)}
       onDragLeave={() => setOver(false)}
       onDrop={handleDrop}
@@ -64,10 +68,10 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
         className={`track ${selected ? 'selected' : ''}`}
         data-dragging={isDragging ? 'true' : 'false'}
         data-item-index={index}
+        data-selected-above={selectedAbove}
+        data-selected-below={selectedBelow}
         display="flex"
-        height={52}
-        onClick={(event) => toggleRowSelection(index, event)}
-        onDoubleClick={handleDoubleClick}
+        height={56}
       >
         <TrackRow
           getFormattedTime={getFormattedTime}

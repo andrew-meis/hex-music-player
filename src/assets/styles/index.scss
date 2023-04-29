@@ -342,6 +342,16 @@ select:focus-visible {
   color: var(--mui-palette-text-secondary);
 }
 
+.track[data-selected-above="true"] {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.track[data-selected-below="true"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
 .track[data-dragging="true"] {
   pointer-events: none;
 }

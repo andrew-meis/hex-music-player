@@ -51,10 +51,11 @@ const getDragType = (resultType: string) => {
 };
 
 interface TopResultProps {
+  imgSize: number;
   topResult: Result;
 }
 
-const TopResult = ({ topResult }: TopResultProps) => {
+const TopResult = ({ imgSize, topResult }: TopResultProps) => {
   const box = useRef<HTMLDivElement>(null);
   const library = useLibrary();
   const { data: settings } = useSettings();
@@ -224,10 +225,10 @@ const TopResult = ({ topResult }: TopResultProps) => {
           src={thumbSrc.url}
           sx={{
             borderRadius: topResult._type === 'artist' ? '50%' : '4px',
-            height: 295 - 71 - 12,
-            mb: '6px',
+            height: imgSize,
             ml: '6px',
-            width: 295 - 71 - 12,
+            my: '6px',
+            width: imgSize,
           }}
           variant="rounded"
         >
@@ -238,18 +239,14 @@ const TopResult = ({ topResult }: TopResultProps) => {
         </Avatar>
         {resultType}
         <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            flexGrow: 1,
-          }}
+          display="flex"
+          flexDirection="column"
+          flexGrow={1}
         >
           <Box
             id="top-result-text"
-            sx={{
-              overflow: 'hidden',
-              marginRight: '3px',
-            }}
+            marginRight="6px"
+            overflow="hidden"
           >
             <Typography
               sx={{
@@ -258,6 +255,7 @@ const TopResult = ({ topResult }: TopResultProps) => {
                 fontFamily: 'Rubik, sans-serif',
                 fontSize,
                 fontWeight: 700,
+                WebkitLineClamp: imgSize === 140 ? 2 : 3,
               }}
             >
               <Link

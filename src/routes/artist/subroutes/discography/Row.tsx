@@ -22,6 +22,8 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
 
   const playing = nowPlaying?.track.id === track.id;
   const selected = isRowSelected(index);
+  const selectedAbove = isRowSelected(index - 1);
+  const selectedBelow = isRowSelected(index + 1);
 
   const handleDoubleClick = async () => {
     await playAlbumAtTrack(track, false);
@@ -34,34 +36,29 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
   return (
     <Box
       alignItems="center"
-      color="text.secondary"
+      className={`track ${selected ? 'selected' : ''}`}
+      data-item-index={index}
+      data-selected-above={selectedAbove}
+      data-selected-below={selectedBelow}
       display="flex"
       height={56}
+      onClick={(event) => toggleRowSelection(index, event)}
+      onDoubleClick={handleDoubleClick}
       onMouseEnter={handleMouseEnter}
     >
-      <Box
-        alignItems="center"
-        className={`track ${selected ? 'selected' : ''}`}
-        data-item-index={index}
-        display="flex"
-        height={52}
-        onClick={(event) => toggleRowSelection(index, event)}
-        onDoubleClick={handleDoubleClick}
-      >
-        <TrackRow
-          getFormattedTime={getFormattedTime}
-          index={track.trackNumber}
-          isPlaying={isPlaying}
-          library={library}
-          options={{
-            originallyAvailableAt,
-            showAlbumTitle: true,
-            showArtwork: false,
-          }}
-          playing={playing}
-          track={track}
-        />
-      </Box>
+      <TrackRow
+        getFormattedTime={getFormattedTime}
+        index={track.trackNumber}
+        isPlaying={isPlaying}
+        library={library}
+        options={{
+          originallyAvailableAt,
+          showAlbumTitle: true,
+          showArtwork: false,
+        }}
+        playing={playing}
+        track={track}
+      />
     </Box>
   );
 });

@@ -12,10 +12,11 @@ import React, { useEffect, useState } from 'react';
 import { GoCheck, RiSendPlaneLine } from 'react-icons/all';
 import { ListProps, Virtuoso } from 'react-virtuoso';
 import { Album, Library, Track } from 'api/index';
+import { MotionBox } from 'components/motion-components/motion-components';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
-import { useLibrary } from 'queries/app-queries';
+import { useLibrary, useSettings } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { QueryKeys } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
@@ -94,7 +95,7 @@ const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) =>
         <Box
           alignItems="center"
           bgcolor="action.selected"
-          borderRadius="50%"
+          borderRadius="12px"
           display="flex"
           flexShrink={0}
           fontSize="1.3rem"
@@ -114,11 +115,13 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
   const addToPlaylist = useAddToPlaylist();
   const createPlaylist = useCreatePlaylist();
   const library = useLibrary();
-  const { data: playlists, isLoading } = usePlaylists(library);
   const queryClient = useQueryClient();
   const toast = useToast();
   const [selected, setSelected] = useState<number[]>([]);
   const [title, setTitle] = useState('');
+  const { data: playlists, isLoading } = usePlaylists(library);
+  const { data: settings } = useSettings();
+  const { colorMode } = settings;
 
   useEffect(() => setSelected([]), [items]);
 
@@ -259,47 +262,61 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
               </Typography>
             </Box>
           )}
-          style={{ height: 'calc(100% - 142px)' }}
+          style={{ height: 'calc(100% - 148px)' }}
         />
         <Box
           alignItems="center"
           display="flex"
-          height={40}
+          height={44}
           justifyContent="flex-end"
           width="calc(100% - 10px)"
         >
-          <Button
-            disableRipple
-            color="error"
-            size="small"
-            sx={{
-              fontSize: '0.95rem',
-              height: 32,
-              lineHeight: 1,
-              marginLeft: '4px',
-              textTransform: 'none',
-            }}
-            variant="outlined"
-            onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
+          <MotionBox
+            transition={{ type: 'spring', stiffness: 100 }}
+            whileHover={{ scale: [null, 1.08, 1.04] }}
           >
-            Cancel
-          </Button>
-          <Button
-            disableRipple
-            color="success"
-            size="small"
-            sx={{
-              fontSize: '0.95rem',
-              height: 32,
-              lineHeight: 1,
-              marginLeft: '4px',
-              textTransform: 'none',
-            }}
-            variant="outlined"
-            onClick={handleSave}
+            <Button
+              color="error"
+              size="small"
+              sx={{
+                borderRadius: '10px',
+                color: colorMode === 'light' ? 'common.white' : '',
+                fontSize: '0.95rem',
+                ml: '4px',
+                height: '36px',
+                textTransform: 'none',
+              }}
+              variant="contained"
+              onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
+            >
+              <Box alignItems="center" display="flex" justifyContent="center" width={1}>
+                Cancel
+              </Box>
+            </Button>
+          </MotionBox>
+          <MotionBox
+            transition={{ type: 'spring', stiffness: 100 }}
+            whileHover={{ scale: [null, 1.08, 1.04] }}
           >
-            Save
-          </Button>
+            <Button
+              color="primary"
+              size="small"
+              sx={{
+                borderRadius: '10px',
+                color: colorMode === 'light' ? 'common.white' : '',
+                fontSize: '0.95rem',
+                ml: '4px',
+                height: '36px',
+                textTransform: 'none',
+              }}
+              variant="contained"
+              onClick={handleSave}
+            >
+              <Box alignItems="center" display="flex" justifyContent="center" width={1}>
+                Save
+              </Box>
+            </Button>
+          </MotionBox>
         </Box>
       </Box>
     </Box>

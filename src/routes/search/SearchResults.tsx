@@ -174,18 +174,19 @@ const SearchResults = () => {
             <Box
               flex="1 1 500px"
               marginRight="8px"
-              maxWidth={1}
-              minHeight={295}
-              minWidth={500}
+              maxWidth={500}
+              minHeight={width > 564 ? 295 : 223}
             >
               <Subheader text="Top Result" />
-              <TopResult topResult={topResult} />
+              <TopResult
+                imgSize={width > 564 ? 295 - 71 - 12 : 140}
+                topResult={topResult}
+              />
             </Box>
             <Box
               flex="50000 1 600px"
               maxWidth={1}
-              minHeight={295}
-              minWidth={600}
+              minHeight={Math.min(295, (tracks.length * 56) + 71)}
             >
               {showTracks() && (
                 <>

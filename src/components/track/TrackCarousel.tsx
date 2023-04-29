@@ -131,35 +131,31 @@ const TrackCarousel = ({
                 const listIndex = (activeIndex * rows) + index;
                 const playing = nowPlaying?.track.id === track.id;
                 const selected = isRowSelected(listIndex);
+                const selectedAbove = isRowSelected(listIndex - 1);
+                const selectedBelow = isRowSelected(listIndex + 1);
                 return (
                   <Box
                     alignItems="center"
-                    color="text.secondary"
+                    className={`track ${selected ? 'selected' : ''}`}
+                    data-item-index={listIndex}
+                    data-selected-above={selectedAbove}
+                    data-selected-below={selectedBelow}
                     display="flex"
                     height={56}
                     key={track.id}
-                    width={1}
+                    onClick={(event) => toggleRowSelection(listIndex, event)}
+                    onDoubleClick={() => handleDoubleClick(track.key)}
                     onMouseEnter={() => handleMouseEnter(listIndex)}
                   >
-                    <Box
-                      alignItems="center"
-                      className={`track ${selected ? 'selected' : ''}`}
-                      data-item-index={listIndex}
-                      display="flex"
-                      height={52}
-                      onClick={(event) => toggleRowSelection(listIndex, event)}
-                      onDoubleClick={() => handleDoubleClick(track.key)}
-                    >
-                      <TrackRow
-                        getFormattedTime={getFormattedTime}
-                        index={listIndex + 1}
-                        isPlaying={isPlaying}
-                        library={library}
-                        options={{ showAlbumTitle: true, showArtwork: true }}
-                        playing={playing}
-                        track={track}
-                      />
-                    </Box>
+                    <TrackRow
+                      getFormattedTime={getFormattedTime}
+                      index={listIndex + 1}
+                      isPlaying={isPlaying}
+                      library={library}
+                      options={{ showAlbumTitle: true, showArtwork: true }}
+                      playing={playing}
+                      track={track}
+                    />
                   </Box>
                 );
               })}
