@@ -34,7 +34,12 @@ import Tracks from 'routes/tracks/Tracks';
 
 const ErrorElement = () => (
   <Box alignItems="center" display="flex" flexDirection="column" height={1} justifyContent="center">
-    <Typography color="text.primary" fontFamily="TT Commons" fontWeight={700} variant="h4">
+    <Typography
+      color="text.primary"
+      fontFamily="TT Commons, sans-serif"
+      fontWeight={700}
+      variant="h4"
+    >
       Oops!
     </Typography>
     <Typography color="text.primary">

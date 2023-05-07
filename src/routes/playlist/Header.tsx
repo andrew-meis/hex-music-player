@@ -16,7 +16,7 @@ const titleStyle = {
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
-  fontFamily: 'TT Commons',
+  fontFamily: 'TT Commons, sans-serif',
   fontWeight: 600,
 };
 
@@ -97,7 +97,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
               </Typography>
               <Box alignItems="flex-end" display="flex" flexWrap="wrap" mt="4px">
                 <Typography
-                  fontFamily="Rubik"
+                  fontFamily="Rubik, sans-serif"
                   sx={{
                     overflow: 'hidden',
                     display: '-webkit-box',

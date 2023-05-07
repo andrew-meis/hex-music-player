@@ -78,7 +78,7 @@ const ArtistPreview = ({
       >
         <MotionTypography
           color="text.primary"
-          fontFamily="TT Commons"
+          fontFamily="TT Commons, sans-serif"
           fontSize="1.625rem"
           marginRight="auto"
           whileHover="hover"
@@ -99,7 +99,12 @@ const ArtistPreview = ({
           </Link>
         </MotionTypography>
       </Box>
-      <Typography color="text.primary" fontFamily="TT Commons" fontSize="1.3rem" width={1}>
+      <Typography
+        color="text.primary"
+        fontFamily="TT Commons, sans-serif"
+        fontSize="1.3rem"
+        width={1}
+      >
         Top Tracks
       </Typography>
       <Box

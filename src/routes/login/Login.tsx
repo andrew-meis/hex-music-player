@@ -260,7 +260,7 @@ const Login = () => {
               />
               <Typography
                 color="white"
-                fontFamily="TT Commons"
+                fontFamily="TT Commons, sans-serif"
                 fontSize="1.75rem"
                 fontWeight={700}
               >

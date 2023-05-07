@@ -73,7 +73,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
     >
       <MotionTypography
         color="text.primary"
-        fontFamily="TT Commons"
+        fontFamily="TT Commons, sans-serif"
         fontSize="1.625rem"
         paddingX="1px"
         whileHover="hover"
@@ -138,7 +138,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
       </TabPanel>
       <Typography
         color="text.secondary"
-        fontFamily="TT Commons"
+        fontFamily="TT Commons, sans-serif"
         fontSize="0.9rem"
         position="absolute"
         sx={{

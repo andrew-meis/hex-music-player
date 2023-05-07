@@ -4,7 +4,7 @@ import React from 'react';
 const titleStyle = {
   color: 'text.primary',
   display: '-webkit-box',
-  fontFamily: 'Rubik',
+  fontFamily: 'Rubik, sans-serif',
   fontSize: '1rem',
   lineHeight: 1.2,
   overflow: 'hidden',

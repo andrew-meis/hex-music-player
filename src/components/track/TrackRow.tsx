@@ -116,7 +116,7 @@ const TrackRow = ({
       >
         <Typography
           color="text.primary"
-          fontFamily="Rubik"
+          fontFamily="Rubik, sans-serif"
           fontSize="0.95rem"
           fontWeight={playing ? 600 : 'inherit'}
           sx={typographyStyle}

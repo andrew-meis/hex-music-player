@@ -145,7 +145,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
         >
           <Typography
             color="text.primary"
-            fontFamily="Rubik"
+            fontFamily="Rubik, sans-serif"
             fontSize="0.95rem"
             sx={{ ...typographyStyle }}
           >

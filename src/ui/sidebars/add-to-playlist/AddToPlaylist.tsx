@@ -74,7 +74,7 @@ const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) =>
       >
         <Typography
           color="text.primary"
-          fontFamily="Rubik"
+          fontFamily="Rubik, sans-serif"
           fontSize="0.95rem"
           sx={{ ...typographyStyle }}
         >

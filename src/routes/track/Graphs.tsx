@@ -78,7 +78,7 @@ const Graphs = ({ colors, moments }: GraphsProps) => {
     <>
       <Typography
         color="text.primary"
-        fontFamily="TT Commons"
+        fontFamily="TT Commons, sans-serif"
         fontSize="1.625rem"
       >
         Playback Statistics

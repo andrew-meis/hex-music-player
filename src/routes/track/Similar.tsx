@@ -116,7 +116,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
       <>
         <Typography
           color="text.primary"
-          fontFamily="TT Commons"
+          fontFamily="TT Commons, sans-serif"
           fontSize="1.625rem"
         >
           Last.fm Similar Tracks
@@ -139,7 +139,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
       <>
         <Typography
           color="text.primary"
-          fontFamily="TT Commons"
+          fontFamily="TT Commons, sans-serif"
           fontSize="1.625rem"
         >
           Last.fm Similar Tracks
@@ -151,7 +151,12 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
           height={264}
           justifyContent="center"
         >
-          <Typography color="text.primary" fontFamily="TT Commons" fontWeight={700} variant="h4">
+          <Typography
+            color="text.primary"
+            fontFamily="TT Commons, sans-serif"
+            fontWeight={700}
+            variant="h4"
+          >
             No results!
           </Typography>
           <Typography color="text.primary">
@@ -170,7 +175,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
     <>
       <Typography
         color="text.primary"
-        fontFamily="TT Commons"
+        fontFamily="TT Commons, sans-serif"
         fontSize="1.625rem"
       >
         Last.fm Similar Tracks
@@ -242,7 +247,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
                     <Box width={0.9}>
                       <Typography
                         color="text.primary"
-                        fontFamily="Rubik"
+                        fontFamily="Rubik, sans-serif"
                         fontSize="0.95rem"
                         sx={typographyStyle}
                       >

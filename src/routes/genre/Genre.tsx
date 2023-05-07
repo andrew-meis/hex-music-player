@@ -35,7 +35,7 @@ const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => 
   <MotionTypography
     className="link"
     color="text.primary"
-    fontFamily="TT Commons"
+    fontFamily="TT Commons, sans-serif"
     fontSize="1.625rem"
     marginRight="auto"
     whileHover="hover"
@@ -207,7 +207,7 @@ const Genre = () => {
               />
               <Typography
                 color="text.primary"
-                fontFamily="Rubik"
+                fontFamily="Rubik, sans-serif"
                 sx={{
                   display: '-webkit-box',
                   overflow: 'hidden',

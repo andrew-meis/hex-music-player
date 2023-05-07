@@ -65,7 +65,7 @@ const Info = ({ album, lastfmTrack, track }: InfoProps) => {
     <Box>
       <Typography
         color="text.primary"
-        fontFamily="TT Commons"
+        fontFamily="TT Commons, sans-serif"
         fontSize="1.625rem"
       >
         Track Information

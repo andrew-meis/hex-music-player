@@ -31,7 +31,7 @@ const SimilarArtistsCards = ({
     <Box display="flex" flexDirection="column" margin="auto" width={WIDTH_CALC}>
       <MotionTypography
         color="text.primary"
-        fontFamily="TT Commons"
+        fontFamily="TT Commons, sans-serif"
         fontSize="1.625rem"
         whileHover="hover"
         width="fit-content"

@@ -19,7 +19,7 @@ const titleStyle = {
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
-  fontFamily: 'TT Commons',
+  fontFamily: 'TT Commons, sans-serif',
   fontWeight: 600,
   marginBottom: '5px',
 };
@@ -37,11 +37,11 @@ const GenreLinks = ({ album }: GenreLinksProps) => (
     mt="4px"
     overflow="hidden"
   >
-    <Typography fontFamily="Rubik" variant="subtitle2">
+    <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
       {album.year}
     </Typography>
     {album.genre.map((genre) => (
-      <Typography fontFamily="Rubik" key={genre.id} variant="subtitle2">
+      <Typography fontFamily="Rubik, sans-serif" key={genre.id} variant="subtitle2">
         <>
           &nbsp;·&nbsp;
           <Link

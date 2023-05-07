@@ -127,7 +127,7 @@ const LyricsComponent = () => {
           if (!next) {
             return (
               <Typography
-                fontFamily="TT Commons"
+                fontFamily="TT Commons, sans-serif"
                 // eslint-disable-next-line react/no-array-index-key
                 key={index}
                 ref={
@@ -152,7 +152,7 @@ const LyricsComponent = () => {
           }
           return (
             <Typography
-              fontFamily="TT Commons"
+              fontFamily="TT Commons, sans-serif"
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               ref={

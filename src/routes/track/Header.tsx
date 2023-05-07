@@ -21,7 +21,7 @@ const titleStyle = {
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
-  fontFamily: 'TT Commons',
+  fontFamily: 'TT Commons, sans-serif',
   fontWeight: 600,
   marginBottom: '5px',
 };
@@ -125,7 +125,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
               </Box>
             </Box>
             <Box alignItems="center" display="flex" flexWrap="wrap" mt="4px">
-              <Typography fontFamily="Rubik" variant="subtitle2">
+              <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
                 {track.media[0].audioCodec.toUpperCase()}
                 &nbsp;
               </Typography>
@@ -133,7 +133,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
                 track.media[0].parts[0].streams[0].bitDepth
                 && track.media[0].parts[0].streams[0].samplingRate
                 && (
-                  <Typography fontFamily="Rubik" variant="subtitle2">
+                  <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
                     {track.media[0].parts[0].streams[0].bitDepth}
                     /
                     {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}

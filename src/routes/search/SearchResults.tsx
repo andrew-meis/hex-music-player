@@ -30,7 +30,7 @@ import TopResult from './TopResult';
 const Subheader = ({ text }: { text: string }) => (
   <MotionTypography
     color="text.primary"
-    fontFamily="TT Commons"
+    fontFamily="TT Commons, sans-serif"
     fontSize="1.625rem"
     marginRight="auto"
     whileHover="hover"

@@ -18,7 +18,7 @@ const GroupRow = React.memo(({ index, context }: RowProps) => {
       mx="auto"
       width={WIDTH_CALC}
     >
-      <Typography fontFamily="TT Commons" fontSize="1.625rem" pt="6px">
+      <Typography fontFamily="TT Commons, sans-serif" fontSize="1.625rem" pt="6px">
         {text}
       </Typography>
     </Box>

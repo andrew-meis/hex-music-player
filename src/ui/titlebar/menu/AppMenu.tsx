@@ -173,7 +173,7 @@ const AppMenu = () => {
         onClose={() => setOpen(false)}
       >
         <Box height="fit-content">
-          <Typography fontFamily="TT Commons" margin="12px" variant="h6">
+          <Typography fontFamily="TT Commons, sans-serif" margin="12px" variant="h6">
             Select user:
           </Typography>
           {users?.map((obj) => (
