@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { v4 } from 'uuid';
-import { Album, Artist, Playlist, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Genre, Playlist, PlayQueueItem, Track } from 'api/index';
 import useQueue from 'hooks/useQueue';
 import { useAccount, useLibrary, useQueueId, useServer } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -11,6 +11,7 @@ import { isPlayQueueItem } from 'types/type-guards';
 export interface PlayParams {
   album?: Album;
   artist?: Artist;
+  genre?: Genre;
   key?: string;
   playlist?: Playlist;
   shuffle?: boolean;
@@ -59,6 +60,12 @@ const usePlayback = () => {
     const newQueue = await playQueue(uri, false);
     player.initTracks(newQueue);
   }, [playQueue, player, serverUri]);
+
+  const playGenre = useCallback(async (genre: Genre, shuffle: boolean = false) => {
+    const uri = `library://abc/directory//library/sections/6/all?album.genre=${genre.id}`;
+    const newQueue = await playQueue(uri, shuffle);
+    player.initTracks(newQueue);
+  }, [playQueue, player]);
 
   const playPlaylist = useCallback(async (
     playlist: Playlist,
@@ -207,6 +214,11 @@ const usePlayback = () => {
             await playArtistRadio(params.artist);
           }
           break;
+        case PlayActions.PLAY_GENRE:
+          if (params.genre) {
+            await playGenre(params.genre, params.shuffle);
+          }
+          break;
         case PlayActions.PLAY_PLAYLIST:
           if (params.playlist) {
             await playPlaylist(params.playlist, params.shuffle);
@@ -236,6 +248,7 @@ const usePlayback = () => {
       playAlbumAtTrack,
       playArtist,
       playArtistRadio,
+      playGenre,
       playPlaylist,
       playTrack,
       playTrackRadio,

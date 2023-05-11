@@ -21,6 +21,7 @@ import Row from './Row';
 export interface RecentFavoritesContext {
   artist: ArtistQueryData | undefined;
   config: AppConfig;
+  days: number;
   filter: string;
   getFormattedTime: (inMs: number) => string;
   hoverIndex: React.MutableRefObject<number | null>;
@@ -29,6 +30,7 @@ export interface RecentFavoritesContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
+  setDays: React.Dispatch<React.SetStateAction<number>>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -44,6 +46,7 @@ const RecentFavorites = () => {
   const config = useConfig();
   const library = useLibrary();
   const navigationType = useNavigationType();
+  const [days, setDays] = useState(90);
   // data loading
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
@@ -52,7 +55,7 @@ const RecentFavorites = () => {
     config: config.data,
     library,
     id: +id,
-    days: 90,
+    days,
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
@@ -111,6 +114,7 @@ const RecentFavorites = () => {
   const recentFavoritesContext: RecentFavoritesContext = useMemo(() => ({
     artist: artist.data,
     config: config.data,
+    days,
     filter,
     getFormattedTime,
     hoverIndex,
@@ -119,10 +123,12 @@ const RecentFavorites = () => {
     library,
     nowPlaying,
     playTracks,
+    setDays,
     setFilter,
   }), [
     artist.data,
     config,
+    days,
     filter,
     getFormattedTime,
     hoverIndex,
@@ -131,6 +137,7 @@ const RecentFavorites = () => {
     library,
     nowPlaying,
     playTracks,
+    setDays,
     setFilter,
   ]);
 

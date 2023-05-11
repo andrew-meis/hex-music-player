@@ -94,7 +94,7 @@ const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) =>
       {items.length > 1 && (
         <Box
           alignItems="center"
-          bgcolor="action.selected"
+          bgcolor="action.hover"
           borderRadius="12px"
           display="flex"
           flexShrink={0}
@@ -262,12 +262,12 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
               </Typography>
             </Box>
           )}
-          style={{ height: 'calc(100% - 148px)' }}
+          style={{ height: 'calc(100% - 152px)' }}
         />
         <Box
           alignItems="center"
           display="flex"
-          height={44}
+          height={40}
           justifyContent="flex-end"
           width="calc(100% - 10px)"
         >
@@ -283,8 +283,11 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
                 color: colorMode === 'light' ? 'common.white' : '',
                 fontSize: '0.95rem',
                 ml: '4px',
-                height: '36px',
+                height: '32px',
                 textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: 'var(--mui-palette-error-light)',
+                },
               }}
               variant="contained"
               onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
@@ -306,8 +309,11 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
                 color: colorMode === 'light' ? 'common.white' : '',
                 fontSize: '0.95rem',
                 ml: '4px',
-                height: '36px',
+                height: '32px',
                 textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: 'var(--mui-palette-primary-light)',
+                },
               }}
               variant="contained"
               onClick={handleSave}

@@ -6,7 +6,7 @@ import {
 import { PlayActions } from 'types/enums';
 
 export interface ButtonSpecs {
-  type: 'artist' | 'album' | 'track' | 'tracks' | 'playlist';
+  type: 'artist' | 'album' | 'track' | 'tracks' | 'playlist' | 'genre';
   icon: React.ReactNode;
   name: string;
   action: PlayActions;
@@ -91,13 +91,20 @@ export const allButtons: ButtonSpecs[] = [
     action: PlayActions.PLAY_ARTIST_RADIO,
     shuffle: false,
   },
-];
-
-export const albumButtons = allButtons.filter((button) => button.type === 'album');
-
-export const artistButtons = allButtons.filter((button) => button.type === 'artist');
-
-export const playlistButtons: ButtonSpecs[] = [
+  {
+    type: 'genre',
+    icon: <SvgIcon sx={{ mr: '8px' }}><BsPlayFill /></SvgIcon>,
+    name: 'Play now',
+    action: PlayActions.PLAY_GENRE,
+    shuffle: false,
+  },
+  {
+    type: 'genre',
+    icon: <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><RiShuffleFill /></SvgIcon>,
+    name: 'Shuffle',
+    action: PlayActions.PLAY_GENRE,
+    shuffle: true,
+  },
   {
     type: 'playlist',
     icon: <SvgIcon sx={{ mr: '8px' }}><BsPlayFill /></SvgIcon>,
@@ -113,6 +120,12 @@ export const playlistButtons: ButtonSpecs[] = [
     shuffle: true,
   },
 ];
+
+export const albumButtons = allButtons.filter((button) => button.type === 'album');
+
+export const artistButtons = allButtons.filter((button) => button.type === 'artist');
+
+export const playlistButtons = allButtons.filter((button) => button.type === 'playlist');
 
 export const trackButtons = allButtons.filter((button) => button.type === 'track');
 

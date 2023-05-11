@@ -76,7 +76,7 @@ const SortMenuButton = React.forwardRef((
 });
 
 interface SortMenuItemProps {
-  handleSort: (sortKey: string) => void
+  handleSort: (sortKey: string) => void;
   label: string;
   sort: string;
   sortKey: string;

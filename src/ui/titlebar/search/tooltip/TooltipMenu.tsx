@@ -5,9 +5,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { MdPlaylistAdd, TbWaveSawTool } from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
+import { Album, Artist, Genre, Playlist, Track } from 'api/index';
 import { allButtons, ButtonSpecs } from 'constants/buttons';
 import usePlayback from 'hooks/usePlayback';
-import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
 
 const buttonStyle = {
@@ -45,14 +46,24 @@ const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
     button: ButtonSpecs,
   ) => {
     event.stopPropagation();
-    if (isArtist(result)) {
-      await playSwitch(button.action, { artist: result, shuffle: button.shuffle });
-    }
-    if (isAlbum(result)) {
-      await playSwitch(button.action, { album: result, shuffle: button.shuffle });
-    }
-    if (isTrack(result)) {
-      await playSwitch(button.action, { track: result, shuffle: button.shuffle });
+    switch (true) {
+      case isArtist(result):
+        await playSwitch(button.action, { artist: result as Artist, shuffle: button.shuffle });
+        break;
+      case isAlbum(result):
+        await playSwitch(button.action, { album: result as Album, shuffle: button.shuffle });
+        break;
+      case isGenre(result):
+        await playSwitch(button.action, { genre: result as Genre, shuffle: button.shuffle });
+        break;
+      case isPlaylist(result):
+        await playSwitch(button.action, { playlist: result as Playlist, shuffle: button.shuffle });
+        break;
+      case isTrack(result):
+        await playSwitch(button.action, { track: result as Track, shuffle: button.shuffle });
+        break;
+      default:
+        break;
     }
     document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
     setTooltipOpen(false);
@@ -68,7 +79,8 @@ const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
     setOpen(false);
   };
 
-  const buttons = allButtons.filter((button) => button.type === result.type);
+  // eslint-disable-next-line no-underscore-dangle
+  const buttons = allButtons.filter((button) => button.type === result._type);
 
   return (
     <Box

@@ -1,6 +1,14 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
 import React from 'react';
-import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import {
+  BiHash,
+  HiArrowSmDown,
+  HiArrowSmUp,
+  IoMdMicrophone,
+  RiHeartLine,
+  RiTimeLine,
+} from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
 import FilterInput from 'components/filter-input/FilterInput';
@@ -10,10 +18,65 @@ import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
 import { RecentFavoritesContext } from './RecentFavorites';
 
+interface DaysMenuButtonProps extends MenuButtonProps{
+  days: number;
+  open: boolean;
+}
+
+const DaysMenuButton = React.forwardRef((
+  { days, open, onClick, onKeyDown }: DaysMenuButtonProps,
+  ref,
+) => (
+  <MenuButton
+    className="sort"
+    ref={ref}
+    onClick={onClick}
+    onKeyDown={onKeyDown}
+  >
+    <Box
+      alignItems="center"
+      borderRadius="4px"
+      color={open ? 'text.primary' : 'text.secondary'}
+      display="flex"
+      height={32}
+      justifyContent="space-between"
+      paddingX="2px"
+      sx={{
+        '&:hover': {
+          color: 'text.primary',
+        },
+      }}
+      width={160}
+    >
+      <Typography ml="6px">
+        {`Last ${days} days`}
+      </Typography>
+      <SvgIcon style={{ marginRight: '2px' }}>
+        {(open ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+      </SvgIcon>
+    </Box>
+  </MenuButton>
+));
+
+interface DaysMenuItemProps {
+  daysOption: number;
+  setDays: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const DaysMenuItem = ({ daysOption, setDays }: DaysMenuItemProps) => (
+  <MenuItem
+    onClick={() => setDays(daysOption)}
+  >
+    <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
+      {`Last ${daysOption} days`}
+    </Box>
+  </MenuItem>
+);
+
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: RecentFavoritesContext }) => {
   const {
-    artist: artistData, filter, items, playTracks, setFilter,
+    artist: artistData, days, filter, items, playTracks, setDays, setFilter,
   } = context!;
   const { artist } = artistData!;
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
@@ -114,9 +177,22 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
               width: '50%',
               flexGrow: 1,
               display: 'flex',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
             }}
           >
+            <Menu
+              transition
+              align="end"
+              menuButton={({ open }) => <DaysMenuButton days={days} open={open} />}
+            >
+              {[30, 90, 180, 365].map((option) => (
+                <DaysMenuItem
+                  daysOption={option}
+                  key={option}
+                  setDays={setDays}
+                />
+              ))}
+            </Menu>
             <FilterInput filter={filter} setFilter={setFilter} />
           </Box>
           <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">

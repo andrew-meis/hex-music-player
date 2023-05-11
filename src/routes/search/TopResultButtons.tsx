@@ -123,9 +123,11 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
           size="small"
           sx={{
             borderRadius: '10px',
+            fontSize: '0.95rem',
             ml: '6px',
-            minWidth: '116px',
-            maxWidth: '116px',
+            minWidth: '120px',
+            maxWidth: '120px',
+            padding: '4px',
             height: '36px',
             color: 'common.black',
             textTransform: 'none',
@@ -152,9 +154,11 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
           size="small"
           sx={{
             borderRadius: '10px',
+            fontSize: '0.95rem',
             ml: '6px',
-            minWidth: '116px',
-            maxWidth: '116px',
+            minWidth: '120px',
+            maxWidth: '120px',
+            padding: '4px',
             height: '36px',
             color: colorMode === 'light' ? 'text.secondary' : 'white.main',
             textTransform: 'none',

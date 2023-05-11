@@ -23,7 +23,7 @@ const Footer = ({ context }: { context?: PlaylistContext | undefined }) => {
     <Box
       className="playlist-footer"
       data-smart={playlist?.smart}
-      height="24px"
+      height="30px"
       maxWidth={900}
       mx="auto"
       ref={playlist?.smart ? null : drop}

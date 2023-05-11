@@ -15,7 +15,7 @@ import ResultTooltip from './tooltip/ResultTooltip';
 const resultStyle = {
   display: 'flex',
   alignItems: 'center',
-  height: '64px',
+  height: '56px',
 };
 
 const getDragType = (resultType: string) => {
@@ -239,7 +239,7 @@ const ResultRow = ({
       <Avatar
         alt={result.title}
         src={thumbSrc}
-        sx={{ height: '52px', marginLeft: '8px', marginRight: '8px', width: '52px' }}
+        sx={{ marginLeft: '8px', marginRight: '8px' }}
         variant={result.type !== 'artist' ? 'rounded' : 'circular'}
       >
         <SvgIcon>
@@ -281,15 +281,13 @@ const ResultRow = ({
           </Typography>
         </Box>
       </Box>
-      {!isPlaylist(result) && !isGenre(result) && (
-        <ResultTooltip
-          color="text.primary"
-          result={result}
-          setOpen={setOpen}
-          setTooltipOpen={setTooltipOpen}
-          tooltipOpen={tooltipOpen}
-        />
-      )}
+      <ResultTooltip
+        color="text.primary"
+        result={result}
+        setOpen={setOpen}
+        setTooltipOpen={setTooltipOpen}
+        tooltipOpen={tooltipOpen}
+      />
     </ListItem>
   );
 };

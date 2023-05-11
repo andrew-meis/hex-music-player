@@ -16,7 +16,7 @@ const Footer = ({ context }: { context?: AlbumContext }) => {
       // eslint-disable-next-line react/jsx-sort-props
       borderColor="border.main"
       display="flex"
-      height="24px"
+      height="30px"
       maxWidth={900}
       mx="auto"
       width={WIDTH_CALC}
