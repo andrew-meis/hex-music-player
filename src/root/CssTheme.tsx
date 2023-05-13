@@ -123,6 +123,9 @@ const theme = extendTheme({
     MuiChip: {
       styleOverrides: {
         colorPrimary: ({ theme: { vars } }) => ({
+          '& .MuiChip-label': {
+            fontWeight: 700,
+          },
           ':hover': {
             backgroundColor: `rgba(${vars.palette.primary.mainChannel} / 0.80)`,
           },

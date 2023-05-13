@@ -24,9 +24,12 @@ const List = React
   ) => {
     const removeFromPlaylist = useRemoveFromPlaylist();
     const toast = useToast();
-    const { dropIndex, handleDrop, hoverIndex, items, playlist, queryClient } = context!;
+    const {
+      dropIndex, handleDrop, hoverIndex, items, playlist, queryClient, sort,
+    } = context!;
     const { getAllSelections, clearRowSelection } = useRowSelection();
     const selections = useMemo(() => getAllSelections(), [getAllSelections]);
+    const [by] = sort.split(':');
 
     const [, drop] = useDrop(() => ({
       accept: [
@@ -85,7 +88,7 @@ const List = React
       <>
         <ListBox
           clearRowSelection={clearRowSelection}
-          drag={playlist?.smart ? drag : dragDrop}
+          drag={playlist?.smart || by !== 'index' ? drag : dragDrop}
           handleContextMenu={handleContextMenu}
           hoverIndex={hoverIndex}
           listRef={listRef}

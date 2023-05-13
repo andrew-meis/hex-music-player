@@ -3978,6 +3978,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-sort@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "fast-sort@npm:3.4.0"
+  checksum: b925d68438629b7176dc52c6f5bb88162675e88286b6e06041c6fb1095ec44af6aac3edd5b7e09ada044b90bced078a013683d2d75337ae6f5e7224f7e073019
+  languageName: node
+  linkType: hard
+
 "fast-xml-parser@npm:^4.0.13":
   version: 4.0.13
   resolution: "fast-xml-parser@npm:4.0.13"
@@ -4548,6 +4555,7 @@ __metadata:
     eslint-plugin-jsx-a11y: ^6.6.1
     eslint-plugin-react: ^7.30.1
     eslint-plugin-react-hooks: ^4.6.0
+    fast-sort: ^3.4.0
     fast-xml-parser: ^4.0.13
     font-color-contrast: ^11.1.0
     framer-motion: 8.4.6

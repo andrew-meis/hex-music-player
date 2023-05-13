@@ -6,7 +6,7 @@ import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
 import { typographyStyle } from 'constants/style';
-import { PlexSortKeys } from 'types/enums';
+import { HexSortKeys, PlexSortKeys } from 'types/enums';
 
 const getMetaText = (
   metaText: string | undefined,
@@ -16,13 +16,16 @@ const getMetaText = (
   if (track.globalViewCount) {
     return `${track.globalViewCount} ${track.globalViewCount > 1 ? 'plays' : 'play'}`;
   }
-  if (metaText === PlexSortKeys.ADDED_AT) {
-    if (!track.lastViewedAt) return 'unplayed';
+  if (metaText === PlexSortKeys.ADDED_AT || metaText === HexSortKeys.ADDED_AT) {
     return moment(track.addedAt).fromNow();
   }
   if (metaText === PlexSortKeys.LAST_PLAYED) {
     if (!track.lastViewedAt) return 'unplayed';
     return moment(track.lastViewedAt).fromNow();
+  }
+  if (metaText === PlexSortKeys.LAST_RATED) {
+    if (!track.lastRatedAt) return 'never rated';
+    return moment(track.lastRatedAt).fromNow();
   }
   if (metaText === PlexSortKeys.POPULARITY) {
     return track.ratingCount
@@ -31,6 +34,9 @@ const getMetaText = (
   }
   if (metaText === PlexSortKeys.RELEASE_DATE) {
     return moment.utc(originallyAvailableAt).format('DD MMM YYYY');
+  }
+  if (metaText === 'parentYear') {
+    return track.parentYear;
   }
   return track.viewCount
     ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`

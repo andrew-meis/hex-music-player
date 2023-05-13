@@ -1,77 +1,21 @@
-import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
-import React from 'react';
+import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
+import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { useRef } from 'react';
 import {
   BiHash,
-  HiArrowSmDown,
-  HiArrowSmUp,
   IoMdMicrophone,
+  MdDateRange,
   RiHeartLine,
   RiTimeLine,
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
-import FilterInput from 'components/filter-input/FilterInput';
+import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
 import { RecentFavoritesContext } from './RecentFavorites';
-
-interface DaysMenuButtonProps extends MenuButtonProps{
-  days: number;
-  open: boolean;
-}
-
-const DaysMenuButton = React.forwardRef((
-  { days, open, onClick, onKeyDown }: DaysMenuButtonProps,
-  ref,
-) => (
-  <MenuButton
-    className="sort"
-    ref={ref}
-    onClick={onClick}
-    onKeyDown={onKeyDown}
-  >
-    <Box
-      alignItems="center"
-      borderRadius="4px"
-      color={open ? 'text.primary' : 'text.secondary'}
-      display="flex"
-      height={32}
-      justifyContent="space-between"
-      paddingX="2px"
-      sx={{
-        '&:hover': {
-          color: 'text.primary',
-        },
-      }}
-      width={160}
-    >
-      <Typography ml="6px">
-        {`Last ${days} days`}
-      </Typography>
-      <SvgIcon style={{ marginRight: '2px' }}>
-        {(open ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-      </SvgIcon>
-    </Box>
-  </MenuButton>
-));
-
-interface DaysMenuItemProps {
-  daysOption: number;
-  setDays: React.Dispatch<React.SetStateAction<number>>;
-}
-
-const DaysMenuItem = ({ daysOption, setDays }: DaysMenuItemProps) => (
-  <MenuItem
-    onClick={() => setDays(daysOption)}
-  >
-    <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
-      {`Last ${daysOption} days`}
-    </Box>
-  </MenuItem>
-);
 
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: RecentFavoritesContext }) => {
@@ -79,7 +23,9 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
     artist: artistData, days, filter, items, playTracks, setDays, setFilter,
   } = context!;
   const { artist } = artistData!;
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   const handlePlay = () => playTracks(items);
@@ -156,6 +102,41 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
           />
         </Box>
         <Box
+          alignItems="center"
+          display="flex"
+          height={72}
+          justifyContent="space-between"
+        >
+          <Chip
+            color="primary"
+            label={(
+              <Box alignItems="center" display="flex">
+                {`Last ${days} days`}
+                <SvgIcon sx={{ height: '18px', ml: '8px', width: '18px' }} viewBox="0 1 24 24">
+                  <MdDateRange />
+                </SvgIcon>
+              </Box>
+            )}
+            ref={menuRef}
+            sx={{ fontSize: '0.9rem' }}
+            onClick={() => {
+              if (!menuProps.state) {
+                toggleMenu(true);
+                return;
+              }
+              if (menuProps.state !== 'closed') {
+                toggleMenu(false);
+                return;
+              }
+              toggleMenu(true);
+            }}
+          />
+          <FilterChip
+            filter={filter}
+            setFilter={setFilter}
+          />
+        </Box>
+        <Box
           alignItems="flex-start"
           borderBottom="1px solid"
           borderColor="border.main"
@@ -177,24 +158,9 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
               width: '50%',
               flexGrow: 1,
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-end',
             }}
-          >
-            <Menu
-              transition
-              align="end"
-              menuButton={({ open }) => <DaysMenuButton days={days} open={open} />}
-            >
-              {[30, 90, 180, 365].map((option) => (
-                <DaysMenuItem
-                  daysOption={option}
-                  key={option}
-                  setDays={setDays}
-                />
-              ))}
-            </Menu>
-            <FilterInput filter={filter} setFilter={setFilter} />
-          </Box>
+          />
           <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
             <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
               <RiHeartLine />
@@ -211,6 +177,25 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
           <Box maxWidth="10px" width="10px" />
         </Box>
       </Box>
+      <ControlledMenu
+        arrow
+        portal
+        align="center"
+        anchorRef={menuRef}
+        boundingBoxPadding="10"
+        direction="right"
+        menuStyle={{
+          minWidth: '110px',
+        }}
+        onClose={() => toggleMenu(false)}
+        {...menuProps}
+      >
+        {[14, 30, 90, 180, 365].map((option) => (
+          <MenuItem key={option} onClick={() => setDays(option)}>
+            {`${option} days`}
+          </MenuItem>
+        ))}
+      </ControlledMenu>
     </>
   );
 };

@@ -2,7 +2,7 @@ import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
-import FilterInput from 'components/filter-input/FilterInput';
+import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -92,6 +92,18 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
           />
         </Box>
         <Box
+          alignItems="center"
+          display="flex"
+          height={72}
+          justifyContent="space-between"
+        >
+          <Box />
+          <FilterChip
+            filter={filter}
+            setFilter={setFilter}
+          />
+        </Box>
+        <Box
           alignItems="flex-start"
           borderBottom="1px solid"
           borderColor="border.main"
@@ -115,9 +127,7 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
               display: 'flex',
               justifyContent: 'flex-end',
             }}
-          >
-            <FilterInput filter={filter} setFilter={setFilter} />
-          </Box>
+          />
           <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
             <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
               <RiHeartLine />

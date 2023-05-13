@@ -1,9 +1,10 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { sort as fastSort } from 'fast-sort';
 import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem } from 'api/index';
+import { Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { useMoveManyPlaylistItems } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -34,6 +35,8 @@ export interface PlaylistContext {
     (playlist: PlaylistType, shuffle?: boolean, key?: string | undefined) => Promise<void>;
   queryClient: QueryClient;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  setSort: React.Dispatch<React.SetStateAction<string>>;
+  sort: string;
 }
 
 export interface RowProps {
@@ -59,6 +62,7 @@ const Playlist = () => {
   const queryClient = useQueryClient();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
+  const [sort, setSort] = useState('index:desc');
   const [filter, setFilter] = useState('');
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -69,16 +73,30 @@ const Playlist = () => {
     if (!playlistItems.data) {
       return [];
     }
+    let newItems = [] as PlaylistItem[];
     if (filter === '') {
-      return playlistItems.data;
+      newItems = playlistItems.data;
     }
-    return playlistItems.data.filter(
-      (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
-      || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
-    );
-  }, [filter, playlistItems.data]);
+    if (filter !== '') {
+      newItems = playlistItems.data.filter(
+        (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
+        || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
+        || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
+        || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
+      );
+    }
+    const [by, order] = sort.split(':') as [keyof Track, 'asc' | 'desc'];
+    if (by === 'index') {
+      return newItems;
+    }
+    if (order === 'asc') {
+      newItems = fastSort(playlistItems.data).asc((item) => item.track[by]);
+    }
+    if (order === 'desc') {
+      newItems = fastSort(playlistItems.data).desc((item) => item.track[by]);
+    }
+    return newItems;
+  }, [filter, sort, playlistItems.data]);
 
   const getPrevId = useCallback((itemId: PlaylistItem['id']) => {
     try {
@@ -156,6 +174,8 @@ const Playlist = () => {
     playPlaylist,
     queryClient,
     setFilter,
+    setSort,
+    sort,
   }), [
     dropIndex,
     filter,
@@ -170,6 +190,8 @@ const Playlist = () => {
     playPlaylist,
     queryClient,
     setFilter,
+    setSort,
+    sort,
   ]);
 
   if (playlist.isLoading || playlistItems.isLoading) {

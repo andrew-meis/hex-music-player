@@ -32,11 +32,16 @@ export enum PlexSortKeys {
   TRACK_TITLE = 'titleSort',
   DURATION = 'duration',
   LAST_PLAYED = 'lastViewedAt',
+  LAST_RATED = 'lastRatedAt',
   PLAYCOUNT = 'viewCount',
   POPULARITY = 'ratingCount',
   RATING = 'userRating',
   RELEASE_DATE = 'album.originallyAvailableAt',
   TRACKNUMBER = 'track.index',
+}
+
+export enum HexSortKeys {
+  ADDED_AT = 'addedAt',
 }
 
 export enum QueryKeys {

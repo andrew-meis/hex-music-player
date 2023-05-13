@@ -1,6 +1,8 @@
-import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
-import React from 'react';
+import {
+  Avatar, Box, Chip, Fade, SvgIcon, Typography,
+} from '@mui/material';
+import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import React, { useRef } from 'react';
 import {
   BiHash,
   HiArrowSmDown,
@@ -11,7 +13,7 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
-import FilterInput from 'components/filter-input/FilterInput';
+import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -32,81 +34,15 @@ const sortOptions = [
   { label: 'Title', sortKey: PlexSortKeys.TRACK_TITLE },
 ];
 
-interface SortMenuButtonProps extends MenuButtonProps{
-  open: boolean;
-  sort: string;
-}
-
-const SortMenuButton = React.forwardRef((
-  { open, sort, onClick, onKeyDown }: SortMenuButtonProps,
-  ref,
-) => {
-  const [by, order] = sort.split(':');
-  return (
-    <MenuButton
-      className="sort"
-      ref={ref}
-      onClick={onClick}
-      onKeyDown={onKeyDown}
-    >
-      <Box
-        alignItems="center"
-        borderRadius="4px"
-        color={open ? 'text.primary' : 'text.secondary'}
-        display="flex"
-        height={32}
-        justifyContent="space-between"
-        paddingX="2px"
-        sx={{
-          '&:hover': {
-            color: 'text.primary',
-          },
-        }}
-        width={160}
-      >
-        <Typography ml="6px">
-          {sortOptions.find((option) => option.sortKey === by)!.label}
-        </Typography>
-        <SvgIcon style={{ marginRight: '2px' }}>
-          {(order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-        </SvgIcon>
-      </Box>
-    </MenuButton>
-  );
-});
-
-interface SortMenuItemProps {
-  handleSort: (sortKey: string) => void;
-  label: string;
-  sort: string;
-  sortKey: string;
-}
-
-const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) => {
-  const [by, order] = sort.split(':');
-  return (
-    <MenuItem
-      onClick={() => handleSort(sortKey)}
-    >
-      <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
-        {label}
-        {by === sortKey && (
-          <SvgIcon sx={{ height: '0.8em', width: '0.8em' }}>
-            {(order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-          </SvgIcon>
-        )}
-      </Box>
-    </MenuItem>
-  );
-};
-
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistTracksContext }) => {
   const {
     artist: artistData, filter, items, playTracks, setFilter, setSort, sort,
   } = context!;
   const { artist } = artistData!;
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
   const handlePlay = () => playTracks(items);
@@ -193,6 +129,41 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           />
         </Box>
         <Box
+          alignItems="center"
+          display="flex"
+          height={72}
+          justifyContent="space-between"
+        >
+          <Chip
+            color="primary"
+            label={(
+              <Box alignItems="center" display="flex">
+                {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                <SvgIcon viewBox="0 0 16 24">
+                  {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                </SvgIcon>
+              </Box>
+            )}
+            ref={menuRef}
+            sx={{ fontSize: '0.9rem' }}
+            onClick={() => {
+              if (!menuProps.state) {
+                toggleMenu(true);
+                return;
+              }
+              if (menuProps.state !== 'closed') {
+                toggleMenu(false);
+                return;
+              }
+              toggleMenu(true);
+            }}
+          />
+          <FilterChip
+            filter={filter}
+            setFilter={setFilter}
+          />
+        </Box>
+        <Box
           alignItems="flex-start"
           borderBottom="1px solid"
           borderColor="border.main"
@@ -214,26 +185,9 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               width: '50%',
               flexGrow: 1,
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-end',
             }}
-          >
-            <Menu
-              transition
-              align="end"
-              menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
-            >
-              {sortOptions.map((option) => (
-                <SortMenuItem
-                  handleSort={handleSort}
-                  key={option.sortKey}
-                  label={option.label}
-                  sort={sort}
-                  sortKey={option.sortKey}
-                />
-              ))}
-            </Menu>
-            <FilterInput filter={filter} setFilter={setFilter} />
-          </Box>
+          />
           <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
             <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
               <RiHeartLine />
@@ -250,6 +204,27 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           <Box maxWidth="10px" width="10px" />
         </Box>
       </Box>
+      <ControlledMenu
+        arrow
+        portal
+        align="center"
+        anchorRef={menuRef}
+        boundingBoxPadding="10"
+        direction="right"
+        onClose={() => toggleMenu(false)}
+        {...menuProps}
+      >
+        {sortOptions.map((option) => (
+          <MenuItem key={option.sortKey} onClick={() => handleSort(option.sortKey)}>
+            {option.label}
+            {option.sortKey === sort.split(':')[0] && (
+              <SvgIcon sx={{ ml: 'auto' }}>
+                {(sort.split(':')[1] === 'desc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+              </SvgIcon>
+            )}
+          </MenuItem>
+        ))}
+      </ControlledMenu>
     </>
   );
 };
