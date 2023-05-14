@@ -10,7 +10,7 @@ import {
   BsMusicNoteList,
   MdDelete,
 } from 'react-icons/all';
-import { useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
 import { ButtonSpecs, playlistButtons } from 'constants/buttons';
 import { useDeletePlaylist } from 'hooks/playlistHooks';
@@ -31,7 +31,6 @@ const PlaylistMenu = ({
   ...props
 }: PlaylistMenuProps) => {
   const deletePlaylist = useDeletePlaylist();
-  const navigate = useNavigate();
 
   const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
     if (!playlists) {
@@ -58,11 +57,21 @@ const PlaylistMenu = ({
           {button.name}
         </MenuItem>
       ))}
-      <MenuDivider />
-      <MenuItem onClick={() => navigate(`/playlists/${playlists[0].id}`)}>
-        <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><BsMusicNoteList /></SvgIcon>
-        Go to playlist
-      </MenuItem>
+      <NavLink className="nav-link" to={`/playlists/${playlists[0].id}`}>
+        {({ isActive }) => (
+          <>
+            {!isActive && (
+              <>
+                <MenuDivider />
+                <MenuItem>
+                  <SvgIcon sx={{ mr: '8px', height: '0.9em' }}><BsMusicNoteList /></SvgIcon>
+                  Go to playlist
+                </MenuItem>
+              </>
+            )}
+          </>
+        )}
+      </NavLink>
       {children}
       <MenuDivider />
       <MenuItem
@@ -76,4 +85,4 @@ const PlaylistMenu = ({
   );
 };
 
-export default React.memo(PlaylistMenu);
+export default PlaylistMenu;

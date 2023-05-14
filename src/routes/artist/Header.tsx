@@ -11,6 +11,7 @@ import { iconMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { WIDTH_CALC } from 'constants/measures';
 import { PlexSortKeys, SortOrders } from 'types/enums';
+import { Sort } from 'types/interfaces';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
 import InfoRow from './header-components/InfoRow';
@@ -18,17 +19,17 @@ import SimilarArtistsCards from './header-components/SimilarArtistsCards';
 import TrackTabs from './header-components/TrackTabs';
 
 const sortOptions = [
-  { label: 'Date Added', sortKey: 'added' },
-  { label: 'Last Played', sortKey: 'played' },
-  { label: 'Playcount', sortKey: 'plays' },
-  { label: 'Release Date', sortKey: 'date' },
-  { label: 'Release Type', sortKey: 'type' },
+  { label: 'Date Added', sortKey: 'addedAt' },
+  { label: 'Last Played', sortKey: 'lastViewedAt' },
+  { label: 'Playcount', sortKey: 'viewCount' },
+  { label: 'Release Date', sortKey: 'originallyAvailableAt' },
+  { label: 'Release Type', sortKey: 'section' },
   { label: 'Title', sortKey: 'title' },
-];
+] as { label: string, sortKey: Sort['by']}[];
 
 interface SortMenuButtonProps extends MenuButtonProps{
   open: boolean;
-  sort: { by: string, order: string }
+  sort: Sort;
 }
 
 const SortMenuButton = React.forwardRef((
@@ -65,10 +66,10 @@ const SortMenuButton = React.forwardRef((
 ));
 
 interface SortMenuItemProps {
-  handleSort: (by: string) => void;
+  handleSort: (by: Sort['by']) => void;
   label: string;
-  sort: { by: string, order: string }
-  sortKey: string;
+  sort: Sort;
+  sortKey: Sort['by'];
 }
 
 const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) => (
@@ -131,7 +132,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     return array as Artist[];
   }, [artistData]);
 
-  const handleSort = (by: string) => {
+  const handleSort = (by: Sort['by']) => {
     if (sort.by === by) {
       setSort({ ...sort, order: sort.order === 'asc' ? 'desc' : 'asc' });
       return;

@@ -15,7 +15,7 @@ import {
   TbWaveSawTool,
   TiInfoLarge,
 } from 'react-icons/all';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Artist, Track } from 'api/index';
 import { ButtonSpecs, trackButtons, tracksButtons } from 'constants/buttons';
 import useArtistMatch from 'hooks/useArtistMatch';
@@ -170,16 +170,30 @@ const NowPlayingMenu = ({
               </SubMenu>
             )
           }
-          <MenuItem onClick={() => navigate(`/albums/${tracks[0].parentId}`)}>
-            <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-            Go to album
-          </MenuItem>
-          <MenuItem
-            onClick={() => navigate(`/tracks/${tracks[0].id}`)}
-          >
-            <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
-            Track information
-          </MenuItem>
+          <NavLink className="nav-link" to={`/albums/${tracks[0].parentId}`}>
+            {({ isActive }) => (
+              <>
+                {!isActive && (
+                  <MenuItem>
+                    <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+                    Go to album
+                  </MenuItem>
+                )}
+              </>
+            )}
+          </NavLink>
+          <NavLink className="nav-link" to={`/tracks/${tracks[0].id}`}>
+            {({ isActive }) => (
+              <>
+                {!isActive && (
+                  <MenuItem>
+                    <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
+                    Track information
+                  </MenuItem>
+                )}
+              </>
+            )}
+          </NavLink>
         </>
       )}
       {children}
@@ -187,4 +201,4 @@ const NowPlayingMenu = ({
   );
 };
 
-export default React.memo(NowPlayingMenu);
+export default NowPlayingMenu;

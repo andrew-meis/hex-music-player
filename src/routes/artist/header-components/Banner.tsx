@@ -202,7 +202,11 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
               <Box alignItems="center" display="flex" height={1} mx="auto" width={WIDTH_CALC}>
                 <Avatar
                   alt={artist.title}
-                  sx={{ width: 300, height: 300 }}
+                  sx={{
+                    width: 406,
+                    height: 406 * 0.7,
+                    borderRadius: '32px',
+                  }}
                 >
                   <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
                     <IoMdMicrophone />

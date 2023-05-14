@@ -2,7 +2,7 @@ import {
   Avatar, Box, Chip, Fade, SvgIcon, Typography,
 } from '@mui/material';
 import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import {
   BiHash,
   HiArrowSmDown,

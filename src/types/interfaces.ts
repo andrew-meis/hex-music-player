@@ -1,6 +1,15 @@
 import { AlertColor, PaletteMode } from '@mui/material';
 import { Location } from 'react-router-dom';
-import { Account, Device, Library } from 'api/index';
+import { Account, Album, Device, Library } from 'api/index';
+
+export interface AlbumWithSection extends Album {
+  section: string;
+}
+
+export interface Sort {
+  by: keyof AlbumWithSection;
+  order: 'asc' | 'desc';
+}
 
 export interface AppInfo {
   appName: string;
@@ -11,7 +20,7 @@ export interface AppInfo {
 }
 
 export interface AppSettings {
-  albumSort?: { by: string, order: string };
+  albumSort?: Sort;
   albumText?: boolean;
   apiKey?: string;
   colorMode?: PaletteMode;
@@ -72,11 +81,6 @@ export interface PlayerState {
 
 export interface RouteParams {
   id: string;
-}
-
-export interface Sort {
-  by: string;
-  order: string;
 }
 
 export interface ToastMessage {

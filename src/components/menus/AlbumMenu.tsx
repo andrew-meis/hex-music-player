@@ -99,4 +99,4 @@ const AlbumMenu = ({
   );
 };
 
-export default React.memo(AlbumMenu);
+export default AlbumMenu;

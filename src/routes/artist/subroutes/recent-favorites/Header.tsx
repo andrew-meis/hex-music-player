@@ -7,6 +7,7 @@ import {
   MdDateRange,
   RiHeartLine,
   RiTimeLine,
+  RxCheck,
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
@@ -185,7 +186,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
         boundingBoxPadding="10"
         direction="right"
         menuStyle={{
-          minWidth: '110px',
+          minWidth: '120px',
         }}
         onClose={() => toggleMenu(false)}
         {...menuProps}
@@ -193,6 +194,11 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
         {[14, 30, 90, 180, 365].map((option) => (
           <MenuItem key={option} onClick={() => setDays(option)}>
             {`${option} days`}
+            {days === option && (
+              <SvgIcon sx={{ ml: 'auto' }}>
+                <RxCheck />
+              </SvgIcon>
+            )}
           </MenuItem>
         ))}
       </ControlledMenu>

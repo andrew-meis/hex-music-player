@@ -1,5 +1,5 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { sort as fastSort } from 'fast-sort';
+import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
@@ -90,10 +90,10 @@ const Playlist = () => {
       return newItems;
     }
     if (order === 'asc') {
-      newItems = fastSort(playlistItems.data).asc((item) => item.track[by]);
+      inPlaceSort(newItems).asc((item) => item.track[by]);
     }
     if (order === 'desc') {
-      newItems = fastSort(playlistItems.data).desc((item) => item.track[by]);
+      inPlaceSort(newItems).desc((item) => item.track[by]);
     }
     return newItems;
   }, [filter, sort, playlistItems.data]);

@@ -6,7 +6,7 @@ import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';
 import useRowSelection from 'hooks/useRowSelection';
-import { AlbumWithSection } from 'routes/artist/Artist';
+import { AlbumWithSection } from 'types/interfaces';
 import { GroupRowProps } from './Discography';
 
 const titleStyle = {

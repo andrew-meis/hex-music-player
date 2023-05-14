@@ -25,18 +25,18 @@ const typeMap: Map = {
   'Appears On': 'Guest Appearance',
 };
 
-const getAdditionalText = (album: Album, section: string, by: string) => {
-  if (by === 'added') {
+const getAdditionalText = (album: Album, section: string, by: Sort['by']) => {
+  if (by === 'addedAt') {
     return moment(album.addedAt).fromNow();
   }
-  if (by === 'date') {
+  if (by === 'originallyAvailableAt') {
     return moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
   }
-  if (by === 'played') {
+  if (by === 'lastViewedAt') {
     if (!album.lastViewedAt) return 'unplayed';
     return moment(album.lastViewedAt).fromNow();
   }
-  if (by === 'plays') {
+  if (by === 'viewCount') {
     return (album.viewCount
       ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
       : 'unplayed');
@@ -46,7 +46,7 @@ const getAdditionalText = (album: Album, section: string, by: string) => {
     const text = typeMap[section];
     return text.toLowerCase();
   }
-  if (by === 'type') {
+  if (by === 'section') {
     // @ts-ignore
     const text = typeMap[section];
     return text.toLowerCase();

@@ -195,11 +195,11 @@ const Settings = () => {
             value={settings.albumSort?.by}
             onChange={handleAlbumSortOption}
           >
-            <MenuItem value="added">Date Added</MenuItem>
-            <MenuItem value="played">Last Played</MenuItem>
-            <MenuItem value="plays">Playcount</MenuItem>
-            <MenuItem value="date">Release Date</MenuItem>
-            <MenuItem value="type">Release Type</MenuItem>
+            <MenuItem value="addedAt">Date Added</MenuItem>
+            <MenuItem value="lastViewedAt">Last Played</MenuItem>
+            <MenuItem value="viewCount">Playcount</MenuItem>
+            <MenuItem value="originallyAvailableAt">Release Date</MenuItem>
+            <MenuItem value="section">Release Type</MenuItem>
             <MenuItem value="title">Title</MenuItem>
           </Select>
           <Typography sx={{ ml: '8px' }} variant="subtitle2">

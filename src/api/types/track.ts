@@ -27,6 +27,7 @@ export interface Track {
   addedAt: Date,
   art: string,
   deletedAt: Date,
+  distance: number,
   duration: number,
   globalViewCount: number,
   grandparentArt: string,
@@ -89,6 +90,7 @@ const toTrack = ($data: Prism<any>): Track => ({
   deletedAt: $data
     .get<number>('deletedAt', { quiet: true })
     .transform(toDateFromSeconds).value,
+  distance: $data.get<number>('distance').value,
   duration: $data.get<number>('duration').value,
   globalViewCount: $data.get<number>('globalViewCount').value,
   grandparentArt: $data.get<string>('grandparentArt').value,

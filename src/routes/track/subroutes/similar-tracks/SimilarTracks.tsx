@@ -1,4 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
@@ -29,6 +30,8 @@ export interface SimilarTracksContext {
   nowPlaying: PlayQueueItem | undefined;
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
+  setSort: React.Dispatch<React.SetStateAction<string>>;
+  sort: string;
 }
 
 export interface RowProps {
@@ -57,6 +60,7 @@ const SimilarTracks = () => {
   const queryClient = useQueryClient();
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState('distance:desc');
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
@@ -66,16 +70,30 @@ const SimilarTracks = () => {
     if (!tracks) {
       return [];
     }
+    let newItems = [] as Track[];
     if (filter === '') {
-      return tracks;
+      newItems = tracks;
     }
-    return tracks.filter(
-      (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
-      || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
-      || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
-      || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
-    );
-  }, [filter, tracks]);
+    if (filter !== '') {
+      newItems = tracks.filter(
+        (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
+        || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
+        || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
+        || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
+      );
+    }
+    const [by, order] = sort.split(':') as [keyof Track, 'asc' | 'desc'];
+    if (order === 'asc') {
+      inPlaceSort(newItems).asc((track) => track[by]);
+    }
+    if (order === 'desc') {
+      inPlaceSort(newItems).desc((track) => track[by]);
+    }
+    if (by === 'distance') {
+      return newItems.reverse();
+    }
+    return newItems;
+  }, [filter, sort, tracks]);
 
   useEffect(() => {
     queryClient.setQueryData(['selected-rows'], []);
@@ -117,6 +135,8 @@ const SimilarTracks = () => {
     nowPlaying,
     playTracks,
     setFilter,
+    setSort,
+    sort,
   }), [
     config,
     currentTrack.data,
@@ -129,6 +149,8 @@ const SimilarTracks = () => {
     nowPlaying,
     playTracks,
     setFilter,
+    setSort,
+    sort,
   ]);
 
   if (currentTrack.isLoading || isLoading) {

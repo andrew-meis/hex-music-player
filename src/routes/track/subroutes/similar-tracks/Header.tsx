@@ -1,5 +1,9 @@
-import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
+import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { useRef } from 'react';
+import {
+  BiHash, HiArrowSmDown, HiArrowSmUp, IoMdMicrophone, RiHeartLine, RiTimeLine,
+} from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink } from 'react-router-dom';
 import FilterChip from 'components/filter-chip/FilterChip';
@@ -9,14 +13,41 @@ import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
 import { SimilarTracksContext } from './SimilarTracks';
 
+const sortOptions = [
+  { label: 'Album', sortKey: 'parentTitle' },
+  { label: 'Artist', sortKey: 'grandparentTitle' },
+  { label: 'Date Added', sortKey: 'addedAt' },
+  { label: 'Duration', sortKey: 'duration' },
+  { label: 'Last Played', sortKey: 'lastViewedAt' },
+  { label: 'Last Rated', sortKey: 'lastRatedAt' },
+  { label: 'Playcount', sortKey: 'viewCount' },
+  { label: 'Popularity', sortKey: 'ratingCount' },
+  { label: 'Rating', sortKey: 'userRating' },
+  { label: 'Similarity', sortKey: 'distance' },
+  { label: 'Title', sortKey: 'title' },
+  { label: 'Year', sortKey: 'parentYear' },
+];
+
 // eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: SimilarTracksContext }) => {
   const {
-    currentTrack, filter, items, playTracks, setFilter,
+    currentTrack, filter, items, playTracks, setFilter, setSort, sort,
   } = context!;
   const track = currentTrack!;
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const [thumbSrcSm] = useThumbnail(track.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
+
+  const handleSort = (sortKey: string) => {
+    const [by, order] = sort.split(':');
+    if (by === sortKey) {
+      const newOrder = (order === 'asc' ? 'desc' : 'asc');
+      setSort([by, newOrder].join(':'));
+      return;
+    }
+    setSort([sortKey, order].join(':'));
+  };
 
   const handlePlay = () => playTracks(items);
   const handleShuffle = () => playTracks(items, true);
@@ -97,7 +128,30 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
           height={72}
           justifyContent="space-between"
         >
-          <Box />
+          <Chip
+            color="primary"
+            label={(
+              <Box alignItems="center" display="flex">
+                {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                <SvgIcon viewBox="0 0 16 24">
+                  {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                </SvgIcon>
+              </Box>
+            )}
+            ref={menuRef}
+            sx={{ fontSize: '0.9rem' }}
+            onClick={() => {
+              if (!menuProps.state) {
+                toggleMenu(true);
+                return;
+              }
+              if (menuProps.state !== 'closed') {
+                toggleMenu(false);
+                return;
+              }
+              toggleMenu(true);
+            }}
+          />
           <FilterChip
             filter={filter}
             setFilter={setFilter}
@@ -143,6 +197,27 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
           </Box>
           <Box maxWidth="10px" width="10px" />
         </Box>
+        <ControlledMenu
+          arrow
+          portal
+          align="center"
+          anchorRef={menuRef}
+          boundingBoxPadding="10"
+          direction="right"
+          onClose={() => toggleMenu(false)}
+          {...menuProps}
+        >
+          {sortOptions.map((option) => (
+            <MenuItem key={option.sortKey} onClick={() => handleSort(option.sortKey)}>
+              {option.label}
+              {option.sortKey === sort.split(':')[0] && (
+                <SvgIcon sx={{ ml: 'auto' }}>
+                  {(sort.split(':')[1] === 'desc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                </SvgIcon>
+              )}
+            </MenuItem>
+          ))}
+        </ControlledMenu>
       </Box>
     </>
   );

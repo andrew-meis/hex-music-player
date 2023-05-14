@@ -16,7 +16,7 @@ import {
   TiArrowForward,
   TiInfoLarge,
 } from 'react-icons/all';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { Artist, PlayQueueItem, Track } from 'api/index';
 import useArtistMatch from 'hooks/useArtistMatch';
 import useDragActions from 'hooks/useDragActions';
@@ -196,16 +196,30 @@ const PreviousMenu = ({
           </SubMenu>
         )
       }
-      <MenuItem onClick={() => navigate(`/albums/${item.track.parentId}`)}>
-        <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-        Go to album
-      </MenuItem>
-      <MenuItem
-        onClick={() => navigate(`/tracks/${item.track.id}`)}
-      >
-        <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
-        Track information
-      </MenuItem>
+      <NavLink className="nav-link" to={`/albums/${item.track.parentId}`}>
+        {({ isActive }) => (
+          <>
+            {!isActive && (
+              <MenuItem>
+                <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+                Go to album
+              </MenuItem>
+            )}
+          </>
+        )}
+      </NavLink>
+      <NavLink className="nav-link" to={`/tracks/${item.track.id}`}>
+        {({ isActive }) => (
+          <>
+            {!isActive && (
+              <MenuItem>
+                <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
+                Track information
+              </MenuItem>
+            )}
+          </>
+        )}
+      </NavLink>
     </ControlledMenu>
   );
 };

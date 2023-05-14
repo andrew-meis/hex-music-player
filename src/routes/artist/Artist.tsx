@@ -1,5 +1,6 @@
 import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -35,10 +36,12 @@ import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
 import {
+  AlbumWithSection,
   AppSettings,
   CardMeasurements,
   LocationWithState,
   RouteParams,
+  Sort,
 } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
@@ -82,15 +85,11 @@ export interface ArtistContext {
   refreshMetadata: (id: number) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
   setSort: React
-    .Dispatch<React.SetStateAction<{ by: string, order: string }>>;
+    .Dispatch<React.SetStateAction<Sort>>;
   settings: AppSettings;
-  sort: { by: string, order: string }
+  sort: Sort;
   topTracks: Track[] | undefined;
   width: number;
-}
-
-export interface AlbumWithSection extends Album {
-  section: string;
 }
 
 export interface RowProps {
@@ -172,52 +171,16 @@ const Artist = () => {
     });
     const appearsOn = appearances.data.map((album) => ({ ...album, section: 'Appears On' }));
     if (appearsOn.length > 0) filters.push('Appears On');
-    const releases = [...newAlbums, ...hubReleases.flat(1), ...appearsOn];
-    if (sort.by === 'added') {
-      releases
-        .sort((a, b) => b.addedAt.getTime() - a.addedAt.getTime());
-      if (sort.order === 'asc') {
-        releases.reverse();
-      }
+    const releases = [...newAlbums, ...hubReleases.flat(1), ...appearsOn] as AlbumWithSection[];
+    if (sort.order === 'asc') {
+      inPlaceSort(releases).asc((release) => release[sort.by]);
     }
-    if (sort.by === 'date') {
-      releases
-        .sort((a, b) => b.originallyAvailableAt.getTime() - a.originallyAvailableAt.getTime());
-      if (sort.order === 'asc') {
-        releases.reverse();
-      }
-    }
-    if (sort.by === 'played') {
-      releases
-        .sort((a, b) => {
-          const timeA = a.lastViewedAt ? a.lastViewedAt.getTime() : 0;
-          const timeB = b.lastViewedAt ? b.lastViewedAt.getTime() : 0;
-          return timeB - timeA;
-        });
-      if (sort.order === 'asc') {
-        releases.reverse();
-      }
-    }
-    if (sort.by === 'plays') {
-      releases.sort((a, b) => (b.viewCount ? b.viewCount : 0) - (a.viewCount ? a.viewCount : 0));
-      if (sort.order === 'asc') {
-        releases.reverse();
-      }
-    }
-    if (sort.by === 'title') {
-      releases.sort((a, b) => a.title.localeCompare(b.title, 'en', { sensitivity: 'base' }));
-      if (sort.order === 'desc') {
-        releases.reverse();
-      }
-    }
-    if (sort.by === 'type') {
-      if (sort.order === 'desc') {
-        releases.reverse();
-      }
+    if (sort.order === 'desc') {
+      inPlaceSort(releases).desc((release) => release[sort.by]);
     }
     return {
       filters,
-      releases: releases as AlbumWithSection[],
+      releases,
     };
   }, [appearances.data, artist.data, sort]);
 
@@ -399,7 +362,7 @@ const Artist = () => {
             <AlbumMenu
               albums={menuTarget}
               anchorPoint={anchorPoint}
-              artistLink={false}
+              artistLink={menuSection.current === 'Appears On'}
               playSwitch={playSwitch}
               toggleMenu={toggleMenu}
               onClose={() => {

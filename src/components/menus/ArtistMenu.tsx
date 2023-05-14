@@ -90,4 +90,4 @@ const ArtistMenu = ({
   );
 };
 
-export default React.memo(ArtistMenu);
+export default ArtistMenu;

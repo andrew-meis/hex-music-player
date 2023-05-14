@@ -15,11 +15,10 @@ import {
 } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { AlbumWithSection } from 'routes/artist/Artist';
 import Footer from 'routes/virtuoso-components/Footer';
 import Group from 'routes/virtuoso-components/Group';
 import TopItemList from 'routes/virtuoso-components/TopItemList';
-import { LocationWithState, RouteParams } from 'types/interfaces';
+import { AlbumWithSection, LocationWithState, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
 import List from './List';
