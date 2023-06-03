@@ -205,7 +205,7 @@ select:focus-visible {
 }
 
 .playlist-footer-over[data-smart="false"] {
-  border-top: 1px solid var(--mui-palette-info-main);
+  border-top: 1px solid var(--mui-palette-primary-main);
 }
 
 .playlist-track {
@@ -223,7 +223,7 @@ select:focus-visible {
   top: 0;
   height: 1px;
   width: 100%;
-  border-top: 1px solid var(--mui-palette-info-main);
+  border-top: 1px solid var(--mui-palette-primary-main);
 }
 
 .scroll-container::-webkit-scrollbar {

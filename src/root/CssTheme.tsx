@@ -1,10 +1,12 @@
 import {
   ColorSystemOptions,
   Experimental_CssVarsProvider as CssVarsProvider,
+  CssVarsTheme,
+  Theme,
   experimental_extendTheme as extendTheme,
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 
 declare module '@mui/material/styles' {
   interface CommonColors {
@@ -34,16 +36,6 @@ const shadowHov = 'rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 
 
 const common: ColorSystemOptions = {
   palette: {
-    primary: {
-      main: '#1caf7b',
-      light: '#3ee0a7',
-      dark: '#147b57',
-    },
-    secondary: {
-      main: '#fc4283',
-      light: '#fd8eb5',
-      dark: '#bd3162',
-    },
     success: {
       main: '#6cda71',
     },
@@ -56,9 +48,13 @@ const common: ColorSystemOptions = {
   },
 };
 
-const dark: ColorSystemOptions = {
+const dark = (primaryColor: string): ColorSystemOptions => ({
   palette: {
     ...common.palette,
+    primary: {
+      main: primaryColor,
+      contrastText: 'rgba(0, 0, 0, 1)',
+    },
     border: {
       main: '#323637',
     },
@@ -70,11 +66,15 @@ const dark: ColorSystemOptions = {
       overlay: 'linear-gradient(rgba(255,255,255,0.04),rgba(255,255,255,0.04))',
     },
   },
-};
+});
 
-const light: ColorSystemOptions = {
+const light = (primaryColor: string): ColorSystemOptions => ({
   palette: {
     ...common.palette,
+    primary: {
+      main: primaryColor,
+      contrastText: 'rgba(255, 255, 255, 1)',
+    },
     background: {
       default: '#fefefe',
       paper: '#fdfdfd',
@@ -94,12 +94,12 @@ const light: ColorSystemOptions = {
       secondary: 'rgba(0, 0, 0, 0.85)',
     },
   },
-};
+});
 
-const theme = extendTheme({
+const createTheme = (primaryColor: string): Omit<Theme, 'palette'> & CssVarsTheme => extendTheme({
   colorSchemes: {
-    dark,
-    light,
+    dark: dark(primaryColor),
+    light: light(primaryColor),
   },
   components: {
     MuiAccordion: {
@@ -194,10 +194,10 @@ const theme = extendTheme({
           margin: muiTheme.spacing(0.5),
           border: 0,
           '&:not(:first-of-type)': {
-            borderRadius: theme.shape.borderRadius,
+            borderRadius: muiTheme.shape.borderRadius,
           },
           '&:first-of-type': {
-            borderRadius: theme.shape.borderRadius,
+            borderRadius: muiTheme.shape.borderRadius,
           },
         }),
       },
@@ -269,13 +269,17 @@ const theme = extendTheme({
 });
 
 interface CssThemeProps {
+  primaryColor: string;
   children: ReactNode;
 }
 
-const CssTheme = ({ children }: CssThemeProps) => (
-  <CssVarsProvider theme={theme}>
-    {children}
-  </CssVarsProvider>
-);
+const CssTheme = ({ children, primaryColor }: CssThemeProps) => {
+  const theme = useMemo(() => createTheme(primaryColor), [primaryColor]);
+  return (
+    <CssVarsProvider theme={theme}>
+      {children}
+    </CssVarsProvider>
+  );
+};
 
 export default CssTheme;

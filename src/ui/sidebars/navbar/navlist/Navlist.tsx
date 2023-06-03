@@ -13,18 +13,33 @@ import {
   navlistTypeStyle,
 } from 'constants/style';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { isArtist } from 'types/type-guards';
+import { MediaTag, filterOptionsQueryFn } from 'queries/library-query-fns';
+import { isAlbum, isArtist, isGenre } from 'types/type-guards';
 
 export interface ItemProps {
-  item: Artist | Album;
+  item: Artist | Album | MediaTag;
 }
+
+const getLinkState = (item: ItemProps['item']) => {
+  if (isArtist(item)) return { guid: item.guid, title: item.title };
+  if (isAlbum(item)) return {};
+  if (isGenre(item)) return { title: item.title };
+  return {};
+};
+
+const getLinkTo = (item: ItemProps['item']) => {
+  if (isArtist(item)) return `/artists/${item.id}`;
+  if (isAlbum(item)) return `/albums/${item.id}`;
+  if (isGenre(item)) return `/genres/${item.id}`;
+  return '/home';
+};
 
 const Item = ({ item }: ItemProps) => (
   <Box>
     <NavLink
       className="nav-link"
-      state={isArtist(item) ? { guid: item.guid, title: item.title } : {}}
-      to={isArtist(item) ? `/artists/${item.id}` : `/albums/${item.id}`}
+      state={getLinkState(item)}
+      to={getLinkTo(item)}
     >
       {({ isActive }) => (
         <ListItem
@@ -32,6 +47,7 @@ const Item = ({ item }: ItemProps) => (
             ...navlistBoxStyle,
             border: '1px solid transparent',
             borderRadius: '4px',
+            height: 33,
           }}
         >
           <Box sx={navlistActiveBox(isActive)} />
@@ -57,6 +73,14 @@ const Navlist = ({ list, setIndex }: NavlistProps) => {
     async () => {
       if (list === 'artists') return library.artists(config.sectionId!, { sort: 'titleSort:asc' });
       if (list === 'albums') return library.albums(config.sectionId!, { sort: 'titleSort:asc' });
+      if (list === 'genres') {
+        return filterOptionsQueryFn({
+          config,
+          field: 'genre',
+          library,
+          type: 9,
+        });
+      }
       return [];
     },
     {
@@ -66,6 +90,7 @@ const Navlist = ({ list, setIndex }: NavlistProps) => {
       select: (data) => {
         if ('artists' in data) return data.artists;
         if ('albums' in data) return data.albums;
+        if (list === 'genres') return data;
         return [];
       },
     },
@@ -100,7 +125,7 @@ const Navlist = ({ list, setIndex }: NavlistProps) => {
       {!isLoading && items && items.length > 0 && (
         <Virtuoso
           className="scroll-container"
-          fixedItemHeight={32.39}
+          fixedItemHeight={33}
           itemContent={(index) => Item({ item: items[index] })}
           style={{ height: 'calc(100% - 52px)' }}
           totalCount={items.length}

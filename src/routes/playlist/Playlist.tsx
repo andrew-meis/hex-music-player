@@ -73,12 +73,9 @@ const Playlist = () => {
     if (!playlistItems.data) {
       return [];
     }
-    let newItems = [] as PlaylistItem[];
-    if (filter === '') {
-      newItems = playlistItems.data;
-    }
+    let newItems = structuredClone(playlistItems.data);
     if (filter !== '') {
-      newItems = playlistItems.data.filter(
+      newItems = newItems.filter(
         (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
         || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
         || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())

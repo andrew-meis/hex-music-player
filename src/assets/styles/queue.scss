@@ -25,7 +25,7 @@
   top: 0;
   height: 1px;
   width: 100%;
-  border-top: 1px solid var(--mui-palette-info-main);
+  border-top: 1px solid var(--mui-palette-primary-main);
 }
 
 .queue-track-over > div {
@@ -42,7 +42,7 @@
 }
 
 .queue-box-over::after {
-  border-top: 1px solid var(--mui-palette-info-main);
+  border-top: 1px solid var(--mui-palette-primary-main);
   content: var(--queue-box-content);
   height: 32px;
 }

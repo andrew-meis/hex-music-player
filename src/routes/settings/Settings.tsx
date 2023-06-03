@@ -8,6 +8,7 @@ import {
   SelectChangeEvent,
   SvgIcon,
   Switch,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
@@ -18,6 +19,7 @@ import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
 import { AppSettings } from 'types/interfaces';
+import ColorPicker from './ColorPicker';
 
 const boxStyle = {
   alignItems: 'center',
@@ -131,6 +133,24 @@ const Settings = () => {
       >
         <Typography variant="h1">Settings</Typography>
         <Typography mt={1.5} sx={{ fontWeight: 600 }} variant="h5">App-wide</Typography>
+        <Box sx={boxStyle}>
+          <Typography sx={{ fontWeight: 600 }} variant="body1">Accent Color</Typography>
+          <Tooltip
+            arrow
+            placement="right"
+            title={(
+              <ColorPicker primaryColor={settings.primaryColor!} updateConfig={updateConfig} />
+            )}
+          >
+            <Box
+              bgcolor={settings.primaryColor}
+              borderRadius="4px"
+              height={38}
+              mr="2px"
+              width={38}
+            />
+          </Tooltip>
+        </Box>
         <Box sx={boxStyle}>
           <Typography sx={{ fontWeight: 600 }} variant="body1">Dark Mode</Typography>
           <Switch

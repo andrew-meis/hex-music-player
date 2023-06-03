@@ -34,7 +34,7 @@ const Root = () => {
     .find((conn) => conn.uri === loaderData.auth.library.api.uri);
 
   return (
-    <CssTheme>
+    <CssTheme primaryColor={settings.primaryColor!}>
       <ThemeMode settings={settings} />
       <DragLayer />
       <PlexWebSocket connection={connection} token={loaderData.auth.account.authToken} />

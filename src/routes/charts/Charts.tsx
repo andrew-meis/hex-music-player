@@ -91,13 +91,10 @@ const Charts = () => {
     queryClient.setQueryData(['selected-rows'], []);
   }, [queryClient]);
 
-  useEffect(
-    () => () => sessionStorage.setItem(
-      'charts-state',
-      JSON.stringify({ days, endDate, startDate }),
-    ),
-    [days, endDate, startDate],
-  );
+  useEffect(() => () => sessionStorage.setItem(
+    'charts-state',
+    JSON.stringify({ days, endDate, startDate }),
+  ), [days, endDate, startDate]);
 
   useEffect(() => {
     if (days === 0) {

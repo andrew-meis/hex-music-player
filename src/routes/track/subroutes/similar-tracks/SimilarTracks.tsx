@@ -70,12 +70,9 @@ const SimilarTracks = () => {
     if (!tracks) {
       return [];
     }
-    let newItems = [] as Track[];
-    if (filter === '') {
-      newItems = tracks;
-    }
+    let newItems = structuredClone(tracks);
     if (filter !== '') {
-      newItems = tracks.filter(
+      newItems = newItems.filter(
         (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
         || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
         || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())

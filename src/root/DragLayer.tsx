@@ -33,7 +33,7 @@ const getItemStyles = (
 
   return {
     transform,
-    background: 'var(--mui-palette-info-main)',
+    background: 'var(--mui-palette-primary-main)',
     width: 'fit-content',
     opacity: 0.8,
     lineHeight: '1.5rem',

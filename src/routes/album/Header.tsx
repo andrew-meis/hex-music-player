@@ -2,7 +2,7 @@ import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import chroma from 'chroma-js';
 import fontColorContrast from 'font-color-contrast';
 import React from 'react';
-import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link, useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
@@ -155,9 +155,13 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                       >
                         <Avatar
                           alt={album.parentTitle}
-                          src={parentThumbSrc}
+                          src={album.parentThumb ? parentThumbSrc : undefined}
                           sx={{ width: '32px', height: '32px', ml: '2px' }}
-                        />
+                        >
+                          <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
+                            <IoMdMicrophone />
+                          </SvgIcon>
+                        </Avatar>
                         <Typography
                           color={!colors
                             ? 'text.main'

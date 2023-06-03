@@ -27,6 +27,7 @@ export interface AppSettings {
   compactNav?: boolean;
   compactQueue?: boolean,
   dockedQueue?: boolean;
+  primaryColor?: string;
   repeat?: 'repeat-none' | 'repeat-one' | 'repeat-all'
 }
 

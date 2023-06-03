@@ -24,7 +24,7 @@ export const usePlayerState = () => {
       },
       refetchInterval: () => {
         if (player.isPlaying()) {
-          return 1000;
+          return 300;
         }
         return false;
       },

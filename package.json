@@ -2,7 +2,7 @@
   "name": "hex-music-player",
   "productName": "Hex Music Player",
   "private": true,
-  "version": "0.1.2",
+  "version": "1.0.0",
   "description": "Music player for Plex media server",
   "author": "meisandrew",
   "license": "MIT",

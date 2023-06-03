@@ -4,9 +4,11 @@ import { readFileSync, writeFileSync } from 'fs';
 import { hostname, release, version } from 'os';
 import path, { join } from 'path';
 import {
-  app, BrowserWindow, shell, ipcMain, screen, nativeImage,
+  app, BrowserWindow, shell, ipcMain, screen, nativeImage, powerSaveBlocker,
 } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+
+powerSaveBlocker.start('prevent-app-suspension');
 
 // Config setup
 const dataPath = app.getPath('userData');

@@ -15,6 +15,7 @@ export const defaultSettings: AppSettings = {
   compactNav: false,
   compactQueue: false,
   dockedQueue: true,
+  primaryColor: '#1caf7b',
   repeat: 'repeat-none',
 };
 

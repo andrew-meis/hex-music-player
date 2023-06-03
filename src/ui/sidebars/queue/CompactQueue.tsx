@@ -64,7 +64,7 @@ const Item = (
       onOpen={handleOpen}
     >
       <Box
-        borderTop={over ? '1px solid var(--mui-palette-info-main)' : '1px solid transparent'}
+        borderTop={over ? '1px solid var(--mui-palette-primary-main)' : '1px solid transparent'}
         className="compact-queue"
         data-index={index}
         marginX="auto"

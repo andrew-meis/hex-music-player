@@ -117,7 +117,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
         data-dragging={isDragging ? 'true' : 'false'}
         data-item-index={index}
         display="flex"
-        height={52}
+        height={54}
         onClick={(event) => handleRowClick(event, index)}
         onDoubleClick={handleDoubleClick}
       >
@@ -154,7 +154,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             fontSize="0.875rem"
             sx={{ ...typographyStyle }}
           >
-            <Subtext showAlbum track={track} />
+            <Subtext showAlbum={false} track={track} />
           </Typography>
         </Box>
         {!isDragging && (
