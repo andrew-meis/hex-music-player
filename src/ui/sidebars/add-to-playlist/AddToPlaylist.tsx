@@ -302,7 +302,7 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
             whileHover={{ scale: [null, 1.08, 1.04] }}
           >
             <Button
-              color="primary"
+              color="success"
               size="small"
               sx={{
                 borderRadius: '10px',
@@ -312,7 +312,7 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
                 height: '32px',
                 textTransform: 'none',
                 '&:hover': {
-                  backgroundColor: 'var(--mui-palette-primary-light)',
+                  backgroundColor: 'var(--mui-palette-success-light)',
                 },
               }}
               variant="contained"

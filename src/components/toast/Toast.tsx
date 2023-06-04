@@ -51,7 +51,10 @@ const Toast = () => {
           padding: 0,
         }}
       >
-        <Typography sx={{ textAlign: 'center', width: '204px' }}>
+        <Typography
+          color={`var(--mui-palette-${message.type}-contrastText)`}
+          sx={{ textAlign: 'center', width: '204px' }}
+        >
           {message.text}
         </Typography>
       </Alert>

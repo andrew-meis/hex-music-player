@@ -4,9 +4,9 @@ import { FiCheckCircle } from 'react-icons/all';
 import { AppSettings } from 'types/interfaces';
 
 const colors = [
+  { title: 'Jasper', value: '#d05340' },
   { title: 'Bittersweet', value: '#ff6255' },
   { title: 'Orange', value: '#ff7538' },
-  { title: 'Old Rose', value: '#c17767' },
   { title: 'Sunglow', value: '#ffcc33' },
   { title: 'Pistachio', value: '#93c572' },
   { title: 'Jade', value: '#00a86b' },
@@ -14,7 +14,7 @@ const colors = [
   { title: 'Moonstone', value: '#57a7b2' },
   { title: 'Vista Blue', value: '#7c9ed9' },
   { title: 'Amethyst', value: '#9966cc' },
-  { title: 'Magenta', value: '#f653a6' },
+  { title: 'Orchid', value: '#da70d6' },
   { title: 'French Gray', value: '#bebfc5' },
 ];
 
@@ -28,6 +28,7 @@ const ColorPicker = ({ primaryColor, updateConfig }: ColorPickerProps) => {
   const currentColor = colors.find((color) => color.value === primaryColor)!;
 
   const handleColorOption = async (newColor: string) => {
+    if (newColor === currentColor.value) return;
     await updateConfig('primaryColor', newColor);
   };
 
@@ -48,6 +49,9 @@ const ColorPicker = ({ primaryColor, updateConfig }: ColorPickerProps) => {
             height={38}
             key={color.value}
             minWidth={38}
+            sx={{
+              cursor: color.value === currentColor.value ? 'default' : 'pointer',
+            }}
             onClick={() => handleColorOption(color.value)}
             onMouseEnter={() => setHoveredColor(color.title)}
           >

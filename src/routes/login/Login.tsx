@@ -206,7 +206,7 @@ const Login = () => {
   };
 
   return (
-    <CssTheme>
+    <CssTheme primaryColor={settings.primaryColor!}>
       <ThemeMode settings={settings} />
       <Box
         bgcolor="background.default"

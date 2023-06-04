@@ -34,25 +34,22 @@ declare module '@mui/material/Typography' {
 const shadow = 'rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px';
 const shadowHov = 'rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px';
 
-const common: ColorSystemOptions = {
+const dark = (primaryColor: string): ColorSystemOptions => ({
   palette: {
+    primary: {
+      main: primaryColor,
+      contrastText: 'rgba(0, 0, 0, 1)',
+    },
     success: {
       main: '#6cda71',
+      contrastText: 'rgba(0, 0, 0, 1)',
     },
     info: {
       main: '#4eb9ff',
+      contrastText: 'rgba(0, 0, 0, 1)',
     },
     error: {
-      main: '#ff6255',
-    },
-  },
-};
-
-const dark = (primaryColor: string): ColorSystemOptions => ({
-  palette: {
-    ...common.palette,
-    primary: {
-      main: primaryColor,
+      main: '#FF6347',
       contrastText: 'rgba(0, 0, 0, 1)',
     },
     border: {
@@ -70,9 +67,20 @@ const dark = (primaryColor: string): ColorSystemOptions => ({
 
 const light = (primaryColor: string): ColorSystemOptions => ({
   palette: {
-    ...common.palette,
     primary: {
       main: primaryColor,
+      contrastText: 'rgba(255, 255, 255, 1)',
+    },
+    success: {
+      main: '#6cda71',
+      contrastText: 'rgba(255, 255, 255, 1)',
+    },
+    info: {
+      main: '#4eb9ff',
+      contrastText: 'rgba(255, 255, 255, 1)',
+    },
+    error: {
+      main: '#FF6347',
       contrastText: 'rgba(255, 255, 255, 1)',
     },
     background: {
