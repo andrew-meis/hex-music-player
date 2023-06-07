@@ -4,11 +4,11 @@ import { readFileSync, writeFileSync } from 'fs';
 import { hostname, release, version } from 'os';
 import path, { join } from 'path';
 import {
-  app, BrowserWindow, shell, ipcMain, screen, nativeImage, powerSaveBlocker,
+  app, BrowserWindow, shell, ipcMain, screen, nativeImage,
 } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
-powerSaveBlocker.start('prevent-app-suspension');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
 
 // Config setup
 const dataPath = app.getPath('userData');

@@ -9,7 +9,7 @@ import { useArtists } from 'queries/artist-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { AppSettings } from 'types/interfaces';
 import Footer from 'ui/footer/Footer';
-import MiniNavbar from 'ui/sidebars/navbar/MiniNavbar';
+import CompactNavbar from 'ui/sidebars/navbar/CompactNavbar';
 import Navbar from 'ui/sidebars/navbar/Navbar';
 import CompactQueue from 'ui/sidebars/queue/CompactQueue';
 import Queue from 'ui/sidebars/queue/Queue';
@@ -63,10 +63,10 @@ const Layout = ({ settings }: {settings: AppSettings}) => {
           flexShrink={0}
           mb="4px"
           sx={{ contain: 'paint' }}
-          width={settings.compactNav ? 52 : 300}
+          width={settings.compactNav ? 56 : 300}
         >
           {settings.compactNav && (
-            <MiniNavbar />
+            <CompactNavbar />
           )}
           {!settings.compactNav && (
             <Navbar />
@@ -78,8 +78,7 @@ const Layout = ({ settings }: {settings: AppSettings}) => {
           borderColor="border.main"
           borderRadius="4px"
           flexGrow={1}
-          margin="4px"
-          marginTop={0}
+          marginBottom="4px"
           sx={{ contain: 'paint' }}
           zIndex={800}
         >
@@ -95,7 +94,7 @@ const Layout = ({ settings }: {settings: AppSettings}) => {
           </Box>
         )}
         {settings.compactQueue && (
-          <Box flexShrink={0} width={52}>
+          <Box flexShrink={0} width={56}>
             <CompactQueue />
           </Box>
         )}

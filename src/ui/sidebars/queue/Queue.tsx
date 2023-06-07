@@ -36,6 +36,7 @@ const Queue = ({ index, setIndex }: QueueProps) => {
           >
             <SvgIcon
               sx={{
+                ml: '5px',
                 transition: 'transform 200ms ease-in-out',
                 '&:hover': {
                   color: 'primary.main',
@@ -74,7 +75,7 @@ const Queue = ({ index, setIndex }: QueueProps) => {
             paddingY="8px"
             width={1}
           >
-            <Typography fontSize="1.5rem" fontWeight={600} ml="4px">Previous</Typography>
+            <Typography fontSize="1.5rem" fontWeight={600} ml="8px">Previous</Typography>
             <SvgIcon
               sx={{
                 mr: '5px',

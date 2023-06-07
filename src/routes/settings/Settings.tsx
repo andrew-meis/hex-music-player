@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
-import { BiPaste } from 'react-icons/all';
+import { BiPaste, TbExternalLink } from 'react-icons/all';
 import { useOutletContext } from 'react-router-dom';
 import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
@@ -132,7 +132,7 @@ const Settings = () => {
         }}
       >
         <Typography variant="h1">Settings</Typography>
-        <Typography mt={1.5} sx={{ fontWeight: 600 }} variant="h5">App-wide</Typography>
+        <Typography mt={1.5} sx={{ fontWeight: 600 }} variant="h5">App Interface</Typography>
         <Box sx={boxStyle}>
           <Typography sx={{ fontWeight: 600 }} variant="body1">Accent Color</Typography>
           <Tooltip
@@ -264,7 +264,19 @@ const Settings = () => {
           />
         </Box>
         <Typography mt={-0.5} variant="subtitle2">
-          Paste your last.fm API key here
+          {'Paste your '}
+          <a
+            href="https://www.last.fm/api/authentication"
+            rel="noreferrer"
+            style={{
+              color: 'inherit',
+            }}
+            target="_blank"
+          >
+            last.fm API key
+          </a>
+          &nbsp;
+          <TbExternalLink viewBox="0 -1 22 22" />
         </Typography>
       </Paper>
     </Box>

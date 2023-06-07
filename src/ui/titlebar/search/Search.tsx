@@ -77,6 +77,13 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     setLoading(true);
   }, [input, queryClient]);
 
+  const handleBlur = () => {
+    const selection = document.getSelection();
+    if (selection) {
+      selection.empty();
+    }
+  };
+
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     event.target.select();
     setOpen(true);
@@ -175,7 +182,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               inputRef={searchInput}
               placeholder="Search"
               value={input}
-              onBlur={() => null}
+              onBlur={handleBlur}
               onChange={handleChange}
               onFocus={handleFocus}
             />

@@ -8,7 +8,7 @@ const colors = [
   { title: 'Bittersweet', value: '#ff6255' },
   { title: 'Orange', value: '#ff7538' },
   { title: 'Sunglow', value: '#ffcc33' },
-  { title: 'Pistachio', value: '#93c572' },
+  { title: 'Nile Green', value: '#7bc576' },
   { title: 'Jade', value: '#00a86b' },
   { title: 'Hex Green', value: '#1caf7b' },
   { title: 'Moonstone', value: '#57a7b2' },

@@ -392,7 +392,12 @@ const UpcomingTracksVirtuoso = () => {
             data={items}
             fixedItemHeight={56}
             itemContent={(index, item, context) => RowContent({ index, item, context })}
-            style={{ height: items.length * 56, marginLeft: '4px', scrollbarGutter: 'stable' }}
+            style={{
+              height: items.length * 56,
+              marginLeft: '4px',
+              marginRight: '2px',
+              scrollbarGutter: 'stable',
+            }}
           />
         </ClickAwayListener>
         <Box

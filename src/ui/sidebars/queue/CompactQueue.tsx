@@ -210,7 +210,7 @@ const CompactQueue = () => {
   }
 
   return (
-    <Box display="flex" flexDirection="column" height="calc(100% - 4px)" ref={ref} width="48px">
+    <Box display="flex" flexDirection="column" height="calc(100% - 4px)" ref={ref} width={56}>
       <Box
         display="flex"
         flexDirection="column"

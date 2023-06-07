@@ -20,6 +20,9 @@ declare module '@mui/material/styles' {
   interface PaletteOptions {
     border?: PaletteOptions['primary'];
   }
+  interface TypeAction {
+    hoverSelected: string;
+  }
 }
 
 declare module '@mui/material/Typography' {
@@ -36,6 +39,13 @@ const shadowHov = 'rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 
 
 const dark = (primaryColor: string): ColorSystemOptions => ({
   palette: {
+    action: {
+      hoverSelected: ` 
+          rgba(var(--mui-palette-action-selectedChannel) 
+          / calc(var(--mui-palette-action-selectedOpacity) 
+          + var(--mui-palette-action-hoverOpacity)))
+      `,
+    },
     primary: {
       main: primaryColor,
       contrastText: 'rgba(0, 0, 0, 1)',
