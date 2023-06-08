@@ -14,8 +14,8 @@ import CompactPlaylist from './CompactPlaylist';
 const listStyle = {
   width: 'auto',
   px: 0,
-  py: '6px',
-  ml: '10px',
+  py: '8px',
+  ml: '6px',
   mr: '10px',
   mb: '2px',
   borderRadius: '8px',
@@ -73,7 +73,7 @@ const CompactPlaylists = () => {
           {({ isActive }) => (
             <Tooltip placement="right" title="All Playlists">
               <ListItem sx={isActive ? activeStyle : listStyle}>
-                <SvgIcon sx={{ mx: '6px' }}><BsGrid /></SvgIcon>
+                <SvgIcon sx={{ mx: 'auto' }}><BsGrid /></SvgIcon>
               </ListItem>
             </Tooltip>
           )}

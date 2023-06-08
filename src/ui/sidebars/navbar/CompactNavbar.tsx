@@ -17,8 +17,8 @@ import CompactPlaylists from './compact-playlists/CompactPlaylists';
 const listStyle = {
   width: 'auto',
   px: 0,
-  py: '6px',
-  ml: '10px',
+  py: '8px',
+  ml: '6px',
   mr: '10px',
   mb: '2px',
   borderRadius: '8px',
@@ -45,7 +45,7 @@ const CompactNavbar = () => (
         {({ isActive }) => (
           <Tooltip placement="right" title="Home">
             <ListItem sx={isActive ? activeStyle : listStyle}>
-              <SvgIcon sx={{ mx: '6px' }}><HiHome /></SvgIcon>
+              <SvgIcon sx={{ mx: 'auto' }}><HiHome /></SvgIcon>
             </ListItem>
           </Tooltip>
         )}
@@ -54,7 +54,7 @@ const CompactNavbar = () => (
         {({ isActive }) => (
           <Tooltip placement="right" title="Charts">
             <ListItem sx={isActive ? activeStyle : listStyle}>
-              <SvgIcon sx={{ mx: '6px' }}><TiChartLine /></SvgIcon>
+              <SvgIcon sx={{ mx: 'auto' }}><TiChartLine /></SvgIcon>
             </ListItem>
           </Tooltip>
         )}
@@ -62,19 +62,20 @@ const CompactNavbar = () => (
       <Box
         borderTop="1px solid"
         height="1px"
-        ml="auto"
-        mr="8px"
-        my="10px"
+        mb="4px"
+        ml="6px"
+        mr="10px"
+        mt="2px"
         sx={{
           borderTopColor: 'border.main',
         }}
-        width="36px"
+        width="40px"
       />
       <NavLink className="nav-link" to="/artists">
         {({ isActive }) => (
           <Tooltip placement="right" title="Artists">
             <ListItem sx={isActive ? activeStyle : listStyle}>
-              <SvgIcon sx={{ mx: '6px' }}><IoMdMicrophone /></SvgIcon>
+              <SvgIcon sx={{ mx: 'auto' }}><IoMdMicrophone /></SvgIcon>
             </ListItem>
           </Tooltip>
         )}
@@ -83,7 +84,7 @@ const CompactNavbar = () => (
         {({ isActive }) => (
           <Tooltip placement="right" title="Albums">
             <ListItem sx={isActive ? activeStyle : listStyle}>
-              <SvgIcon sx={{ mx: '6px' }}><RiAlbumFill /></SvgIcon>
+              <SvgIcon sx={{ mx: 'auto' }}><RiAlbumFill /></SvgIcon>
             </ListItem>
           </Tooltip>
         )}
@@ -92,7 +93,7 @@ const CompactNavbar = () => (
         {({ isActive }) => (
           <Tooltip placement="right" title="Tracks">
             <ListItem sx={isActive ? activeStyle : listStyle}>
-              <SvgIcon sx={{ mx: '6px' }}><BsMusicNote /></SvgIcon>
+              <SvgIcon sx={{ mx: 'auto' }}><BsMusicNote /></SvgIcon>
             </ListItem>
           </Tooltip>
         )}
@@ -101,7 +102,7 @@ const CompactNavbar = () => (
         {({ isActive }) => (
           <Tooltip placement="right" title="Genres">
             <ListItem sx={isActive ? activeStyle : listStyle}>
-              <SvgIcon sx={{ mx: '6px' }}><FaTags /></SvgIcon>
+              <SvgIcon sx={{ mx: 'auto' }}><FaTags /></SvgIcon>
             </ListItem>
           </Tooltip>
         )}
@@ -109,13 +110,14 @@ const CompactNavbar = () => (
       <Box
         borderTop="1px solid"
         height="1px"
-        ml="auto"
-        mr="8px"
-        my="10px"
+        mb="4px"
+        ml="6px"
+        mr="10px"
+        mt="2px"
         sx={{
           borderTopColor: 'border.main',
         }}
-        width="36px"
+        width="40px"
       />
       <CompactPlaylists />
     </List>

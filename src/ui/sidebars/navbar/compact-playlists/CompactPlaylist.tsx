@@ -63,27 +63,39 @@ const CompactPlaylist = ({
             <ListItem
               disablePadding
               sx={{
-                border: '1px solid',
-                borderColor: isOver
-                || isActive
-                || (menuState === 'open' && !!menuTarget && menuTarget[0].id === playlist.id)
-                  ? 'var(--mui-palette-primary-main)'
-                  : 'transparent',
-                borderRadius: '8px',
-                margin: 'auto',
+                ml: '6px',
+                mr: '10px',
                 width: 40,
-                height: 40,
+                height: 44,
               }}
             >
               <Avatar
                 src={thumbSrc}
-                sx={{ borderRadius: '8px', margin: 'auto', width: 36, height: 36 }}
+                sx={{
+                  borderRadius: '8px',
+                  height: 40,
+                  width: 40,
+                }}
                 variant="rounded"
               >
                 <SvgIcon>
                   <BsMusicNoteList />
                 </SvgIcon>
               </Avatar>
+              <Box
+                border="2px solid"
+                borderColor={isOver
+                || isActive
+                || (menuState === 'open' && !!menuTarget && menuTarget[0].id === playlist.id)
+                  ? 'var(--mui-palette-primary-main)'
+                  : 'transparent'}
+                borderRadius="8px"
+                height={36}
+                left={0}
+                position="absolute"
+                top={2}
+                width={36}
+              />
             </ListItem>
           </Tooltip>
         )}

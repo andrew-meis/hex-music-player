@@ -67,7 +67,6 @@ const Item = (
         borderTop={over ? '1px solid var(--mui-palette-primary-main)' : '1px solid transparent'}
         className="compact-queue"
         data-index={index}
-        marginX="auto"
         onContextMenu={(event) => {
           setOpen(false);
           onContextMenu(event);
@@ -210,7 +209,12 @@ const CompactQueue = () => {
   }
 
   return (
-    <Box display="flex" flexDirection="column" height="calc(100% - 4px)" ref={ref} width={56}>
+    <Box
+      height="calc(100% - 4px)"
+      ml="9px"
+      ref={ref}
+      width={42}
+    >
       <Box
         display="flex"
         flexDirection="column"
