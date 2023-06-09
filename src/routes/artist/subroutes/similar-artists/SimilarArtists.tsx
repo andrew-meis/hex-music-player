@@ -60,7 +60,6 @@ export interface SimilarArtistContext {
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  height: number;
   isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
@@ -112,7 +111,7 @@ const SimilarArtists = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
-  const { height, width } = useOutletContext() as { height: number, width: number };
+  const { width } = useOutletContext() as { width: number };
 
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
@@ -125,7 +124,7 @@ const SimilarArtists = () => {
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
     ].join(''),
-    slice: 12,
+    slice: 5,
   });
 
   const thumbSrc = library.api
@@ -233,7 +232,6 @@ const SimilarArtists = () => {
     getFormattedTime,
     grid,
     handleContextMenu,
-    height,
     isPlaying,
     items,
     library,
@@ -258,7 +256,6 @@ const SimilarArtists = () => {
     getFormattedTime,
     grid,
     handleContextMenu,
-    height,
     isPlaying,
     items,
     library,

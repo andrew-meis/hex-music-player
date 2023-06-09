@@ -31,7 +31,6 @@ export interface ArtistsContext {
   getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  height: number;
   isPlaying: boolean;
   library: Library;
   measurements: CardMeasurements;
@@ -82,7 +81,7 @@ const Artists = () => {
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch, playUri } = usePlayback();
   const { getFormattedTime } = useFormattedTime();
-  const { height, width } = useOutletContext() as { height: number, width: number };
+  const { width } = useOutletContext() as { height: number, width: number };
 
   const { data: artists, isLoading } = useArtists({ config, library });
   const openArtistQuery = useArtist(openArtist.id, library);
@@ -96,7 +95,7 @@ const Artists = () => {
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
     ].join(''),
-    slice: 12,
+    slice: 5,
   });
 
   // create array for virtualization
@@ -162,7 +161,6 @@ const Artists = () => {
     getFormattedTime,
     grid,
     handleContextMenu,
-    height,
     isPlaying,
     library,
     measurements,
@@ -189,7 +187,6 @@ const Artists = () => {
     getFormattedTime,
     grid,
     handleContextMenu,
-    height,
     isPlaying,
     library,
     measurements,

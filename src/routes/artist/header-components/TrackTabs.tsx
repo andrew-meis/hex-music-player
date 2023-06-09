@@ -56,8 +56,8 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
   const {
     getFormattedTime, isPlaying, library, nowPlaying, topTracks, recentFavorites,
   } = context!;
-  const listLength = topTracks!.length >= 4 || recentFavorites!.length >= 4
-    ? 4
+  const listLength = topTracks!.length >= 5 || recentFavorites!.length >= 5
+    ? 5
     : Math.max(topTracks!.length, recentFavorites!.length);
   const minListHeight = listLength * 56;
   const [tab, setTab] = useState(0);
@@ -109,12 +109,12 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           sx={{ cursor: 'default', height: 56, padding: 0 }}
         />
         {context!.recentFavorites!.length > 0 && (
-        <Tab
-          disableRipple
-          label={<TabChip active={tab === 1} label="Recent Favorites" />}
-          sx={{ cursor: 'default', height: 56, padding: 0 }}
-        />
-    )}
+          <Tab
+            disableRipple
+            label={<TabChip active={tab === 1} label="Recent Favorites" />}
+            sx={{ cursor: 'default', height: 56, padding: 0 }}
+          />
+        )}
       </Tabs>
       <TabPanel index={0} value={tab}>
         <TrackCarousel
@@ -122,7 +122,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           isPlaying={isPlaying}
           library={library}
           nowPlaying={nowPlaying}
-          rows={4}
+          rows={5}
           tracks={topTracks!}
         />
       </TabPanel>
@@ -132,7 +132,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           isPlaying={isPlaying}
           library={library}
           nowPlaying={nowPlaying}
-          rows={4}
+          rows={5}
           tracks={recentFavorites!}
         />
       </TabPanel>

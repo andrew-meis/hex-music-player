@@ -1,12 +1,14 @@
-import { Box, Typography } from '@mui/material';
+import { Box, SvgIcon } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import { UseQueryResult } from '@tanstack/react-query';
-import { BiChevronRight } from 'react-icons/all';
+import { useRef } from 'react';
+import { BiChevronRight, FiMoreVertical } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
+import ArtistMenu from 'components/menus/ArtistMenu';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import TrackCarousel from 'components/track/TrackCarousel';
 import { PlayParams } from 'hooks/usePlayback';
 import { thresholds } from 'routes/artist/Header';
@@ -14,7 +16,6 @@ import { PlayActions } from 'types/enums';
 
 interface ArtistPreviewProps {
   getFormattedTime: (inMs: number) => string;
-  height: number;
   isPlaying: boolean;
   library: Library,
   nowPlaying: PlayQueueItem | undefined;
@@ -26,7 +27,6 @@ interface ArtistPreviewProps {
 
 const ArtistPreview = ({
   getFormattedTime,
-  height,
   isPlaying,
   library,
   nowPlaying,
@@ -35,45 +35,20 @@ const ArtistPreview = ({
   openArtistTracksQuery,
   playSwitch,
 }: ArtistPreviewProps) => {
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { ref, entry } = useInView({ threshold: thresholds });
-
-  const handlePlay = () => playSwitch(
-    PlayActions.PLAY_ARTIST,
-    { artist: openArtistQuery.data?.artist, shuffle: false },
-  );
-  const handleShuffle = () => playSwitch(
-    PlayActions.PLAY_ARTIST,
-    { artist: openArtistQuery.data?.artist, shuffle: true },
-  );
-  const handleRadio = () => playSwitch(
-    PlayActions.PLAY_ARTIST_RADIO,
-    { artist: openArtistQuery.data?.artist },
-  );
 
   return (
     <Box
-      alignContent="flex-start"
-      display="flex"
-      flexWrap="wrap"
       height={1}
       margin="auto"
-      width="calc(100% - 64px)"
     >
-      <Box
-        position="absolute"
-        right={32}
-        top={8}
-      >
-        <PlayShuffleButton
-          handlePlay={handlePlay}
-          handleRadio={handleRadio}
-          handleShuffle={handleShuffle}
-        />
-      </Box>
       <Box
         alignItems="center"
         color="text.primary"
         display="flex"
+        justifyContent="space-between"
         width={1}
       >
         <MotionTypography
@@ -98,15 +73,37 @@ const ArtistPreview = ({
             </MotionSvg>
           </Link>
         </MotionTypography>
+        <Box
+          ref={menuRef}
+          sx={{
+            color: menuProps.state === 'open' || menuProps.state === 'opening'
+              ? 'text.primary'
+              : 'text.secondary',
+            cursor: 'pointer',
+            display: 'flex',
+            height: 39,
+            width: 24,
+            '&:hover': {
+              color: 'text.primary',
+            },
+          }}
+          onClick={() => {
+            if (!menuProps.state) {
+              toggleMenu(true);
+              return;
+            }
+            if (menuProps.state !== 'closed') {
+              toggleMenu(false);
+              return;
+            }
+            toggleMenu(true);
+          }}
+        >
+          <SvgIcon sx={{ margin: 'auto' }}>
+            <FiMoreVertical />
+          </SvgIcon>
+        </Box>
       </Box>
-      <Typography
-        color="text.primary"
-        fontFamily="TT Commons, sans-serif"
-        fontSize="1.3rem"
-        width={1}
-      >
-        Top Tracks
-      </Typography>
       <Box
         display="flex"
         flexDirection="column"
@@ -120,7 +117,7 @@ const ArtistPreview = ({
                 isPlaying={isPlaying}
                 library={library}
                 nowPlaying={nowPlaying}
-                rows={height < 639 ? 3 : 4}
+                rows={5}
                 tracks={openArtistTracksQuery.data!}
               />
             )
@@ -129,6 +126,19 @@ const ArtistPreview = ({
             )
         }
       </Box>
+      <ArtistMenu
+        arrow
+        align="center"
+        anchorRef={menuRef}
+        artists={[openArtistQuery.data!.artist]}
+        direction="right"
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+        }}
+        {...menuProps}
+      />
     </Box>
   );
 };

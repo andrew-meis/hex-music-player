@@ -7,7 +7,6 @@ import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
-import PaginationDots from 'components/pagination-dots/PaginationDots';
 import Palette from 'components/palette/Palette';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -34,24 +33,24 @@ const variants = {
         cursor: 'default',
         scale: 1,
         opacity: 1,
-        left: '0%',
+        marginLeft: 0,
         zIndex: 3,
       };
     }
     if (difference === 1 || difference === -1) {
       return {
         cursor: 'pointer',
-        scale: 0.8,
+        scale: 1,
         opacity: 0.6,
-        left: difference === 1 ? 'calc(-10% - 16px)' : 'calc(10% + 16px)',
+        marginLeft: difference === 1 ? 'calc(-100% - 16px)' : 'calc(100% + 16px)',
         zIndex: 2,
       };
     }
     if (difference === 2 || difference === -2) {
       return {
-        scale: 0.8,
+        scale: 1,
         opacity: 0,
-        left: difference === 2 ? 'calc(-10% - 16px)' : 'calc(10% + 16px)',
+        marginLeft: difference === 2 ? 'calc(-200% - 16px)' : 'calc(200% + 16px)',
         zIndex: 1,
       };
     }
@@ -105,7 +104,7 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
                    radial-gradient(circle at 5% 5%, ${gradStart}, ${gradEndTwo} 70%)`,
                 }}
                 transition={{
-                  left: { type: 'spring', stiffness: 200, damping: 30 },
+                  marginLeft: { type: 'spring', stiffness: 200, damping: 20 },
                   opacity: { duration: 0.2 },
                 }}
                 variants={variants}
@@ -296,14 +295,6 @@ const Home = () => {
           ))}
         </MotionBox>
       </MotionBox>
-      <Box>
-        <PaginationDots
-          activeIndex={activeIndex}
-          array={cards}
-          colLength={1}
-          setActiveIndex={setActiveIndex}
-        />
-      </Box>
     </motion.div>
   );
 };

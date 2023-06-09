@@ -18,7 +18,6 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
     getFormattedTime,
     grid,
     handleContextMenu,
-    height,
     isPlaying,
     items: { rows },
     library,
@@ -126,11 +125,8 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
         onExit={() => setOpen(false)}
       >
         <Box
-          bgcolor="common.contrastGrey"
-          borderBottom="1px solid var(--mui-palette-action-hover)"
-          borderRadius="32px"
           borderTop="1px solid var(--mui-palette-action-hover)"
-          height={height < 639 ? 270 : 326}
+          height={320}
           margin="auto"
           marginBottom="8px"
           sx={{
@@ -139,7 +135,7 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
           width={measurements.ROW_WIDTH}
         >
           <Box
-            bgcolor="common.contrastGrey"
+            bgcolor="background.paper"
             height={18}
             position="absolute"
             sx={{
@@ -156,7 +152,6 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
           {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
             <ArtistPreview
               getFormattedTime={getFormattedTime}
-              height={height}
               isPlaying={isPlaying}
               library={library}
               nowPlaying={nowPlaying}

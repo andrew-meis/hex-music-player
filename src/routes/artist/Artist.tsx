@@ -124,7 +124,7 @@ const Artist = () => {
       PlexSortKeys.PLAYCOUNT,
       SortOrders.DESC,
     ].join(''),
-    slice: 12,
+    slice: 5,
   });
   const recentTracks = useRecentTracks({
     config: config.data,

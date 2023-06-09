@@ -212,6 +212,7 @@ const SearchResults = () => {
                 navigate={navigate}
                 width={width}
               />
+              <Box height={32} />
             </>
           )}
           {showAlbums() && (
@@ -223,6 +224,7 @@ const SearchResults = () => {
                 navigate={navigate}
                 width={width}
               />
+              <Box height={32} />
             </>
           )}
           {showPlaylists() && (
@@ -234,6 +236,7 @@ const SearchResults = () => {
                 playlists={playlists}
                 width={width}
               />
+              <Box height={32} />
             </>
           )}
         </Box>

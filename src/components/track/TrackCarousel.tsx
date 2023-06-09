@@ -1,14 +1,9 @@
 import { Box, ClickAwayListener } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { AnimatePresence } from 'framer-motion';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { usePrevious } from 'react-use';
 import { Library, PlayQueueItem, Track } from 'api/index';
 import TrackMenu from 'components/menus/TrackMenu';
-import { MotionBox } from 'components/motion-components/motion-components';
-import { tracklistMotion } from 'components/motion-components/motion-variants';
-import PaginationDots from 'components/pagination-dots/PaginationDots';
 import TrackRow from 'components/track/TrackRow';
 import useRowSelection from 'hooks/useRowSelection';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
@@ -29,15 +24,7 @@ const TrackCarousel = ({
 }: TrackCarouselProps) => {
   const hoverIndex = useRef<number | null>(null);
   const queryClient = useQueryClient();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const prevIndex = usePrevious(activeIndex);
-  const difference = useMemo(() => {
-    if (prevIndex) return activeIndex - prevIndex;
-    return 1;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex]);
-  const trackPage = tracks
-    .slice((activeIndex * rows), (activeIndex * rows + rows));
+  const trackPage = tracks.slice(0, rows);
 
   const { clearRowSelection, isRowSelected, toggleRowSelection } = useRowSelection();
   const { data: selectedRows } = useQuery(
@@ -84,91 +71,72 @@ const TrackCarousel = ({
 
   return (
     <>
-      <AnimatePresence custom={difference} initial={false} mode="wait">
-        <MotionBox
-          animate={{ x: 0, opacity: 1 }}
-          custom={difference}
+      <ClickAwayListener onClickAway={clearRowSelection}>
+        <Box
+          className="list-box"
           display="flex"
-          exit="exit"
-          initial="enter"
-          key={activeIndex}
-          transition={{ duration: 0.2 }}
-          variants={tracklistMotion}
+          flexDirection="column"
+          height={trackPage.length * 56}
+          maxHeight={rows * 56}
+          minHeight={tracks.length > rows ? rows * 56 : 0}
+          ref={drag}
+          onContextMenu={(event) => handleContextMenu(event, hoverIndex.current!)}
+          onDragEndCapture={() => {
+            clearRowSelection();
+            const nodes = document.querySelectorAll('div.track');
+            nodes.forEach((node) => node.classList.remove('non-dragged', 'dragged'));
+          }}
+          onDragStartCapture={() => {
+            if (hoverIndex.current === null) {
+              return;
+            }
+            const nodes = document.querySelectorAll('div.track');
+            nodes.forEach((node) => node.classList.add('non-dragged'));
+            if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
+              const draggedNodes = selectedRows.map((row) => document
+                .querySelector(`div.track[data-item-index='${row}'`));
+              draggedNodes.forEach((node) => node?.classList.add('dragged'));
+            } else {
+              const draggedNode = document
+                .querySelector(`div.track[data-item-index='${hoverIndex.current}'`);
+              draggedNode?.classList.add('dragged');
+            }
+          }}
         >
-          <ClickAwayListener onClickAway={clearRowSelection}>
-            <Box
-              className="list-box"
-              display="flex"
-              flexDirection="column"
-              height={trackPage.length * 56}
-              maxHeight={rows * 56}
-              minHeight={tracks.length > rows ? rows * 56 : 0}
-              ref={drag}
-              onContextMenu={(event) => handleContextMenu(event, hoverIndex.current!)}
-              onDragEndCapture={() => {
-                clearRowSelection();
-                const nodes = document.querySelectorAll('div.track');
-                nodes.forEach((node) => node.classList.remove('non-dragged', 'dragged'));
-              }}
-              onDragStartCapture={() => {
-                if (hoverIndex.current === null) {
-                  return;
-                }
-                const nodes = document.querySelectorAll('div.track');
-                nodes.forEach((node) => node.classList.add('non-dragged'));
-                if (selectedRows.length > 1 && selectedRows.includes(hoverIndex.current)) {
-                  const draggedNodes = selectedRows.map((row) => document
-                    .querySelector(`div.track[data-item-index='${row}'`));
-                  draggedNodes.forEach((node) => node?.classList.add('dragged'));
-                } else {
-                  const draggedNode = document
-                    .querySelector(`div.track[data-item-index='${hoverIndex.current}'`);
-                  draggedNode?.classList.add('dragged');
-                }
-              }}
-            >
-              {trackPage.map((track, index) => {
-                const listIndex = (activeIndex * rows) + index;
-                const playing = nowPlaying?.track.id === track.id;
-                const selected = isRowSelected(listIndex);
-                const selectedAbove = isRowSelected(listIndex - 1);
-                const selectedBelow = isRowSelected(listIndex + 1);
-                return (
-                  <Box
-                    alignItems="center"
-                    className={`track ${selected ? 'selected' : ''}`}
-                    data-item-index={listIndex}
-                    data-selected-above={selectedAbove}
-                    data-selected-below={selectedBelow}
-                    display="flex"
-                    height={56}
-                    key={track.id}
-                    onClick={(event) => toggleRowSelection(listIndex, event)}
-                    onDoubleClick={() => handleDoubleClick(track.key)}
-                    onMouseEnter={() => handleMouseEnter(listIndex)}
-                  >
-                    <TrackRow
-                      getFormattedTime={getFormattedTime}
-                      index={listIndex + 1}
-                      isPlaying={isPlaying}
-                      library={library}
-                      options={{ showAlbumTitle: true, showArtwork: true }}
-                      playing={playing}
-                      track={track}
-                    />
-                  </Box>
-                );
-              })}
-            </Box>
-          </ClickAwayListener>
-        </MotionBox>
-      </AnimatePresence>
-      <PaginationDots
-        activeIndex={activeIndex}
-        array={tracks}
-        colLength={rows}
-        setActiveIndex={setActiveIndex}
-      />
+          {trackPage.map((track, index) => {
+            const listIndex = (0 * rows) + index;
+            const playing = nowPlaying?.track.id === track.id;
+            const selected = isRowSelected(listIndex);
+            const selectedAbove = isRowSelected(listIndex - 1);
+            const selectedBelow = isRowSelected(listIndex + 1);
+            return (
+              <Box
+                alignItems="center"
+                className={`track ${selected ? 'selected' : ''}`}
+                data-item-index={listIndex}
+                data-selected-above={selectedAbove}
+                data-selected-below={selectedBelow}
+                display="flex"
+                height={56}
+                key={track.id}
+                onClick={(event) => toggleRowSelection(listIndex, event)}
+                onDoubleClick={() => handleDoubleClick(track.key)}
+                onMouseEnter={() => handleMouseEnter(listIndex)}
+              >
+                <TrackRow
+                  getFormattedTime={getFormattedTime}
+                  index={listIndex + 1}
+                  isPlaying={isPlaying}
+                  library={library}
+                  options={{ showAlbumTitle: true, showArtwork: true }}
+                  playing={playing}
+                  track={track}
+                />
+              </Box>
+            );
+          })}
+        </Box>
+      </ClickAwayListener>
       <TrackMenu
         anchorPoint={anchorPoint}
         playSwitch={playSwitch}

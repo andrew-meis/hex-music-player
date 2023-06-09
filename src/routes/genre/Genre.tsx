@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { throttle, uniqBy } from 'lodash';
 import { useMemo, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
@@ -223,26 +223,25 @@ const Genre = () => {
           {lastfmTag && lastfmTag.wiki.content.length === 0 && (
             <Box paddingTop="32px" />
           )}
-          <AnimatePresence initial={false} mode="wait">
-            {!!tracks && tracks.length > 0 && (
-              <Box key={location.pathname}>
-                <Subheader
-                  text="Top Tracks"
-                  onClick={() => {}}
-                />
-                <TrackCarousel
-                  getFormattedTime={getFormattedTime}
-                  isPlaying={isPlaying}
-                  library={library}
-                  nowPlaying={nowPlaying}
-                  rows={4}
-                  tracks={tracks}
-                />
-              </Box>
-            )}
-          </AnimatePresence>
-          <AnimatePresence initial={false} mode="wait">
-            <Box key={location.pathname}>
+          {!!tracks && tracks.length > 0 && (
+            <>
+              <Subheader
+                text="Top Tracks"
+                onClick={() => {}}
+              />
+              <TrackCarousel
+                getFormattedTime={getFormattedTime}
+                isPlaying={isPlaying}
+                library={library}
+                nowPlaying={nowPlaying}
+                rows={5}
+                tracks={tracks}
+              />
+              <Box height={32} />
+            </>
+          )}
+          {!!artists && artists.length > 0 && (
+            <>
               <Subheader
                 text="Top Artists"
                 onClick={() => {}}
@@ -253,24 +252,24 @@ const Genre = () => {
                 navigate={navigate}
                 width={width}
               />
-            </Box>
-          </AnimatePresence>
-          <AnimatePresence initial={false} mode="wait">
-            {!!albums && albums.length > 0 && (
-              <Box key={location.pathname}>
-                <Subheader
-                  text="Top Albums"
-                  onClick={() => {}}
-                />
-                <AlbumCarousel
-                  albums={albums.slice(0, (grid.cols - 1) * 6)}
-                  library={library}
-                  navigate={navigate}
-                  width={width}
-                />
-              </Box>
-            )}
-          </AnimatePresence>
+              <Box height={32} />
+            </>
+          )}
+          {!!albums && albums.length > 0 && (
+            <>
+              <Subheader
+                text="Top Albums"
+                onClick={() => {}}
+              />
+              <AlbumCarousel
+                albums={albums.slice(0, (grid.cols - 1) * 6)}
+                library={library}
+                navigate={navigate}
+                width={width}
+              />
+              <Box height={32} />
+            </>
+          )}
         </Box>
       </Box>
     </motion.div>
