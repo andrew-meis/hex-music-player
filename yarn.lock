@@ -4578,7 +4578,7 @@ __metadata:
     react-textfit: ^1.1.1
     react-use: ^17.4.0
     react-use-websocket: ^4.2.0
-    react-virtuoso: ^4.2.0
+    react-virtuoso: ^4.3.9
     sass: ^1.54.4
     typescript: ^4.7.4
     uuid: ^9.0.0
@@ -6405,13 +6405,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "react-virtuoso@npm:4.2.0"
+"react-virtuoso@npm:^4.3.9":
+  version: 4.3.9
+  resolution: "react-virtuoso@npm:4.3.9"
   peerDependencies:
     react: ">=16 || >=17 || >= 18"
     react-dom: ">=16 || >=17 || >= 18"
-  checksum: b8f6e7b80c1de31d37bfccbf7c859a86bd1b82bcc95ef2d1c7b735e63b09ea3c2690aefbe41f2056742e5cd66def903a9f1e7b7ab03a0ed4cfe34bf0c35c60a5
+  checksum: f3f5ddb8837381b267dfada3e42357dbc2f78217159ffa01246ea4dea973b672444a71f035c711f1f20690b489f307b94dcd9a87eab9d7b6cd6433c7c6926329
   languageName: node
   linkType: hard
 

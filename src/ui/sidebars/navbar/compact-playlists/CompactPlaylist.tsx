@@ -1,6 +1,6 @@
 import { Avatar, Box, ListItem, SvgIcon } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { BsMusicNoteList } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
@@ -20,8 +20,15 @@ interface CompactPlaylistProps {
 const CompactPlaylist = ({
   handleContextMenu, menuState, menuTarget, playlist,
 }: CompactPlaylistProps) => {
+  const [open, setOpen] = useState(false);
   const [thumbSrc] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 100);
   const addToPlaylist = useAddToPlaylist();
+
+  useEffect(() => {
+    if (menuState === 'closing' || menuState === 'opening' || menuState === 'open') {
+      setOpen(false);
+    }
+  }, [menuState, open]);
 
   const handleDrop = useCallback(async (
     array: any[],
@@ -59,7 +66,13 @@ const CompactPlaylist = ({
         to={`/playlists/${playlist.id}`}
       >
         {({ isActive }) => (
-          <Tooltip placement="right" title={playlist.title}>
+          <Tooltip
+            open={open || isOver}
+            placement="right"
+            title={playlist.title}
+            onClose={() => setOpen(false)}
+            onOpen={() => setOpen(true)}
+          >
             <ListItem
               disablePadding
               sx={{

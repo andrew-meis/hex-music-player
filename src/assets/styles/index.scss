@@ -367,7 +367,7 @@ select:focus-visible {
 }
 
 .selected:hover {
-  background-color: rgba(var(--mui-palette-action-selectedChannel) / calc(var(--mui-palette-action-selectedOpacity) + var(--mui-palette-action-hoverOpacity)));
+  background-color: var(--mui-palette-action-hoverSelected);
 }
 
 .non-dragged {

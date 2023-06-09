@@ -6,6 +6,7 @@ import {
   experimental_extendTheme as extendTheme,
 } from '@mui/material';
 import { grey } from '@mui/material/colors';
+import chroma from 'chroma-js';
 import { ReactNode, useMemo } from 'react';
 
 declare module '@mui/material/styles' {
@@ -47,7 +48,9 @@ const dark = (primaryColor: string): ColorSystemOptions => ({
       `,
     },
     primary: {
+      dark: chroma(primaryColor).darken().hex(),
       main: primaryColor,
+      light: chroma(primaryColor).brighten().hex(),
       contrastText: 'rgba(0, 0, 0, 1)',
     },
     success: {
@@ -59,7 +62,7 @@ const dark = (primaryColor: string): ColorSystemOptions => ({
       contrastText: 'rgba(0, 0, 0, 1)',
     },
     error: {
-      main: '#FF6347',
+      main: '#ff6347',
       contrastText: 'rgba(0, 0, 0, 1)',
     },
     border: {
@@ -77,8 +80,17 @@ const dark = (primaryColor: string): ColorSystemOptions => ({
 
 const light = (primaryColor: string): ColorSystemOptions => ({
   palette: {
+    action: {
+      hoverSelected: ` 
+          rgba(var(--mui-palette-action-selectedChannel) 
+          / calc(var(--mui-palette-action-selectedOpacity) 
+          + var(--mui-palette-action-hoverOpacity)))
+      `,
+    },
     primary: {
+      dark: chroma(primaryColor).darken().hex(),
       main: primaryColor,
+      light: chroma(primaryColor).brighten().hex(),
       contrastText: 'rgba(255, 255, 255, 1)',
     },
     success: {
@@ -90,7 +102,7 @@ const light = (primaryColor: string): ColorSystemOptions => ({
       contrastText: 'rgba(255, 255, 255, 1)',
     },
     error: {
-      main: '#FF6347',
+      main: '#ff6347',
       contrastText: 'rgba(255, 255, 255, 1)',
     },
     background: {
@@ -138,6 +150,11 @@ const createTheme = (primaryColor: string): Omit<Theme, 'palette'> & CssVarsThem
         }),
       },
     },
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+      },
+    },
     MuiChip: {
       styleOverrides: {
         colorPrimary: ({ theme: { vars } }) => ({
@@ -145,12 +162,12 @@ const createTheme = (primaryColor: string): Omit<Theme, 'palette'> & CssVarsThem
             fontWeight: 700,
           },
           ':hover': {
-            backgroundColor: `rgba(${vars.palette.primary.mainChannel} / 0.80)`,
+            backgroundColor: vars.palette.primary.light,
           },
         }),
         root: ({ theme: { vars } }) => ({
           ':hover': {
-            backgroundColor: vars.palette.action.disabled,
+            backgroundColor: vars.palette.action.hoverSelected,
           },
         }),
       },

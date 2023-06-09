@@ -1,8 +1,14 @@
 import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
-import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
+import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { useRef } from 'react';
 import {
-  BiHash, RiHeartLine, RiTimeLine, BsMusicNoteList, HiArrowSmDown, HiArrowSmUp, RxCheck,
+  BiHash,
+  RiHeartLine,
+  RiTimeLine,
+  BsMusicNoteList,
+  HiArrowSmDown,
+  HiArrowSmUp,
+  RxCheck,
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
@@ -18,7 +24,6 @@ import { PlaylistContext } from './Playlist';
 const sortOptions = [
   { label: 'Album', sortKey: 'parentTitle' },
   { label: 'Artist', sortKey: 'grandparentTitle' },
-  { label: 'Custom Order', sortKey: 'index' },
   { label: 'Date Added', sortKey: 'addedAt' },
   { label: 'Duration', sortKey: 'duration' },
   { label: 'Last Played', sortKey: 'lastViewedAt' },
@@ -161,12 +166,24 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
           <Chip
             color="primary"
             label={(
-              <Box alignItems="center" display="flex">
-                {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
-                <SvgIcon viewBox="0 0 16 24">
-                  {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-                </SvgIcon>
-              </Box>
+              <>
+                {sort.split(':')[0] === 'index' && (
+                  <Box alignItems="center" display="flex">
+                    Default Order
+                    <SvgIcon viewBox="0 0 16 24">
+                      <RxCheck />
+                    </SvgIcon>
+                  </Box>
+                )}
+                {sort.split(':')[0] !== 'index' && (
+                  <Box alignItems="center" display="flex">
+                    {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                    <SvgIcon viewBox="0 0 16 24">
+                      {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                    </SvgIcon>
+                  </Box>
+                )}
+              </>
             )}
             ref={menuRef}
             sx={{ fontSize: '0.9rem' }}
@@ -238,15 +255,19 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
         onClose={() => toggleMenu(false)}
         {...menuProps}
       >
+        <MenuItem onClick={() => handleSort('index')}>
+          Default Order
+          {sort.split(':')[0] === 'index' && (
+            <SvgIcon sx={{ ml: 'auto' }}>
+              <RxCheck />
+            </SvgIcon>
+          )}
+        </MenuItem>
+        <MenuDivider />
         {sortOptions.map((option) => (
           <MenuItem key={option.sortKey} onClick={() => handleSort(option.sortKey)}>
             {option.label}
-            {option.sortKey === sort.split(':')[0] && sort.split(':')[0] === 'index' && (
-              <SvgIcon sx={{ ml: 'auto' }}>
-                <RxCheck />
-              </SvgIcon>
-            )}
-            {option.sortKey === sort.split(':')[0] && sort.split(':')[0] !== 'index' && (
+            {option.sortKey === sort.split(':')[0] && (
               <SvgIcon sx={{ ml: 'auto' }}>
                 {(sort.split(':')[1] === 'desc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
               </SvgIcon>

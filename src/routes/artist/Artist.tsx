@@ -57,7 +57,7 @@ const List = React
       ref={listRef}
       style={{
         ...style,
-        minHeight: 'calc(100% - 118px)',
+        minHeight: 'calc(100% - 114px)',
       }}
     >
       {children}

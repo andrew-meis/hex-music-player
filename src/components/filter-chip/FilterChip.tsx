@@ -76,7 +76,7 @@ const FilterChip = ({ filter, setFilter }: FilterChipProps) => {
         sx={{
           fontSize: '0.9rem',
           '&:hover.Mui-focusVisible': {
-            backgroundColor: 'rgba(var(--mui-palette-primary-mainChannel) / 0.80)',
+            backgroundColor: 'var(--mui-palette-primary-light)',
           },
           '&.Mui-focusVisible': {
             backgroundColor: 'var(--mui-palette-primary-main)',
