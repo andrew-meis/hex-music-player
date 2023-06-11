@@ -1,6 +1,13 @@
-import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
-import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
-import { useRef } from 'react';
+import {
+  Avatar,
+  Box,
+  Chip,
+  ClickAwayListener,
+  Fade,
+  SvgIcon,
+  Typography,
+} from '@mui/material';
+import { useState } from 'react';
 import {
   BiHash,
   IoMdMicrophone,
@@ -10,10 +17,12 @@ import {
   RxCheck,
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useOutletContext } from 'react-router-dom';
 import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import { WIDTH_CALC } from 'constants/measures';
+import SelectChips from 'components/select-chips/SelectChips';
+import SelectTooltip from 'components/tooltip/SelectTooltip';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
 import { RecentFavoritesContext } from './RecentFavorites';
@@ -24,10 +33,15 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
     artist: artistData, days, filter, items, playTracks, setDays, setFilter,
   } = context!;
   const { artist } = artistData!;
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(false);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
-  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
+  const { width } = useOutletContext() as { width: number };
+
+  const maxWidth = 900;
+  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
+
+  const options = [14, 30, 90, 180, 365];
 
   const handlePlay = () => playTracks(items);
   const handleShuffle = () => playTracks(items, true);
@@ -108,30 +122,75 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
           height={72}
           justifyContent="space-between"
         >
-          <Chip
-            color="primary"
-            label={(
-              <Box alignItems="center" display="flex">
-                {`Last ${days} days`}
-                <SvgIcon sx={{ height: '18px', ml: '8px', width: '18px' }} viewBox="0 1 24 24">
-                  <MdDateRange />
-                </SvgIcon>
-              </Box>
+          <SelectTooltip
+            maxWidth={tooltipMaxWidth}
+            open={open}
+            placement="bottom-start"
+            title={(
+              <ClickAwayListener onClickAway={() => setOpen(false)}>
+                <SelectChips maxWidth={tooltipMaxWidth}>
+                  {options.map((option) => {
+                    if (days === option) {
+                      return (
+                        <Chip
+                          color="default"
+                          key={option}
+                          label={(
+                            <Box alignItems="center" display="flex">
+                              {`Last ${option} days`}
+                              <SvgIcon viewBox="0 0 16 24">
+                                <RxCheck />
+                              </SvgIcon>
+                            </Box>
+                          )}
+                          sx={{ fontSize: '0.9rem' }}
+                          onClick={() => {
+                            setOpen(false);
+                            setDays(option);
+                          }}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                  <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
+                  {options.map((option) => {
+                    if (days === option) return null;
+                    return (
+                      <Chip
+                        color="default"
+                        key={option}
+                        label={(
+                          <Box alignItems="center" display="flex">
+                            {`Last ${option} days`}
+                          </Box>
+                        )}
+                        sx={{ fontSize: '0.9rem' }}
+                        onClick={() => {
+                          setOpen(false);
+                          setDays(option);
+                        }}
+                      />
+                    );
+                  })}
+                </SelectChips>
+              </ClickAwayListener>
             )}
-            ref={menuRef}
-            sx={{ fontSize: '0.9rem' }}
-            onClick={() => {
-              if (!menuProps.state) {
-                toggleMenu(true);
-                return;
-              }
-              if (menuProps.state !== 'closed') {
-                toggleMenu(false);
-                return;
-              }
-              toggleMenu(true);
-            }}
-          />
+          >
+            <Chip
+              color="primary"
+              label={(
+                <Box alignItems="center" display="flex">
+                  {`Last ${days} days`}
+                  <SvgIcon sx={{ height: '18px', ml: '8px', width: '18px' }} viewBox="0 1 24 24">
+                    <MdDateRange />
+                  </SvgIcon>
+                </Box>
+              )}
+              sx={{ fontSize: '0.9rem' }}
+              onClick={() => setOpen(true)}
+            />
+          </SelectTooltip>
           <FilterChip
             filter={filter}
             setFilter={setFilter}
@@ -178,30 +237,6 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
           <Box maxWidth="10px" width="10px" />
         </Box>
       </Box>
-      <ControlledMenu
-        arrow
-        portal
-        align="center"
-        anchorRef={menuRef}
-        boundingBoxPadding="10"
-        direction="right"
-        menuStyle={{
-          minWidth: '120px',
-        }}
-        onClose={() => toggleMenu(false)}
-        {...menuProps}
-      >
-        {[14, 30, 90, 180, 365].map((option) => (
-          <MenuItem key={option} onClick={() => setDays(option)}>
-            {`${option} days`}
-            {days === option && (
-              <SvgIcon sx={{ ml: 'auto' }}>
-                <RxCheck />
-              </SvgIcon>
-            )}
-          </MenuItem>
-        ))}
-      </ControlledMenu>
     </>
   );
 };

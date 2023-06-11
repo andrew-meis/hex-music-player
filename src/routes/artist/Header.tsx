@@ -1,5 +1,4 @@
-import { Box, Chip, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
+import { Box, Chip, ClickAwayListener, SvgIcon } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
@@ -9,7 +8,9 @@ import { Artist } from 'api/index';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
-import { WIDTH_CALC } from 'constants/measures';
+import SelectChips from 'components/select-chips/SelectChips';
+import SelectTooltip from 'components/tooltip/SelectTooltip';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { PlexSortKeys, SortOrders } from 'types/enums';
 import { Sort } from 'types/interfaces';
 import { ArtistContext } from './Artist';
@@ -26,66 +27,6 @@ const sortOptions = [
   { label: 'Release Type', sortKey: 'section' },
   { label: 'Title', sortKey: 'title' },
 ] as { label: string, sortKey: Sort['by']}[];
-
-interface SortMenuButtonProps extends MenuButtonProps{
-  open: boolean;
-  sort: Sort;
-}
-
-const SortMenuButton = React.forwardRef((
-  { open, sort, onClick, onKeyDown }: SortMenuButtonProps,
-  ref,
-) => (
-  <MenuButton
-    className="sort"
-    ref={ref}
-    onClick={onClick}
-    onKeyDown={onKeyDown}
-  >
-    <Box
-      alignItems="center"
-      color={open ? 'text.primary' : 'text.secondary'}
-      display="flex"
-      height={32}
-      justifyContent="space-between"
-      sx={{
-        '&:hover': {
-          color: 'text.primary',
-        },
-      }}
-      width={160}
-    >
-      <Typography>
-        {sortOptions.find((option) => option.sortKey === sort.by)!.label}
-      </Typography>
-      <SvgIcon>
-        {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-      </SvgIcon>
-    </Box>
-  </MenuButton>
-));
-
-interface SortMenuItemProps {
-  handleSort: (by: Sort['by']) => void;
-  label: string;
-  sort: Sort;
-  sortKey: Sort['by'];
-}
-
-const SortMenuItem = ({ handleSort, label, sort, sortKey }: SortMenuItemProps) => (
-  <MenuItem
-    onClick={() => handleSort(sortKey)}
-  >
-    <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
-      {label}
-      {sort.by === sortKey && (
-        <SvgIcon sx={{ height: '0.8em', width: '0.8em' }}>
-          {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-        </SvgIcon>
-      )}
-    </Box>
-  </MenuItem>
-);
 
 export const thresholds = Array.from(Array(101).keys()).map((n) => n / 100);
 
@@ -107,7 +48,11 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   } = context!;
   const { artist } = artistData!;
 
+  const maxWidth = 1600;
+  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
+
   const [activeIndex, setActiveIndex] = useState(0);
+  const [open, setOpen] = useState(false);
   const prevIndex = usePrevious(activeIndex);
   const tracksInView = useInView({ threshold: 0 });
   const difference = useMemo(() => {
@@ -128,11 +73,13 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     if (sonicSimilar && sonicSimilar.items.length > 0) {
       array.push(...sonicSimilar.items);
     }
-    array = [...new Map(array.map((item) => [item.id, item])).values()];
+    array = [...new Map(array.map((item) => [item.id, item])).values()]
+      .slice(0, colLength * 5);
     return array as Artist[];
-  }, [artistData]);
+  }, [artistData, colLength]);
 
   const handleSort = (by: Sort['by']) => {
+    setOpen(false);
     if (sort.by === by) {
       setSort({ ...sort, order: sort.order === 'asc' ? 'desc' : 'asc' });
       return;
@@ -224,40 +171,118 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             </MotionSvg>
           </Link>
         </MotionTypography>
-        <Menu
-          transition
-          align="end"
-          menuButton={({ open }) => <SortMenuButton open={open} sort={sort} />}
-        >
-          {sortOptions.map((option) => (
-            <SortMenuItem
-              handleSort={handleSort}
-              key={option.sortKey}
-              label={option.label}
-              sort={sort}
-              sortKey={option.sortKey}
-            />
-          ))}
-        </Menu>
       </Box>
       <Box
         alignItems="center"
         display="flex"
-        flexWrap="wrap"
-        gap="8px"
+        justifyContent="space-between"
         mx="auto"
-        my="12px"
         width={WIDTH_CALC}
       >
-        {filters.map((group) => (
-          <Chip
-            color={filter === group ? 'primary' : 'default'}
-            key={group}
-            label={group}
-            sx={{ fontSize: '0.9rem' }}
-            onClick={() => setFilter(group)}
-          />
-        ))}
+        <Box
+          alignItems="center"
+          display="flex"
+          flexWrap="wrap"
+          gap="8px"
+          my="12px"
+        >
+          <SelectChips
+            bgleft="linear-gradient(to right, var(--mui-palette-background-paper), transparent)"
+            bgright="linear-gradient(to left, var(--mui-palette-background-paper), transparent)"
+            maxWidth={tooltipMaxWidth - 160}
+          >
+            {filters.map((group) => (
+              <Chip
+                color={filter === group ? 'primary' : 'default'}
+                key={group}
+                label={group}
+                sx={{ fontSize: '0.9rem' }}
+                onClick={() => setFilter(group)}
+              />
+            ))}
+          </SelectChips>
+        </Box>
+        <Box
+          display="flex"
+          flexShrink={0}
+          height={32}
+          justifyContent="flex-end"
+          width={160}
+        >
+          <SelectTooltip
+            maxWidth={tooltipMaxWidth}
+            open={open}
+            placement="bottom-end"
+            title={(
+              <ClickAwayListener onClickAway={() => setOpen(false)}>
+                <SelectChips leftScroll maxWidth={tooltipMaxWidth}>
+                  {sortOptions.map((option) => {
+                    if (sort.by === option.sortKey) return null;
+                    return (
+                      <Chip
+                        color="default"
+                        key={option.sortKey}
+                        label={(
+                          <Box alignItems="center" display="flex">
+                            {option.label}
+                            {sort.by === option.sortKey && (
+                              <SvgIcon viewBox="0 0 16 24">
+                                {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                              </SvgIcon>
+                            )}
+                          </Box>
+                        )}
+                        sx={{ fontSize: '0.9rem' }}
+                        onClick={() => handleSort(option.sortKey)}
+                      />
+                    );
+                  })}
+                  <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
+                  {sortOptions.map((option) => {
+                    if (sort.by === option.sortKey) {
+                      return (
+                        <Chip
+                          color="default"
+                          key={option.sortKey}
+                          label={(
+                            <Box alignItems="center" display="flex">
+                              {option.label}
+                              {sort.by === option.sortKey && (
+                                <SvgIcon viewBox="0 0 16 24">
+                                  {(sort.order === 'asc'
+                                    ? <HiArrowSmUp />
+                                    : <HiArrowSmDown />
+                                  )}
+                                </SvgIcon>
+                              )}
+                            </Box>
+                          )}
+                          sx={{ fontSize: '0.9rem' }}
+                          onClick={() => handleSort(option.sortKey)}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </SelectChips>
+              </ClickAwayListener>
+            )}
+          >
+            <Chip
+              color="primary"
+              label={(
+                <Box alignItems="center" display="flex">
+                  {sortOptions.find((option) => option.sortKey === sort.by)?.label}
+                  <SvgIcon viewBox="0 0 16 24">
+                    {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                  </SvgIcon>
+                </Box>
+              )}
+              sx={{ fontSize: '0.9rem' }}
+              onClick={() => setOpen(true)}
+            />
+          </SelectTooltip>
+        </Box>
       </Box>
     </>
   );

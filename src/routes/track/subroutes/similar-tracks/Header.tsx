@@ -1,4 +1,12 @@
-import { Avatar, Box, Chip, Fade, SvgIcon, Typography } from '@mui/material';
+import {
+  Avatar,
+  Box,
+  Chip,
+  ClickAwayListener,
+  Fade,
+  SvgIcon,
+  Typography,
+} from '@mui/material';
 import { useState } from 'react';
 import {
   BiHash,
@@ -143,12 +151,37 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
             open={open}
             placement="bottom-start"
             title={(
-              <SelectChips
-                maxWidth={tooltipMaxWidth}
-                setOpen={setOpen}
-              >
-                {sortOptions.map((option) => {
-                  if (sort.split(':')[0] === option.sortKey) {
+              <ClickAwayListener onClickAway={() => setOpen(false)}>
+                <SelectChips maxWidth={tooltipMaxWidth}>
+                  {sortOptions.map((option) => {
+                    if (sort.split(':')[0] === option.sortKey) {
+                      return (
+                        <Chip
+                          color="default"
+                          key={option.sortKey}
+                          label={(
+                            <Box alignItems="center" display="flex">
+                              {option.label}
+                              {sort.split(':')[0] === option.sortKey && (
+                                <SvgIcon viewBox="0 0 16 24">
+                                  {(sort.split(':')[1] === 'asc'
+                                    ? <HiArrowSmUp />
+                                    : <HiArrowSmDown />
+                                  )}
+                                </SvgIcon>
+                              )}
+                            </Box>
+                          )}
+                          sx={{ fontSize: '0.9rem' }}
+                          onClick={() => handleSort(option.sortKey)}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                  <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
+                  {sortOptions.map((option) => {
+                    if (sort.split(':')[0] === option.sortKey) return null;
                     return (
                       <Chip
                         color="default"
@@ -170,32 +203,9 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
                         onClick={() => handleSort(option.sortKey)}
                       />
                     );
-                  }
-                  return null;
-                })}
-                <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
-                {sortOptions.map((option) => {
-                  if (sort.split(':')[0] === option.sortKey) return null;
-                  return (
-                    <Chip
-                      color="default"
-                      key={option.sortKey}
-                      label={(
-                        <Box alignItems="center" display="flex">
-                          {option.label}
-                          {sort.split(':')[0] === option.sortKey && (
-                            <SvgIcon viewBox="0 0 16 24">
-                              {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-                            </SvgIcon>
-                          )}
-                        </Box>
-                      )}
-                      sx={{ fontSize: '0.9rem' }}
-                      onClick={() => handleSort(option.sortKey)}
-                    />
-                  );
-                })}
-              </SelectChips>
+                  })}
+                </SelectChips>
+              </ClickAwayListener>
             )}
           >
             <Chip

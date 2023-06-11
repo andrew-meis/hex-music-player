@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   Chip,
+  ClickAwayListener,
   Fade,
   SvgIcon,
   Typography,
@@ -179,45 +180,44 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
             open={open}
             placement="bottom-start"
             title={(
-              <SelectChips
-                maxWidth={tooltipMaxWidth}
-                setOpen={setOpen}
-              >
-                <Chip
-                  color="default"
-                  label={(
-                    <Box alignItems="center" display="flex">
-                      Default Order
-                      {sort.split(':')[0] === 'index' && (
-                        <SvgIcon viewBox="0 0 16 24">
-                          <RxCheck />
-                        </SvgIcon>
-                      )}
-                    </Box>
-                  )}
-                  sx={{ fontSize: '0.9rem' }}
-                  onClick={() => handleSort('index')}
-                />
-                <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
-                {sortOptions.map((option) => (
+              <ClickAwayListener onClickAway={() => setOpen(false)}>
+                <SelectChips maxWidth={tooltipMaxWidth}>
                   <Chip
                     color="default"
-                    key={option.sortKey}
                     label={(
                       <Box alignItems="center" display="flex">
-                        {option.label}
-                        {sort.split(':')[0] === option.sortKey && (
+                        Default Order
+                        {sort.split(':')[0] === 'index' && (
                           <SvgIcon viewBox="0 0 16 24">
-                            {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                            <RxCheck />
                           </SvgIcon>
                         )}
                       </Box>
                     )}
                     sx={{ fontSize: '0.9rem' }}
-                    onClick={() => handleSort(option.sortKey)}
+                    onClick={() => handleSort('index')}
                   />
-                ))}
-              </SelectChips>
+                  <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
+                  {sortOptions.map((option) => (
+                    <Chip
+                      color="default"
+                      key={option.sortKey}
+                      label={(
+                        <Box alignItems="center" display="flex">
+                          {option.label}
+                          {sort.split(':')[0] === option.sortKey && (
+                            <SvgIcon viewBox="0 0 16 24">
+                              {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                            </SvgIcon>
+                          )}
+                        </Box>
+                      )}
+                      sx={{ fontSize: '0.9rem' }}
+                      onClick={() => handleSort(option.sortKey)}
+                    />
+                  ))}
+                </SelectChips>
+              </ClickAwayListener>
             )}
           >
             <Chip
