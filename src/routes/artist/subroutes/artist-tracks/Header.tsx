@@ -1,8 +1,7 @@
 import {
   Avatar, Box, Chip, Fade, SvgIcon, Typography,
 } from '@mui/material';
-import { ControlledMenu, MenuItem, useMenuState } from '@szhsin/react-menu';
-import { useRef } from 'react';
+import { useState } from 'react';
 import {
   BiHash,
   HiArrowSmDown,
@@ -12,10 +11,12 @@ import {
   RiTimeLine,
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useOutletContext } from 'react-router-dom';
 import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import { WIDTH_CALC } from 'constants/measures';
+import SelectChips from 'components/select-chips/SelectChips';
+import SelectTooltip from 'components/tooltip/SelectTooltip';
+import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { PlexSortKeys } from 'types/enums';
 import { ArtistTracksContext } from './ArtistTracks';
@@ -40,15 +41,19 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
     artist: artistData, filter, items, playTracks, setFilter, setSort, sort,
   } = context!;
   const { artist } = artistData!;
-  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(false);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
-  const [menuProps, toggleMenu] = useMenuState({ transition: true });
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
+  const { width } = useOutletContext() as { width: number };
+
+  const maxWidth = 900;
+  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
 
   const handlePlay = () => playTracks(items);
   const handleShuffle = () => playTracks(items, true);
 
   const handleSort = (sortKey: string) => {
+    setOpen(false);
     const [by, order] = sort.split(':');
     if (by === sortKey) {
       const newOrder = (order === 'asc' ? 'desc' : 'asc');
@@ -81,7 +86,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
         </Box>
       </Fade>
       <Box
-        maxWidth="900px"
+        maxWidth={maxWidth}
         mx="auto"
         ref={ref}
         width={WIDTH_CALC}
@@ -134,30 +139,80 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           height={72}
           justifyContent="space-between"
         >
-          <Chip
-            color="primary"
-            label={(
-              <Box alignItems="center" display="flex">
-                {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
-                <SvgIcon viewBox="0 0 16 24">
-                  {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-                </SvgIcon>
-              </Box>
+          <SelectTooltip
+            maxWidth={tooltipMaxWidth}
+            open={open}
+            placement="bottom-start"
+            title={(
+              <SelectChips
+                maxWidth={tooltipMaxWidth}
+                setOpen={setOpen}
+              >
+                {sortOptions.map((option) => {
+                  if (sort.split(':')[0] === option.sortKey) {
+                    return (
+                      <Chip
+                        color="default"
+                        key={option.sortKey}
+                        label={(
+                          <Box alignItems="center" display="flex">
+                            {option.label}
+                            {sort.split(':')[0] === option.sortKey && (
+                              <SvgIcon viewBox="0 0 16 24">
+                                {(sort.split(':')[1] === 'asc'
+                                  ? <HiArrowSmUp />
+                                  : <HiArrowSmDown />
+                                )}
+                              </SvgIcon>
+                            )}
+                          </Box>
+                        )}
+                        sx={{ fontSize: '0.9rem' }}
+                        onClick={() => handleSort(option.sortKey)}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+                <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
+                {sortOptions.map((option) => {
+                  if (sort.split(':')[0] === option.sortKey) return null;
+                  return (
+                    <Chip
+                      color="default"
+                      key={option.sortKey}
+                      label={(
+                        <Box alignItems="center" display="flex">
+                          {option.label}
+                          {sort.split(':')[0] === option.sortKey && (
+                            <SvgIcon viewBox="0 0 16 24">
+                              {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                            </SvgIcon>
+                          )}
+                        </Box>
+                      )}
+                      sx={{ fontSize: '0.9rem' }}
+                      onClick={() => handleSort(option.sortKey)}
+                    />
+                  );
+                })}
+              </SelectChips>
             )}
-            ref={menuRef}
-            sx={{ fontSize: '0.9rem' }}
-            onClick={() => {
-              if (!menuProps.state) {
-                toggleMenu(true);
-                return;
-              }
-              if (menuProps.state !== 'closed') {
-                toggleMenu(false);
-                return;
-              }
-              toggleMenu(true);
-            }}
-          />
+          >
+            <Chip
+              color="primary"
+              label={(
+                <Box alignItems="center" display="flex">
+                  {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                  <SvgIcon viewBox="0 0 16 24">
+                    {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                  </SvgIcon>
+                </Box>
+              )}
+              sx={{ fontSize: '0.9rem' }}
+              onClick={() => setOpen(true)}
+            />
+          </SelectTooltip>
           <FilterChip
             filter={filter}
             setFilter={setFilter}
@@ -204,27 +259,6 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           <Box maxWidth="10px" width="10px" />
         </Box>
       </Box>
-      <ControlledMenu
-        arrow
-        portal
-        align="center"
-        anchorRef={menuRef}
-        boundingBoxPadding="10"
-        direction="right"
-        onClose={() => toggleMenu(false)}
-        {...menuProps}
-      >
-        {sortOptions.map((option) => (
-          <MenuItem key={option.sortKey} onClick={() => handleSort(option.sortKey)}>
-            {option.label}
-            {option.sortKey === sort.split(':')[0] && (
-              <SvgIcon sx={{ ml: 'auto' }}>
-                {(sort.split(':')[1] === 'desc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-              </SvgIcon>
-            )}
-          </MenuItem>
-        ))}
-      </ControlledMenu>
     </>
   );
 };
