@@ -18,6 +18,20 @@ const SelectTooltip = ({ children, maxWidth, ...props }: ExtendedTooltipProps) =
           },
         },
       },
+      popper: {
+        sx: {
+          '&[data-popper-placement*="left"]': {
+            '& .MuiTooltip-arrow': {
+              mr: '-0.6em',
+            },
+          },
+          '&[data-popper-placement*="right"]': {
+            '& .MuiTooltip-arrow': {
+              ml: '-0.6em',
+            },
+          },
+        },
+      },
       tooltip: {
         sx: {
           backgroundColor: 'background.paper',

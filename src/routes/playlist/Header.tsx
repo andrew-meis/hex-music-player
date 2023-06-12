@@ -7,7 +7,7 @@ import {
   SvgIcon,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   BiHash,
   RiHeartLine,
@@ -55,6 +55,7 @@ const titleStyle = {
 
 const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
   const { filter, playlist, setFilter, setSort, sort } = context!;
+  const chipRef = useRef<HTMLDivElement | null>(null);
   const { playPlaylist } = usePlayback();
   const { width } = useOutletContext() as { width: number };
   const countNoun = playlist!.leafCount > 1 || playlist!.leafCount === 0 ? 'tracks' : 'track';
@@ -66,7 +67,9 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
   });
 
   const maxWidth = 900;
-  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
+  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
+    - 20 // x-padding + tooltip offset
+    - (chipRef.current?.clientWidth || 0);
 
   const handlePlay = () => playPlaylist(playlist as Playlist);
   const handleShuffle = () => playPlaylist(playlist as Playlist, true);
@@ -178,7 +181,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
           <SelectTooltip
             maxWidth={tooltipMaxWidth}
             open={open}
-            placement="bottom-start"
+            placement="right"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <SelectChips maxWidth={tooltipMaxWidth}>
@@ -242,6 +245,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
                   )}
                 </>
               )}
+              ref={chipRef}
               sx={{ fontSize: '0.9rem' }}
               onClick={() => setOpen(true)}
             />

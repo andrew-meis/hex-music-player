@@ -1,5 +1,5 @@
 import { Box, Chip, ClickAwayListener, SvgIcon } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
@@ -48,11 +48,9 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   } = context!;
   const { artist } = artistData!;
 
-  const maxWidth = 1600;
-  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
-
   const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
+  const chipRef = useRef<HTMLDivElement | null>(null);
   const prevIndex = usePrevious(activeIndex);
   const tracksInView = useInView({ threshold: 0 });
   const difference = useMemo(() => {
@@ -61,6 +59,12 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
   const colLength = (cols - 1) * 2;
+
+  const maxWidth = 1600;
+  const albumFiltersMaxWidth = Math.min(maxWidth, width - VIEW_PADDING) - 12 - 160;
+  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
+    - 20 // x-padding + tooltip offset
+    - (chipRef.current?.clientWidth || 0);
 
   const similarArtists = useMemo(() => {
     const similar = artistData?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
@@ -189,7 +193,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           <SelectChips
             bgleft="linear-gradient(to right, var(--mui-palette-background-paper), transparent)"
             bgright="linear-gradient(to left, var(--mui-palette-background-paper), transparent)"
-            maxWidth={tooltipMaxWidth - 160}
+            maxWidth={albumFiltersMaxWidth}
           >
             {filters.map((group) => (
               <Chip
@@ -212,7 +216,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           <SelectTooltip
             maxWidth={tooltipMaxWidth}
             open={open}
-            placement="bottom-end"
+            placement="left"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <SelectChips leftScroll maxWidth={tooltipMaxWidth}>
@@ -278,6 +282,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
                   </SvgIcon>
                 </Box>
               )}
+              ref={chipRef}
               sx={{ fontSize: '0.9rem' }}
               onClick={() => setOpen(true)}
             />

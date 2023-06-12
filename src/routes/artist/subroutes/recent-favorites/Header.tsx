@@ -7,7 +7,7 @@ import {
   SvgIcon,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   BiHash,
   IoMdMicrophone,
@@ -33,13 +33,16 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
     artist: artistData, days, filter, items, playTracks, setDays, setFilter,
   } = context!;
   const { artist } = artistData!;
+  const chipRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
 
   const maxWidth = 900;
-  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
+  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
+    - 20 // x-padding + tooltip offset
+    - (chipRef.current?.clientWidth || 0);
 
   const options = [14, 30, 90, 180, 365];
 
@@ -125,7 +128,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
           <SelectTooltip
             maxWidth={tooltipMaxWidth}
             open={open}
-            placement="bottom-start"
+            placement="right"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <SelectChips maxWidth={tooltipMaxWidth}>
@@ -187,6 +190,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
                   </SvgIcon>
                 </Box>
               )}
+              ref={chipRef}
               sx={{ fontSize: '0.9rem' }}
               onClick={() => setOpen(true)}
             />

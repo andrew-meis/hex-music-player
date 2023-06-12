@@ -1,7 +1,7 @@
 import {
   Avatar, Box, Chip, ClickAwayListener, Fade, SvgIcon, Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   BiHash,
   HiArrowSmDown,
@@ -41,13 +41,16 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
     artist: artistData, filter, items, playTracks, setFilter, setSort, sort,
   } = context!;
   const { artist } = artistData!;
+  const chipRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
 
   const maxWidth = 900;
-  const tooltipMaxWidth = Math.min(maxWidth - 12, width - VIEW_PADDING - 12);
+  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
+    - 20 // x-padding + tooltip offset
+    - (chipRef.current?.clientWidth || 0);
 
   const handlePlay = () => playTracks(items);
   const handleShuffle = () => playTracks(items, true);
@@ -142,7 +145,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
           <SelectTooltip
             maxWidth={tooltipMaxWidth}
             open={open}
-            placement="bottom-start"
+            placement="right"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <SelectChips maxWidth={tooltipMaxWidth}>
@@ -211,6 +214,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
                   </SvgIcon>
                 </Box>
               )}
+              ref={chipRef}
               sx={{ fontSize: '0.9rem' }}
               onClick={() => setOpen(true)}
             />
