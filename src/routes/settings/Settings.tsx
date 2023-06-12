@@ -209,7 +209,7 @@ const Settings = () => {
         <Box sx={{ ...boxStyle, height: 38 }}>
           <Typography sx={{ fontWeight: 600 }} variant="body1">Sorting</Typography>
           <Typography sx={{ ml: 'auto' }} variant="subtitle2">
-            by:
+            by:&nbsp;
           </Typography>
           <Select
             value={settings.albumSort?.by}
@@ -223,7 +223,7 @@ const Settings = () => {
             <MenuItem value="title">Title</MenuItem>
           </Select>
           <Typography sx={{ ml: '8px' }} variant="subtitle2">
-            order:
+            order:&nbsp;
           </Typography>
           <Select
             value={settings.albumSort?.order}
@@ -234,7 +234,7 @@ const Settings = () => {
           </Select>
         </Box>
         <Typography mt={-0.5} variant="subtitle2">
-          Default album sort values
+          Default album sort order
         </Typography>
         <Typography mt={1.5} sx={{ fontWeight: 600 }} variant="h5">Last.fm Integration</Typography>
         <Box sx={{ ...boxStyle, height: '38px' }}>

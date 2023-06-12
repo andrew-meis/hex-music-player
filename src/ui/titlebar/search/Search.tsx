@@ -84,9 +84,8 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     }
   };
 
-  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    event.target.select();
-    setOpen(true);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(event.target.value);
   };
 
   const handleClear = () => {
@@ -96,12 +95,22 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
     searchInput.current?.focus();
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
-  };
-
   const handleClickAway = () => {
     setOpen(false);
+  };
+
+  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.target.select();
+    setOpen(true);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    searchInput.current?.blur();
+    setOpen(false);
+    setSearchHistory((prev) => [input, ...prev]);
+    handleClear();
+    navigate(`/search?query=${input}`);
   };
 
   return (
@@ -150,13 +159,7 @@ const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivE
               display: 'flex',
               width: '100%',
             }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              setOpen(false);
-              setSearchHistory((prev) => [input, ...prev]);
-              handleClear();
-              navigate(`/search?query=${input}`);
-            }}
+            onSubmit={handleSubmit}
           >
             <IconButton
               disableRipple

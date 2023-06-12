@@ -6,13 +6,25 @@ const Select = ({
   <MuiSelect
     disableUnderline
     MenuProps={{
+      anchorOrigin: {
+        vertical: 'bottom',
+        horizontal: 'center',
+      },
       sx: {
         marginTop: '4px',
+        '& .MuiList-root': {
+          padding: 0,
+        },
       },
+      transformOrigin: {
+        vertical: 'top',
+        horizontal: 'center',
+      },
+      marginThreshold: 0,
     }}
     SelectDisplayProps={{
       style: {
-        paddingLeft: '4px',
+        paddingLeft: '6px',
       },
     }}
     inputProps={{

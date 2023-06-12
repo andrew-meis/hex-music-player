@@ -106,7 +106,9 @@ const AppMenu = () => {
   return (
     <>
       <Menu
+        portal
         transition
+        unmountOnClose
         align={platform === 'darwin' ? 'end' : 'start'}
         menuButton={({ open: menuOpen }) => <IconMenuButton open={menuOpen} width={32} />}
         menuStyle={{

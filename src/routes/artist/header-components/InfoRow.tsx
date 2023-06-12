@@ -131,7 +131,9 @@ const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) =
     >
       <Menu
         arrow
+        portal
         transition
+        unmountOnClose
         align="center"
         direction={width < 180 ? 'right' : 'left'}
         menuButton={({ open }) => <IconMenuButton open={open} width={16} />}

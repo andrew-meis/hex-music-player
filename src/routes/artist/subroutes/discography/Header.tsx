@@ -1,77 +1,31 @@
-import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
-import React from 'react';
-import { FaCaretDown, FaCaretUp, IoMdMicrophone } from 'react-icons/all';
+import { Avatar, Box, Chip, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { IoMdMicrophone, RxCheck } from 'react-icons/all';
 import { NavLink, useOutletContext } from 'react-router-dom';
-import { WIDTH_CALC_PADDING } from 'constants/measures';
+import SelectChips from 'components/select-chips/SelectChips';
+import SelectTooltip from 'components/tooltip/SelectTooltip';
+import { VIEW_PADDING, WIDTH_CALC_PADDING } from 'constants/measures';
 import { DiscographyContext } from './Discography';
 
-interface FilterMenuButtonProps extends MenuButtonProps{
-  filter: string;
-  open: boolean;
-}
-
-const FilterMenuButton = React.forwardRef((
-  { filter, open, onClick, onKeyDown }: FilterMenuButtonProps,
-  ref,
-) => (
-  <MenuButton
-    className="sort"
-    ref={ref}
-    style={{ marginLeft: 'auto', marginTop: 12 }}
-    onClick={onClick}
-    onKeyDown={onKeyDown}
-  >
-    <Box
-      alignItems="center"
-      color={open ? 'text.primary' : 'text.secondary'}
-      display="flex"
-      height={32}
-      justifyContent="space-between"
-      sx={{
-        '&:hover': {
-          color: 'text.primary',
-        },
-      }}
-      width={160}
-    >
-      <Typography>
-        {filter}
-      </Typography>
-      <SvgIcon sx={{ height: 16, width: 16 }}>
-        {(open ? <FaCaretUp /> : <FaCaretDown />)}
-      </SvgIcon>
-    </Box>
-  </MenuButton>
-));
-
-interface FilterMenuItemProps {
-  label: string;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const FilterMenuItem = ({ label, setFilter }: FilterMenuItemProps) => (
-  <MenuItem
-    onClick={() => setFilter(label)}
-  >
-    <Box alignItems="center" display="flex" justifyContent="space-between" width={1}>
-      {label}
-    </Box>
-  </MenuItem>
-);
-
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: DiscographyContext }) => {
   const { width } = useOutletContext() as { width: number };
   const {
     artist: artistData, filter, filters, library, setFilter,
   } = context!;
   const { artist } = artistData!;
+  const chipRef = useRef<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(false);
+
   const thumbSrc = library.api
     .getAuthenticatedUrl(
       '/photo/:/transcode',
       { url: artist.thumb || 'null', width: 100, height: 100 },
     );
+
+  const maxWidth = 900;
+  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
+    - 20 // x-padding + tooltip offset
+    - (chipRef.current?.clientWidth || 0);
 
   return (
     <Box
@@ -119,22 +73,60 @@ const Header = ({ context }: { context?: DiscographyContext }) => {
           </NavLink>
           &nbsp;&nbsp;»&nbsp;&nbsp;Discography
         </Typography>
-        <Menu
-          transition
-          align="end"
-          menuButton={({ open }) => <FilterMenuButton filter={filter} open={open} />}
+        <SelectTooltip
+          maxWidth={tooltipMaxWidth}
+          open={open}
+          placement="left"
+          title={(
+            <ClickAwayListener onClickAway={() => setOpen(false)}>
+              <SelectChips leftScroll maxWidth={tooltipMaxWidth}>
+                {filters.map((option) => (
+                  <Chip
+                    color="default"
+                    key={option}
+                    label={(
+                      <Box alignItems="center" display="flex">
+                        {option}
+                        {filter === option && (
+                          <SvgIcon viewBox="0 0 16 24">
+                            <RxCheck />
+                          </SvgIcon>
+                        )}
+                      </Box>
+                    )}
+                    sx={{ fontSize: '0.9rem' }}
+                    onClick={() => {
+                      setOpen(false);
+                      setFilter(option);
+                    }}
+                  />
+                ))}
+              </SelectChips>
+            </ClickAwayListener>
+          )}
         >
-          {filters.map((option) => (
-            <FilterMenuItem
-              key={option}
-              label={option}
-              setFilter={setFilter}
-            />
-          ))}
-        </Menu>
+          <Chip
+            color="primary"
+            label={(
+              <Box alignItems="center" display="flex">
+                {filter}
+                <SvgIcon viewBox="0 0 16 24">
+                  <RxCheck />
+                </SvgIcon>
+              </Box>
+            )}
+            ref={chipRef}
+            sx={{ fontSize: '0.9rem' }}
+            onClick={() => setOpen(true)}
+          />
+        </SelectTooltip>
       </Box>
     </Box>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;
