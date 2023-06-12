@@ -8,7 +8,7 @@ const useTrackMenu = ({ tracks }: { tracks: Track[] }) => {
   const { toggleRowSelection, getAllSelections } = useRowSelection();
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const { playSwitch } = usePlayback();
 
   const handleContextMenu = useCallback((

@@ -36,7 +36,7 @@ interface HeaderProps {
 const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  const [menuProps, toggleMenu] = useMenuState({ transition: true });
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const [grandparentThumbSrc] = useThumbnail(track.grandparentThumb || 'none', 100);
   const [thumbSrc] = useThumbnail(track.parentThumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(track.parentThumb || 'none', 100);

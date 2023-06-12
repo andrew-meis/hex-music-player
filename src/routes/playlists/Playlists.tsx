@@ -50,7 +50,7 @@ const Playlists = () => {
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const { data: config } = useConfig();
   const { data: isPlaying } = useIsPlaying();

@@ -7,7 +7,7 @@ import {
   SubMenu,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   IoMdMicrophone,
   MdPlaylistAdd,

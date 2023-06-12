@@ -202,7 +202,7 @@ const UpcomingTracksVirtuoso = () => {
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [menuProps, toggleMenu] = useMenuState({ transition: true });
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const { addLast, addMany, moveMany, moveManyLast, removeMany } = useDragActions();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();

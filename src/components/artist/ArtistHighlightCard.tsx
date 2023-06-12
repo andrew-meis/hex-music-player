@@ -37,7 +37,7 @@ const ArtistHighlightCard = ({ artist }: { artist: Artist }) => {
   const box = useRef<HTMLDivElement>(null);
   const library = useLibrary();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const { data: settings } = useSettings();
   const { playSwitch } = usePlayback();

@@ -19,7 +19,7 @@ const typographyStyle = {
 const NowPlaying = () => {
   const library = useLibrary();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch } = usePlayback();
   const thumbSrc = library.api.getAuthenticatedUrl(

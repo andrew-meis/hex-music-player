@@ -123,7 +123,6 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
           size="small"
           sx={{
             borderRadius: '10px',
-            fontSize: '0.95rem',
             ml: '6px',
             minWidth: '120px',
             maxWidth: '120px',
@@ -154,7 +153,6 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
           size="small"
           sx={{
             borderRadius: '10px',
-            fontSize: '0.95rem',
             ml: '6px',
             minWidth: '120px',
             maxWidth: '120px',

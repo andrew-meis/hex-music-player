@@ -268,15 +268,27 @@ select:focus-visible {
   }
 }
 
-.szh-menu__arrow {
-  background-color: var(--mui-palette-background-paper);
-  background-image: var(--mui-overlays-9);
-}
-
 .szh-menu-button.sort {
   background-color: transparent;
   border: none;
   padding: 0;
+}
+
+.szh-menu-container {
+  height: 100vh;
+  top: 0;
+  width: 100vw;
+  z-index: 1990;
+}
+
+.szh-menu-container--itemTransition .szh-menu__item {
+  transition-property: background-color;
+  transition-duration: 0ms;
+}
+
+.szh-menu__arrow {
+  background-color: var(--mui-palette-background-paper);
+  background-image: var(--mui-overlays-9);
 }
 
 .szh-menu__divider {
@@ -312,11 +324,6 @@ select:focus-visible {
 
 .szh-menu__submenu > .szh-menu__item::after {
   right: 0.5rem;
-}
-
-.szh-menu-container--itemTransition .szh-menu__item {
-  transition-property: background-color;
-  transition-duration: 0ms;
 }
 
 .titlebar {

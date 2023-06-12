@@ -71,7 +71,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState({ transition: true });
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const { data: similarTracks, isLoading } = useLastfmSimilar({
     apikey,
     artist,

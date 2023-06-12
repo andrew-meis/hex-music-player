@@ -8,7 +8,7 @@ const useArtistMatch = ({ name = '' }: {name: string}) => {
   if (!artistData || name === '') return [];
   const { artists } = artistData;
   // eslint-disable-next-line max-len
-  const regex = /\s([Ff]t\.?|[Ff]eaturing|[Ff]eat\.?|[Ww]ith|[Aa]nd|[Xx]|[Oo]f|[Dd]uet with|[Vv]s\.?|&|\+|w\/)\s|,\s|\/\s/gm;
+  const regex = /\s([Ff]t\.?|[Ff]eaturing|[Ff]eat\.?|[Ww]ith|[Aa]nd|[Xx]|[Oo]f|[Dd]uet with|[Vv]s\.?|&|\+|w\/|×)\s|,\s|\/\s/gm;
   const separators = [
     'feat.',
     'feat',
@@ -26,6 +26,7 @@ const useArtistMatch = ({ name = '' }: {name: string}) => {
     'w/',
     'vs.',
     '+',
+    '×',
   ];
   const nameSplit = name.split(regex).filter((str) => str !== undefined);
   const andIndexes = nameSplit.flatMap((str, i) => (str.toLowerCase() === 'and' ? i : []));

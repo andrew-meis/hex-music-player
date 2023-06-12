@@ -2,7 +2,8 @@ import { Box } from '@mui/material';
 import { redirect, useLoaderData } from 'react-router-dom';
 import {
   defaultSettings,
-  useAuth, useConfig,
+  useAuth,
+  useConfig,
   useSettings,
 } from 'queries/app-queries';
 import initializeApp from 'scripts/initialize-app';

@@ -47,7 +47,7 @@ const activeBox = (isActive: boolean) => ({
 const PlaylistLinks = () => {
   const library = useLibrary();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState();
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const [open, setOpen] = useState(false);
   const { data: playlists } = usePlaylists(library);

@@ -36,7 +36,7 @@ const ArtistPreview = ({
   playSwitch,
 }: ArtistPreviewProps) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [menuProps, toggleMenu] = useMenuState({ transition: true });
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const { ref, entry } = useInView({ threshold: thresholds });
 
   return (
