@@ -90,6 +90,7 @@ const GenreChips = ({ artist, colors, navigate }: GenreChipsProps) => (
             color: fontColorContrast(color),
             cursor: 'pointer',
             '&:hover': {
+              backgroundColor: color,
               boxShadow: `inset 0 0 0 1000px ${chroma(color).brighten()}`,
             },
           }}

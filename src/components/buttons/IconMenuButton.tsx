@@ -30,6 +30,7 @@ const IconMenuButton = React.forwardRef((
       height={32}
       justifyContent="center"
       sx={{
+        cursor: 'pointer',
         '&:hover': {
           color: 'text.primary',
         },

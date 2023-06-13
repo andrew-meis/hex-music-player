@@ -37,6 +37,13 @@ const activeStyle = {
   ...listStyle,
   backgroundColor: 'action.selected',
   color: 'text.primary',
+  '&:hover': {
+    backgroundColor: 'action.hoverSelected',
+    color: 'text.primary',
+    '& .listsvg': {
+      opacity: 1,
+    },
+  },
 };
 
 const svgStyle = {

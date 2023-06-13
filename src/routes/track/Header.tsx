@@ -164,6 +164,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
           mb="5px"
           ref={menuRef}
           sx={{
+            cursor: 'pointer',
             '&:hover': {
               color: 'text.primary',
             },
