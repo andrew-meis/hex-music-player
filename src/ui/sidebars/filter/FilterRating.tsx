@@ -7,6 +7,7 @@ import {
   Rating as MuiRating,
   Typography,
 } from '@mui/material';
+import { isNumber } from 'lodash';
 import { useRef, useState } from 'react';
 import { BsDot, FaTimes, TiPlus } from 'react-icons/all';
 import { FilterObject } from './Filter';
@@ -39,9 +40,9 @@ export const Rating = ({ value }: {value: number}) => (
 
 const renderOption = (option: string | number) => {
   switch (true) {
-    case option === -1:
+    case isNumber(option) && option === -1:
       return <Typography lineHeight={1}>unrated</Typography>;
-    case option >= 0:
+    case isNumber(option) && option >= 0:
       return <Rating value={option as number} />;
     default:
       return '';
@@ -173,7 +174,7 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
         renderTags={(values: (string | number)[], getTagProps) => (
           values.map((opt: string | number, index: number) => (
             <Chip
-              label={opt > 0
+              label={isNumber(opt) && opt > 0
                 ? <Rating value={opt as number} />
                 : 'unrated'}
               size="small"

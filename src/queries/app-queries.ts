@@ -9,7 +9,7 @@ export const appQueryKeys = {
 };
 
 export const defaultSettings: AppSettings = {
-  albumSort: { by: 'originallyAvailableAt', order: 'asc' },
+  albumSort: 'originallyAvailableAt:asc',
   albumText: true,
   colorMode: 'dark',
   compactNav: false,

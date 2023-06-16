@@ -102,14 +102,10 @@ const ArtistCard = ({
         textAlign="center"
       >
         {isArtist(artist) && metaText === 'addedAt' && (
-          <>
-            {moment(artist.addedAt).fromNow()}
-          </>
+          artist.addedAt ? moment(artist.addedAt).fromNow() : 'no date added'
         )}
         {isArtist(artist) && metaText === 'lastViewedAt' && (
-          <>
-            {moment(artist.lastViewedAt).fromNow()}
-          </>
+          artist.lastViewedAt ? moment(artist.lastViewedAt).fromNow() : 'unplayed'
         )}
         {metaText === 'viewCount' && (
           artist.viewCount

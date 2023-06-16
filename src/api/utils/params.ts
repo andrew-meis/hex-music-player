@@ -1,4 +1,4 @@
-export type Params = Record<string, string | number | boolean | string[] | number[]>
+export type Params = Record<string, string | number | boolean>
 
 const withParams = (url: string, params: Params = {}) => {
   if (Object.keys(params).length > 0) {

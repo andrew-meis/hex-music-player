@@ -137,7 +137,12 @@ const Filter = ({ pathname }: { pathname: string }) => {
                   {`${filter.operator}`}
                   &nbsp;
                 </Typography>
-                {filter.field === 'userRating' && (
+                {filter.field === 'userRating' && filter.value === -1 && (
+                  <Typography component="span" display="inline" fontSize="0.8125rem">
+                    unrated
+                  </Typography>
+                )}
+                {filter.field === 'userRating' && filter.value !== -1 && (
                   <Rating value={filter.value as number} />
                 )}
                 {filter.field !== 'userRating' && (

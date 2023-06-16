@@ -63,7 +63,7 @@ export const artistAppearancesQueryFn = async (
   const { albums } = await library.albums(
     config?.sectionId!,
     {
-      'album.id': albumIds,
+      'album.id': albumIds.join(','),
       sort: plexSort(AlbumSortKeys.RELEASE_DATE, SortOrders.DESC).stringify(),
     },
   );
