@@ -11,8 +11,8 @@ import PaginationDots from 'components/pagination-dots/PaginationDots';
 import SelectChips from 'components/select-chips/SelectChips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
-import { PlexSortKeys, SortOrders } from 'types/enums';
-import { Sort } from 'types/interfaces';
+import { HexSortKeys, SortOrders, TrackSortKeys } from 'types/enums';
+import { AlbumWithSection } from 'types/interfaces';
 import { ArtistContext } from './Artist';
 import Banner from './header-components/Banner';
 import InfoRow from './header-components/InfoRow';
@@ -26,7 +26,7 @@ const sortOptions = [
   { label: 'Release Date', sortKey: 'originallyAvailableAt' },
   { label: 'Release Type', sortKey: 'section' },
   { label: 'Title', sortKey: 'title' },
-] as { label: string, sortKey: Sort['by']}[];
+] as { label: string, sortKey: HexSortKeys}[];
 
 export const thresholds = Array.from(Array(101).keys()).map((n) => n / 100);
 
@@ -82,13 +82,15 @@ const Header = ({ context }: { context?: ArtistContext }) => {
     return array as Artist[];
   }, [artistData, colLength]);
 
-  const handleSort = (by: Sort['by']) => {
+  const handleSort = (sortKey: keyof AlbumWithSection) => {
     setOpen(false);
-    if (sort.by === by) {
-      setSort({ ...sort, order: sort.order === 'asc' ? 'desc' : 'asc' });
+    if (sort.by === sortKey) {
+      const newSort = sort.reverseOrder();
+      setSort(newSort);
       return;
     }
-    setSort({ ...sort, by });
+    const newSort = sort.setBy(sortKey);
+    setSort(newSort);
   };
 
   if (!context) {
@@ -162,10 +164,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             state={{
               guid: artist.guid,
               title: artist.title,
-              sort: [
-                PlexSortKeys.RELEASE_DATE,
-                SortOrders.DESC,
-              ].join(''),
+              sort: [TrackSortKeys.RELEASE_DATE, SortOrders.DESC],
             }}
             to={`/artists/${artist.id}/discography`}
           >

@@ -15,6 +15,7 @@ import {
 } from 'react-router-dom';
 import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'api/index';
+import { HexSort, plexSort } from 'classes/index';
 import AlbumMenu from 'components/menus/AlbumMenu';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING } from 'constants/measures';
@@ -34,14 +35,14 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
-import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
 import {
   AlbumWithSection,
   AppSettings,
   CardMeasurements,
+  // HexSort,
   LocationWithState,
   RouteParams,
-  Sort,
 } from 'types/interfaces';
 import Header from './Header';
 import Row from './Row';
@@ -84,10 +85,9 @@ export interface ArtistContext {
   recentFavorites: Track[] | undefined;
   refreshMetadata: (id: number) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React
-    .Dispatch<React.SetStateAction<Sort>>;
+  setSort: React.Dispatch<React.SetStateAction<HexSort>>;
   settings: AppSettings;
-  sort: Sort;
+  sort: HexSort;
   topTracks: Track[] | undefined;
   width: number;
 }
@@ -120,10 +120,7 @@ const Artist = () => {
     id: +id,
     title: location.state.title,
     guid: location.state.guid,
-    sort: [
-      PlexSortKeys.PLAYCOUNT,
-      SortOrders.DESC,
-    ].join(''),
+    sort: plexSort(TrackSortKeys.PLAYCOUNT, SortOrders.DESC),
     slice: 5,
   });
   const recentTracks = useRecentTracks({
@@ -152,7 +149,7 @@ const Artist = () => {
   // create array for virtualization
   const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
-  const [sort, setSort] = useState(settings.albumSort!);
+  const [sort, setSort] = useState(HexSort.parse(settings.albumSort!));
   const data = useMemo(() => {
     if (!artist.data || !appearances.data) {
       return { filters: [], releases: [] };

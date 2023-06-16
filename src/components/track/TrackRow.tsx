@@ -6,7 +6,7 @@ import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
 import { typographyStyle } from 'constants/style';
-import { HexSortKeys, PlexSortKeys } from 'types/enums';
+import { HexSortKeys, TrackSortKeys } from 'types/enums';
 
 const getMetaText = (
   metaText: string | undefined,
@@ -16,23 +16,23 @@ const getMetaText = (
   if (track.globalViewCount) {
     return `${track.globalViewCount} ${track.globalViewCount > 1 ? 'plays' : 'play'}`;
   }
-  if (metaText === PlexSortKeys.ADDED_AT || metaText === HexSortKeys.ADDED_AT) {
+  if (metaText === TrackSortKeys.ADDED_AT || metaText === HexSortKeys.ADDED_AT) {
     return moment(track.addedAt).fromNow();
   }
-  if (metaText === PlexSortKeys.LAST_PLAYED) {
+  if (metaText === TrackSortKeys.LAST_PLAYED) {
     if (!track.lastViewedAt) return 'unplayed';
     return moment(track.lastViewedAt).fromNow();
   }
-  if (metaText === PlexSortKeys.LAST_RATED) {
+  if (metaText === TrackSortKeys.LAST_RATED) {
     if (!track.lastRatedAt) return 'never rated';
     return moment(track.lastRatedAt).fromNow();
   }
-  if (metaText === PlexSortKeys.POPULARITY) {
+  if (metaText === TrackSortKeys.POPULARITY) {
     return track.ratingCount
       ? `${track.ratingCount.toLocaleString()} ${track.ratingCount > 1 ? 'listeners' : 'listener'}`
       : 'no listeners';
   }
-  if (metaText === PlexSortKeys.RELEASE_DATE) {
+  if (metaText === TrackSortKeys.RELEASE_DATE) {
     return moment.utc(originallyAvailableAt).format('DD MMM YYYY');
   }
   if (metaText === 'parentYear') {

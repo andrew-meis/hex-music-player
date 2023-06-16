@@ -1,14 +1,10 @@
 import { AlertColor, PaletteMode } from '@mui/material';
 import { Location } from 'react-router-dom';
 import { Account, Album, Device, Library } from 'api/index';
+import { PlexSort } from 'classes/index';
 
 export interface AlbumWithSection extends Album {
   section: string;
-}
-
-export interface Sort {
-  by: keyof AlbumWithSection;
-  order: 'asc' | 'desc';
 }
 
 export interface AppInfo {
@@ -20,7 +16,7 @@ export interface AppInfo {
 }
 
 export interface AppSettings {
-  albumSort?: Sort;
+  albumSort?: string;
   albumText?: boolean;
   apiKey?: string;
   colorMode?: PaletteMode;
@@ -71,7 +67,7 @@ export interface CardMeasurements {
 }
 
 export interface LocationWithState extends Location {
-  state: { guid: string, title: string, sort: string }
+  state: { guid: string, title: string, sort: PlexSort }
 }
 
 export interface PlayerState {

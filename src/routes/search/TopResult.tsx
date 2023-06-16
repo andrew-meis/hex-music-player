@@ -9,7 +9,7 @@ import { FaTags, IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import { useLibrary, useSettings } from 'queries/app-queries';
-import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
+import { DragTypes, SortOrders, TrackSortKeys } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
 import TopResultButtons from './TopResultButtons';
@@ -130,10 +130,7 @@ const TopResult = ({ imgSize, topResult }: TopResultProps) => {
       return {
         guid: topResult.guid,
         title: topResult.title,
-        sort: [
-          PlexSortKeys.RELEASE_DATE,
-          SortOrders.DESC,
-        ].join(''),
+        sort: [TrackSortKeys.RELEASE_DATE, SortOrders.DESC],
       };
     }
     if (isAlbum(topResult)) {

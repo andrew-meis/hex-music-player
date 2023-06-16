@@ -29,7 +29,6 @@ const List = React
     } = context!;
     const { getAllSelections, clearRowSelection } = useRowSelection();
     const selections = useMemo(() => getAllSelections(), [getAllSelections]);
-    const [by] = sort.split(':');
 
     const [, drop] = useDrop(() => ({
       accept: [
@@ -88,7 +87,7 @@ const List = React
       <>
         <ListBox
           clearRowSelection={clearRowSelection}
-          drag={playlist?.smart || by !== 'index' ? drag : dragDrop}
+          drag={playlist?.smart || sort.by !== 'index' ? drag : dragDrop}
           handleContextMenu={handleContextMenu}
           hoverIndex={hoverIndex}
           listRef={listRef}

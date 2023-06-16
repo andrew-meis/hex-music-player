@@ -24,9 +24,10 @@ const Row = React.memo(({ albums, context }: RowProps) => {
           library={library}
           measurements={measurements}
           menuTarget={menuTarget}
+          metaText={sort.by}
           navigate={navigate}
           section={album.section}
-          sort={sort}
+          showArtistTitle={album.section === 'Appears On'}
         />
       ))}
       {!settings.albumText && albums.map((album) => (

@@ -25,11 +25,33 @@ export enum PlayActions {
   PLAY_TRACKS,
 }
 
-export enum PlexSortKeys {
+export enum AlbumSortKeys {
+  ADDED_AT = 'addedAt',
+  ARTIST_TITLE = 'artist.titleSort',
+  LAST_PLAYED = 'lastViewedAt',
+  PLAYCOUNT = 'viewCount',
+  RANDOM = 'random',
+  RATING = 'userRating',
+  RELEASE_DATE = 'originallyAvailableAt',
+  TITLE = 'titleSort',
+  YEAR = 'year',
+}
+
+export enum ArtistSortKeys {
+  ADDED_AT = 'addedAt',
+  LAST_PLAYED = 'lastViewedAt',
+  LAST_RATED = 'lastRatedAt',
+  PLAYCOUNT = 'viewCount',
+  RANDOM = 'random',
+  RATING = 'userRating',
+  TITLE = 'titleSort',
+}
+
+export enum TrackSortKeys {
   ADDED_AT = 'album.addedAt',
   ALBUM_TITLE = 'album.titleSort',
   ARTIST_TITLE = 'artist.titleSort',
-  TRACK_TITLE = 'titleSort',
+  BITRATE = 'mediaBitrate',
   DURATION = 'duration',
   LAST_PLAYED = 'lastViewedAt',
   LAST_RATED = 'lastRatedAt',
@@ -37,11 +59,18 @@ export enum PlexSortKeys {
   POPULARITY = 'ratingCount',
   RATING = 'userRating',
   RELEASE_DATE = 'album.originallyAvailableAt',
+  TRACK_TITLE = 'titleSort',
   TRACKNUMBER = 'track.index',
+  VIEWED_AT = 'viewedAt',
 }
 
 export enum HexSortKeys {
   ADDED_AT = 'addedAt',
+  LAST_PLAYED = 'lastViewedAt',
+  PLAYCOUNT = 'viewCount',
+  RELEASE_DATE = 'originallyAvailableAt',
+  SECTION = 'section',
+  TITLE = 'title',
 }
 
 export enum QueryKeys {
@@ -51,6 +80,7 @@ export enum QueryKeys {
   ALBUMS = 'albums',
   ALBUMS_BY_GENRE = 'albums-by-genre',
   ALL_ALBUMS = 'all-albums',
+  ALL_ARTISTS = 'all-artists',
   ALL_TRACKS = 'all-tracks',
   ARTIST = 'artist',
   ARTIST_APPEARANCES = 'artist-appearances',
@@ -76,6 +106,9 @@ export enum QueryKeys {
   SEARCH_PAGE = 'search-page',
   SEARCH_TRACKS = 'search-tracks',
   SIMILAR_TRACKS = 'similar-tracks',
+  SORT_ALBUMS = 'sort-albums',
+  SORT_ARTISTS = 'sort-artists',
+  SORT_TRACKS = 'sort-tracks',
   TOAST = 'toast',
   TOP = 'top',
   TRACK = 'track',
@@ -84,6 +117,6 @@ export enum QueryKeys {
 }
 
 export enum SortOrders {
-  ASC = ':asc',
-  DESC = ':desc',
+  ASC = 'asc',
+  DESC = 'desc',
 }

@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Library, PlayQueueItem, Track, parseTrackContainer } from 'api/index';
+import { PlexSort } from 'classes/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -71,6 +72,7 @@ export interface TracksContext {
   library: Library;
   nowPlaying: PlayQueueItem | undefined;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
+  sort: PlexSort;
   tracks: Track[];
   uri: string;
 }
@@ -82,6 +84,8 @@ export interface RowProps {
 }
 
 const RowContent = (props: RowProps) => <Row {...props} />;
+
+const defaultSort = 'artist.titleSort:asc';
 
 const Tracks = () => {
   const fetchTimeout = useRef(0);
@@ -102,6 +106,16 @@ const Tracks = () => {
   const queryClient = useQueryClient();
   const range = useRef<ListRange>();
   const scrollCount = useRef(0);
+  const sort = useQuery(
+    [QueryKeys.SORT_TRACKS],
+    () => PlexSort.parse(defaultSort),
+    {
+      initialData: PlexSort.parse(defaultSort),
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [containerStart, setContainerStart] = useState(0);
   const { getFormattedTime } = useFormattedTime();
@@ -116,6 +130,9 @@ const Tracks = () => {
     params.append('X-Plex-Container-Start', `${pageParam}`);
     params.append('X-Plex-Container-Size', `${containerSize}`);
     addFiltersToParams(filters.data, params);
+    if (sort.data) {
+      params.append('sort', sort.data.stringify());
+    }
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
@@ -127,17 +144,19 @@ const Tracks = () => {
   };
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_TRACKS, filters.data],
+    queryKey: [QueryKeys.ALL_TRACKS, filters.data, sort.data],
     queryFn: fetchTracks,
-    getNextPageParam: () => 0,
+    getNextPageParam: () => containerStart,
     keepPreviousData: true,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    if (!data || data.pageParams.includes(containerStart)) return;
-    fetchNextPage({ pageParam: containerStart });
+    if (!data
+      || data.pageParams.includes(containerStart)
+      || (containerStart === 0 && range.current?.startIndex === 0)) return;
+    fetchNextPage();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerStart, data]);
 
@@ -207,6 +226,7 @@ const Tracks = () => {
     library,
     nowPlaying,
     playUri,
+    sort: sort.data,
     tracks: flatTracks,
     uri,
   }), [
@@ -218,6 +238,7 @@ const Tracks = () => {
     library,
     nowPlaying,
     playUri,
+    sort.data,
     uri,
   ]);
 

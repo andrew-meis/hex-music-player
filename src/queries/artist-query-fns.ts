@@ -1,6 +1,8 @@
 import ky from 'ky';
 import { deburr, isEmpty } from 'lodash';
 import { Account, Library, MediaType, parseContainerType, parseHubContainer } from 'api/index';
+import { PlexSort, plexSort } from 'classes/index';
+import { AlbumSortKeys, SortOrders } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
 
 export const artistQueryFn = async (id: number, library: Library) => {
@@ -60,8 +62,10 @@ export const artistAppearancesQueryFn = async (
   });
   const { albums } = await library.albums(
     config?.sectionId!,
-    // @ts-ignore
-    { 'album.id': albumIds, sort: 'originallyAvailableAt:desc' },
+    {
+      'album.id': albumIds,
+      sort: plexSort(AlbumSortKeys.RELEASE_DATE, SortOrders.DESC).stringify(),
+    },
   );
   const appearsOnFilter = window.electron.readFilters('filters');
   if (isEmpty(appearsOnFilter)) {
@@ -80,7 +84,7 @@ type artistTracksQueryFnParams = {
   id: number,
   title: string,
   guid: string,
-  sort: string,
+  sort: PlexSort,
   removeDupes?: boolean,
   slice?: number,
 }
@@ -98,7 +102,7 @@ export const artistTracksQueryFn = async ({
   params.append('track.artist', title);
   params.append('pop', '1');
   if (removeDupes) params.append('group', 'guid');
-  params.append('sort', sort);
+  params.append('sort', sort.stringify());
   params.append('type', MediaType.TRACK.toString());
   params.append('X-Plex-Token', account.authToken);
   const url = `${library.api.uri}/library/sections/${config?.sectionId!}/all`;

@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Album, Artist, Hub, Library } from 'api/index';
+import { PlexSort, plexSort } from 'classes/index';
 import {
   artistAppearancesQueryFn,
   artistQueryFn,
   artistTracksQueryFn,
 } from 'queries/artist-query-fns';
-import { QueryKeys } from 'types/enums';
+import { ArtistSortKeys, QueryKeys, SortOrders } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
 
 export interface ArtistQueryData {
@@ -48,7 +49,7 @@ export const useArtistTracks = ({
   id: number,
   title: string,
   guid: string,
-  sort: string,
+  sort: PlexSort,
   removeDupes?: boolean,
   slice?: number,
 }) => useQuery(
@@ -70,7 +71,9 @@ export const useArtists = ({
   library: Library,
 }) => useQuery(
   [QueryKeys.ARTISTS],
-  () => library.artists(config.sectionId!, { sort: 'titleSort:asc' }),
+  () => library.artists(config.sectionId!, {
+    sort: plexSort(ArtistSortKeys.TITLE, SortOrders.ASC).stringify(),
+  }),
   {
     enabled: !!config && !!library,
     refetchOnMount: true,
@@ -79,6 +82,7 @@ export const useArtists = ({
   },
 );
 
+// TODO unused
 export const useArtistsByGenre = ({
   config, id, library, limit, sort,
 }: {
@@ -86,12 +90,12 @@ export const useArtistsByGenre = ({
   id: number,
   library: Library,
   limit: number,
-  sort: string,
+  sort: PlexSort,
 }) => useQuery(
   [QueryKeys.ARTISTS_BY_GENRE, id, limit, sort],
   () => library.artists(config.sectionId!, {
     genre: id,
-    sort,
+    sort: sort.stringify(),
     ...(limit && { limit }),
   }),
   {

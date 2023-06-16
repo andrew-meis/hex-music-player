@@ -18,21 +18,21 @@ import SelectChips from 'components/select-chips/SelectChips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
-import { PlexSortKeys } from 'types/enums';
+import { TrackSortKeys } from 'types/enums';
 import { ArtistTracksContext } from './ArtistTracks';
 import FixedHeader from './FixedHeader';
 
 const sortOptions = [
-  { label: 'Album', sortKey: PlexSortKeys.ALBUM_TITLE },
-  { label: 'Artist', sortKey: PlexSortKeys.ARTIST_TITLE },
-  { label: 'Date Added', sortKey: PlexSortKeys.ADDED_AT },
-  { label: 'Duration', sortKey: PlexSortKeys.DURATION },
-  { label: 'Last Played', sortKey: PlexSortKeys.LAST_PLAYED },
-  { label: 'Playcount', sortKey: PlexSortKeys.PLAYCOUNT },
-  { label: 'Popularity', sortKey: PlexSortKeys.POPULARITY },
-  { label: 'Rating', sortKey: PlexSortKeys.RATING },
-  { label: 'Release Date', sortKey: PlexSortKeys.RELEASE_DATE },
-  { label: 'Title', sortKey: PlexSortKeys.TRACK_TITLE },
+  { label: 'Album', sortKey: TrackSortKeys.ALBUM_TITLE },
+  { label: 'Artist', sortKey: TrackSortKeys.ARTIST_TITLE },
+  { label: 'Date Added', sortKey: TrackSortKeys.ADDED_AT },
+  { label: 'Duration', sortKey: TrackSortKeys.DURATION },
+  { label: 'Last Played', sortKey: TrackSortKeys.LAST_PLAYED },
+  { label: 'Playcount', sortKey: TrackSortKeys.PLAYCOUNT },
+  { label: 'Popularity', sortKey: TrackSortKeys.POPULARITY },
+  { label: 'Rating', sortKey: TrackSortKeys.RATING },
+  { label: 'Release Date', sortKey: TrackSortKeys.RELEASE_DATE },
+  { label: 'Title', sortKey: TrackSortKeys.TRACK_TITLE },
 ];
 
 // eslint-disable-next-line react/require-default-props
@@ -57,13 +57,13 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
 
   const handleSort = (sortKey: string) => {
     setOpen(false);
-    const [by, order] = sort.split(':');
-    if (by === sortKey) {
-      const newOrder = (order === 'asc' ? 'desc' : 'asc');
-      setSort([by, newOrder].join(':'));
+    if (sort.by === sortKey) {
+      const newSort = sort.reverseOrder();
+      setSort(newSort);
       return;
     }
-    setSort([sortKey, order].join(':'));
+    const newSort = sort.setBy(sortKey);
+    setSort(newSort);
   };
 
   return (
@@ -150,7 +150,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <SelectChips maxWidth={tooltipMaxWidth}>
                   {sortOptions.map((option) => {
-                    if (sort.split(':')[0] === option.sortKey) {
+                    if (sort.by === option.sortKey) {
                       return (
                         <Chip
                           color="default"
@@ -158,9 +158,9 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
                           label={(
                             <Box alignItems="center" display="flex">
                               {option.label}
-                              {sort.split(':')[0] === option.sortKey && (
+                              {sort.by === option.sortKey && (
                                 <SvgIcon viewBox="0 0 16 24">
-                                  {(sort.split(':')[1] === 'asc'
+                                  {(sort.order === 'asc'
                                     ? <HiArrowSmUp />
                                     : <HiArrowSmDown />
                                   )}
@@ -177,7 +177,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
                   })}
                   <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
                   {sortOptions.map((option) => {
-                    if (sort.split(':')[0] === option.sortKey) return null;
+                    if (sort.by === option.sortKey) return null;
                     return (
                       <Chip
                         color="default"
@@ -185,9 +185,9 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
                         label={(
                           <Box alignItems="center" display="flex">
                             {option.label}
-                            {sort.split(':')[0] === option.sortKey && (
+                            {sort.by === option.sortKey && (
                               <SvgIcon viewBox="0 0 16 24">
-                                {(sort.split(':')[1] === 'asc'
+                                {(sort.order === 'asc'
                                   ? <HiArrowSmUp />
                                   : <HiArrowSmDown />
                                 )}
@@ -208,9 +208,9 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               color="primary"
               label={(
                 <Box alignItems="center" display="flex">
-                  {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                  {sortOptions.find((option) => option.sortKey === sort.by)?.label}
                   <SvgIcon viewBox="0 0 16 24">
-                    {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                    {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
                   </SvgIcon>
                 </Box>
               )}

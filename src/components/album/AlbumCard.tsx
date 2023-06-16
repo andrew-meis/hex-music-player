@@ -8,13 +8,13 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import styles from 'styles/MotionImage.module.scss';
-import { CardMeasurements, Sort } from 'types/interfaces';
+import { AlbumWithSection, CardMeasurements } from 'types/interfaces';
 
 interface Map {
   [key: string]: string;
 }
 
-const typeMap: Map = {
+const sections: Map = {
   Albums: 'Album',
   'Singles & EPs': 'Single / EP',
   Soundtracks: 'Soundtrack',
@@ -25,44 +25,16 @@ const typeMap: Map = {
   'Appears On': 'Guest Appearance',
 };
 
-const getAdditionalText = (album: Album, section: string, by: Sort['by']) => {
-  if (by === 'addedAt') {
-    return moment(album.addedAt).fromNow();
-  }
-  if (by === 'originallyAvailableAt') {
-    return moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
-  }
-  if (by === 'lastViewedAt') {
-    if (!album.lastViewedAt) return 'unplayed';
-    return moment(album.lastViewedAt).fromNow();
-  }
-  if (by === 'viewCount') {
-    return (album.viewCount
-      ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
-      : 'unplayed');
-  }
-  if (by === 'title') {
-    // @ts-ignore
-    const text = typeMap[section];
-    return text.toLowerCase();
-  }
-  if (by === 'section') {
-    // @ts-ignore
-    const text = typeMap[section];
-    return text.toLowerCase();
-  }
-  return '';
-};
-
 interface AlbumCardProps {
   album: Album;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
   library: Library;
   measurements: CardMeasurements;
   menuTarget: Album[];
+  metaText?: string;
   navigate: NavigateFunction;
   section?: string;
-  sort?: Sort;
+  showArtistTitle?: boolean;
 }
 
 const AlbumCard = ({
@@ -71,9 +43,10 @@ const AlbumCard = ({
   library,
   measurements,
   menuTarget,
+  metaText,
   navigate,
   section,
-  sort,
+  showArtistTitle,
 }: AlbumCardProps) => {
   const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -126,15 +99,11 @@ const AlbumCard = ({
           </SvgIcon>
         )}
       </MotionBox>
-      <Title
-        marginX="12px"
-      >
+      <Title marginX="12px">
         {album.title}
       </Title>
-      <Subtitle
-        marginX="12px"
-      >
-        {!sort && (
+      {showArtistTitle && (
+        <Subtitle marginX="12px">
           <Link
             className="link"
             state={{
@@ -146,11 +115,37 @@ const AlbumCard = ({
           >
             {album.parentTitle}
           </Link>
+        </Subtitle>
+      )}
+      <Subtitle marginX="12px">
+        {metaText === 'addedAt' && (
+          album.addedAt ? moment(album.addedAt).fromNow() : 'no date added'
         )}
-        {!!sort && !!section && (
+        {metaText === 'lastViewedAt' && (
+          album.lastViewedAt ? moment(album.lastViewedAt).fromNow() : 'unplayed'
+        )}
+        {metaText === 'originallyAvailableAt' && (
+          album.originallyAvailableAt
+            ? moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY')
+            : 'no release date'
+        )}
+        {metaText === 'section' && (
           <>
-            {getAdditionalText(album, section, sort.by)}
+            {sections[(album as AlbumWithSection).section]}
           </>
+        )}
+        {metaText === 'title' && (
+          <>
+            {sections[(album as AlbumWithSection).section]}
+          </>
+        )}
+        {metaText === 'viewCount' && (
+          album.viewCount
+            ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
+            : 'unplayed'
+        )}
+        {metaText === 'year' && (
+          album.year ? album.year : 'no year'
         )}
       </Subtitle>
     </MotionBox>
@@ -158,8 +153,9 @@ const AlbumCard = ({
 };
 
 AlbumCard.defaultProps = {
+  metaText: undefined,
   section: 'Albums',
-  sort: undefined,
+  showArtistTitle: true,
 };
 
 export default AlbumCard;

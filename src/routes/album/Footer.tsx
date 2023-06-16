@@ -3,7 +3,6 @@ import moment from 'moment';
 import { WIDTH_CALC } from 'constants/measures';
 import { AlbumContext } from './Album';
 
-// eslint-disable-next-line react/require-default-props
 const Footer = ({ context }: { context?: AlbumContext }) => {
   const { album: albumData } = context!;
   const { album } = albumData!;
@@ -39,6 +38,10 @@ const Footer = ({ context }: { context?: AlbumContext }) => {
       </Typography>
     </Box>
   );
+};
+
+Footer.defaultProps = {
+  context: undefined,
 };
 
 export default Footer;

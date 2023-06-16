@@ -4098,13 +4098,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"font-color-contrast@npm:^11.1.0":
-  version: 11.1.0
-  resolution: "font-color-contrast@npm:11.1.0"
-  checksum: 7c8af0690adc8ddfd8f3030bbce6d3345851fe78c0076fb5b3ab23568b241559fd2925f8923dc5e907faa4d49d79a03e5c04321b1551d04dbdd662a29857a968
-  languageName: node
-  linkType: hard
-
 "form-data@npm:^4.0.0":
   version: 4.0.0
   resolution: "form-data@npm:4.0.0"
@@ -4557,7 +4550,6 @@ __metadata:
     eslint-plugin-react-hooks: ^4.6.0
     fast-sort: ^3.4.0
     fast-xml-parser: ^4.0.13
-    font-color-contrast: ^11.1.0
     framer-motion: 8.4.6
     ky: ^0.33.3
     lodash: ^4.17.21

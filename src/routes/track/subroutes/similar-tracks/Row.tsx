@@ -21,7 +21,6 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
   const selected = isRowSelected(index);
   const selectedAbove = isRowSelected(index - 1);
   const selectedBelow = isRowSelected(index + 1);
-  const [by] = sort.split(':');
 
   const handleDoubleClick = async () => {
     await playTracks(items, false, track.key);
@@ -49,7 +48,7 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
         index={index + 1}
         isPlaying={isPlaying}
         library={library}
-        options={{ metaText: by, showAlbumTitle: true, showArtwork: true }}
+        options={{ metaText: sort.by, showAlbumTitle: true, showArtwork: true }}
         playing={playing}
         track={track}
       />

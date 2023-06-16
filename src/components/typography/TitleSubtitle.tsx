@@ -16,6 +16,7 @@ const titleStyle = {
 const subtitleStyle = {
   color: 'text.secondary',
   display: '-webkit-box',
+  lineHeight: '18px',
   overflow: 'hidden',
   WebkitBoxOrient: 'vertical',
   WebkitLineClamp: 1,

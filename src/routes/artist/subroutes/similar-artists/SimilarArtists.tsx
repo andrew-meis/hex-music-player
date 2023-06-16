@@ -14,6 +14,7 @@ import {
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
+import { plexSort } from 'classes/index';
 import ArtistMenu from 'components/menus/ArtistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
@@ -24,7 +25,7 @@ import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
-import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
 import { CardMeasurements, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
@@ -120,10 +121,7 @@ const SimilarArtists = () => {
     id: openArtist.id,
     title: openArtist.title,
     guid: openArtist.guid,
-    sort: [
-      PlexSortKeys.PLAYCOUNT,
-      SortOrders.DESC,
-    ].join(''),
+    sort: plexSort(TrackSortKeys.PLAYCOUNT, SortOrders.DESC),
     slice: 5,
   });
 
@@ -165,7 +163,7 @@ const SimilarArtists = () => {
       }
       groupCounts.push(count);
     }
-    if (sonicSimilar && sonicSimilar.size > 0) {
+    if (sonicSimilar && sonicFiltered && sonicFiltered?.length > 0) {
       let count = 0;
       const identifier = sonicSimilar.hubIdentifier;
       groups.push({ _type: 'subheaderText', identifier, text: sonicSimilar.title });

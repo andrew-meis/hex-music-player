@@ -1,17 +1,18 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import chroma from 'chroma-js';
-import fontColorContrast from 'font-color-contrast';
+import chroma, { contrast } from 'chroma-js';
 import { motion, AnimatePresence } from 'framer-motion';
 import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
+import { plexSort } from 'classes/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import Palette from 'components/palette/Palette';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { useAlbumSearch, useTopAlbums } from 'queries/album-queries';
 import { useConfig, useLibrary } from 'queries/app-queries';
+import { AlbumSortKeys, SortOrders } from 'types/enums';
 
 const scale = (inputY: number, yRange: number[], xRange: number[]) => {
   const [xMin, xMax] = xRange;
@@ -81,7 +82,10 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
             if (isLoading || error || !colors) {
               return null;
             }
-            // const contrastBool = chroma.contrast(colors.vibrant, 'black') > 4.5;
+            const color = chroma(colors.muted).saturate(2).brighten(1).hex();
+            const contrastMuted = contrast(color, 'black') > contrast(color, 'white')
+              ? 'black'
+              : 'white';
             const gradStart = chroma(colors.vibrant).brighten().css();
             const gradEndOne = chroma(colors.vibrant).alpha(0.6).css();
             const gradEndTwo = chroma(colors.vibrant).css();
@@ -154,9 +158,7 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
                     height="36px"
                     mt="8px"
                     sx={{
-                      background: !colors
-                        ? 'active.selected'
-                        : chroma(colors.muted).saturate(2).brighten(1).hex(),
+                      background: !colors ? 'active.selected' : color,
                       cursor: 'pointer',
                       transition: 'box-shadow 200ms ease-in',
                       '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
@@ -173,9 +175,7 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
                       sx={{ width: '32px', height: '32px', ml: '2px' }}
                     />
                     <Typography
-                      color={!colors
-                        ? 'text.main'
-                        : fontColorContrast(chroma(colors.muted).saturate(2).brighten(1).hex())}
+                      color={!colors ? 'text.main' : contrastMuted}
                       fontSize="0.875rem"
                       ml="8px"
                       mr="12px"
@@ -206,7 +206,7 @@ const Home = () => {
     library,
     {
       'album.originallyAvailableAt>>': '-90d',
-      sort: 'originallyAvailableAt:desc',
+      sort: plexSort(AlbumSortKeys.RELEASE_DATE, SortOrders.DESC).stringify(),
     },
   );
   const { data: topAlbums, isLoading: loadingTopAlbums } = useTopAlbums({

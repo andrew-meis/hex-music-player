@@ -13,6 +13,7 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
     library,
     nowPlaying,
     playUri,
+    sort,
     uri,
   } = context;
 
@@ -49,7 +50,7 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
         getFormattedTime={getFormattedTime}
         isPlaying={isPlaying}
         library={library}
-        options={{ showAlbumTitle: true, showArtwork: true }}
+        options={{ metaText: sort.by, showAlbumTitle: true, showArtwork: true }}
         playing={playing}
         track={track}
       />

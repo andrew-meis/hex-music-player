@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import { Album, Artist, Library, PlayQueueItem, Track } from 'api/index';
+import { plexSort } from 'classes/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -18,6 +19,7 @@ import { useNowPlaying } from 'queries/plex-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import Group from 'routes/virtuoso-components/Group';
 import TopItemList from 'routes/virtuoso-components/TopItemList';
+import { SortOrders, TrackSortKeys } from 'types/enums';
 import { AlbumWithSection, LocationWithState, RouteParams } from 'types/interfaces';
 import GroupRow from './GroupRow';
 import Header from './Header';
@@ -79,7 +81,7 @@ const Discography = () => {
     title: location.state.title,
     guid: location.state.guid,
     removeDupes: false,
-    sort: location.state.sort,
+    sort: plexSort(TrackSortKeys.RELEASE_DATE, SortOrders.DESC),
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);

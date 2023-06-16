@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Library, PlayQueueItem, Track } from 'api/index';
+import { PlexSort, plexSort } from 'classes/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -13,6 +14,7 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { useSimilarTracks, useTrack } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
+import { SortOrders } from 'types/enums';
 import { AppConfig, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import List from './List';
@@ -30,8 +32,8 @@ export interface SimilarTracksContext {
   nowPlaying: PlayQueueItem | undefined;
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<string>>;
-  sort: string;
+  setSort: React.Dispatch<React.SetStateAction<PlexSort>>;
+  sort: PlexSort;
 }
 
 export interface RowProps {
@@ -60,7 +62,7 @@ const SimilarTracks = () => {
   const queryClient = useQueryClient();
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [filter, setFilter] = useState('');
-  const [sort, setSort] = useState('distance:desc');
+  const [sort, setSort] = useState(plexSort('distance', SortOrders.DESC));
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
@@ -79,14 +81,13 @@ const SimilarTracks = () => {
         || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
       );
     }
-    const [by, order] = sort.split(':') as [keyof Track, 'asc' | 'desc'];
-    if (order === 'asc') {
-      inPlaceSort(newItems).asc((track) => track[by]);
+    if (sort.order === 'asc') {
+      inPlaceSort(newItems).asc((track) => track[sort.by as keyof Track]);
     }
-    if (order === 'desc') {
-      inPlaceSort(newItems).desc((track) => track[by]);
+    if (sort.order === 'desc') {
+      inPlaceSort(newItems).desc((track) => track[sort.by as keyof Track]);
     }
-    if (by === 'distance') {
+    if (sort.by === 'distance') {
       return newItems.reverse();
     }
     return newItems;

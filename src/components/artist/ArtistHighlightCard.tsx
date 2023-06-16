@@ -6,12 +6,13 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
+import { plexSort } from 'classes/index';
 import HighlightCardButtons from 'components/buttons/HighlightCardButtons';
 import ArtistMenu from 'components/menus/ArtistMenu';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary, useSettings } from 'queries/app-queries';
-import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
+import { DragTypes, SortOrders, TrackSortKeys } from 'types/enums';
 
 const typographyStyle = {
   overflow: 'hidden',
@@ -85,10 +86,7 @@ const ArtistHighlightCard = ({ artist }: { artist: Artist }) => {
   const linkState = useMemo(() => ({
     guid: artist.guid,
     title: artist.title,
-    sort: [
-      PlexSortKeys.RELEASE_DATE,
-      SortOrders.DESC,
-    ].join(''),
+    sort: plexSort(TrackSortKeys.RELEASE_DATE, SortOrders.DESC),
   }), [artist]);
 
   const fontSize = useMemo(() => {

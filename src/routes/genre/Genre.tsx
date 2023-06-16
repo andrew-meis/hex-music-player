@@ -11,6 +11,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { Artist } from 'api/index';
+import { plexSort } from 'classes/index';
 import AlbumCarousel from 'components/album/AlbumCarousel';
 import ArtistCarousel from 'components/artist/ArtistCarousel';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
@@ -25,6 +26,7 @@ import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useTracksByGenre } from 'queries/track-queries';
 import { getColumnsNarrow } from 'scripts/get-columns';
+import { AlbumSortKeys, SortOrders } from 'types/enums';
 import { LocationWithState, RouteParams } from 'types/interfaces';
 import Banner from './Banner';
 
@@ -72,7 +74,7 @@ const Genre = () => {
     id: +id,
     library,
     limit: 0,
-    sort: 'viewCount:desc',
+    sort: plexSort(AlbumSortKeys.PLAYCOUNT, SortOrders.DESC),
   });
   const { data: tracks, isLoading: tracksLoading } = useTracksByGenre({
     albumIds: albums?.map((album) => album.id) || [],
@@ -80,7 +82,7 @@ const Genre = () => {
     id: +id,
     library,
     limit: 24,
-    sort: 'viewCount:desc',
+    sort: plexSort(AlbumSortKeys.PLAYCOUNT, SortOrders.DESC),
   });
   const { data: lastfmTag, isLoading: lastfmLoading } = useLastfmTag({
     apikey: settings?.apiKey,

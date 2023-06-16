@@ -61,13 +61,13 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
 
   const handleSort = (sortKey: string) => {
     setOpen(false);
-    const [by, order] = sort.split(':');
-    if (by === sortKey) {
-      const newOrder = (order === 'asc' ? 'desc' : 'asc');
-      setSort([by, newOrder].join(':'));
+    if (sort.by === sortKey) {
+      const newSort = sort.reverseOrder();
+      setSort(newSort);
       return;
     }
-    setSort([sortKey, order].join(':'));
+    const newSort = sort.setBy(sortKey);
+    setSort(newSort);
   };
 
   const handlePlay = () => playTracks(items);
@@ -157,7 +157,7 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <SelectChips maxWidth={tooltipMaxWidth}>
                   {sortOptions.map((option) => {
-                    if (sort.split(':')[0] === option.sortKey) {
+                    if (sort.by === option.sortKey) {
                       return (
                         <Chip
                           color="default"
@@ -165,9 +165,9 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
                           label={(
                             <Box alignItems="center" display="flex">
                               {option.label}
-                              {sort.split(':')[0] === option.sortKey && (
+                              {sort.by === option.sortKey && (
                                 <SvgIcon viewBox="0 0 16 24">
-                                  {(sort.split(':')[1] === 'asc'
+                                  {(sort.order === 'asc'
                                     ? <HiArrowSmUp />
                                     : <HiArrowSmDown />
                                   )}
@@ -184,7 +184,7 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
                   })}
                   <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
                   {sortOptions.map((option) => {
-                    if (sort.split(':')[0] === option.sortKey) return null;
+                    if (sort.by === option.sortKey) return null;
                     return (
                       <Chip
                         color="default"
@@ -192,9 +192,9 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
                         label={(
                           <Box alignItems="center" display="flex">
                             {option.label}
-                            {sort.split(':')[0] === option.sortKey && (
+                            {sort.by === option.sortKey && (
                               <SvgIcon viewBox="0 0 16 24">
-                                {(sort.split(':')[1] === 'asc'
+                                {(sort.order === 'asc'
                                   ? <HiArrowSmUp />
                                   : <HiArrowSmDown />
                                 )}
@@ -215,9 +215,9 @@ const Header = ({ context }: { context?: SimilarTracksContext }) => {
               color="primary"
               label={(
                 <Box alignItems="center" display="flex">
-                  {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                  {sortOptions.find((option) => option.sortKey === sort.by)?.label}
                   <SvgIcon viewBox="0 0 16 24">
-                    {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                    {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
                   </SvgIcon>
                 </Box>
               )}

@@ -17,6 +17,7 @@ import FilterAutocomplete from './FilterAutocomplete';
 import filterInputs, { FilterTypes, Operators } from './filterInputs';
 import FilterRating, { Rating } from './FilterRating';
 import FilterText from './FilterText';
+import SortSelect from './SortSelect';
 
 const ExpandIcon = () => (
   <SvgIcon>
@@ -35,7 +36,7 @@ export interface FilterObject {
   hash: string;
 }
 
-const Filter = () => {
+const Filter = ({ pathname }: { pathname: string }) => {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState('panel-0');
   const [filters, setFilters] = useState<FilterObject[]>([]);
@@ -106,9 +107,7 @@ const Filter = () => {
       >
         <Typography fontSize="1.5rem" fontWeight={600} mr="8px">Filters + Sorting</Typography>
       </Box>
-      <Box
-        width={1}
-      >
+      <Box width={1}>
         {filters.length > 0 && filters.map((filter) => (
           <Chip
             deleteIcon={(
@@ -170,6 +169,17 @@ const Filter = () => {
             onDelete={() => handleRemoveFilter(filter.hash)}
           />
         ))}
+      </Box>
+      <Box alignItems="center" display="flex" ml="6px" mr="14px">
+        {pathname === '/albums' && (
+          <SortSelect key={pathname} pathname={pathname} />
+        )}
+        {pathname === '/artists' && (
+          <SortSelect key={pathname} pathname={pathname} />
+        )}
+        {pathname === '/tracks' && (
+          <SortSelect key={pathname} pathname={pathname} />
+        )}
       </Box>
       <Box
         className="scroll-container"

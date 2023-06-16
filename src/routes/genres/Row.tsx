@@ -2,10 +2,12 @@ import { Box, SvgIcon, Typography } from '@mui/material';
 import { sample } from 'lodash';
 import React, { useMemo } from 'react';
 import { FaTags } from 'react-icons/all';
+import { plexSort } from 'classes/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { useAlbumsByGenre } from 'queries/album-queries';
 import styles from 'styles/MotionImage.module.scss';
+import { AlbumSortKeys, SortOrders } from 'types/enums';
 import { GenresContext, GenreWithWidth, RowProps } from './Genres';
 
 interface GenreCardProps {
@@ -20,7 +22,7 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
     id: genre.id,
     library,
     limit: 5,
-    sort: 'viewCount:desc',
+    sort: plexSort(AlbumSortKeys.PLAYCOUNT, SortOrders.DESC),
   });
   const imgSrc = useMemo(() => {
     if (!data) return { src: undefined, url: undefined };

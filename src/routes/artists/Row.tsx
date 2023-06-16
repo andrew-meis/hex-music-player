@@ -1,5 +1,5 @@
 import { Box, Collapse, SvgIcon } from '@mui/material';
-import React from 'react';
+import React, { useRef } from 'react';
 import { BiChevronDown } from 'react-icons/all';
 import { Artist } from 'api/index';
 import ArtistCard from 'components/artist/ArtistCard';
@@ -32,14 +32,21 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
     setOpen,
     setOpenArtist,
     setOpenCard,
+    sort,
     virtuoso,
     width,
   } = context;
 
+  const scrollTop = useRef<number | undefined>();
   const openIndex = openCard.index;
   const caretPos = getCaretPos(grid.cols, openIndex, width);
 
-  const handleClick = (artist: Artist, colIndex: number) => {
+  const handleClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    artist: Artist,
+    colIndex: number,
+  ) => {
+    scrollTop.current = e.currentTarget.offsetTop - 72;
     if (openCard.row === rowIndex && openCard.index === colIndex) {
       setOpenArtist({
         id: -1,
@@ -61,7 +68,7 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
 
   const handleEntered = () => {
     virtuoso.current?.scrollTo({
-      top: rowIndex * (measurements.ROW_HEIGHT + 8),
+      top: scrollTop.current,
       behavior: 'smooth',
     });
     if (openArtist.id === artists[openIndex].id) {
@@ -101,8 +108,9 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
             library={library}
             measurements={measurements}
             menuTarget={menuTarget}
+            metaText={sort.by}
             open={openArtist.id === artist.id}
-            onClick={() => handleClick(artist, colIndex)}
+            onClick={(e) => handleClick(e, artist, colIndex)}
           >
             <SvgIcon
               className={openArtist.id === artist.id ? styles.open : ''}

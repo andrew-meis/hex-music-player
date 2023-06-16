@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Album, Library, PlayQueueItem, Track } from 'api/index';
+import { PlexSort } from 'classes/index';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -35,8 +36,8 @@ export interface ArtistTracksContext {
   nowPlaying: PlayQueueItem | undefined;
   playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<string>>;
-  sort: string;
+  setSort: React.Dispatch<React.SetStateAction<PlexSort>>;
+  sort: PlexSort;
 }
 
 export interface RowProps {
@@ -56,8 +57,8 @@ const ArtistTracks = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const [sort, setSort] = useState(() => {
     if (navigationType === 'POP') {
-      return (sessionStorage.getItem(`artist-tracks ${id}`)
-        ? sessionStorage.getItem(`artist-tracks ${id}`)!
+      return (sessionStorage.getItem(`artist-tracks-sort ${id}`)
+        ? PlexSort.parse(sessionStorage.getItem(`artist-tracks-sort ${id}`)!)
         : location.state.sort);
     }
     return location.state.sort;
@@ -90,7 +91,8 @@ const ArtistTracks = () => {
   const { getFormattedTime } = useFormattedTime();
   const { playTracks } = usePlayback();
 
-  useEffect(() => () => sessionStorage.setItem(`artist-tracks ${id}`, sort), [id, sort]);
+  useEffect(() => () => sessionStorage
+    .setItem(`artist-tracks-sort ${id}`, sort.stringify()), [id, sort]);
 
   const albums: Album[] = useMemo(() => {
     const newAlbums = [];

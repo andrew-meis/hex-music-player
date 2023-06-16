@@ -1,6 +1,5 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import chroma from 'chroma-js';
-import fontColorContrast from 'font-color-contrast';
+import chroma, { contrast } from 'chroma-js';
 import React from 'react';
 import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
@@ -131,6 +130,14 @@ const Header = ({ context }: { context?: AlbumContext }) => {
               <Box alignItems="center" display="flex" height={36}>
                 <Palette id={album.thumb} url={thumbUrl}>
                   {({ data: colors, isLoading }) => {
+                    let color;
+                    let contrastColor;
+                    if (colors) {
+                      color = chroma(colors.muted).saturate(2).brighten(1).hex();
+                      contrastColor = contrast(color, 'black') > contrast(color, 'white')
+                        ? 'black'
+                        : 'white';
+                    }
                     if (isLoading) {
                       return null;
                     }
@@ -141,9 +148,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                         display="flex"
                         height="36px"
                         sx={{
-                          background: !colors
-                            ? 'active.selected'
-                            : chroma(colors.muted).saturate(2).brighten(1).hex(),
+                          background: !colors ? 'active.selected' : color,
                           cursor: 'pointer',
                           transition: 'box-shadow 200ms ease-in',
                           '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
@@ -163,9 +168,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                           </SvgIcon>
                         </Avatar>
                         <Typography
-                          color={!colors
-                            ? 'text.main'
-                            : fontColorContrast(chroma(colors.muted).saturate(2).brighten(1).hex())}
+                          color={!colors ? 'text.main' : contrastColor}
                           fontSize="0.875rem"
                           ml="8px"
                           mr="12px"

@@ -13,6 +13,7 @@ import {
 } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Album, Library, parseAlbumContainer } from 'api/index';
+import { PlexSort } from 'classes/index';
 import AlbumMenu from 'components/menus/AlbumMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
@@ -80,6 +81,7 @@ export interface AlbumsContext {
   menuTarget: Album[];
   navigate: NavigateFunction;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
+  sort: PlexSort;
   uri: string;
 }
 
@@ -90,6 +92,8 @@ export interface RowProps {
 }
 
 const RowContent = (props: RowProps) => <Row {...props} />;
+
+const defaultSort = 'artist.titleSort:asc';
 
 const Albums = () => {
   const fetchTimeout = useRef(0);
@@ -110,6 +114,16 @@ const Albums = () => {
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
   const scrollCount = useRef(0);
+  const sort = useQuery(
+    [QueryKeys.SORT_ALBUMS],
+    () => PlexSort.parse(defaultSort),
+    {
+      initialData: PlexSort.parse(defaultSort),
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
@@ -125,6 +139,9 @@ const Albums = () => {
     params.append('X-Plex-Container-Start', `${pageParam}`);
     params.append('X-Plex-Container-Size', `${containerSize}`);
     addFiltersToParams(filters.data, params);
+    if (sort.data) {
+      params.append('sort', sort.data.stringify());
+    }
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
@@ -136,17 +153,19 @@ const Albums = () => {
   };
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_ALBUMS, filters.data],
+    queryKey: [QueryKeys.ALL_ALBUMS, filters.data, sort.data],
     queryFn: fetchAlbums,
-    getNextPageParam: () => 0,
+    getNextPageParam: () => containerStart,
     keepPreviousData: true,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    if (!data || data.pageParams.includes(containerStart)) return;
-    fetchNextPage({ pageParam: containerStart });
+    if (!data
+    || data.pageParams.includes(containerStart)
+    || (containerStart === 0 && range.current?.startIndex === 0)) return;
+    fetchNextPage();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerStart, data]);
 
@@ -237,6 +256,7 @@ const Albums = () => {
     menuTarget,
     navigate,
     playUri,
+    sort: sort.data,
     uri,
   }), [
     config,
@@ -248,6 +268,7 @@ const Albums = () => {
     menuTarget,
     navigate,
     playUri,
+    sort.data,
     uri,
   ]);
 

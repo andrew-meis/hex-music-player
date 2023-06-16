@@ -5,6 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { PlexSort, plexSort } from 'classes/index';
 import { useMoveManyPlaylistItems } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -13,7 +14,7 @@ import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import ScrollSeekPlaceholderNoIndex from 'routes/virtuoso-components/ScrollSeekPlaceholderNoIndex';
-import { DragTypes } from 'types/enums';
+import { DragTypes, SortOrders } from 'types/enums';
 import { RouteParams } from 'types/interfaces';
 import Footer from './Footer';
 import Header from './Header';
@@ -35,8 +36,8 @@ export interface PlaylistContext {
     (playlist: PlaylistType, shuffle?: boolean, key?: string | undefined) => Promise<void>;
   queryClient: QueryClient;
   setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<string>>;
-  sort: string;
+  setSort: React.Dispatch<React.SetStateAction<PlexSort>>;
+  sort: PlexSort;
 }
 
 export interface RowProps {
@@ -62,7 +63,7 @@ const Playlist = () => {
   const queryClient = useQueryClient();
   const scrollCount = useRef(0);
   const virtuoso = useRef<VirtuosoHandle>(null);
-  const [sort, setSort] = useState('index:desc');
+  const [sort, setSort] = useState(plexSort('index', SortOrders.DESC));
   const [filter, setFilter] = useState('');
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -82,15 +83,14 @@ const Playlist = () => {
         || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
       );
     }
-    const [by, order] = sort.split(':') as [keyof Track, 'asc' | 'desc'];
-    if (by === 'index') {
+    if (sort.by === 'index') {
       return newItems;
     }
-    if (order === 'asc') {
-      inPlaceSort(newItems).asc((item) => item.track[by]);
+    if (sort.order === 'asc') {
+      inPlaceSort(newItems).asc((item) => item.track[sort.by as keyof Track]);
     }
-    if (order === 'desc') {
-      inPlaceSort(newItems).desc((item) => item.track[by]);
+    if (sort.order === 'desc') {
+      inPlaceSort(newItems).desc((item) => item.track[sort.by as keyof Track]);
     }
     return newItems;
   }, [filter, sort, playlistItems.data]);

@@ -19,6 +19,7 @@ export default defineConfig({
   resolve: {
     alias: {
       api: path.join(__dirname, 'src/api'),
+      classes: path.join(__dirname, 'src/classes'),
       components: path.join(__dirname, 'src/components'),
       constants: path.join(__dirname, 'src/constants'),
       hooks: path.join(__dirname, 'src/hooks'),

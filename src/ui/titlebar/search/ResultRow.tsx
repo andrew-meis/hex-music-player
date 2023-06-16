@@ -6,7 +6,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { FaTags, IoMdMicrophone } from 'react-icons/all';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLibrary } from 'queries/app-queries';
-import { DragTypes, PlexSortKeys, SortOrders } from 'types/enums';
+import { DragTypes, SortOrders, TrackSortKeys } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
 import styles from './Search.module.scss';
@@ -107,10 +107,7 @@ const ResultRow = ({
             state={{
               guid: result.guid,
               title: result.title,
-              sort: [
-                PlexSortKeys.RELEASE_DATE,
-                SortOrders.DESC,
-              ].join(''),
+              sort: [TrackSortKeys.RELEASE_DATE, SortOrders.DESC],
             }}
             to={`/artists/${result.id}/discography`}
             onClick={(event) => handleNavigate(event)}

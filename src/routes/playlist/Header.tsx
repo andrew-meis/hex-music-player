@@ -20,6 +20,7 @@ import {
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import { Playlist } from 'api/index';
+import { plexSort } from 'classes/index';
 import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import SelectChips from 'components/select-chips/SelectChips';
@@ -27,6 +28,7 @@ import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import usePlayback from 'hooks/usePlayback';
+import { SortOrders } from 'types/enums';
 import FixedHeader from './FixedHeader';
 import { PlaylistContext } from './Playlist';
 
@@ -77,16 +79,16 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
   const handleSort = (sortKey: string) => {
     setOpen(false);
     if (sortKey === 'index') {
-      setSort('index:desc');
+      setSort(plexSort('index', SortOrders.DESC));
       return;
     }
-    const [by, order] = sort.split(':');
-    if (by === sortKey) {
-      const newOrder = (order === 'asc' ? 'desc' : 'asc');
-      setSort([by, newOrder].join(':'));
+    if (sort.by === sortKey) {
+      const newSort = sort.reverseOrder();
+      setSort(newSort);
       return;
     }
-    setSort([sortKey, order].join(':'));
+    const newSort = sort.setBy(sortKey);
+    setSort(newSort);
   };
 
   if (!playlist) {
@@ -190,7 +192,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
                     label={(
                       <Box alignItems="center" display="flex">
                         Default Order
-                        {sort.split(':')[0] === 'index' && (
+                        {sort.by === 'index' && (
                           <SvgIcon viewBox="0 0 16 24">
                             <RxCheck />
                           </SvgIcon>
@@ -208,9 +210,9 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
                       label={(
                         <Box alignItems="center" display="flex">
                           {option.label}
-                          {sort.split(':')[0] === option.sortKey && (
+                          {sort.by === option.sortKey && (
                             <SvgIcon viewBox="0 0 16 24">
-                              {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                              {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
                             </SvgIcon>
                           )}
                         </Box>
@@ -227,7 +229,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
               color="primary"
               label={(
                 <>
-                  {sort.split(':')[0] === 'index' && (
+                  {sort.by === 'index' && (
                     <Box alignItems="center" display="flex">
                       Default Order
                       <SvgIcon viewBox="0 0 16 24">
@@ -235,11 +237,11 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
                       </SvgIcon>
                     </Box>
                   )}
-                  {sort.split(':')[0] !== 'index' && (
+                  {sort.by !== 'index' && (
                     <Box alignItems="center" display="flex">
-                      {sortOptions.find((option) => option.sortKey === sort.split(':')[0])?.label}
+                      {sortOptions.find((option) => option.sortKey === sort.by)?.label}
                       <SvgIcon viewBox="0 0 16 24">
-                        {(sort.split(':')[1] === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
+                        {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
                       </SvgIcon>
                     </Box>
                   )}

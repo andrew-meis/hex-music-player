@@ -1,7 +1,6 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import chroma from 'chroma-js';
-import fontColorContrast from 'font-color-contrast';
+import chroma, { contrast } from 'chroma-js';
 import { useRef } from 'react';
 import { FiMoreVertical } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
@@ -41,6 +40,11 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
   const [thumbSrc] = useThumbnail(track.parentThumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(track.parentThumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
+
+  const color = chroma(colors.muted).saturate(2).brighten(1).hex();
+  const contrastColor = contrast(color, 'black') > contrast(color, 'white')
+    ? 'black'
+    : 'white';
 
   return (
     <>
@@ -94,9 +98,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
                 display="flex"
                 height="36px"
                 sx={{
-                  background: !colors
-                    ? 'active.selected'
-                    : chroma(colors.muted).saturate(2).brighten(1).hex(),
+                  background: !colors ? 'active.selected' : color,
                   cursor: 'pointer',
                   transition: 'box-shadow 200ms ease-in',
                   '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
@@ -112,9 +114,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
                   sx={{ width: '32px', height: '32px', ml: '2px' }}
                 />
                 <Typography
-                  color={!colors
-                    ? 'text.main'
-                    : fontColorContrast(chroma(colors.muted).saturate(2).brighten(1).hex())}
+                  color={!colors ? 'text.main' : contrastColor}
                   fontSize="0.875rem"
                   ml="8px"
                   mr="12px"

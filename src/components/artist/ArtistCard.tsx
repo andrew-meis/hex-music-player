@@ -1,4 +1,5 @@
 import { SvgIcon } from '@mui/material';
+import moment from 'moment';
 import React from 'react';
 import { IoMdMicrophone } from 'react-icons/all';
 import { Link } from 'react-router-dom';
@@ -18,8 +19,9 @@ interface ArtistCardProps {
   library: Library;
   measurements: CardMeasurements;
   menuTarget: Artist[];
+  metaText?: string;
   open?: boolean;
-  onClick?: () => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 const ArtistCard = ({
@@ -29,6 +31,7 @@ const ArtistCard = ({
   library,
   measurements,
   menuTarget,
+  metaText,
   open,
   onClick,
 }: ArtistCardProps) => {
@@ -98,7 +101,24 @@ const ArtistCard = ({
         marginX="12px"
         textAlign="center"
       >
-        {isArtist(artist) && artist.genre.slice(0, 2).map(
+        {isArtist(artist) && metaText === 'addedAt' && (
+          <>
+            {moment(artist.addedAt).fromNow()}
+          </>
+        )}
+        {isArtist(artist) && metaText === 'lastViewedAt' && (
+          <>
+            {moment(artist.lastViewedAt).fromNow()}
+          </>
+        )}
+        {metaText === 'viewCount' && (
+          artist.viewCount
+            ? `${artist.viewCount} ${artist.viewCount > 1 ? 'plays' : 'play'}`
+            : 'unplayed'
+        )}
+        {(!metaText || metaText === 'titleSort' || metaText === 'random')
+        && isArtist(artist)
+        && artist.genre.slice(0, 2).map(
           (g, i, a) => `${g.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
         )}
         {!isArtist(artist) && (
@@ -114,8 +134,9 @@ const ArtistCard = ({
 
 ArtistCard.defaultProps = {
   children: undefined,
+  metaText: undefined,
   open: false,
-  onClick: () => {},
+  onClick: undefined,
 };
 
 export default ArtistCard;

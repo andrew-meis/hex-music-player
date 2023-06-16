@@ -3,6 +3,7 @@ import * as filter from './filter';
 export { filter };
 export { parseContainerType } from './library';
 export { parseAlbumContainer } from './types/album';
+export { parseArtistContainer } from './types/artist';
 export { parseHubContainer } from './types/hub';
 export { parsePlaylistContainer } from './types/playlist';
 export { parsePlayQueue } from './types/play-queue';

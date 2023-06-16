@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
+import { plexSort } from 'classes/index';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import TrackCarousel from 'components/track/TrackCarousel';
-import { PlexSortKeys, SortOrders } from 'types/enums';
+import { SortOrders, TrackSortKeys } from 'types/enums';
 import { ArtistContext } from '../Artist';
 
 const TabChip = ({ active, label } : { active: boolean, label: string }) => (
@@ -84,10 +85,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           state={{
             guid: artist.guid,
             title: artist.title,
-            sort: [
-              PlexSortKeys.RELEASE_DATE,
-              SortOrders.DESC,
-            ].join(''),
+            sort: plexSort(TrackSortKeys.RELEASE_DATE, SortOrders.DESC),
           }}
           to={`/artists/${artist.id}/tracks`}
         >
@@ -152,10 +150,7 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
           state={{
             guid: artist.guid,
             title: artist.title,
-            sort: [
-              PlexSortKeys.PLAYCOUNT,
-              SortOrders.DESC,
-            ].join(''),
+            sort: plexSort(TrackSortKeys.PLAYCOUNT, SortOrders.DESC),
           }}
           to={tab === 0 ? `/artists/${artist.id}/tracks` : `/artists/${artist.id}/recent`}
         >

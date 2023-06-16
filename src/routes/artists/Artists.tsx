@@ -1,28 +1,77 @@
 import { useMenuState } from '@szhsin/react-menu';
-import { UseQueryResult } from '@tanstack/react-query';
+import { UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import ky from 'ky';
 import { throttle } from 'lodash';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
 } from 'react-router-dom';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
+import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import {
+  Album, Artist, Hub, Library, PlayQueueItem, Track, parseArtistContainer,
+} from 'api/index';
+import { PlexSort, plexSort } from 'classes/index';
 import ArtistMenu from 'components/menus/ArtistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { useArtist, useArtists, useArtistTracks } from 'queries/artist-queries';
+import { useArtist, useArtistTracks } from 'queries/artist-queries';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
-import { PlayActions, PlexSortKeys, SortOrders } from 'types/enums';
+import { PlayActions, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
 import { AppConfig, CardMeasurements } from 'types/interfaces';
+import { FilterObject } from 'ui/sidebars/filter/Filter';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from './ScrollSeekPlaceholder';
+
+const containerSize = 100;
+
+const operatorMap = {
+  tag: {
+    is: '',
+    'is not': '!',
+  },
+  int: {
+    is: '',
+    'is not': '!',
+    'is greater than': '>>',
+    'is less than': '<<',
+  },
+  str: {
+    contains: '',
+    'does not contain': '!',
+    is: '=',
+    'is not': '!=',
+    'begins with': '<',
+    'ends with': '>',
+  },
+  bool: {
+    is: '',
+    'is not': '!',
+  },
+  datetime: {
+    'is before': '<<',
+    'is after': '>>',
+    'is in the last': '>>',
+    'is not in the last': '<<',
+  },
+};
+
+const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) => {
+  filters.forEach((filter) => params
+    .append(
+      // @ts-ignore
+      `${filter.group.toLowerCase()}.${filter.field}${operatorMap[filter.type][filter.operator]}`,
+      `${filter.value}`,
+    ));
+};
+
+const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
 type OpenArtist = Pick<Artist, 'id' | 'guid' | 'title'>;
 
@@ -42,13 +91,12 @@ export interface ArtistsContext {
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
   openArtistTracksQuery: UseQueryResult<Track[]>;
   openCard: {row: number, index: number};
-  panelContent: 'tracks' | 'albums';
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
   setOpenCard: React.Dispatch<React.SetStateAction<{row: number, index: number}>>;
-  setPanelContent: React.Dispatch<React.SetStateAction<'tracks' | 'albums'>>;
+  sort: PlexSort;
   virtuoso: React.RefObject<VirtuosoHandle>;
   width: number;
   uri: string;
@@ -62,20 +110,44 @@ export interface RowProps {
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
+const defaultSort = 'titleSort:asc';
+
 const Artists = () => {
+  const fetchTimeout = useRef(0);
+  const filters = useQuery(
+    [QueryKeys.FILTERS],
+    () => ([]),
+    {
+      initialData: [] as FilterObject[],
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
   const library = useLibrary();
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const range = useRef<ListRange>();
   const scrollCount = useRef(0);
+  const sort = useQuery(
+    [QueryKeys.SORT_ARTISTS],
+    () => PlexSort.parse(defaultSort),
+    {
+      initialData: PlexSort.parse(defaultSort),
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [containerStart, setContainerStart] = useState(0);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
-  const [panelContent, setPanelContent] = useState<'tracks' | 'albums'>('tracks');
   const { data: config } = useConfig();
   const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
@@ -83,7 +155,42 @@ const Artists = () => {
   const { getFormattedTime } = useFormattedTime();
   const { width } = useOutletContext() as { height: number, width: number };
 
-  const { data: artists, isLoading } = useArtists({ config, library });
+  const fetchArtists = useCallback(async ({ pageParam = 0 }) => {
+    const params = new URLSearchParams();
+    params.append('type', 8 as unknown as string);
+    params.append('X-Plex-Container-Start', `${pageParam}`);
+    params.append('X-Plex-Container-Size', `${containerSize}`);
+    addFiltersToParams(filters.data, params);
+    if (sort.data) {
+      params.append('sort', sort.data.stringify());
+    }
+    const url = [
+      library.api.uri,
+      `/library/sections/${config.sectionId!}/all?${params.toString()}`,
+      `&X-Plex-Token=${library.api.headers()['X-Plex-Token']}`,
+    ].join('');
+    const newResponse = await ky(url).json() as Record<string, any>;
+    const container = parseArtistContainer(newResponse);
+    return container;
+  }, [config.sectionId, filters.data, library.api, sort.data]);
+
+  const { data, fetchNextPage, isLoading } = useInfiniteQuery({
+    queryKey: [QueryKeys.ALL_ARTISTS, filters.data, sort.data],
+    queryFn: fetchArtists,
+    getNextPageParam: () => containerStart,
+    keepPreviousData: true,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (!data
+    || data.pageParams.includes(containerStart)
+    || (containerStart === 0 && range.current?.startIndex === 0)) return;
+    fetchNextPage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [containerStart, data]);
+
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
     config,
@@ -91,51 +198,68 @@ const Artists = () => {
     id: openArtist.id,
     title: openArtist.title,
     guid: openArtist.guid,
-    sort: [
-      PlexSortKeys.PLAYCOUNT,
-      SortOrders.DESC,
-    ].join(''),
+    sort: plexSort(TrackSortKeys.PLAYCOUNT, SortOrders.DESC),
     slice: 5,
   });
 
-  // create array for virtualization
+  const flatArtists = useMemo(() => {
+    if (!data) return [];
+    const array = Array(data.pages[0].totalSize).fill(null);
+    data.pages.forEach((page) => {
+      array.splice(page.offset, page.artists.length, ...page.artists);
+    });
+    return array as Artist[];
+  }, [data]);
+
   const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
-  const items = useMemo(() => {
-    if (!artists) {
-      return [];
-    }
-    const rows: Artist[][] = [];
-    for (let i = 0; i < artists.length; i += grid.cols) {
-      const row = artists.slice(i, i + grid.cols) as Artist[];
-      rows.push(row);
-    }
-    return rows;
-  }, [artists, grid]);
 
   const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    if (!artists) return;
     const target = event.currentTarget.getAttribute('data-id');
     if (!target) {
       return;
     }
     const targetId = parseInt(target, 10);
-    setMenuTarget(artists.filter((artist) => artist).filter((artist) => artist.id === targetId));
+    setMenuTarget(flatArtists.filter((artist) => artist)
+      .filter((artist) => artist.id === targetId));
     setAnchorPoint({ x: event.clientX, y: event.clientY });
     toggleMenu(true);
-  }, [artists, toggleMenu]);
+  }, [flatArtists, toggleMenu]);
+
+  const handleScrollState = (isScrolling: boolean) => {
+    if (isScrolling) {
+      clearTimeout(fetchTimeout.current);
+      document.body.classList.add('disable-hover');
+    }
+    if (!isScrolling) {
+      document.body.classList.remove('disable-hover');
+      fetchTimeout.current = window.setTimeout(() => {
+        if (!data || !range.current) return;
+        let value = roundDown(range.current.endIndex * grid.cols);
+        // eslint-disable-next-line max-len
+        if (roundDown(range.current.startIndex * grid.cols) !== roundDown(range.current.endIndex * grid.cols)) {
+          if (!data.pageParams.includes(roundDown(range.current.startIndex * grid.cols))) {
+            value = roundDown(range.current.startIndex * grid.cols);
+          }
+        }
+        if (containerStart !== value) {
+          setContainerStart(value);
+        }
+      }, 200);
+    }
+  };
 
   const initialScrollTop = useMemo(() => {
     let top;
-    top = sessionStorage.getItem('artists');
+    top = sessionStorage.getItem('artists-scroll');
     if (!top) return 0;
     top = parseInt(top, 10);
     if (navigationType === 'POP') {
       return top;
     }
     sessionStorage.setItem(
-      'artists',
+      'artists-scroll',
       0 as unknown as string,
     );
     return 0;
@@ -172,13 +296,12 @@ const Artists = () => {
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
-    panelContent,
     playSwitch,
     playUri,
     setOpen,
     setOpenArtist,
     setOpenCard,
-    setPanelContent,
+    sort: sort.data,
     uri,
     virtuoso,
     width,
@@ -198,19 +321,18 @@ const Artists = () => {
     openArtistQuery,
     openArtistTracksQuery,
     openCard,
-    panelContent,
     playSwitch,
     playUri,
     setOpen,
     setOpenArtist,
     setOpenCard,
-    setPanelContent,
+    sort.data,
     uri,
     virtuoso,
     width,
   ]);
 
-  if (isLoading || !artists) return null;
+  if (isLoading || !data) return null;
 
   return (
     <>
@@ -231,8 +353,22 @@ const Artists = () => {
             ScrollSeekPlaceholder,
           }}
           context={artistsContext}
-          data={items}
-          itemContent={(index, item, context) => RowContent({ context, index, artists: item })}
+          isScrolling={handleScrollState}
+          itemContent={(index, _item, context) => {
+            const startIndex = index * grid.cols;
+            const artists = flatArtists
+              .slice(startIndex, startIndex + grid.cols).filter((album) => album);
+            if (artists.length === grid.cols
+              || (startIndex + grid.cols > data.pages[0].totalSize)) {
+              return RowContent({ context, index, artists });
+            }
+            return (
+              <ScrollSeekPlaceholder context={artistsContext} />
+            );
+          }}
+          rangeChanged={(newRange) => {
+            range.current = newRange;
+          }}
           ref={virtuoso}
           scrollSeekConfiguration={{
             enter: (velocity) => {
@@ -242,11 +378,12 @@ const Artists = () => {
             exit: (velocity) => Math.abs(velocity) < 100,
           }}
           style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          totalCount={Math.ceil(data.pages[0].totalSize / grid.cols)}
           onScroll={(e) => {
             if (scrollCount.current < 10) scrollCount.current += 1;
             const target = e.currentTarget as unknown as HTMLDivElement;
             sessionStorage.setItem(
-              'artists',
+              'artists-scroll',
               target.scrollTop as unknown as string,
             );
           }}

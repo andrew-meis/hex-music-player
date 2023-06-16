@@ -15,10 +15,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 import { BiPaste, TbExternalLink } from 'react-icons/all';
 import { useOutletContext } from 'react-router-dom';
+import { HexSort } from 'classes/index';
 import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';
-import { AppSettings } from 'types/interfaces';
+import { AlbumWithSection, AppSettings } from 'types/interfaces';
 import ColorPicker from './ColorPicker';
 
 const boxStyle = {
@@ -99,11 +100,17 @@ const Settings = () => {
   };
 
   const handleAlbumSortOption = async (e: SelectChangeEvent<unknown>) => {
-    await updateConfig('albumSort', { by: e.target.value, order: settings.albumSort?.order });
+    if (!settings.albumSort) return;
+    const value = e.target.value as keyof AlbumWithSection;
+    const newSort = HexSort.parse(settings.albumSort).setBy(value).stringify();
+    await updateConfig('albumSort', newSort);
   };
 
   const handleAlbumOrderOption = async (e: SelectChangeEvent<unknown>) => {
-    await updateConfig('albumSort', { by: settings.albumSort?.by, order: e.target.value });
+    if (!settings.albumSort) return;
+    const value = e.target.value as 'asc' | 'desc';
+    const newSort = HexSort.parse(settings.albumSort).setOrder(value).stringify();
+    await updateConfig('albumSort', newSort);
   };
 
   const pasteText = async () => {
@@ -212,7 +219,7 @@ const Settings = () => {
             by:&nbsp;
           </Typography>
           <Select
-            value={settings.albumSort?.by}
+            value={HexSort.parse(settings.albumSort!).by}
             onChange={handleAlbumSortOption}
           >
             <MenuItem value="addedAt">Date Added</MenuItem>
@@ -226,7 +233,7 @@ const Settings = () => {
             order:&nbsp;
           </Typography>
           <Select
-            value={settings.albumSort?.order}
+            value={HexSort.parse(settings.albumSort!).order}
             onChange={handleAlbumOrderOption}
           >
             <MenuItem value="asc">Ascending</MenuItem>

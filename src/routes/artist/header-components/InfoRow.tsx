@@ -1,8 +1,7 @@
 import { Box, Chip, SvgIcon, Typography } from '@mui/material';
 import { Menu, MenuDivider, MenuItem } from '@szhsin/react-menu';
-import chroma from 'chroma-js';
+import chroma, { contrast } from 'chroma-js';
 import { flag } from 'country-emoji';
-import fontColorContrast from 'font-color-contrast';
 import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
 import emoji from 'react-easy-emoji';
@@ -87,7 +86,9 @@ const GenreChips = ({ artist, colors, navigate }: GenreChipsProps) => (
           sx={{
             backgroundColor: color,
             transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
-            color: fontColorContrast(color),
+            color: contrast(color, 'black') > contrast(color, 'white')
+              ? 'black'
+              : 'white',
             cursor: 'pointer',
             '&:hover': {
               backgroundColor: color,

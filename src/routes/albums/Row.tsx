@@ -10,6 +10,7 @@ const Row = React.memo(({ albums, context }: RowProps) => {
     measurements,
     menuTarget,
     navigate,
+    sort,
   } = context;
 
   return (
@@ -32,6 +33,7 @@ const Row = React.memo(({ albums, context }: RowProps) => {
             library={library}
             measurements={measurements}
             menuTarget={menuTarget}
+            metaText={sort.by}
             navigate={navigate}
           />
         ))}

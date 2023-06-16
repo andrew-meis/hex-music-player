@@ -1,6 +1,7 @@
 import { Drawer, IconButton, SvgIcon } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FiFilter } from 'react-icons/all';
+import { useLocation } from 'react-router-dom';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import Filter from 'ui/sidebars/filter/Filter';
@@ -17,7 +18,15 @@ const popperProps = {
 };
 
 const FilterDrawer = () => {
+  const routes = useMemo(() => ['/artists', '/albums', '/tracks'], []);
+  const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!routes.includes(location.pathname)) {
+      setOpen(false);
+    }
+  }, [location, routes]);
 
   const handleDrawerOpen = () => {
     setOpen(!open);
@@ -25,39 +34,41 @@ const FilterDrawer = () => {
 
   return (
     <>
-      <Tooltip
-        PopperProps={popperProps}
-        placement="top"
-        title="Filters & Sorting"
-      >
-        <IconButton
-          disableRipple
-          size="small"
-          sx={{
-            ...iconButtonStyle,
-            marginRight: '4px',
-            width: '32px',
-            height: '30px',
-            color: open ? 'primary.main' : 'text.secondary',
-            '&:hover': {
-              backgroundColor: 'transparent',
-              color: open ? 'primary.light' : 'text.primary',
-            },
-          }}
-          onClick={handleDrawerOpen}
+      {routes.includes(location.pathname) && (
+        <Tooltip
+          PopperProps={popperProps}
+          placement="top"
+          title="Filters & Sorting"
         >
-          <SvgIcon
+          <IconButton
+            disableRipple
+            size="small"
             sx={{
-              position: 'absolute',
-              width: '0.9em',
-              height: '0.9em',
+              ...iconButtonStyle,
+              marginRight: '4px',
+              width: '32px',
+              height: '30px',
+              color: open ? 'primary.main' : 'text.secondary',
+              '&:hover': {
+                backgroundColor: 'transparent',
+                color: open ? 'primary.light' : 'text.primary',
+              },
             }}
-            viewBox="0 1 24 24"
+            onClick={handleDrawerOpen}
           >
-            <FiFilter />
-          </SvgIcon>
-        </IconButton>
-      </Tooltip>
+            <SvgIcon
+              sx={{
+                position: 'absolute',
+                width: '0.9em',
+                height: '0.9em',
+              }}
+              viewBox="0 1 24 24"
+            >
+              <FiFilter />
+            </SvgIcon>
+          </IconButton>
+        </Tooltip>
+      )}
       <Drawer
         PaperProps={{
           square: false,
@@ -71,7 +82,7 @@ const FilterDrawer = () => {
         transitionDuration={300}
         variant="persistent"
       >
-        <Filter />
+        <Filter pathname={location.pathname} />
       </Drawer>
     </>
   );

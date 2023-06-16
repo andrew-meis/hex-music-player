@@ -2,6 +2,8 @@ import ky from 'ky';
 import { countBy } from 'lodash';
 import moment from 'moment';
 import { Library, Track, parseTrackContainer } from 'api/index';
+import { plexSort } from 'classes/index';
+import { SortOrders, TrackSortKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
 
 export interface Playcount {
@@ -36,7 +38,7 @@ export const recentTracksQueryFn = async (
   const url = library.api.getAuthenticatedUrl(
     '/status/sessions/history/all',
     {
-      sort: 'viewedAt:desc',
+      sort: plexSort(TrackSortKeys.VIEWED_AT, SortOrders.DESC).stringify(),
       librarySectionID: config.sectionId!,
       metadataItemID: id,
       'viewedAt<': time.unix(),
@@ -89,7 +91,7 @@ export const trackHistoryQueryFn = async (
   const url = library.api.getAuthenticatedUrl(
     '/status/sessions/history/all',
     {
-      sort: 'viewedAt:desc',
+      sort: plexSort(TrackSortKeys.VIEWED_AT, SortOrders.DESC).stringify(),
       librarySectionID: config.sectionId!,
       metadataItemID: id,
       accountID: 1,

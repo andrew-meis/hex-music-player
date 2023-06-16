@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { uniqBy } from 'lodash';
 import { Library, MediaType, Track, parseContainerType } from 'api/index';
+import { PlexSort } from 'classes/index';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
@@ -106,12 +107,12 @@ export const useTracksByGenre = ({
   id: number;
   library: Library,
   limit: number,
-  sort: string,
+  sort: PlexSort,
 }) => useQuery(
   [QueryKeys.TRACKS_BY_GENRE, id, limit, sort],
   () => library.tracks(config.sectionId!, {
     'album.id': albumIds.join(','),
-    sort,
+    sort: sort.stringify(),
     ...(limit && { limit }),
   }),
   {
