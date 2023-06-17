@@ -15,7 +15,7 @@ import {
 } from 'react-router-dom';
 import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'api/index';
-import { HexSort, plexSort } from 'classes/index';
+import { HexSort, plexSort } from 'classes';
 import AlbumMenu from 'components/menus/AlbumMenu';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING } from 'constants/measures';

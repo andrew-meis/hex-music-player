@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import React from 'react';
@@ -32,27 +32,57 @@ import SimilarTracks from 'routes/track/subroutes/similar-tracks/SimilarTracks';
 import Track from 'routes/track/Track';
 import Tracks from 'routes/tracks/Tracks';
 
-const ErrorElement = () => (
-  <Box alignItems="center" display="flex" flexDirection="column" height={1} justifyContent="center">
+const ErrorElement = ({ height }: { height?: string }) => (
+  <Box
+    alignItems="center"
+    bgcolor="var(--mui-palette-background-paper)"
+    display="flex"
+    flexDirection="column"
+    height={height}
+    justifyContent="center"
+  >
     <Typography
-      color="text.primary"
+      color="var(--mui-palette-text-primary)"
       fontFamily="TT Commons, sans-serif"
       fontWeight={700}
       variant="h4"
     >
       Oops!
     </Typography>
-    <Typography color="text.primary">
+    <Typography color="var(--mui-palette-text-primary)">
       An unexpected error occurred.
     </Typography>
+    {height === '100vh' && (
+      <Button
+        sx={{
+          borderColor: 'var(--mui-palette-primary-main)',
+          color: 'var(--mui-palette-primary-main)',
+          mt: 1,
+          '&:hover': {
+            borderColor: 'var(--mui-palette-primary-light)',
+          },
+        }}
+        variant="outlined"
+        onClick={() => window.location.reload()}
+      >
+        <Typography textTransform="none">
+          Refresh app
+        </Typography>
+      </Button>
+    )}
   </Box>
 );
+
+ErrorElement.defaultProps = {
+  height: '100%',
+};
 
 const queryClient = new QueryClient();
 const router = createHashRouter([
   {
     path: '/',
     element: <Root />,
+    errorElement: <ErrorElement height="100vh" />,
     loader: rootLoader,
     children: [
       {

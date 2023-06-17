@@ -1,14 +1,23 @@
-import { Gapless5, LogLevel } from '@regosen/gapless-5';
 import { Updater, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, {
   ReactNode, useCallback, useContext, useEffect, useRef,
 } from 'react';
 import { PlayQueue, PlayQueueItem, Track } from 'api/index';
+import { Gapless5, IsGapless5, LogLevel } from 'classes';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
 import { PlayerState } from 'types/interfaces';
+
+interface Gapless5Extended extends IsGapless5 {
+  applyTrackGain: (track: Track) => void;
+  clearTimer: () => void;
+  initTracks: (queue: PlayQueue, forcePlay?: boolean) => void;
+  resetApp: () => void;
+  startTimer: (queueItem: PlayQueueItem) => void;
+  updateTracks: (queue: PlayQueue, action: 'next' | 'prev' | 'update') => void;
+}
 
 const playerOptions = {
   loadLimit: 2,
@@ -16,7 +25,7 @@ const playerOptions = {
   logLevel: LogLevel.Debug,
 };
 
-export const PlayerContext = React.createContext<Gapless5 | undefined>(undefined);
+export const PlayerContext = React.createContext<Gapless5Extended | undefined>(undefined);
 
 export const usePlayerContext = () => {
   const player = useContext(PlayerContext);
@@ -49,11 +58,11 @@ const Player = ({ children }: {children: ReactNode}) => {
     },
   );
 
-  const { current: player } = useRef(new Gapless5({
+  const { current: player } = useRef(new (Gapless5 as any)({
     ...playerOptions,
     loop: settings.repeat !== 'repeat-none',
     singleMode: settings.repeat === 'repeat-one',
-  }));
+  }) as Gapless5Extended);
 
   player.applyTrackGain = (track: Track) => {
     if (track.media[0].parts[0].streams[0].gain) {
@@ -140,6 +149,7 @@ const Player = ({ children }: {children: ReactNode}) => {
   };
 
   player.updateTracks = (queue: PlayQueue, action: 'next' | 'prev' | 'update') => {
+    if (!player.playlist) return;
     const currentIndex = queue.items.findIndex((item) => item.id === queue.selectedItemId);
     const current = queue.items[currentIndex];
     const next = queue.items[currentIndex + 1];
@@ -153,7 +163,7 @@ const Player = ({ children }: {children: ReactNode}) => {
       return;
     }
     if (action === 'prev') {
-      if (player.playlist.trackNumber === 0 && player.getTracks().length === 2) {
+      if (player.playlist.trackNumber === 0 && player.getTracks()!.length === 2) {
         if (current) {
           player.insertTrack(0, library.trackSrc(current.track));
           player.applyTrackGain(current.track);
@@ -164,12 +174,12 @@ const Player = ({ children }: {children: ReactNode}) => {
       return;
     }
     if (action === 'update') {
-      if (player.playlist.trackNumber === 0 && player.getTracks().length === 1) {
+      if (player.playlist.trackNumber === 0 && player.getTracks()!.length === 1) {
         if (next) {
           player.replaceTrack(1, library.trackSrc(next.track));
         }
       }
-      if (player.playlist.trackNumber === 0 && player.getTracks().length === 2) {
+      if (player.playlist.trackNumber === 0 && player.getTracks()!.length === 2) {
         if (next) {
           if (player.playlist.sources[1].audioPath === library.trackSrc(next.track)) {
             return;
@@ -216,7 +226,7 @@ const Player = ({ children }: {children: ReactNode}) => {
         await updateTimeline(nowPlaying.id, 'stopped', nowPlaying.track.duration, nowPlaying.track);
         await updateTimeline(next.id, 'playing', 0, next.track);
         await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
-        const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
+        const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]) as PlayQueue;
         player.updateTracks(newQueue, 'next');
         queryClient.setQueryData(
           [QueryKeys.PLAYER_STATE],
@@ -242,6 +252,7 @@ const Player = ({ children }: {children: ReactNode}) => {
       }
       return;
     }
+    if (!player.playlist) return;
     if (player.playlist.trackNumber === 0) {
       player.addTrack(library.trackSrc(newTrack.track));
     }

@@ -226,6 +226,11 @@ select:focus-visible {
   border-top: 1px solid var(--mui-palette-primary-main);
 }
 
+.rating-star:hover {
+  transform: scale(1.2);
+  transform-origin: center;
+}
+
 .scroll-container::-webkit-scrollbar {
   width: 10px;
   height: 10px;

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Album, Artist, Hub, Library } from 'api/index';
-import { PlexSort, plexSort } from 'classes/index';
+import { PlexSort, plexSort } from 'classes';
 import {
   artistAppearancesQueryFn,
   artistQueryFn,

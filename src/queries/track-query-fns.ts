@@ -2,7 +2,7 @@ import ky from 'ky';
 import { countBy } from 'lodash';
 import moment from 'moment';
 import { Library, Track, parseTrackContainer } from 'api/index';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import { SortOrders, TrackSortKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
 

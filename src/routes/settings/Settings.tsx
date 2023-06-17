@@ -15,7 +15,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 import { BiPaste, TbExternalLink } from 'react-icons/all';
 import { useOutletContext } from 'react-router-dom';
-import { HexSort } from 'classes/index';
+import { HexSort } from 'classes';
 import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
 import { appQueryKeys, useSettings } from 'queries/app-queries';

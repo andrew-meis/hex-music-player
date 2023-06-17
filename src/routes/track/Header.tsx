@@ -148,7 +148,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
               <TrackRating
                 id={track.id}
                 library={library}
-                userRating={track.userRating / 2}
+                userRating={track.userRating / 2 || 0}
               />
             </Box>
           </Box>

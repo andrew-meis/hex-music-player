@@ -20,7 +20,6 @@
     "@mui/lab": "^5.0.0-alpha.95",
     "@mui/material": "^5.10.16",
     "@popmotion/popcorn": "^0.4.4",
-    "@regosen/gapless-5": "^1.3.16",
     "@szhsin/react-menu": "3.3.1",
     "@tanstack/react-query": "^4.28.0",
     "@tanstack/react-query-devtools": "^4.29.0",
@@ -83,8 +82,5 @@
     "VITE_DEV_SERVER_HOST": "127.0.0.1",
     "VITE_DEV_SERVER_PORT": 7777
   },
-  "packageManager": "yarn@3.3.0",
-  "resolutions": {
-    "@regosen/gapless-5@^1.3.16": "patch:@regosen/gapless-5@npm%3A1.4.1#./.yarn/patches/@regosen-gapless-5-npm-1.4.1-369b39d027.patch"
-  }
+  "packageManager": "yarn@3.3.0"
 }

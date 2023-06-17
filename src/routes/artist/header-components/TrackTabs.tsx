@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { BiChevronRight } from 'react-icons/all';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import TrackCarousel from 'components/track/TrackCarousel';

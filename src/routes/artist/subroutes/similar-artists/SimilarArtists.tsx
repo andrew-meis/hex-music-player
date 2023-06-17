@@ -14,7 +14,7 @@ import {
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import ArtistMenu from 'components/menus/ArtistMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';

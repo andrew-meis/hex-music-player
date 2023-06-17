@@ -11,7 +11,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { Artist } from 'api/index';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import AlbumCarousel from 'components/album/AlbumCarousel';
 import ArtistCarousel from 'components/artist/ArtistCarousel';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';

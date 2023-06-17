@@ -90,7 +90,6 @@ const QueueDrawer = () => {
           sx: {
             backgroundColor: 'var(--mui-palette-background-default)',
             backgroundImage: 'var(--mui-palette-common-overlay)',
-            paddingLeft: '0px',
           },
         }}
         anchor="right"

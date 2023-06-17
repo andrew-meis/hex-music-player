@@ -2,7 +2,7 @@ import { InputAdornment, MenuItem, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { HiArrowSmUp, HiArrowSmDown, TbArrowsSort } from 'react-icons/all';
-import { PlexSort, plexSort } from 'classes/index';
+import { PlexSort, plexSort } from 'classes';
 import Select from 'components/select/Select';
 import { AlbumSortKeys, ArtistSortKeys, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
 

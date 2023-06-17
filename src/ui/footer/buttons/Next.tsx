@@ -2,7 +2,7 @@ import { IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { IoPlaySkipForward } from 'react-icons/all';
-import { PlayQueueItem } from 'api/index';
+import { PlayQueue, PlayQueueItem } from 'api/index';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
@@ -63,7 +63,7 @@ const Next = ({ handleRepeat }: NextProps) => {
       if (!playerState.isPlaying) {
         player.play();
       }
-      player.updateTracks(newQueue, 'next');
+      player.updateTracks(newQueue as PlayQueue, 'next');
       queryClient.setQueryData(
         [QueryKeys.PLAYER_STATE],
         () => {

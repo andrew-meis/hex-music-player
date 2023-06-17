@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { uniqBy } from 'lodash';
 import { Library, MediaType, Track, parseContainerType } from 'api/index';
-import { PlexSort } from 'classes/index';
+import { PlexSort } from 'classes';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';

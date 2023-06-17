@@ -92,7 +92,7 @@ const NowPlaying = () => {
           <TrackRating
             id={nowPlaying.track.id}
             library={library}
-            userRating={nowPlaying.track.userRating / 2}
+            userRating={nowPlaying.track.userRating / 2 || 0}
           />
         </Box>
       </Box>

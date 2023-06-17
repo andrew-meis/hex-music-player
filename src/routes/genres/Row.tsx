@@ -2,7 +2,7 @@ import { Box, SvgIcon, Typography } from '@mui/material';
 import { sample } from 'lodash';
 import React, { useMemo } from 'react';
 import { FaTags } from 'react-icons/all';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { useAlbumsByGenre } from 'queries/album-queries';

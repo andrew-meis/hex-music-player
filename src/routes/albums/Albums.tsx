@@ -13,7 +13,7 @@ import {
 } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Album, Library, parseAlbumContainer } from 'api/index';
-import { PlexSort } from 'classes/index';
+import { PlexSort } from 'classes';
 import AlbumMenu from 'components/menus/AlbumMenu';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';

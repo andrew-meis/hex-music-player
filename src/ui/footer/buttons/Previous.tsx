@@ -2,7 +2,7 @@ import { IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import { IoPlaySkipBack } from 'react-icons/all';
-import { PlayQueueItem } from 'api/index';
+import { PlayQueue, PlayQueueItem } from 'api/index';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
@@ -58,9 +58,9 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
           nowPlaying.track,
         );
       }
-      const { trackNumber } = player.playlist;
+      const { trackNumber } = player.playlist!;
       player.cue();
-      player.playlist.trackNumber = trackNumber;
+      player.playlist!.trackNumber = trackNumber;
       if (!playerState.isPlaying) {
         player.pause();
       }
@@ -89,7 +89,7 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
       }
       await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
       const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
-      player.updateTracks(newQueue, 'prev');
+      player.updateTracks(newQueue as PlayQueue, 'prev');
       queryClient.setQueryData(
         [QueryKeys.PLAYER_STATE],
         () => {

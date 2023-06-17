@@ -1,7 +1,7 @@
 import ky from 'ky';
 import { deburr, isEmpty } from 'lodash';
 import { Account, Library, MediaType, parseContainerType, parseHubContainer } from 'api/index';
-import { PlexSort, plexSort } from 'classes/index';
+import { PlexSort, plexSort } from 'classes';
 import { AlbumSortKeys, SortOrders } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
 

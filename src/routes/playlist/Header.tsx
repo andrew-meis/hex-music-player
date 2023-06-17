@@ -20,7 +20,7 @@ import {
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import { Playlist } from 'api/index';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import FilterChip from 'components/filter-chip/FilterChip';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import SelectChips from 'components/select-chips/SelectChips';

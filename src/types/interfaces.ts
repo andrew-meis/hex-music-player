@@ -1,7 +1,7 @@
 import { AlertColor, PaletteMode } from '@mui/material';
 import { Location } from 'react-router-dom';
 import { Account, Album, Device, Library } from 'api/index';
-import { PlexSort } from 'classes/index';
+import { PlexSort } from 'classes';
 
 export interface AlbumWithSection extends Album {
   section: string;

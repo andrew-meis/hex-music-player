@@ -6,7 +6,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "paths": {
       "api/*": ["src/api"],
-      "classes/*": ["src/classes/*"],
+      "classes": ["src/classes/index.ts"],
       "constants/*": ["src/constants/*"],
       "components/*": ["src/components/*"],
       "hooks/*": ["src/hooks/*"],

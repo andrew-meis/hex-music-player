@@ -5,7 +5,7 @@ import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
-import { plexSort } from 'classes/index';
+import { plexSort } from 'classes';
 import { MotionBox } from 'components/motion-components/motion-components';
 import Palette from 'components/palette/Palette';
 import { WIDTH_CALC } from 'constants/measures';
