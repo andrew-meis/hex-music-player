@@ -6,7 +6,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
 import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
-import QueueMenu from 'components/menus/QueueMenu';
+import { QueueMenu } from 'components/menus';
 import useDragActions from 'hooks/useDragActions';
 import { useLibrary } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';

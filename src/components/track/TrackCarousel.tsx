@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { Library, PlayQueueItem, Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { TrackMenu } from 'components/menus';
 import TrackRow from 'components/track/TrackRow';
 import useRowSelection from 'hooks/useRowSelection';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';

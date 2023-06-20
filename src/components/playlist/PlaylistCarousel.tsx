@@ -4,7 +4,7 @@ import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { Playlist, Library } from 'api/index';
-import PlaylistMenu from 'components/menus/PlaylistMenu';
+import { PlaylistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { getColumnsWide } from 'scripts/get-columns';

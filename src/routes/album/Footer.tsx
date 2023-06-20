@@ -1,13 +1,10 @@
 import { Box, Typography } from '@mui/material';
-import moment from 'moment';
 import { WIDTH_CALC } from 'constants/measures';
 import { AlbumContext } from './Album';
 
 const Footer = ({ context }: { context?: AlbumContext }) => {
   const { album: albumData } = context!;
   const { album } = albumData!;
-  const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
-  const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
   return (
     <Box
       alignItems="center"
@@ -31,10 +28,7 @@ const Footer = ({ context }: { context?: AlbumContext }) => {
         variant="subtitle2"
         width="fit-content"
       >
-        {
-          // eslint-disable-next-line max-len
-          `${releaseDate} · ${album.leafCount} ${countNoun}${album.studio ? ` · ${album.studio}` : ''}`
-        }
+        {album.studio ? `© ${album.studio}` : ''}
       </Typography>
     </Box>
   );

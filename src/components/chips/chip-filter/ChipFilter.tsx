@@ -3,12 +3,12 @@ import React, { useRef, useState } from 'react';
 import { FiFilter } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
 
-interface FilterChipProps {
+interface ChipFilterProps {
   filter: string;
   setFilter: React.Dispatch<React.SetStateAction<string>>
 }
 
-const FilterChip = ({ filter, setFilter }: FilterChipProps) => {
+const ChipFilter = ({ filter, setFilter }: ChipFilterProps) => {
   const inputRef = useRef<HTMLInputElement | undefined>(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -88,4 +88,4 @@ const FilterChip = ({ filter, setFilter }: FilterChipProps) => {
   );
 };
 
-export default FilterChip;
+export default ChipFilter;

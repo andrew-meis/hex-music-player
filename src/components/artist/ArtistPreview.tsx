@@ -1,12 +1,12 @@
-import { Box, SvgIcon } from '@mui/material';
+import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { UseQueryResult } from '@tanstack/react-query';
 import { useRef } from 'react';
-import { BiChevronRight, FiMoreVertical } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
-import ArtistMenu from 'components/menus/ArtistMenu';
+import { ArtistMenu, MenuIcon } from 'components/menus';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import TrackCarousel from 'components/track/TrackCarousel';
@@ -73,36 +73,13 @@ const ArtistPreview = ({
             </MotionSvg>
           </Link>
         </MotionTypography>
-        <Box
-          ref={menuRef}
-          sx={{
-            color: menuProps.state === 'open' || menuProps.state === 'opening'
-              ? 'text.primary'
-              : 'text.secondary',
-            cursor: 'pointer',
-            display: 'flex',
-            height: 39,
-            width: 24,
-            '&:hover': {
-              color: 'text.primary',
-            },
-          }}
-          onClick={() => {
-            if (!menuProps.state) {
-              toggleMenu(true);
-              return;
-            }
-            if (menuProps.state !== 'closed') {
-              toggleMenu(false);
-              return;
-            }
-            toggleMenu(true);
-          }}
-        >
-          <SvgIcon sx={{ margin: 'auto' }}>
-            <FiMoreVertical />
-          </SvgIcon>
-        </Box>
+        <MenuIcon
+          height={39}
+          menuRef={menuRef}
+          menuState={menuProps.state}
+          toggleMenu={toggleMenu}
+          width={24}
+        />
       </Box>
       <Box
         display="flex"

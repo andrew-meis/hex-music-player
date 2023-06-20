@@ -14,7 +14,7 @@ import {
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Album, Library, parseAlbumContainer } from 'api/index';
 import { PlexSort } from 'classes';
-import AlbumMenu from 'components/menus/AlbumMenu';
+import { AlbumMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -333,7 +333,6 @@ const Albums = () => {
         />
       </motion.div>
       <AlbumMenu
-        artistLink
         albums={menuTarget}
         anchorPoint={anchorPoint}
         playSwitch={playSwitch}

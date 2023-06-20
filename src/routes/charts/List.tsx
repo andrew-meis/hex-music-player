@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ListProps } from 'react-virtuoso';
-import TrackMenu from 'components/menus/TrackMenu';
+import { TrackMenu } from 'components/menus';
 import useRowSelection from 'hooks/useRowSelection';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
 import useTrackMenu from 'hooks/useTrackMenu';

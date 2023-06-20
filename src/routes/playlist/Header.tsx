@@ -21,9 +21,8 @@ import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import { Playlist } from 'api/index';
 import { plexSort } from 'classes';
-import FilterChip from 'components/filter-chip/FilterChip';
+import { ChipFilter, ChipSelect } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import SelectChips from 'components/select-chips/SelectChips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -186,7 +185,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
             placement="right"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
-                <SelectChips maxWidth={tooltipMaxWidth}>
+                <ChipSelect maxWidth={tooltipMaxWidth}>
                   <Chip
                     color="default"
                     label={(
@@ -221,7 +220,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
                       onClick={() => handleSort(option.sortKey)}
                     />
                   ))}
-                </SelectChips>
+                </ChipSelect>
               </ClickAwayListener>
             )}
           >
@@ -252,7 +251,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
               onClick={() => setOpen(true)}
             />
           </SelectTooltip>
-          <FilterChip
+          <ChipFilter
             filter={filter}
             setFilter={setFilter}
           />

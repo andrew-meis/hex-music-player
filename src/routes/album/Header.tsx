@@ -1,10 +1,14 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
-import React from 'react';
+import moment from 'moment';
+import React, { useRef } from 'react';
 import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
-import { Link, useOutletContext } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
+import { ChipGenres } from 'components/chips';
+import { AlbumMenu, MenuIcon } from 'components/menus';
 import Palette from 'components/palette/Palette';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
@@ -23,50 +27,20 @@ const titleStyle = {
   marginBottom: '5px',
 };
 
-interface GenreLinksProps {
-  album: Album;
-}
-
-const GenreLinks = ({ album }: GenreLinksProps) => (
-  <Box
-    display="flex"
-    flexWrap="wrap"
-    height={22}
-    justifyContent="center"
-    mt="4px"
-    overflow="hidden"
-  >
-    <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
-      {album.year}
-    </Typography>
-    {album.genre.map((genre) => (
-      <Typography fontFamily="Rubik, sans-serif" key={genre.id} variant="subtitle2">
-        <>
-          &nbsp;·&nbsp;
-          <Link
-            className="link"
-            state={{ title: genre.tag }}
-            to={`/genres/${genre.id}`}
-          >
-            {genre.tag.toLowerCase()}
-          </Link>
-        </>
-      </Typography>
-    ))}
-  </Box>
-);
-
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: AlbumContext }) => {
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const { album: albumData, navigate } = context!;
   const { album } = albumData!;
-  const { playAlbum } = usePlayback();
+  const { playAlbum, playSwitch } = usePlayback();
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
   // calculated values
   const [parentThumbSrc] = useThumbnail(album.parentThumb || 'none', 100);
   const [thumbSrc, thumbUrl] = useThumbnail(album.thumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
+  const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
+  const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
 
   const handlePlay = () => playAlbum(album as Album);
   const handleShuffle = () => playAlbum(album as Album, true);
@@ -181,13 +155,65 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                   }}
                 </Palette>
               </Box>
-              <GenreLinks album={album} />
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                height={22}
+                justifyContent="center"
+                mt="4px"
+                overflow="hidden"
+              >
+                <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
+                  {`${releaseDate} · ${album.leafCount} ${countNoun}`}
+                </Typography>
+              </Box>
             </Box>
             <PlayShuffleButton
               handlePlay={handlePlay}
               handleShuffle={handleShuffle}
             />
           </Box>
+        </Box>
+        <Box alignItems="center" display="flex" justifyContent="space-between" my={1}>
+          <Typography color="text.primary">
+            {album.viewCount
+              ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
+              : 'unplayed'}
+          </Typography>
+          <Palette id={album.thumb} url={thumbUrl}>
+            {({ data: colors, isLoading }) => {
+              if (isLoading) {
+                return null;
+              }
+              return (
+                <ChipGenres
+                  colors={Object.values(colors!)}
+                  genres={album.genre}
+                  navigate={navigate}
+                />
+              );
+            }}
+          </Palette>
+          <MenuIcon
+            height={32}
+            mb="5px"
+            menuRef={menuRef}
+            menuState={menuProps.state}
+            toggleMenu={toggleMenu}
+            width={24}
+          />
+          <AlbumMenu
+            arrow
+            portal
+            albumLink={false}
+            albums={[album]}
+            align="center"
+            anchorRef={menuRef}
+            direction="left"
+            playSwitch={playSwitch}
+            toggleMenu={toggleMenu}
+            {...menuProps}
+          />
         </Box>
         <Box
           alignItems="flex-start"
@@ -229,6 +255,10 @@ const Header = ({ context }: { context?: AlbumContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default React.memo(Header);

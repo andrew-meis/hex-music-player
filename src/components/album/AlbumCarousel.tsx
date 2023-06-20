@@ -4,7 +4,7 @@ import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { Album, Library } from 'api/index';
-import AlbumMenu from 'components/menus/AlbumMenu';
+import { AlbumMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { getColumns } from 'scripts/get-columns';
@@ -70,7 +70,6 @@ const AlbumCarousel = ({
         ))}
       </Box>
       <AlbumMenu
-        artistLink
         albums={menuTarget}
         anchorPoint={anchorPoint}
         playSwitch={playSwitch}

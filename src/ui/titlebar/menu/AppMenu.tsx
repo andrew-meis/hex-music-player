@@ -1,12 +1,16 @@
 import { Avatar, Box, Dialog, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuItem } from '@szhsin/react-menu';
+import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import { XMLParser } from 'fast-xml-parser';
 import ky from 'ky';
-import { useState } from 'react';
-import { FiLogOut, IoInformationCircleOutline, IoSettingsSharp } from 'react-icons/all';
+import React, { useState } from 'react';
+import {
+  FiLogOut,
+  FiMoreVertical,
+  IoInformationCircleOutline,
+  IoSettingsSharp,
+} from 'react-icons/all';
 import { useNavigate } from 'react-router-dom';
-import IconMenuButton from 'components/buttons/IconMenuButton';
 import useQueue from 'hooks/useQueue';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useNowPlaying, useUser } from 'queries/plex-queries';
@@ -38,6 +42,47 @@ const parser = new XMLParser(options);
 const parse = async (text: string) => parser.parse(text);
 
 const { platform } = window.electron.getAppInfo();
+
+interface IconMenuButtonProps extends MenuButtonProps{
+  open: boolean;
+  width: number;
+}
+
+const IconMenuButton = React.forwardRef((
+  { open, width, onClick, onKeyDown }: IconMenuButtonProps,
+  ref,
+) => (
+  <MenuButton
+    ref={ref}
+    style={{
+      backgroundColor: 'transparent',
+      border: 'none',
+      padding: 0,
+      WebkitAppRegion: 'no-drag',
+    } as React.CSSProperties}
+    onClick={onClick}
+    onKeyDown={onKeyDown}
+  >
+    <Box
+      alignItems="center"
+      color={open ? 'text.primary' : 'text.secondary'}
+      display="flex"
+      height={32}
+      justifyContent="center"
+      sx={{
+        cursor: 'pointer',
+        '&:hover': {
+          color: 'text.primary',
+        },
+      }}
+      width={width}
+    >
+      <SvgIcon>
+        <FiMoreVertical />
+      </SvgIcon>
+    </Box>
+  </MenuButton>
+));
 
 const AppMenu = () => {
   const library = useLibrary();

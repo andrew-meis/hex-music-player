@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Library, Playlist, PlayQueueItem } from 'api/index';
-import PlaylistMenu from 'components/menus/PlaylistMenu';
+import { PlaylistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';

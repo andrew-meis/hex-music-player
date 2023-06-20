@@ -2,7 +2,7 @@ import { Avatar, Box, Chip, ClickAwayListener, SvgIcon, Typography } from '@mui/
 import React, { useRef, useState } from 'react';
 import { IoMdMicrophone, RxCheck } from 'react-icons/all';
 import { NavLink, useOutletContext } from 'react-router-dom';
-import SelectChips from 'components/select-chips/SelectChips';
+import { ChipSelect } from 'components/chips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC_PADDING } from 'constants/measures';
 import { DiscographyContext } from './Discography';
@@ -79,7 +79,7 @@ const Header = ({ context }: { context?: DiscographyContext }) => {
           placement="left"
           title={(
             <ClickAwayListener onClickAway={() => setOpen(false)}>
-              <SelectChips leftScroll maxWidth={tooltipMaxWidth}>
+              <ChipSelect leftScroll maxWidth={tooltipMaxWidth}>
                 {filters.map((option) => (
                   <Chip
                     color="default"
@@ -101,7 +101,7 @@ const Header = ({ context }: { context?: DiscographyContext }) => {
                     }}
                   />
                 ))}
-              </SelectChips>
+              </ChipSelect>
             </ClickAwayListener>
           )}
         >

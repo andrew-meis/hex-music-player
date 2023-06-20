@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import React, { useEffect, useMemo } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ListProps } from 'react-virtuoso';
-import TrackMenu from 'components/menus/TrackMenu';
+import { TrackMenu } from 'components/menus';
 import { WIDTH_CALC } from 'constants/measures';
 import useRowSelection from 'hooks/useRowSelection';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';

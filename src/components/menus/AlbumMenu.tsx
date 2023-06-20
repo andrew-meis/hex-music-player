@@ -6,7 +6,7 @@ import {
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   IoMdMicrophone,
   MdPlaylistAdd,
@@ -20,13 +20,15 @@ import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
 
 interface AlbumMenuProps extends ControlledMenuProps{
+  albumLink?: boolean;
   albums: Album[] | undefined;
-  artistLink: boolean;
+  artistLink?: boolean;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   toggleMenu: (open?: boolean | undefined) => void;
 }
 
 const AlbumMenu = ({
+  albumLink,
   albums,
   artistLink,
   children,
@@ -88,15 +90,22 @@ const AlbumMenu = ({
               Go to artist
             </MenuItem>
           )}
-          <MenuItem onClick={() => navigate(`/albums/${albums[0].id}`)}>
-            <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-            Go to album
-          </MenuItem>
+          {albumLink && (
+            <MenuItem onClick={() => navigate(`/albums/${albums[0].id}`)}>
+              <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
+              Go to album
+            </MenuItem>
+          )}
         </>
       )}
       {children}
     </ControlledMenu>
   );
+};
+
+AlbumMenu.defaultProps = {
+  albumLink: true,
+  artistLink: true,
 };
 
 export default AlbumMenu;

@@ -4,7 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { BsGrid } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
-import PlaylistMenu from 'components/menus/PlaylistMenu';
+import { PlaylistMenu } from 'components/menus';
 import Tooltip from 'components/tooltip/Tooltip';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';

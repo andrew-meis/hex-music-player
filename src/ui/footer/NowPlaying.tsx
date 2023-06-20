@@ -2,7 +2,7 @@ import { Avatar, Box, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import NowPlayingMenu from 'components/menus/NowPlayingMenu';
+import { NowPlayingMenu } from 'components/menus';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
 import usePlayback from 'hooks/usePlayback';

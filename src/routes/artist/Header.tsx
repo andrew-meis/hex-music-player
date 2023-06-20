@@ -5,10 +5,10 @@ import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { usePrevious } from 'react-use';
 import { Artist } from 'api/index';
+import { ChipSelect } from 'components/chips';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
-import SelectChips from 'components/select-chips/SelectChips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { HexSortKeys, SortOrders, TrackSortKeys } from 'types/enums';
@@ -189,7 +189,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
           gap="8px"
           my="12px"
         >
-          <SelectChips
+          <ChipSelect
             bgleft="linear-gradient(to right, var(--mui-palette-background-paper), transparent)"
             bgright="linear-gradient(to left, var(--mui-palette-background-paper), transparent)"
             maxWidth={albumFiltersMaxWidth}
@@ -203,7 +203,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
                 onClick={() => setFilter(group)}
               />
             ))}
-          </SelectChips>
+          </ChipSelect>
         </Box>
         <Box
           display="flex"
@@ -218,7 +218,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             placement="left"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
-                <SelectChips leftScroll maxWidth={tooltipMaxWidth}>
+                <ChipSelect leftScroll maxWidth={tooltipMaxWidth}>
                   {sortOptions.map((option) => {
                     if (sort.by === option.sortKey) return null;
                     return (
@@ -267,7 +267,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
                     }
                     return null;
                   })}
-                </SelectChips>
+                </ChipSelect>
               </ClickAwayListener>
             )}
           >

@@ -4,7 +4,7 @@ import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { Artist, Library } from 'api/index';
-import ArtistMenu from 'components/menus/ArtistMenu';
+import { ArtistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { ArtistPreview } from 'routes/genre/Genre';

@@ -2,7 +2,7 @@ import { Box, IconButton, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { CgChevronLeft, CgChevronRight } from 'react-icons/all';
 
-interface SelectChipsProps {
+interface ChipSelectProps {
   bgleft?: string;
   bgright?: string;
   children?: React.ReactNode;
@@ -10,8 +10,8 @@ interface SelectChipsProps {
   maxWidth: number;
 }
 
-const SelectChips = React.forwardRef((
-  { bgleft, bgright, children, leftScroll, maxWidth }: SelectChipsProps,
+const ChipSelect = React.forwardRef((
+  { bgleft, bgright, children, leftScroll, maxWidth }: ChipSelectProps,
   ref,
 ) => {
   const [chipBox, setChipBox] = useState<HTMLDivElement | null>(null);
@@ -157,11 +157,11 @@ const SelectChips = React.forwardRef((
   );
 });
 
-SelectChips.defaultProps = {
+ChipSelect.defaultProps = {
   bgleft: undefined,
   bgright: undefined,
   children: undefined,
   leftScroll: false,
 };
 
-export default SelectChips;
+export default ChipSelect;

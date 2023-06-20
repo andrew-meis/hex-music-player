@@ -12,7 +12,7 @@ import {
   Album, Artist, Hub, Library, PlayQueueItem, Track, parseArtistContainer,
 } from 'api/index';
 import { PlexSort, plexSort } from 'classes';
-import ArtistMenu from 'components/menus/ArtistMenu';
+import { ArtistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';

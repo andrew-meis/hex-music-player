@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
 import { plexSort } from 'classes';
 import HighlightCardButtons from 'components/buttons/HighlightCardButtons';
-import ArtistMenu from 'components/menus/ArtistMenu';
+import { ArtistMenu } from 'components/menus';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary, useSettings } from 'queries/app-queries';

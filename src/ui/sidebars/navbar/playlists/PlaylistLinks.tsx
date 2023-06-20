@@ -6,7 +6,7 @@ import React, { useCallback, useState } from 'react';
 import { BsGrid, FaCaretDown, FaCaretRight, TiFolder } from 'react-icons/all';
 import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
-import PlaylistMenu from 'components/menus/PlaylistMenu';
+import { PlaylistMenu } from 'components/menus';
 import { navlistTypeActiveStyle, navlistTypeStyle } from 'constants/style';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';

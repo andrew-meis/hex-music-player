@@ -1,12 +1,11 @@
-import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { Avatar, Box, Fade, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
 import { useRef } from 'react';
-import { FiMoreVertical } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
 import { Library, Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { MenuIcon, TrackMenu } from 'components/menus';
 import TrackRating from 'components/rating/TrackRating';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -33,7 +32,7 @@ interface HeaderProps {
 }
 
 const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
-  const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const [grandparentThumbSrc] = useThumbnail(track.grandparentThumb || 'none', 100);
@@ -125,7 +124,7 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
               </Box>
             </Box>
             <Box alignItems="center" display="flex" flexWrap="wrap" mt="4px">
-              <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
+              <Typography fontFamily="Rubik, sans-serif" mt="4px" variant="subtitle2">
                 {track.media[0].audioCodec.toUpperCase()}
                 &nbsp;
               </Typography>
@@ -133,14 +132,14 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
                 track.media[0].parts[0].streams[0].bitDepth
                 && track.media[0].parts[0].streams[0].samplingRate
                 && (
-                  <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
+                  <Typography fontFamily="Rubik, sans-serif" mt="4px" variant="subtitle2">
                     {track.media[0].parts[0].streams[0].bitDepth}
                     /
                     {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}
                   </Typography>
                 )
               }
-              <Typography variant="subtitle2">
+              <Typography mt="4px" variant="subtitle2">
                 &nbsp;
                 ·
                 &nbsp;
@@ -153,32 +152,14 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
             </Box>
           </Box>
         </Box>
-        <Box
-          alignItems="center"
-          color={menuProps.state === 'open' || menuProps.state === 'opening'
-            ? 'text.primary'
-            : 'text.secondary'}
-          display="flex"
+        <MenuIcon
           height={32}
-          justifyContent="center"
           mb="5px"
-          ref={menuRef}
-          sx={{
-            cursor: 'pointer',
-            '&:hover': {
-              color: 'text.primary',
-            },
-          }}
-          width={16}
-          onClick={() => {
-            if (menuProps.state === 'closing') return;
-            toggleMenu(true);
-          }}
-        >
-          <SvgIcon>
-            <FiMoreVertical />
-          </SvgIcon>
-        </Box>
+          menuRef={menuRef}
+          menuState={menuProps.state}
+          toggleMenu={toggleMenu}
+          width={24}
+        />
         <TrackMenu
           arrow
           portal

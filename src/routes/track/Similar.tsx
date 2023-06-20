@@ -5,7 +5,7 @@ import { throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import { usePrevious } from 'react-use';
 import { Library, Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { TrackMenu } from 'components/menus';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';

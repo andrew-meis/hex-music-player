@@ -9,7 +9,7 @@ import { NavLink } from 'react-router-dom';
 import { ItemProps, Virtuoso } from 'react-virtuoso';
 import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import 'styles/queue.scss';
-import QueueMenu from 'components/menus/QueueMenu';
+import { QueueMenu } from 'components/menus';
 import Subtext from 'components/subtext/Subtext';
 import { typographyStyle } from 'constants/style';
 import useDragActions from 'hooks/useDragActions';

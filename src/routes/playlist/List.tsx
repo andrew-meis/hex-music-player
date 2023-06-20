@@ -7,7 +7,7 @@ import { MdDelete } from 'react-icons/md';
 import { useKey } from 'react-use';
 import { ListProps } from 'react-virtuoso';
 import { PlaylistItem, PlayQueueItem, Track } from 'api/index';
-import TrackMenu from 'components/menus/TrackMenu';
+import { TrackMenu } from 'components/menus';
 import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import useRowSelection from 'hooks/useRowSelection';
 import useToast from 'hooks/useToast';

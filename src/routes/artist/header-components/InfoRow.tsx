@@ -1,14 +1,14 @@
-import { Box, Chip, SvgIcon, Typography } from '@mui/material';
-import { Menu, MenuDivider, MenuItem } from '@szhsin/react-menu';
-import chroma, { contrast } from 'chroma-js';
+import { Box, SvgIcon, Typography } from '@mui/material';
+import { ControlledMenu, MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { flag } from 'country-emoji';
 import { isEmpty } from 'lodash';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import emoji from 'react-easy-emoji';
 import { SiMusicbrainz, TbBrandLastfm, TbExternalLink } from 'react-icons/all';
 import { NavigateFunction } from 'react-router-dom';
 import { Album, Artist, Hub } from 'api/index';
-import IconMenuButton from 'components/buttons/IconMenuButton';
+import { ChipGenres } from 'components/chips';
+import { MenuIcon } from 'components/menus';
 import Tooltip from 'components/tooltip/Tooltip';
 import { artistButtons, ButtonSpecs } from 'constants/buttons';
 import { PlayParams } from 'hooks/usePlayback';
@@ -51,54 +51,18 @@ const FlagAndPlaycount = ({ artist }: {artist: Artist}) => (
           </Typography>
         </>
       )}
-    {artist.viewCount > 0
-      && (
-        <Typography textAlign="right">
-          {artist.viewCount}
-          {' '}
-          {artist.viewCount === 1 ? 'play' : 'plays'}
-        </Typography>
-      )}
-  </Box>
-);
-
-interface GenreChipsProps {
-  artist: Artist;
-  colors: string[] | undefined;
-  navigate: NavigateFunction;
-}
-
-const GenreChips = ({ artist, colors, navigate }: GenreChipsProps) => (
-  <Box
-    display="flex"
-    flexWrap="wrap"
-    gap="8px"
-    height="32px"
-    justifyContent="center"
-    overflow="hidden"
-  >
-    {artist.genre.map((genre, index) => {
-      const color = colors ? colors[index % 6] : 'common.grey';
-      return (
-        <Chip
-          key={genre.id}
-          label={genre.tag.toLowerCase()}
-          sx={{
-            backgroundColor: color,
-            transition: 'background 500ms ease-in, box-shadow 200ms ease-in',
-            color: contrast(color, 'black') > contrast(color, 'white')
-              ? 'black'
-              : 'white',
-            cursor: 'pointer',
-            '&:hover': {
-              backgroundColor: color,
-              boxShadow: `inset 0 0 0 1000px ${chroma(color).brighten()}`,
-            },
-          }}
-          onClick={() => navigate(`/genres/${genre.id}`, { state: { title: genre.tag } })}
-        />
-      );
-    })}
+    {artist.viewCount > 0 && (
+      <Typography textAlign="right">
+        {artist.viewCount}
+        {' '}
+        {artist.viewCount === 1 ? 'play' : 'plays'}
+      </Typography>
+    )}
+    {!artist.viewCount && (
+      <Typography textAlign="right">
+        unplayed
+      </Typography>
+    )}
   </Box>
 );
 
@@ -110,10 +74,12 @@ interface MenuBoxProps {
 }
 
 const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) => {
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const mbid = (artist.mbid[0].id as unknown as string).slice(7);
   const filters = window.electron.readFilters('filters');
   const hasHiddenReleases = filters.findIndex((obj) => obj.artist === artist.guid) !== -1;
   const restoreAlbums = useRestoreAlbums();
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
 
   const handleMenuSelection = useCallback(async (button: ButtonSpecs) => {
     if (!artist) {
@@ -131,14 +97,22 @@ const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) =
       maxWidth={width}
       minWidth={width}
     >
-      <Menu
+      <MenuIcon
+        height={32}
+        menuRef={menuRef}
+        menuState={menuProps.state}
+        toggleMenu={toggleMenu}
+        width={24}
+      />
+      <ControlledMenu
         arrow
         portal
-        transition
-        unmountOnClose
         align="center"
+        anchorRef={menuRef}
+        boundingBoxPadding="10"
         direction={width < 180 ? 'right' : 'left'}
-        menuButton={({ open }) => <IconMenuButton open={open} width={16} />}
+        onClose={() => toggleMenu(false)}
+        {...menuProps}
       >
         {artistButtons.map((button: ButtonSpecs) => (
           <MenuItem key={button.name} onClick={() => handleMenuSelection(button)}>
@@ -174,7 +148,7 @@ const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) =
             <SiMusicbrainz />
           </SvgIcon>
         </MenuItem>
-      </Menu>
+      </ControlledMenu>
     </Box>
   );
 };
@@ -210,7 +184,7 @@ const InfoRow = ({
           width={32}
         />
         <FlagAndPlaycount artist={artist} />
-        <GenreChips artist={artist} colors={colors} navigate={navigate} />
+        <ChipGenres colors={colors} genres={artist.genre} navigate={navigate} />
       </Box>
     );
   }
@@ -225,7 +199,7 @@ const InfoRow = ({
       justifyContent="space-between"
     >
       <FlagAndPlaycount artist={artist} />
-      <GenreChips artist={artist} colors={colors} navigate={navigate} />
+      <ChipGenres colors={colors} genres={artist.genre} navigate={navigate} />
       <MenuBox
         artist={artist}
         playSwitch={playSwitch}

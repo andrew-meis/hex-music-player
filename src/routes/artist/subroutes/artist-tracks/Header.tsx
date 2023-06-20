@@ -12,9 +12,8 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink, useOutletContext } from 'react-router-dom';
-import FilterChip from 'components/filter-chip/FilterChip';
+import { ChipFilter, ChipSelect } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import SelectChips from 'components/select-chips/SelectChips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -148,7 +147,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
             placement="right"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
-                <SelectChips maxWidth={tooltipMaxWidth}>
+                <ChipSelect maxWidth={tooltipMaxWidth}>
                   {sortOptions.map((option) => {
                     if (sort.by === option.sortKey) {
                       return (
@@ -200,7 +199,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
                       />
                     );
                   })}
-                </SelectChips>
+                </ChipSelect>
               </ClickAwayListener>
             )}
           >
@@ -219,7 +218,7 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
               onClick={() => setOpen(true)}
             />
           </SelectTooltip>
-          <FilterChip
+          <ChipFilter
             filter={filter}
             setFilter={setFilter}
           />

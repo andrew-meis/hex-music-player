@@ -18,9 +18,8 @@ import {
 } from 'react-icons/all';
 import { useInView } from 'react-intersection-observer';
 import { NavLink, useOutletContext } from 'react-router-dom';
-import FilterChip from 'components/filter-chip/FilterChip';
+import { ChipFilter, ChipSelect } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import SelectChips from 'components/select-chips/SelectChips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -131,7 +130,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
             placement="right"
             title={(
               <ClickAwayListener onClickAway={() => setOpen(false)}>
-                <SelectChips maxWidth={tooltipMaxWidth}>
+                <ChipSelect maxWidth={tooltipMaxWidth}>
                   {options.map((option) => {
                     if (days === option) {
                       return (
@@ -176,7 +175,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
                       />
                     );
                   })}
-                </SelectChips>
+                </ChipSelect>
               </ClickAwayListener>
             )}
           >
@@ -195,7 +194,7 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
               onClick={() => setOpen(true)}
             />
           </SelectTooltip>
-          <FilterChip
+          <ChipFilter
             filter={filter}
             setFilter={setFilter}
           />
