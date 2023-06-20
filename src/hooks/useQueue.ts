@@ -5,7 +5,7 @@ import { Album, PlayQueue, PlayQueueItem, Track, parsePlayQueue } from 'api/inde
 import useToast from 'hooks/useToast';
 import {
   appQueryKeys,
-  useAccount, useLibrary, useQueueId, useServer,
+  useAccount, useLibrary, useQueueId, useServer, useSettings,
 } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
@@ -17,6 +17,7 @@ const useQueue = () => {
   const server = useServer();
   const toast = useToast();
   const queueId = useQueueId();
+  const { data: settings } = useSettings();
 
   const addToQueue = useCallback(async ({
     newTracks,
@@ -77,13 +78,18 @@ const useQueue = () => {
       {
         window: 30,
         ...(center && { center }),
+        ...(settings.repeat === 'repeat-all' && { repeat: 1 }),
       },
     );
     const response = await ky(url).json() as Record<string, any>;
     return parsePlayQueue(response);
-  }, [library, queueId]);
+  }, [library.api, queueId, settings.repeat]);
 
-  const playQueue = useCallback(async (uri: string, shuffle: boolean, key?: string | undefined) => {
+  const createQueue = useCallback(async (
+    uri: string,
+    shuffle: boolean,
+    key?: string | undefined,
+  ) => {
     let newQueue = await library.createQueue({ uri, key, shuffle });
     await setQueueId(newQueue.id);
     newQueue = await getQueue(newQueue.id);
@@ -130,7 +136,7 @@ const useQueue = () => {
     addToQueue,
     setQueueId,
     getQueue,
-    playQueue,
+    createQueue,
     removeFromQueue,
     toggleShuffle,
     updateQueue,

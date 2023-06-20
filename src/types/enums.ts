@@ -96,6 +96,7 @@ export enum QueryKeys {
   LASTFM_TRACK = 'lastfm-track',
   LYRICS = 'lyrics',
   PALETTE = 'palette',
+  PLAY_POSITION = 'play-position',
   PLAYER_STATE= 'player-state',
   PLAYLIST = 'playlist',
   PLAYLIST_ITEMS = 'playlist-items',

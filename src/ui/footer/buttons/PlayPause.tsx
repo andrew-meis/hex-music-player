@@ -62,16 +62,16 @@ const PlayPause = () => {
     if (ctrlPress) {
       if (nowPlaying && isPlayQueueItem(nowPlaying)) {
         player.clearTimer();
-        await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
+        await updateTimeline(nowPlaying.id, 'stopped', player.getPosition(), nowPlaying.track);
       }
-      await player.resetApp();
+      player.resetApp();
       return;
     }
     if (playerState.isPlaying) {
       player.pause();
       if (isPlayQueueItem(nowPlaying)) {
         player.clearTimer();
-        updateTimeline(nowPlaying.id, 'paused', playerState.position, nowPlaying.track);
+        updateTimeline(nowPlaying.id, 'paused', player.getPosition(), nowPlaying.track);
       }
       queryClient.setQueryData(
         [QueryKeys.PLAYER_STATE],
@@ -81,7 +81,7 @@ const PlayPause = () => {
     if (!playerState.isPlaying) {
       player.play();
       if (isPlayQueueItem(nowPlaying)) {
-        updateTimeline(nowPlaying.id, 'playing', playerState.position, nowPlaying.track);
+        updateTimeline(nowPlaying.id, 'playing', player.getPosition(), nowPlaying.track);
         player.startTimer(nowPlaying);
       }
       queryClient.setQueryData(

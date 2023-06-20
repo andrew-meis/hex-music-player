@@ -226,6 +226,24 @@ select:focus-visible {
   border-top: 1px solid var(--mui-palette-primary-main);
 }
 
+.rating-container {
+  display: inline-flex;
+  position: relative;
+  cursor: pointer;
+  text-align: left;
+  color: #faaf00;
+  height: 20px;
+  overflow: hidden;
+}
+
+.rating-container > * {
+  height: 20px;
+}
+
+.rating-star > * {
+  height: 20px;
+}
+
 .rating-star:hover {
   transform: scale(1.2);
   transform-origin: center;

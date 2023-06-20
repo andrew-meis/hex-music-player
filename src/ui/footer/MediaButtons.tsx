@@ -24,15 +24,8 @@ const MediaButtons = () => {
       player.singleMode = true;
       return;
     }
-    if (value === 'repeat-none') {
-      player.loop = false;
-      player.singleMode = false;
-      return;
-    }
-    if (value === 'repeat-all') {
-      player.loop = true;
-      player.singleMode = false;
-    }
+    player.loop = false;
+    player.singleMode = false;
   }, [settings, queryClient, player]);
 
   return (

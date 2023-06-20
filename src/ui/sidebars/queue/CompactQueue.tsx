@@ -117,6 +117,7 @@ const CompactQueue = () => {
     const targetIndex = parseInt(target, 10);
     contextMenuItems.current = [items[targetIndex]];
     menuRef.current = event.currentTarget;
+    document.querySelector('.titlebar')?.classList.add('titlebar-nodrag');
     toggleMenu(true);
   }, [items, toggleMenu]);
 
@@ -266,6 +267,7 @@ const CompactQueue = () => {
         toggleMenu={toggleMenu}
         onClose={() => {
           contextMenuItems.current = [];
+          document.querySelector('.titlebar')?.classList.remove('titlebar-nodrag');
           toggleMenu(false);
         }}
         {...menuProps}

@@ -68,9 +68,9 @@ const Next = ({ handleRepeat }: NextProps) => {
         [QueryKeys.PLAYER_STATE],
         () => {
           if (isPlayQueueItem(nextTrack)) {
-            return ({ duration: nextTrack.track.duration, isPlaying: true, position: 0 });
+            return ({ duration: nextTrack.track.duration, isPlaying: true });
           }
-          return ({ duration: 0, isPlaying: true, position: 0 });
+          return ({ duration: 0, isPlaying: true });
         },
       );
       setDisableNext(false);

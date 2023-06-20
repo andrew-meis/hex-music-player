@@ -156,7 +156,7 @@ const Tracks = () => {
     if (!data
       || data.pageParams.includes(containerStart)
       || (containerStart === 0 && range.current?.startIndex === 0)) return;
-    fetchNextPage();
+    fetchNextPage({ pageParam: containerStart });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [containerStart, data]);
 
@@ -186,6 +186,9 @@ const Tracks = () => {
         if (roundDown(range.current.startIndex) !== roundDown(range.current.endIndex)) {
           if (!data.pageParams.includes(roundDown(range.current.startIndex))) {
             value = roundDown(range.current.startIndex);
+          }
+          if (data.pageParams.length === 1) {
+            value = roundDown(range.current.endIndex);
           }
         }
         if (containerStart !== value) {

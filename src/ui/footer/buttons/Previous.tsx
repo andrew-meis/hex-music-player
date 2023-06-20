@@ -54,7 +54,7 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
         await updateTimeline(
           nowPlaying.id,
           'stopped',
-          playerState.position,
+          player.getPosition(),
           nowPlaying.track,
         );
       }
@@ -72,10 +72,6 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
           nowPlaying.track,
         );
       }
-      queryClient.setQueryData(
-        [QueryKeys.PLAYER_STATE],
-        () => ({ ...playerState, position: 0 }),
-      );
       setDisablePrev(false);
       return;
     }
@@ -94,9 +90,9 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
         [QueryKeys.PLAYER_STATE],
         () => {
           if (isPlayQueueItem(prevTrack)) {
-            return ({ ...playerState, duration: prevTrack.track.duration, position: 0 });
+            return ({ ...playerState, duration: prevTrack.track.duration });
           }
-          return ({ ...playerState, duration: 0, position: 0 });
+          return ({ ...playerState, duration: 0 });
         },
       );
       setDisablePrev(false);

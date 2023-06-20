@@ -242,6 +242,9 @@ const Artists = () => {
           if (!data.pageParams.includes(roundDown(range.current.startIndex * grid.cols))) {
             value = roundDown(range.current.startIndex * grid.cols);
           }
+          if (data.pageParams.length === 1) {
+            value = roundDown(range.current.endIndex * grid.cols);
+          }
         }
         if (containerStart !== value) {
           setContainerStart(value);

@@ -118,6 +118,7 @@ export interface IsGapless5 {
   onprev: (from: string, to: string) => void;
   onstop: (audioPath: string) => void;
   onunload: (audioPath: string) => void;
+  ontick: (position: number, length: number) => void;
   pause: () => void;
   play: () => void;
   playpause: () => void;

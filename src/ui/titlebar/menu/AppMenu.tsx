@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import IconMenuButton from 'components/buttons/IconMenuButton';
 import useQueue from 'hooks/useQueue';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying, useUser } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 import { AppConfig } from 'types/interfaces';
@@ -47,7 +46,6 @@ const AppMenu = () => {
   const [open, setOpen] = useState(false);
   const { data: config } = useConfig();
   const { data: nowPlaying } = useNowPlaying();
-  const { data: playerState } = usePlayerState();
   const { data: user } = useUser();
   const { data: users } = useQuery<User[]>(
     ['users'],
@@ -85,7 +83,7 @@ const AppMenu = () => {
   const handleLogout = async (token: string) => {
     if (nowPlaying && isPlayQueueItem(nowPlaying)) {
       player.clearTimer();
-      await updateTimeline(nowPlaying.id, 'stopped', playerState.position, nowPlaying.track);
+      await updateTimeline(nowPlaying.id, 'stopped', player.getPosition(), nowPlaying.track);
     }
     player.resetApp();
     const newConfig = window.electron.readConfig('config') as AppConfig;

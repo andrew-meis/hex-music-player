@@ -28,7 +28,7 @@ const usePlayback = () => {
   const {
     addToQueue,
     getQueue,
-    playQueue,
+    createQueue,
     updateQueue,
     updateTimeline,
   } = useQueue();
@@ -38,34 +38,34 @@ const usePlayback = () => {
 
   const playAlbum = useCallback(async (album: Album, shuffle: boolean = false) => {
     const uri = `${serverUri}${album.key}`;
-    const newQueue = await playQueue(uri, shuffle);
+    const newQueue = await createQueue(uri, shuffle);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playAlbumAtTrack = useCallback(async (track: Track, shuffle: boolean = false) => {
     const uri = `${serverUri}${track.parentKey}`;
-    const newQueue = await playQueue(uri, shuffle, track.key);
+    const newQueue = await createQueue(uri, shuffle, track.key);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playArtist = useCallback(async (artist: Artist, shuffle: boolean = false) => {
     const uri = `${serverUri}${artist.key}`;
-    const newQueue = await playQueue(uri, shuffle);
+    const newQueue = await createQueue(uri, shuffle);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playArtistRadio = useCallback(async (artist: Artist) => {
     // eslint-disable-next-line max-len
     const uri = `${serverUri}/library/metadata/${artist.id}/station/${v4()}?type=10&maxDegreesOfSeparation=-1`;
-    const newQueue = await playQueue(uri, false);
+    const newQueue = await createQueue(uri, false);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playGenre = useCallback(async (genre: Genre, shuffle: boolean = false) => {
     const uri = `library://abc/directory//library/sections/6/all?album.genre=${genre.id}`;
-    const newQueue = await playQueue(uri, shuffle);
+    const newQueue = await createQueue(uri, shuffle);
     player.initTracks(newQueue);
-  }, [playQueue, player]);
+  }, [createQueue, player]);
 
   const playPlaylist = useCallback(async (
     playlist: Playlist,
@@ -73,9 +73,9 @@ const usePlayback = () => {
     key: string | undefined = undefined,
   ) => {
     const uri = `${serverUri}/playlists/${playlist.id}/items`;
-    const newQueue = await playQueue(uri, shuffle, key);
+    const newQueue = await createQueue(uri, shuffle, key);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playQueueItem = useCallback(async (item: PlayQueueItem) => {
     if (isPlayQueueItem(nowPlaying)) {
@@ -89,16 +89,16 @@ const usePlayback = () => {
 
   const playTrack = useCallback(async (track: Track, shuffle: boolean = false) => {
     const uri = `${serverUri}${track.key}`;
-    const newQueue = await playQueue(uri, shuffle);
+    const newQueue = await createQueue(uri, shuffle);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playTrackRadio = useCallback(async (track: Track) => {
     // eslint-disable-next-line max-len
     const uri = `${serverUri}/library/metadata/${track.id}/station/${v4()}?type=10&maxDegreesOfSeparation=-1`;
-    const newQueue = await playQueue(uri, false);
+    const newQueue = await createQueue(uri, false);
     player.initTracks(newQueue);
-  }, [playQueue, player, serverUri]);
+  }, [createQueue, player, serverUri]);
 
   const playTracks = useCallback(async (
     tracks: Track[],
@@ -107,9 +107,9 @@ const usePlayback = () => {
   ) => {
     const ids = tracks.map((track) => track.id).join(',');
     const uri = library.buildLibraryURI(account.client.identifier, `/library/metadata/${ids}`);
-    const newQueue = await playQueue(uri, shuffle, key);
+    const newQueue = await createQueue(uri, shuffle, key);
     player.initTracks(newQueue);
-  }, [account.client.identifier, library, playQueue, player]);
+  }, [account.client.identifier, library, createQueue, player]);
 
   const playUri = useCallback(async (
     uri: string,
@@ -117,9 +117,9 @@ const usePlayback = () => {
     key: string = '',
   ) => {
     const newUri = library.buildLibraryURI(account.client.identifier, uri);
-    const newQueue = await playQueue(newUri, shuffle, key);
+    const newQueue = await createQueue(newUri, shuffle, key);
     player.initTracks(newQueue);
-  }, [account.client.identifier, library, playQueue, player]);
+  }, [account.client.identifier, library, createQueue, player]);
 
   const playSwitch = useCallback(
     async (action: PlayActions, params: PlayParams) => {

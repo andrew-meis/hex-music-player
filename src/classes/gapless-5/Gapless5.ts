@@ -733,6 +733,7 @@ function Gapless5(this: IsGapless5, options: Gapless5Options) {
     const source = this.currentSource();
     if (source) {
       source.tick();
+      this.ontick(source.getPosition(), source.getLength());
     }
     if (tickCallback) {
       window.clearTimeout(tickCallback);
@@ -796,6 +797,7 @@ function Gapless5(this: IsGapless5, options: Gapless5Options) {
   this.onprev = () => {};
   this.onstop = () => {};
   this.onunload = () => {};
+  this.ontick = () => {};
 
   // INTERNAL HELPERS
   // Current index (if sourceIndex = true and shuffle is on, value will be different)

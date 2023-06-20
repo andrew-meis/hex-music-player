@@ -136,6 +136,7 @@ const TrackRow = ({
           </NavLink>
         </Typography>
         <Box
+          height={20}
           marginLeft="8px"
         >
           <TrackRating

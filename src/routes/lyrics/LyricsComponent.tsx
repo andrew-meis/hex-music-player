@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import ky from 'ky';
 import { useEffect, useRef, useState } from 'react';
 import { WIDTH_CALC } from 'constants/measures';
-import { usePlayerState } from 'queries/player-queries';
+import { usePlayPosition } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
 
@@ -63,7 +63,7 @@ const LyricsComponent = () => {
   const box = useRef<HTMLDivElement | null>();
   const [activeLine, setActiveLine] = useState<HTMLSpanElement | null>();
   const { data: nowPlaying } = useNowPlaying();
-  const { data: playerState } = usePlayerState();
+  const { data: playbackPosition } = usePlayPosition();
   const { data: lyrics } = useQuery(
     [QueryKeys.LYRICS, nowPlaying?.id],
     async () => {
@@ -131,14 +131,14 @@ const LyricsComponent = () => {
                 // eslint-disable-next-line react/no-array-index-key
                 key={index}
                 ref={
-                  playerState.position > lyric.startOffset
+                  playbackPosition.position > lyric.startOffset
                     ? setActiveLine
                     : null
                 }
                 sx={{
                   fontWeight: 600,
                   ...getTextStyle(
-                    playerState.position,
+                    playbackPosition.position,
                     lyric.startOffset,
                     nowPlaying?.track.duration || 0,
                   ),
@@ -156,13 +156,14 @@ const LyricsComponent = () => {
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               ref={
-                playerState.position > lyric.startOffset && playerState.position < next.startOffset
+                playbackPosition.position > lyric.startOffset
+                && playbackPosition.position < next.startOffset
                   ? setActiveLine
                   : null
               }
               sx={{
                 fontWeight: 600,
-                ...getTextStyle(playerState.position, lyric.startOffset, next.startOffset),
+                ...getTextStyle(playbackPosition.position, lyric.startOffset, next.startOffset),
               }}
               variant="h4"
             >

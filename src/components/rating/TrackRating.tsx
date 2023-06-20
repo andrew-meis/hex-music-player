@@ -3,9 +3,10 @@
 /* eslint-disable react/no-array-index-key */
 import { SvgIcon } from '@mui/material';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BsDot, BsStarFill } from 'react-icons/all';
 import { Library } from 'api/index';
+import useMouseLeave from 'hooks/useMouseLeave';
 import { QueryKeys } from 'types/enums';
 
 const invalidateTrackQueries = async (queryClient: QueryClient) => {
@@ -28,83 +29,23 @@ interface RatingProps {
   userRating: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const OldRating = ({ id, library, userRating }: RatingProps) => {
-  const queryClient = useQueryClient();
-  const [hover, setHover] = useState(0);
-
-  const handleClick = async (e: React.MouseEvent, value: number) => {
-    e.stopPropagation();
-    if (value === userRating) {
-      await library.rate(id, -1);
-      await invalidateTrackQueries(queryClient);
-      return;
-    }
-    await library.rate(id, value * 2);
-    await invalidateTrackQueries(queryClient);
-  };
-
-  const handleMouseEnter = (value: number) => {
-    setHover(value);
-  };
-
-  const handleMouseLeave = () => {
-    setHover(0);
-  };
-
-  return (
-    <div
-      style={{
-        alignItems: 'center',
-        display: 'flex',
-        maxHeight: 20,
-        maxWidth: 75,
-        minHeight: 20,
-      }}
-    >
-      {[...Array(5)].map((_arr, index) => {
-        const starValue = index + 1;
-        return (
-          <span
-            key={index}
-            style={{
-              alignItems: 'center',
-              color: starValue <= (hover || userRating)
-                ? '#faaf00'
-                : 'var(--mui-palette-text-secondary)',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              justifyContent: 'center',
-              lineHeight: 1.57,
-              minWidth: 15,
-              maxHeight: 20,
-              minHeight: 20,
-              transform: hover === starValue ? 'scale(1.1)' : 'none',
-            }}
-            onClick={(e) => handleClick(e, starValue)}
-            onMouseEnter={() => handleMouseEnter(starValue)}
-            onMouseLeave={handleMouseLeave}
-          >
-            {starValue <= (hover || userRating)
-              ? (<SvgIcon sx={{ width: 13 }}><BsStarFill /></SvgIcon>)
-              : (<SvgIcon sx={{ width: 13 }}><BsDot /></SvgIcon>)}
-          </span>
-        );
-      })}
-    </div>
-  );
-};
-
 const Rating = ({ id, library, userRating }: RatingProps) => {
   const precision = 0.5;
   const totalStars = 5;
   const queryClient = useQueryClient();
   const [hoverActiveStar, setHoverActiveStar] = useState(-1);
   const [isHovered, setIsHovered] = useState(false);
-  const ratingContainerRef = useRef<HTMLDivElement | null>(null);
+  const [mouseLeft, setRef, innerRef] = useMouseLeave();
+
+  useEffect(() => {
+    if (mouseLeft) {
+      setHoverActiveStar(-1);
+      setIsHovered(false);
+    }
+  }, [mouseLeft]);
 
   const calculateRating = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { width, left } = ratingContainerRef.current!.getBoundingClientRect();
+    const { width, left } = innerRef.current!.getBoundingClientRect();
     const percent = (e.clientX - left) / width;
     const numberInStars = percent * totalStars;
     const nearestNumber = Math.round((numberInStars + precision / 2) / precision) * precision;
@@ -130,23 +71,11 @@ const Rating = ({ id, library, userRating }: RatingProps) => {
     setHoverActiveStar(calculateRating(e));
   };
 
-  const handleMouseLeave = () => {
-    setHoverActiveStar(-1);
-    setIsHovered(false);
-  };
-
   return (
     <div
-      ref={ratingContainerRef}
-      style={{
-        display: 'inline-flex',
-        position: 'relative',
-        cursor: 'pointer',
-        textAlign: 'left',
-        color: '#faaf00',
-      }}
+      className="rating-container"
+      ref={setRef}
       onClick={handleClick}
-      onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
     >
       {[...new Array(totalStars)].map((arr, index) => {

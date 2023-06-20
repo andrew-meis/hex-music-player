@@ -11,22 +11,14 @@ export const usePlayerState = () => {
     () => ({
       duration: player.currentLength(),
       isPlaying: player.isPlaying() || prevPlayState.current,
-      position: player.getPosition(),
     }),
     {
       initialData: {
         duration: 0,
         isPlaying: false,
-        position: 0,
       },
       onSuccess: () => {
         prevPlayState.current = player.isPlaying();
-      },
-      refetchInterval: () => {
-        if (player.isPlaying()) {
-          return 300;
-        }
-        return false;
       },
       refetchOnMount: false,
       refetchOnReconnect: false,
@@ -42,18 +34,40 @@ export const useIsPlaying = () => {
     () => ({
       duration: player.currentLength(),
       isPlaying: player.isPlaying(),
-      position: player.getPosition(),
     }),
     {
       initialData: {
         duration: 0,
         isPlaying: false,
-        position: 0,
       },
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
       select: (data) => data.isPlaying,
+    },
+  );
+};
+
+export const usePlayPosition = () => {
+  const player = usePlayerContext();
+  return useQuery(
+    [QueryKeys.PLAY_POSITION],
+    () => ({
+      position: player.getPosition(),
+    }),
+    {
+      initialData: {
+        position: 0,
+      },
+      refetchInterval: () => {
+        if (player.isPlaying()) {
+          return 300;
+        }
+        return false;
+      },
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
     },
   );
 };
