@@ -116,14 +116,31 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
         </Box>
       </Fade>
       <Box maxWidth={maxWidth} mx="auto" ref={ref} width={WIDTH_CALC}>
-        <Box alignItems="flex-end" color="text.primary" display="flex" height={232}>
+        <Box
+          alignItems="flex-end"
+          borderRadius="24px"
+          color="text.primary"
+          display="flex"
+          height={272}
+          position="relative"
+          sx={{
+            backgroundImage:
+            /* eslint-disable max-len */
+            `radial-gradient(circle at 115% 85%, rgba(var(--mui-palette-action-activeChannel) / 0.03), rgba(var(--mui-palette-action-activeChannel) / 0.08) 40%),
+              radial-gradient(circle at 5% 5%, rgba(var(--mui-palette-action-activeChannel) / 0.01), rgba(var(--mui-palette-action-activeChannel) / 0.03) 70%)`,
+            /* eslint-enable max-len */
+          }}
+          top={8}
+        >
           <Avatar
             alt={playlist.title}
             src={playlist.thumb || playlist.composite
               ? thumbSrc
               : undefined}
             sx={{
-              height: 216, margin: '8px', ml: 0, width: 216,
+              height: 236,
+              m: '18px',
+              width: 236,
             }}
             variant="rounded"
           >
@@ -138,7 +155,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
               <BsMusicNoteList />
             </SvgIcon>
           </Avatar>
-          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="10px">
+          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="12px">
             <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
               <Box display="flex" height={18}>
                 <Typography variant="subtitle2">
@@ -170,6 +187,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
             <PlayShuffleButton
               handlePlay={handlePlay}
               handleShuffle={handleShuffle}
+              mr="10px"
             />
           </Box>
         </Box>
@@ -178,6 +196,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
           display="flex"
           height={72}
           justifyContent="space-between"
+          mt={1}
         >
           <SelectTooltip
             maxWidth={tooltipMaxWidth}

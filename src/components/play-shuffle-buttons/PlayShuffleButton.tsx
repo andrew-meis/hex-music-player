@@ -1,5 +1,5 @@
 import {
-  Box, Fab, IconButton, SvgIcon,
+  Box, BoxProps, Fab, IconButton, SvgIcon,
 } from '@mui/material';
 import { FiRadio, RiPlayFill, RiShuffleFill } from 'react-icons/all';
 import { MotionBox } from 'components/motion-components/motion-components';
@@ -7,7 +7,7 @@ import useKeyPress from 'hooks/useKeyPress';
 
 const { platform } = window.electron.getAppInfo();
 
-interface PlayShuffleButtonProps {
+interface PlayShuffleButtonProps extends BoxProps {
   handlePlay: () => Promise<void>;
   handleRadio?: () => Promise<void> | undefined;
   handleShuffle: () => Promise<void>;
@@ -17,6 +17,7 @@ const PlayShuffleButton = ({
   handlePlay,
   handleRadio,
   handleShuffle,
+  ...rest
 }: PlayShuffleButtonProps) => {
   const ctrlPress = useKeyPress(platform === 'darwin' ? 'Meta' : 'Control');
   return (
@@ -29,6 +30,7 @@ const PlayShuffleButton = ({
       marginLeft="auto"
       sx={{ transform: 'translateZ(0px)' }}
       width={60}
+      {...rest}
     >
       <MotionBox
         transition={{ type: 'spring', stiffness: 100 }}

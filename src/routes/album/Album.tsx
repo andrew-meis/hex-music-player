@@ -19,7 +19,9 @@ import {
   Library,
   PlayQueueItem,
 } from 'api/index';
+import Palette from 'components/palette/Palette';
 import useFormattedTime from 'hooks/useFormattedTime';
+import { PaletteState } from 'hooks/usePalette';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
 import { useLibrary } from 'queries/app-queries';
@@ -37,6 +39,7 @@ export interface AlbumContext {
       album: AlbumType;
       related: (AlbumType | Playlist | Track | Artist | Genre)[];
   } | undefined;
+  colors: PaletteState | undefined;
   getFormattedTime: (inMs: number) => string;
   hoverIndex: React.MutableRefObject<number | null>;
   isPlaying: boolean;
@@ -110,7 +113,7 @@ const Album = () => {
     return 0;
   }, [id, navigationType]);
 
-  const albumContext: AlbumContext = useMemo(() => ({
+  const albumContext: Omit<AlbumContext, 'colors'> = useMemo(() => ({
     album: album.data,
     getFormattedTime,
     hoverIndex,
@@ -137,43 +140,55 @@ const Album = () => {
   }
 
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-      key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
+    <Palette
+      id={album.data.album.thumb}
+      url={library.api.getAuthenticatedUrl(album.data.album.thumb)}
     >
-      <GroupedVirtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-        }}
-        context={albumContext}
-        fixedItemHeight={56}
-        groupContent={(index) => GroupRowContent(
-          { context: albumContext, discNumber: groups[index] },
-        )}
-        groupCounts={groupCounts}
-        isScrolling={handleScrollState}
-        itemContent={(index, _groupIndex, _item, context) => RowContent(
-          { context, index, track: albumTracks.data![index] },
-        )}
-        ref={virtuoso}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        onScroll={(e) => {
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `album-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
-      />
-    </motion.div>
+      {({ data: colors, isLoading, isError }) => {
+        if (isLoading || isError) {
+          return null;
+        }
+        return (
+          <motion.div
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            key={location.pathname}
+            style={{ height: '100%' }}
+            onAnimationComplete={() => virtuoso.current
+              ?.scrollTo({ top: initialScrollTop })}
+          >
+            <GroupedVirtuoso
+              className="scroll-container"
+              components={{
+                Footer,
+                Header,
+                List,
+              }}
+              context={{ ...albumContext, colors }}
+              fixedItemHeight={56}
+              groupContent={(index) => GroupRowContent(
+                { context: { ...albumContext, colors }, discNumber: groups[index] },
+              )}
+              groupCounts={groupCounts}
+              isScrolling={handleScrollState}
+              itemContent={(index, _groupIndex, _item, context) => RowContent(
+                { context, index, track: albumTracks.data![index] },
+              )}
+              ref={virtuoso}
+              style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+              onScroll={(e) => {
+                const target = e.currentTarget as unknown as HTMLDivElement;
+                sessionStorage.setItem(
+                  `album-scroll ${id}`,
+                  target.scrollTop as unknown as string,
+                );
+              }}
+            />
+          </motion.div>
+        );
+      }}
+    </Palette>
   );
 };
 

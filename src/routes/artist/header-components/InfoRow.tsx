@@ -174,7 +174,7 @@ const InfoRow = ({
         color="text.primary"
         display="flex"
         flex="1 0 100%"
-        height="71px"
+        height={72}
         justifyContent="space-between"
       >
         <MenuBox
@@ -195,7 +195,7 @@ const InfoRow = ({
       color="text.primary"
       display="flex"
       flex="1 0 100%"
-      height="71px"
+      height={72}
       justifyContent="space-between"
     >
       <FlagAndPlaycount artist={artist} />

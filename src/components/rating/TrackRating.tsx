@@ -106,7 +106,7 @@ const Rating = ({ id, library, userRating }: RatingProps) => {
                 position: 'absolute',
               }}
             >
-              <SvgIcon sx={{ width: 13 }}>
+              <SvgIcon sx={{ width: 13, height: 20 }}>
                 <BsStarFill />
               </SvgIcon>
             </div>
@@ -115,7 +115,7 @@ const Rating = ({ id, library, userRating }: RatingProps) => {
                 color: showEmptyIcon ? 'gray' : 'inherit',
               }}
             >
-              <SvgIcon sx={{ width: 13 }}>
+              <SvgIcon sx={{ width: 13, height: 20 }}>
                 {showEmptyIcon ? <BsDot /> : <BsStarFill />}
               </SvgIcon>
             </div>

@@ -51,5 +51,5 @@ export const typographyStyle = {
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  lineHeight: 1.3,
+  lineHeight: '20px',
 };

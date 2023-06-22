@@ -30,7 +30,6 @@ const sortOptions = [
 
 export const thresholds = Array.from(Array(101).keys()).map((n) => n / 100);
 
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistContext }) => {
   const {
     artist: artistData,
@@ -106,7 +105,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
       <Box
         display="flex"
         flexWrap="wrap"
-        mt="9px"
+        mt="8px"
         mx="auto"
         ref={tracksInView.ref}
         width={WIDTH_CALC}
@@ -290,6 +289,10 @@ const Header = ({ context }: { context?: ArtistContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default React.memo(Header);

@@ -4,7 +4,8 @@ import chroma, { contrast } from 'chroma-js';
 import { useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import { Library, Track } from 'api/index';
+import { Album, Library, Track } from 'api/index';
+import { ChipGenres } from 'components/chips';
 import { MenuIcon, TrackMenu } from 'components/menus';
 import TrackRating from 'components/rating/TrackRating';
 import { WIDTH_CALC } from 'constants/measures';
@@ -25,13 +26,14 @@ const titleStyle = {
 };
 
 interface HeaderProps {
+  album: Album;
   colors: PaletteState;
   library: Library;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   track: Track;
 }
 
-const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
+const Header = ({ album, colors, library, playSwitch, track }: HeaderProps) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
@@ -66,95 +68,129 @@ const Header = ({ colors, library, playSwitch, track }: HeaderProps) => {
         </Box>
       </Fade>
       <Box
-        alignItems="flex-end"
-        borderBottom="1px solid"
-        borderColor="border.main"
-        color="text.primary"
-        display="flex"
-        height={232}
+        height={272 + 8}
         ref={ref}
       >
-        <Avatar
-          alt={track.parentTitle}
-          src={thumbSrc}
+        <Box
+          alignItems="flex-end"
+          borderRadius="24px"
+          color="text.primary"
+          display="flex"
+          height={272}
+          position="relative"
           sx={{
-            height: 216, margin: '8px', ml: 0, width: 216,
+            backgroundImage:
+            /* eslint-disable max-len */
+            `radial-gradient(circle at 115% 85%, rgba(var(--mui-palette-action-activeChannel) / 0.03), rgba(var(--mui-palette-action-activeChannel) / 0.08) 40%),
+              radial-gradient(circle at 5% 5%, rgba(var(--mui-palette-action-activeChannel) / 0.01), rgba(var(--mui-palette-action-activeChannel) / 0.03) 70%)`,
+            /* eslint-enable max-len */
           }}
-          variant="rounded"
-        />
-        <Box alignItems="flex-end" display="flex" flexGrow={1} mb="10px">
-          <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
-            <Box display="flex" height={18}>
-              <Typography variant="subtitle2">
-                track
-              </Typography>
-            </Box>
-            <Typography sx={titleStyle} variant="h4">{track.title}</Typography>
-            <Box alignItems="center" display="flex" height={36}>
-              <Box
-                alignItems="center"
-                borderRadius="16px"
-                display="flex"
-                height="36px"
-                sx={{
-                  background: !colors ? 'active.selected' : color,
-                  cursor: 'pointer',
-                  transition: 'box-shadow 200ms ease-in',
-                  '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
-                }}
-                onClick={() => navigate(
-                  `/artists/${track.grandparentId}`,
-                  { state: { guid: track.grandparentGuid, title: track.grandparentTitle } },
-                )}
-              >
-                <Avatar
-                  alt={track.grandparentTitle}
-                  src={grandparentThumbSrc}
-                  sx={{ width: '32px', height: '32px', ml: '2px' }}
-                />
-                <Typography
-                  color={!colors ? 'text.main' : contrastColor}
-                  fontSize="0.875rem"
-                  ml="8px"
-                  mr="12px"
-                  whiteSpace="nowrap"
-                >
-                  {track.grandparentTitle}
+          top={8}
+        >
+          <Avatar
+            alt={track.parentTitle}
+            src={thumbSrc}
+            sx={{
+              height: 236,
+              m: '18px',
+              width: 236,
+            }}
+            variant="rounded"
+          />
+          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="12px">
+            <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
+              <Box display="flex" height={18}>
+                <Typography variant="subtitle2">
+                  track
                 </Typography>
               </Box>
-            </Box>
-            <Box alignItems="center" display="flex" flexWrap="wrap" mt="4px">
-              <Typography fontFamily="Rubik, sans-serif" mt="4px" variant="subtitle2">
-                {track.media[0].audioCodec.toUpperCase()}
-                &nbsp;
-              </Typography>
-              {
-                track.media[0].parts[0].streams[0].bitDepth
-                && track.media[0].parts[0].streams[0].samplingRate
-                && (
-                  <Typography fontFamily="Rubik, sans-serif" mt="4px" variant="subtitle2">
-                    {track.media[0].parts[0].streams[0].bitDepth}
-                    /
-                    {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}
+              <Typography sx={titleStyle} variant="h4">{track.title}</Typography>
+              <Box alignItems="center" display="flex" height={36}>
+                <Box
+                  alignItems="center"
+                  borderRadius="16px"
+                  display="flex"
+                  height="36px"
+                  sx={{
+                    background: !colors ? 'active.selected' : color,
+                    cursor: 'pointer',
+                    transition: 'box-shadow 200ms ease-in',
+                    '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
+                  }}
+                  onClick={() => navigate(
+                    `/artists/${track.grandparentId}`,
+                    { state: { guid: track.grandparentGuid, title: track.grandparentTitle } },
+                  )}
+                >
+                  <Avatar
+                    alt={track.grandparentTitle}
+                    src={grandparentThumbSrc}
+                    sx={{ width: '32px', height: '32px', ml: '2px' }}
+                  />
+                  <Typography
+                    color={!colors ? 'text.main' : contrastColor}
+                    fontSize="0.875rem"
+                    ml="8px"
+                    mr="12px"
+                    whiteSpace="nowrap"
+                  >
+                    {track.grandparentTitle}
                   </Typography>
-                )
-              }
-              <Typography mt="4px" variant="subtitle2">
-                &nbsp;
-                ·
-                &nbsp;
-              </Typography>
-              <TrackRating
-                id={track.id}
-                library={library}
-                userRating={track.userRating / 2 || 0}
-              />
+                </Box>
+              </Box>
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                height={22}
+                justifyContent="center"
+                mt="4px"
+                overflow="hidden"
+              >
+                <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
+                  {track.media[0].audioCodec.toUpperCase()}
+                  &nbsp;
+                </Typography>
+                {
+                  track.media[0].parts[0].streams[0].bitDepth
+                  && track.media[0].parts[0].streams[0].samplingRate
+                  && (
+                    <Typography fontFamily="Rubik, sans-serif" variant="subtitle2">
+                      {track.media[0].parts[0].streams[0].bitDepth}
+                      /
+                      {track.media[0].parts[0].streams[0].samplingRate.toString().slice(0, 2)}
+                    </Typography>
+                  )
+                }
+                <Typography variant="subtitle2">
+                  &nbsp;
+                  ·
+                  &nbsp;
+                </Typography>
+                <div style={{ marginTop: '1px' }}>
+                  <TrackRating
+                    id={track.id}
+                    library={library}
+                    userRating={track.userRating / 2 || 0}
+                  />
+                </div>
+              </Box>
             </Box>
           </Box>
         </Box>
+      </Box>
+      <Box
+        alignItems="center"
+        display="flex"
+        height={72}
+        justifyContent="space-between"
+      >
+        <ChipGenres
+          colors={Object.values(colors!)}
+          genres={album.genre}
+          navigate={navigate}
+        />
         <MenuIcon
           height={32}
-          mb="5px"
           menuRef={menuRef}
           menuState={menuProps.state}
           toggleMenu={toggleMenu}

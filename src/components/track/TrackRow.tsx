@@ -158,6 +158,7 @@ const TrackRow = ({
         <Typography
           flexShrink={0}
           fontSize="0.875rem"
+          lineHeight="20px"
           marginLeft="8px"
           minWidth={80}
           textAlign="right"

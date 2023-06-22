@@ -9,7 +9,6 @@ import { useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
 import { ChipGenres } from 'components/chips';
 import { AlbumMenu, MenuIcon } from 'components/menus';
-import Palette from 'components/palette/Palette';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -30,17 +29,26 @@ const titleStyle = {
 const Header = ({ context }: { context?: AlbumContext }) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
-  const { album: albumData, navigate } = context!;
+  const { album: albumData, colors, navigate } = context!;
   const { album } = albumData!;
   const { playAlbum, playSwitch } = usePlayback();
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
   // calculated values
   const [parentThumbSrc] = useThumbnail(album.parentThumb || 'none', 100);
-  const [thumbSrc, thumbUrl] = useThumbnail(album.thumb || 'none', 300);
+  const [thumbSrc] = useThumbnail(album.thumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
   const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
+
+  const { muted } = colors!;
+  const color = chroma(muted).saturate(2).brighten(1).hex();
+  const contrastMuted = contrast(color, 'black') > contrast(color, 'white')
+    ? 'black'
+    : 'white';
+  const gradStart = chroma(muted).brighten().css();
+  const gradEndOne = chroma(muted).alpha(0.6).css();
+  const gradEndTwo = chroma(muted).css();
 
   const handlePlay = () => playAlbum(album as Album);
   const handleShuffle = () => playAlbum(album as Album, true);
@@ -71,16 +79,31 @@ const Header = ({ context }: { context?: AlbumContext }) => {
         </Box>
       </Fade>
       <Box maxWidth="900px" mx="auto" ref={ref} width={WIDTH_CALC}>
-        <Box alignItems="flex-end" color="text.primary" display="flex" height={232}>
+        <Box
+          alignItems="flex-end"
+          borderRadius="24px"
+          color={contrastMuted}
+          display="flex"
+          height={272}
+          position="relative"
+          sx={{
+            backgroundImage:
+            `radial-gradient(circle at 115% 85%, ${gradStart}, ${gradEndOne} 40%),
+              radial-gradient(circle at 5% 5%, ${gradStart}, ${gradEndTwo} 70%)`,
+          }}
+          top={8}
+        >
           <Avatar
             alt={album.title}
             src={thumbSrc}
             sx={{
-              height: 216, margin: '8px', ml: 0, width: 216,
+              height: 236,
+              m: '18px',
+              width: 236,
             }}
             variant="rounded"
           />
-          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="10px">
+          <Box alignItems="flex-end" display="flex" flexGrow={1} mb="12px">
             <Box alignItems="flex-start" display="flex" flexDirection="column" width="auto">
               <Box display="flex" height={18}>
                 {[...album.format, ...album.subformat].map((item, index, { length }) => {
@@ -102,58 +125,41 @@ const Header = ({ context }: { context?: AlbumContext }) => {
               </Box>
               <Typography sx={titleStyle} variant="h4">{album.title}</Typography>
               <Box alignItems="center" display="flex" height={36}>
-                <Palette id={album.thumb} url={thumbUrl}>
-                  {({ data: colors, isLoading }) => {
-                    let color;
-                    let contrastColor;
-                    if (colors) {
-                      color = chroma(colors.muted).saturate(2).brighten(1).hex();
-                      contrastColor = contrast(color, 'black') > contrast(color, 'white')
-                        ? 'black'
-                        : 'white';
-                    }
-                    if (isLoading) {
-                      return null;
-                    }
-                    return (
-                      <Box
-                        alignItems="center"
-                        borderRadius="16px"
-                        display="flex"
-                        height="36px"
-                        sx={{
-                          background: !colors ? 'active.selected' : color,
-                          cursor: 'pointer',
-                          transition: 'box-shadow 200ms ease-in',
-                          '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
-                        }}
-                        onClick={() => navigate(
-                          `/artists/${album.parentId}`,
-                          { state: { guid: album.parentGuid, title: album.parentTitle } },
-                        )}
-                      >
-                        <Avatar
-                          alt={album.parentTitle}
-                          src={album.parentThumb ? parentThumbSrc : undefined}
-                          sx={{ width: '32px', height: '32px', ml: '2px' }}
-                        >
-                          <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
-                            <IoMdMicrophone />
-                          </SvgIcon>
-                        </Avatar>
-                        <Typography
-                          color={!colors ? 'text.main' : contrastColor}
-                          fontSize="0.875rem"
-                          ml="8px"
-                          mr="12px"
-                          whiteSpace="nowrap"
-                        >
-                          {album.parentTitle}
-                        </Typography>
-                      </Box>
-                    );
+                <Box
+                  alignItems="center"
+                  borderRadius="16px"
+                  display="flex"
+                  height="36px"
+                  sx={{
+                    background: !colors ? 'active.selected' : color,
+                    cursor: 'pointer',
+                    transition: 'box-shadow 200ms ease-in',
+                    '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
                   }}
-                </Palette>
+                  onClick={() => navigate(
+                    `/artists/${album.parentId}`,
+                    { state: { guid: album.parentGuid, title: album.parentTitle } },
+                  )}
+                >
+                  <Avatar
+                    alt={album.parentTitle}
+                    src={album.parentThumb ? parentThumbSrc : undefined}
+                    sx={{ width: '32px', height: '32px', ml: '2px' }}
+                  >
+                    <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
+                      <IoMdMicrophone />
+                    </SvgIcon>
+                  </Avatar>
+                  <Typography
+                    color={!colors ? 'text.main' : contrastMuted}
+                    fontSize="0.875rem"
+                    ml="8px"
+                    mr="12px"
+                    whiteSpace="nowrap"
+                  >
+                    {album.parentTitle}
+                  </Typography>
+                </Box>
               </Box>
               <Box
                 display="flex"
@@ -171,32 +177,24 @@ const Header = ({ context }: { context?: AlbumContext }) => {
             <PlayShuffleButton
               handlePlay={handlePlay}
               handleShuffle={handleShuffle}
+              mr="10px"
             />
           </Box>
         </Box>
-        <Box alignItems="center" display="flex" justifyContent="space-between" my={1}>
-          <Typography color="text.primary">
-            {album.viewCount
-              ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
-              : 'unplayed'}
-          </Typography>
-          <Palette id={album.thumb} url={thumbUrl}>
-            {({ data: colors, isLoading }) => {
-              if (isLoading) {
-                return null;
-              }
-              return (
-                <ChipGenres
-                  colors={Object.values(colors!)}
-                  genres={album.genre}
-                  navigate={navigate}
-                />
-              );
-            }}
-          </Palette>
+        <Box
+          alignItems="center"
+          display="flex"
+          height={72}
+          justifyContent="space-between"
+          mt={1}
+        >
+          <ChipGenres
+            colors={Object.values(colors!)}
+            genres={album.genre}
+            navigate={navigate}
+          />
           <MenuIcon
             height={32}
-            mb="5px"
             menuRef={menuRef}
             menuState={menuProps.state}
             toggleMenu={toggleMenu}
