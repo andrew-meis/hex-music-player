@@ -58,6 +58,13 @@ export const allButtons: ButtonSpecs[] = [
   },
   {
     type: 'album',
+    icon: <SvgIcon sx={{ mr: '8px' }}><FiRadio /></SvgIcon>,
+    name: 'Play album radio',
+    action: PlayActions.PLAY_ALBUM_RADIO,
+    shuffle: false,
+  },
+  {
+    type: 'album',
     icon: <SvgIcon sx={{ mr: '8px' }}><TiArrowForward /></SvgIcon>,
     name: 'Play next',
     action: PlayActions.ADD_TRACKS,
@@ -87,8 +94,22 @@ export const allButtons: ButtonSpecs[] = [
   {
     type: 'artist',
     icon: <SvgIcon sx={{ mr: '8px' }}><FiRadio /></SvgIcon>,
-    name: 'Artist Radio',
+    name: 'Play artist radio',
     action: PlayActions.PLAY_ARTIST_RADIO,
+    shuffle: false,
+  },
+  {
+    type: 'artist',
+    icon: <SvgIcon sx={{ mr: '8px' }}><TiArrowForward /></SvgIcon>,
+    name: 'Play next',
+    action: PlayActions.ADD_TRACKS,
+    shuffle: false,
+  },
+  {
+    type: 'artist',
+    icon: <SvgIcon sx={{ mr: '8px', transform: 'scale(1,-1)' }}><TiArrowForward /></SvgIcon>,
+    name: 'Play last',
+    action: PlayActions.ADD_TRACKS_LAST,
     shuffle: false,
   },
   {

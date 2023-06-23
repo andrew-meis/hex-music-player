@@ -107,7 +107,7 @@ const TopResultButtons = ({ topResult }: { topResult: Result }) => {
       return;
     }
     if (isGenre(topResult)) {
-      await playSwitch(action, {});
+      await playSwitch(action, { genre: topResult, shuffle });
       return;
     }
     throw new Error('no matching type');

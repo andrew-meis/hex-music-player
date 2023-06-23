@@ -244,10 +244,11 @@ const Albums = () => {
   const uri = useMemo(() => {
     const uriParams = {
       type: 9,
+      sort: sort.data.stringify(),
     };
     // eslint-disable-next-line max-len
     return `/library/sections/${config.sectionId}/all?${new URLSearchParams(uriParams as any).toString()}`;
-  }, [config.sectionId]);
+  }, [config.sectionId, sort.data]);
 
   const albumsContext = useMemo(() => ({
     config,

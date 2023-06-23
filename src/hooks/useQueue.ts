@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import ky from 'ky';
 import { useCallback } from 'react';
-import { Album, PlayQueue, PlayQueueItem, Track, parsePlayQueue } from 'api/index';
+import { Album, Artist, PlayQueue, PlayQueueItem, Track, parsePlayQueue } from 'api/index';
 import useToast from 'hooks/useToast';
 import {
   appQueryKeys,
@@ -26,7 +26,7 @@ const useQueue = () => {
     end = false,
     next = false,
   }: {
-    newTracks: Album | Track | Track[],
+    newTracks: Album | Artist | Track | Track[],
     sendToast: boolean,
     after?: number,
     end?: boolean,

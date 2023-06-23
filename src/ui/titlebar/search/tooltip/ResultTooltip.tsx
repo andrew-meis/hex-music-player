@@ -37,9 +37,9 @@ const ResultTooltip = ({
       },
       tooltip: {
         sx: {
-          width: '152px',
+          width: '156px',
           left: '-2px',
-          padding: '5px 5px',
+          padding: '4px 4px',
           backgroundColor: 'background.paper',
           backgroundImage: 'var(--mui-overlays-9)',
           boxShadow: 'var(--mui-shadows-8)',

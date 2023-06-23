@@ -72,7 +72,10 @@ export const useLibrary = () => {
 export const useServer = () => {
   const { data: auth, isSuccess } = useAuth();
   if (auth && isSuccess) {
-    return auth.server;
+    return ({
+      ...auth.server,
+      uri: `server://${auth.server.clientIdentifier}/com.plexapp.plugins.library`,
+    });
   }
   throw new Error('no server');
 };

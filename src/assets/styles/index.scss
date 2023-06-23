@@ -284,7 +284,7 @@ select:focus-visible {
   color: var(--mui-palette-text-primary);
   font-size: 0.875rem;
   min-width: 164px;
-  padding: 5px 0;
+  padding: 4px 0;
   z-index: 2000;
   :last-child {
     margin-bottom: 0;
@@ -316,14 +316,14 @@ select:focus-visible {
 
 .szh-menu__divider {
   background-color: var(--mui-palette-border-main);
-  margin: 5px 10px;
+  margin: 4px 10px;
 }
 
 .szh-menu__item {
   cursor: default;
   border-radius: 4px;
   font-weight: 500;
-  margin: 0 5px 0 5px;
+  margin: 0 4px 0 4px;
   min-height: 24px;
   padding: 6px 8px;
 }

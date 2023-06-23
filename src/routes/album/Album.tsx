@@ -148,6 +148,7 @@ const Album = () => {
         if (isLoading || isError) {
           return null;
         }
+        const updatedContext = { ...albumContext, colors };
         return (
           <motion.div
             animate={{ opacity: 1 }}
@@ -165,15 +166,16 @@ const Album = () => {
                 Header,
                 List,
               }}
-              context={{ ...albumContext, colors }}
+              context={updatedContext}
               fixedItemHeight={56}
               groupContent={(index) => GroupRowContent(
-                { context: { ...albumContext, colors }, discNumber: groups[index] },
+                { context: updatedContext, discNumber: groups[index] },
               )}
               groupCounts={groupCounts}
+              increaseViewportBy={224}
               isScrolling={handleScrollState}
-              itemContent={(index, _groupIndex, _item, context) => RowContent(
-                { context, index, track: albumTracks.data![index] },
+              itemContent={(index) => RowContent(
+                { context: updatedContext, index, track: albumTracks.data![index] },
               )}
               ref={virtuoso}
               style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}

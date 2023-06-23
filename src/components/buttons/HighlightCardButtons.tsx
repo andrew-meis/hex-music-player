@@ -107,7 +107,7 @@ const HighlightCardButtons = ({ item }: { item: Result }) => {
       return;
     }
     if (isGenre(item)) {
-      await playSwitch(action, {});
+      await playSwitch(action, { genre: item, shuffle });
       return;
     }
     throw new Error('no matching type');
