@@ -5,7 +5,8 @@ import {
 import { useEffect, useMemo, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { FaTags, IoMdMicrophone } from 'react-icons/all';
+import { FaTags } from 'react-icons/fa';
+import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import { useLibrary, useSettings } from 'queries/app-queries';

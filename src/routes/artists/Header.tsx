@@ -6,7 +6,6 @@ import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton
 import { ArtistsContext } from './Artists';
 import FixedHeader from './FixedHeader';
 
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistsContext }) => {
   const { measurements, playUri, uri } = context!;
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
@@ -57,6 +56,10 @@ const Header = ({ context }: { context?: ArtistsContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;

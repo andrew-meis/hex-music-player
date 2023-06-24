@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { RiCloseFill } from 'react-icons/all';
+import { RiCloseFill } from 'react-icons/ri';
 import { NavLink } from 'react-router-dom';
 import { ItemProps, Virtuoso } from 'react-virtuoso';
 import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';

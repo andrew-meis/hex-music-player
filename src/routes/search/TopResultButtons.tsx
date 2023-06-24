@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 import { Box, Button, SvgIcon } from '@mui/material';
-import {
-  BsPlayFill, FiRadio, RiShuffleFill, TiArrowForward,
-} from 'react-icons/all';
+import { BsPlayFill } from 'react-icons/bs';
+import { FiRadio } from 'react-icons/fi';
+import { RiShuffleFill } from 'react-icons/ri';
+import { TiArrowForward } from 'react-icons/ti';
 import { MotionBox } from 'components/motion-components/motion-components';
 import usePlayback from 'hooks/usePlayback';
 import { useSettings } from 'queries/app-queries';

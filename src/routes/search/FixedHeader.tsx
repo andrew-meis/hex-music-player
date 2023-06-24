@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { CgSearch } from 'react-icons/all';
+import { CgSearch } from 'react-icons/cg';
 
 const FixedHeader = ({ query }: { query: string }) => (
   <Box

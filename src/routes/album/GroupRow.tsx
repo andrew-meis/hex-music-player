@@ -1,14 +1,15 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
 import React from 'react';
-import { BiAlbum } from 'react-icons/all';
+import { BiAlbum } from 'react-icons/bi';
 import useRowSelection from 'hooks/useRowSelection';
 import { GroupRowProps } from './Album';
 
-const GroupRow = React.memo(({ context, discNumber }: GroupRowProps) => {
+const GroupRow = ({ context, discNumber }: GroupRowProps) => {
   const { clearRowSelection } = useRowSelection();
   return (
     <Box
       alignItems="center"
+      bgcolor="background.paper"
       color="text.primary"
       display="flex"
       height={56}
@@ -36,6 +37,6 @@ const GroupRow = React.memo(({ context, discNumber }: GroupRowProps) => {
       </Typography>
     </Box>
   );
-});
+};
 
-export default GroupRow;
+export default React.memo(GroupRow);

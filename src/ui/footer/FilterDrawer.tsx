@@ -1,6 +1,6 @@
 import { Drawer, IconButton, SvgIcon } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import { FiFilter } from 'react-icons/all';
+import { FiFilter } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';

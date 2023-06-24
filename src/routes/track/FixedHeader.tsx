@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { IoMdMicrophone } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
 import { Track } from 'api/index';
 
 interface FixedHeaderProps {

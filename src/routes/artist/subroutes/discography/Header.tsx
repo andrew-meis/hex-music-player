@@ -1,6 +1,7 @@
 import { Avatar, Box, Chip, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
-import React, { useRef, useState } from 'react';
-import { IoMdMicrophone, RxCheck } from 'react-icons/all';
+import { useRef, useState } from 'react';
+import { IoMdMicrophone } from 'react-icons/io';
+import { RxCheck } from 'react-icons/rx';
 import { NavLink, useOutletContext } from 'react-router-dom';
 import { ChipSelect } from 'components/chips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';

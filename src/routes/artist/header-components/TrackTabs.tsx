@@ -1,6 +1,6 @@
 import { Box, Chip, Tab, Tabs, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { BiChevronRight } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
 import { plexSort } from 'classes';

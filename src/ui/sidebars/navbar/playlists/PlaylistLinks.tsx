@@ -3,7 +3,9 @@ import {
 } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import React, { useCallback, useState } from 'react';
-import { BsGrid, FaCaretDown, FaCaretRight, TiFolder } from 'react-icons/all';
+import { BsGrid } from 'react-icons/bs';
+import { FaCaretDown, FaCaretRight } from 'react-icons/fa';
+import { TiFolder } from 'react-icons/ti';
 import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
 import { PlaylistMenu } from 'components/menus';

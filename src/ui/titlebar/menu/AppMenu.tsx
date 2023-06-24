@@ -4,12 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { XMLParser } from 'fast-xml-parser';
 import ky from 'ky';
 import React, { useState } from 'react';
-import {
-  FiLogOut,
-  FiMoreVertical,
-  IoInformationCircleOutline,
-  IoSettingsSharp,
-} from 'react-icons/all';
+import { FiMoreVertical, FiLogOut } from 'react-icons/fi';
+import { IoInformationCircleOutline, IoSettingsSharp } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import useQueue from 'hooks/useQueue';
 import { useConfig, useLibrary } from 'queries/app-queries';

@@ -1,6 +1,6 @@
 import { SvgIcon } from '@mui/material';
 import React from 'react';
-import { RiAlbumFill } from 'react-icons/all';
+import { RiAlbumFill } from 'react-icons/ri';
 import { NavigateFunction } from 'react-router-dom';
 import { Album, Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';

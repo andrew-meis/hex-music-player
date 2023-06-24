@@ -1147,26 +1147,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@popmotion/easing@npm:^1.0.1":
-  version: 1.0.2
-  resolution: "@popmotion/easing@npm:1.0.2"
-  checksum: 5825b083c9a4cc449809c876e0c9a4f7c7fc6f19bc62e20be9881c09e16ad6158c445c09a282870f9b8140e55167161f26cd366b8897201e1dbaee3b5abc4a0d
-  languageName: node
-  linkType: hard
-
-"@popmotion/popcorn@npm:^0.4.4":
-  version: 0.4.4
-  resolution: "@popmotion/popcorn@npm:0.4.4"
-  dependencies:
-    "@popmotion/easing": ^1.0.1
-    framesync: ^4.0.1
-    hey-listen: ^1.0.8
-    style-value-types: ^3.1.7
-    tslib: ^1.10.0
-  checksum: 70e433763ba5328dc9f82d26bf245ff965f6de0fd931fe15452e855a53b620dd90d45139234a5e0bfa8d3498a3f762bdd75c1e29f56705323571785ee526ea5e
-  languageName: node
-  linkType: hard
-
 "@popperjs/core@npm:^2.11.6":
   version: 2.11.6
   resolution: "@popperjs/core@npm:2.11.6"
@@ -1195,10 +1175,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.5.0":
-  version: 1.5.0
-  resolution: "@remix-run/router@npm:1.5.0"
-  checksum: 9c510c174af1553edd1f039ba16e7e3d34e04d53b3bac18814660e31cd0c48297ea4291ff86d0736b560123ebc63ecb62fa525829181d16a8dad15270d6672d7
+"@remix-run/router@npm:1.7.0":
+  version: 1.7.0
+  resolution: "@remix-run/router@npm:1.7.0"
+  checksum: 80cab2fda9e4b9047c991e9b05b8bda8afa2adf7b85c785d7e6f593a399eb264d6a74302438babc81833b5d304eae0b22832f27552b1601e2ca9001d94b8e174
   languageName: node
   linkType: hard
 
@@ -1240,33 +1220,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:4.27.0":
-  version: 4.27.0
-  resolution: "@tanstack/query-core@npm:4.27.0"
-  checksum: 914b4f01ac75632f4603b650e9105f64c739b79250baf76aad16cee216f7bad6060c04eda0c70838fe61a5f6c17883e19fcc3075b2433a906539da95ce785796
+"@tanstack/query-core@npm:4.29.15":
+  version: 4.29.15
+  resolution: "@tanstack/query-core@npm:4.29.15"
+  checksum: dc99d59a14acf47abdea9c80b038a1ad18531d309b98a91e89f7717f395f5b2ff54f73f6b6dcb3ac66f70f8b410827be5b06eb6f2bceff261287753829e606af
   languageName: node
   linkType: hard
 
-"@tanstack/react-query-devtools@npm:^4.29.0":
-  version: 4.29.0
-  resolution: "@tanstack/react-query-devtools@npm:4.29.0"
+"@tanstack/react-query-devtools@npm:^4.29.15":
+  version: 4.29.15
+  resolution: "@tanstack/react-query-devtools@npm:4.29.15"
   dependencies:
     "@tanstack/match-sorter-utils": ^8.7.0
     superjson: ^1.10.0
     use-sync-external-store: ^1.2.0
   peerDependencies:
-    "@tanstack/react-query": 4.28.0
+    "@tanstack/react-query": 4.29.15
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: cb66222ad9991284605480e61c24327ee1c8e7f44e13e5b8a0fbf1702e5a0b30cd5d6854954dfea96bfb3368ba59b1879a497aa7cb470068ab11dc4035de7659
+  checksum: f9f1525311c6c4585f1fcd721269d3ba8979e60f4e3798519631d8939a4fa63f95d75fcb3945c2b49e991ac7ee57668cf680b699643000c970e6092b233a07bd
   languageName: node
   linkType: hard
 
-"@tanstack/react-query@npm:^4.28.0":
-  version: 4.28.0
-  resolution: "@tanstack/react-query@npm:4.28.0"
+"@tanstack/react-query@npm:^4.29.15":
+  version: 4.29.15
+  resolution: "@tanstack/react-query@npm:4.29.15"
   dependencies:
-    "@tanstack/query-core": 4.27.0
+    "@tanstack/query-core": 4.29.15
     use-sync-external-store: ^1.2.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -1277,7 +1257,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 7baa70d22b55cfa22f8a1d92ba9f8379c5436ee81fce3f0e7df4a8c29bb26bfef4a83759cf10f752b40ae2940099fcce88ce91a773240f4999ae91136980c6e3
+  checksum: de703806af4efd124f89f03f25d917c7f74329c1df82d2f293ff6fbd6bb259f656f9634203fcef5d2da3920c09dc35046aa9f1e84de3ed2ba84b44bb822b4784
   languageName: node
   linkType: hard
 
@@ -3971,15 +3951,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"framesync@npm:^4.0.1":
-  version: 4.1.0
-  resolution: "framesync@npm:4.1.0"
-  dependencies:
-    hey-listen: ^1.0.5
-  checksum: 3caaddc32d3c8c4a5b0eacfb82d74aa63fc690765274ebbb8622555879aa713b36e8a557a917de4ae24d5f49e38f9c79459327493b071cec15a1fdea96601cea
-  languageName: node
-  linkType: hard
-
 "fs-extra@npm:^10.0.0, fs-extra@npm:^10.1.0":
   version: 10.1.0
   resolution: "fs-extra@npm:10.1.0"
@@ -4363,10 +4334,9 @@ __metadata:
     "@emotion/styled": ^11.10.0
     "@mui/lab": ^5.0.0-alpha.95
     "@mui/material": ^5.10.16
-    "@popmotion/popcorn": ^0.4.4
     "@szhsin/react-menu": 3.3.1
-    "@tanstack/react-query": ^4.28.0
-    "@tanstack/react-query-devtools": ^4.29.0
+    "@tanstack/react-query": ^4.29.15
+    "@tanstack/react-query-devtools": ^4.29.15
     "@types/chroma-js": ^2.1.4
     "@types/lodash": ^4.14.191
     "@types/object-hash": ^3.0.2
@@ -4407,13 +4377,13 @@ __metadata:
     react-dom: ^18.2.0
     react-dropzone: ^14.2.3
     react-easy-emoji: ^1.8.1
-    react-icons: ^4.8.0
-    react-intersection-observer: ^9.4.1
-    react-router-dom: ^6.10.0
+    react-icons: ^4.10.1
+    react-intersection-observer: ^9.5.1
+    react-router-dom: ^6.14.0
     react-textfit: ^1.1.1
     react-use: ^17.4.0
     react-use-websocket: ^4.2.0
-    react-virtuoso: ^4.3.9
+    react-virtuoso: ^4.3.11
     sass: ^1.54.4
     typescript: ^4.7.4
     uuid: ^9.0.0
@@ -4422,7 +4392,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"hey-listen@npm:^1.0.5, hey-listen@npm:^1.0.8":
+"hey-listen@npm:^1.0.8":
   version: 1.0.8
   resolution: "hey-listen@npm:1.0.8"
   checksum: 6bad60b367688f5348e25e7ca3276a74b59ac5a09b0455e6ff8ab7d4a9e38cd2116c708a7dcd8a954d27253ce1d8717ec891d175723ea739885b828cf44e4072
@@ -6076,21 +6046,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-icons@npm:^4.8.0":
-  version: 4.8.0
-  resolution: "react-icons@npm:4.8.0"
+"react-icons@npm:^4.10.1":
+  version: 4.10.1
+  resolution: "react-icons@npm:4.10.1"
   peerDependencies:
     react: "*"
-  checksum: 4dbba7ad989c295b410e19b2a702722dae44368cb04b6515f9471353552f31ac80bd350f121d5bff79f81504b84039ede44d09e9f035f48bb1032e6eace126c4
+  checksum: b6c8d4fe482b112e1041515d93ef7670a0af128855c926052a076b64d0b991cdd4391394b26467100f8da3859db1ebd8f9c6b7614fa5969fde83de45c71031a3
   languageName: node
   linkType: hard
 
-"react-intersection-observer@npm:^9.4.1":
-  version: 9.4.1
-  resolution: "react-intersection-observer@npm:9.4.1"
+"react-intersection-observer@npm:^9.5.1":
+  version: 9.5.1
+  resolution: "react-intersection-observer@npm:9.5.1"
   peerDependencies:
     react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 13d1c36658470a781d8db8870dbd272c5b4b32329fa69c27ee96424de4e1599526a9bf2a91ea59922c18323c97d6909f0ac120c5af6076d1c01e654b43fb03c1
+  checksum: 862d531757a9eea1f0eff072be21e6c11d8d9f78c5918609ac8164899365484ce983a50f9ed45c861753d407d2066b3198cf6444506d0c6e4212a4a361995643
   languageName: node
   linkType: hard
 
@@ -6115,27 +6085,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.10.0":
-  version: 6.10.0
-  resolution: "react-router-dom@npm:6.10.0"
+"react-router-dom@npm:^6.14.0":
+  version: 6.14.0
+  resolution: "react-router-dom@npm:6.14.0"
   dependencies:
-    "@remix-run/router": 1.5.0
-    react-router: 6.10.0
+    "@remix-run/router": 1.7.0
+    react-router: 6.14.0
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: d048d8cc66e5aec782bd675097d6bf0e5f867f3f0539bff9acdc4a314b5e0e34093944762960ca0977a54c6255272edd262231242b18c4e260d68df6b5288464
+  checksum: 66800b8779f5ae9f8b8e1f41e25599519a40c532e020a8c1450e1645d2c8cc8351e51ed0f2516584681e9a509c6c40f629f2d80663123e132c68022c0edced03
   languageName: node
   linkType: hard
 
-"react-router@npm:6.10.0":
-  version: 6.10.0
-  resolution: "react-router@npm:6.10.0"
+"react-router@npm:6.14.0":
+  version: 6.14.0
+  resolution: "react-router@npm:6.14.0"
   dependencies:
-    "@remix-run/router": 1.5.0
+    "@remix-run/router": 1.7.0
   peerDependencies:
     react: ">=16.8"
-  checksum: c9fce46147c04257d7d6fa1f5bbfac96c5fdd0b15f26918bd12b2e5fe9143977c5a4452272f9b85795a22e29ec105a60d0bbe036118efc52b383d163cd8829ab
+  checksum: 50a941746d12e81cea5495505c1afbcd099cc7d497624b013454cfd5a360d9403578f8fb3df17973bf775fbff91cb76477448023d537215e6aa71a8b85ae95bd
   languageName: node
   linkType: hard
 
@@ -6222,13 +6192,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-virtuoso@npm:^4.3.9":
-  version: 4.3.9
-  resolution: "react-virtuoso@npm:4.3.9"
+"react-virtuoso@npm:^4.3.11":
+  version: 4.3.11
+  resolution: "react-virtuoso@npm:4.3.11"
   peerDependencies:
     react: ">=16 || >=17 || >= 18"
     react-dom: ">=16 || >=17 || >= 18"
-  checksum: f3f5ddb8837381b267dfada3e42357dbc2f78217159ffa01246ea4dea973b672444a71f035c711f1f20690b489f307b94dcd9a87eab9d7b6cd6433c7c6926329
+  checksum: 06b2ecbacb6f3e2d1f02ccd9c7ec115785ba8f3596eba3c6ee7cb2a5fb54301387497111642fcddb4def75df441b863269445d4a666e335efb18302a8f23c005
   languageName: node
   linkType: hard
 
@@ -6931,16 +6901,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"style-value-types@npm:^3.1.7":
-  version: 3.2.0
-  resolution: "style-value-types@npm:3.2.0"
-  dependencies:
-    hey-listen: ^1.0.8
-    tslib: ^1.10.0
-  checksum: 26cee764836641e4423572a9f559ef22ac0f7759c3defc5514bb0c6376047839d70dcb9395819af461d15f50b0f9a1a518be1ffcc81b3cce7ca37d0c63a2c6c8
-  languageName: node
-  linkType: hard
-
 "stylis@npm:4.1.3, stylis@npm:^4.0.6":
   version: 4.1.3
   resolution: "stylis@npm:4.1.3"
@@ -7112,7 +7072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^1.10.0, tslib@npm:^1.8.1":
+"tslib@npm:^1.8.1":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
   checksum: dbe628ef87f66691d5d2959b3e41b9ca0045c3ee3c7c7b906cc1e328b39f199bb1ad9e671c39025bd56122ac57dfbf7385a94843b1cc07c60a4db74795829acd

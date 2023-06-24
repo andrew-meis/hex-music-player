@@ -1,6 +1,6 @@
 import { InputBase, SvgIcon, Chip, Box } from '@mui/material';
 import { useRef, useState } from 'react';
-import { TiPlus } from 'react-icons/all';
+import { TiPlus } from 'react-icons/ti';
 import { FilterObject } from './Filter';
 import { FilterInput } from './filterInputs';
 

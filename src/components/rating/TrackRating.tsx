@@ -4,7 +4,7 @@
 import { SvgIcon } from '@mui/material';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import { BsDot, BsStarFill } from 'react-icons/all';
+import { BsDot, BsStarFill } from 'react-icons/bs';
 import { Library } from 'api/index';
 import useMouseLeave from 'hooks/useMouseLeave';
 import { QueryKeys } from 'types/enums';

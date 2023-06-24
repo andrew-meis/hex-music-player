@@ -4,7 +4,7 @@ import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { MdMusicOff } from 'react-icons/all';
+import { MdMusicOff } from 'react-icons/md';
 import {
   NavigateFunction,
   useLocation,

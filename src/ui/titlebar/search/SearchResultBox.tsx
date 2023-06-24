@@ -2,7 +2,7 @@ import { Box, Grid, List, Paper, SvgIcon, Typography } from '@mui/material';
 import { UseQueryResult } from '@tanstack/react-query';
 import { uniq } from 'lodash';
 import React, { useMemo } from 'react';
-import { IoCloseSharp } from 'react-icons/all';
+import { IoCloseSharp } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
 import { useWindowSize } from 'react-use';
 import { isGenre } from 'types/type-guards';

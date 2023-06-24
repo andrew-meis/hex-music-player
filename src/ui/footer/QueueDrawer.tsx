@@ -1,6 +1,6 @@
 import { Drawer, IconButton, SvgIcon } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { BsViewList } from 'react-icons/all';
+import { BsViewList } from 'react-icons/bs';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import { useSettings } from 'queries/app-queries';

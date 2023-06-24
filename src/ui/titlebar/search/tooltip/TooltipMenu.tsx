@@ -3,7 +3,8 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { MdPlaylistAdd, TbWaveSawTool } from 'react-icons/all';
+import { MdPlaylistAdd } from 'react-icons/md';
+import { TbWaveSawTool } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import { Album, Artist, Genre, Playlist, Track } from 'api/index';
 import { allButtons, ButtonSpecs } from 'constants/buttons';

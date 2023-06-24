@@ -3,7 +3,9 @@ import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
 import moment from 'moment';
 import React, { useRef } from 'react';
-import { BiHash, IoMdMicrophone, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { IoMdMicrophone } from 'react-icons/io';
+import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import { Album } from 'api/index';
@@ -12,7 +14,6 @@ import { AlbumMenu, MenuIcon } from 'components/menus';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
-import { defaultColors } from 'hooks/usePalette';
 import usePlayback from 'hooks/usePlayback';
 import { AlbumContext } from './Album';
 import FixedHeader from './FixedHeader';
@@ -30,7 +31,7 @@ const titleStyle = {
 const Header = ({ context }: { context?: AlbumContext }) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
-  const { album: albumData, navigate } = context!;
+  const { album: albumData, colors, navigate } = context!;
   const { album } = albumData!;
   const { playAlbum, playSwitch } = usePlayback();
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
@@ -42,9 +43,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
   const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
 
-  const colors = defaultColors;
-
-  const { muted } = defaultColors;
+  const { muted } = colors!;
   const color = chroma(muted).saturate(2).brighten(1).hex();
   const contrastMuted = contrast(color, 'black') > contrast(color, 'white')
     ? 'black'

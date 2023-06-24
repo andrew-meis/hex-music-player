@@ -4,7 +4,7 @@ import TrackRow from 'components/track/TrackRow';
 import useRowSelection from 'hooks/useRowSelection';
 import { RowProps } from './Album';
 
-const Row = React.memo(({ context, index, track }: RowProps) => {
+const Row = ({ context, index, track }: RowProps) => {
   const { isRowSelected, toggleRowSelection } = useRowSelection();
   const {
     getFormattedTime,
@@ -52,6 +52,6 @@ const Row = React.memo(({ context, index, track }: RowProps) => {
       />
     </Box>
   );
-});
+};
 
-export default Row;
+export default React.memo(Row);

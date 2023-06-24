@@ -13,7 +13,8 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
-import { BiPaste, TbExternalLink } from 'react-icons/all';
+import { BiPaste } from 'react-icons/bi';
+import { TbExternalLink } from 'react-icons/tb';
 import { useOutletContext } from 'react-router-dom';
 import { HexSort } from 'classes';
 import Select from 'components/select/Select';

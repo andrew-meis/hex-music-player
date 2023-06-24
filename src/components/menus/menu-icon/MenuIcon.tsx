@@ -1,7 +1,7 @@
 import { Box, BoxProps, SvgIcon } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
 import React from 'react';
-import { FiMoreVertical } from 'react-icons/all';
+import { FiMoreVertical } from 'react-icons/fi';
 
 interface MenuIconProps extends BoxProps {
   menuRef: React.MutableRefObject<HTMLDivElement | null>;

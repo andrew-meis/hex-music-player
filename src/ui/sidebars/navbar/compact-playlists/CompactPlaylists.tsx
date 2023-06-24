@@ -1,7 +1,7 @@
 import { List, ListItem, SvgIcon } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import React, { useCallback, useState } from 'react';
-import { BsGrid } from 'react-icons/all';
+import { BsGrid } from 'react-icons/bs';
 import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
 import { PlaylistMenu } from 'components/menus';

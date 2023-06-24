@@ -1,6 +1,6 @@
 import { Box, Collapse, SvgIcon } from '@mui/material';
 import React from 'react';
-import { BiChevronDown } from 'react-icons/all';
+import { BiChevronDown } from 'react-icons/bi';
 import { Artist } from 'api/index';
 import ArtistCard from 'components/artist/ArtistCard';
 import ArtistPreview from 'components/artist/ArtistPreview';

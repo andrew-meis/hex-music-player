@@ -7,15 +7,12 @@ import {
   SubMenu,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  BsPlayFill,
-  IoMdMicrophone,
-  MdPlaylistAdd,
-  RiAlbumFill,
-  TbWaveSawTool,
-  TiArrowForward,
-  TiInfoLarge,
-} from 'react-icons/all';
+import { BsPlayFill } from 'react-icons/bs';
+import { IoMdMicrophone } from 'react-icons/io';
+import { MdPlaylistAdd } from 'react-icons/md';
+import { RiAlbumFill } from 'react-icons/ri';
+import { TbWaveSawTool } from 'react-icons/tb';
+import { TiArrowForward, TiInfoLarge } from 'react-icons/ti';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Artist, PlayQueueItem, Track } from 'api/index';
 import useArtistMatch from 'hooks/useArtistMatch';

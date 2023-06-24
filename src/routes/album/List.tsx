@@ -81,4 +81,4 @@ List.defaultProps = {
   context: undefined,
 };
 
-export default List;
+export default React.memo(List);

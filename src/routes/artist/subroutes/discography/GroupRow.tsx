@@ -1,7 +1,8 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import moment from 'moment';
 import React from 'react';
-import { BiHash, RiHeartLine, RiTimeLine } from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { NavLink } from 'react-router-dom';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { useThumbnail } from 'hooks/plexHooks';

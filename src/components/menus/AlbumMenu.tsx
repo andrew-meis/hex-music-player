@@ -7,12 +7,10 @@ import {
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import {
-  IoMdMicrophone,
-  MdPlaylistAdd,
-  RiAlbumFill,
-  TbWaveSawTool,
-} from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
+import { MdPlaylistAdd } from 'react-icons/md';
+import { RiAlbumFill } from 'react-icons/ri';
+import { TbWaveSawTool } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import { Album } from 'api/index';
 import { ButtonSpecs, albumButtons } from 'constants/buttons';

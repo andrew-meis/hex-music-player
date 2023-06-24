@@ -244,8 +244,8 @@ const CompactQueue = () => {
           height={`calc(100% - ${(maxListLength - 1) * 46}px)`}
           position="absolute"
           sx={{
-            background: `linear-gradient(to top, rgba(255,255,255, 0.04) 20%, transparent),
-              linear-gradient(to top, var(--mui-palette-background-paper) 20%, transparent)`,
+            background: `linear-gradient(to top, rgba(255,255,255, 0.04) 10%, transparent 90%),
+              linear-gradient(to top, var(--mui-palette-background-paper) 10%, transparent 90%)`,
           }}
           width={48}
           onDrop={() => {

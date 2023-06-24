@@ -1,7 +1,7 @@
 import { Box, IconButton, Slider, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import { RiVolumeDownFill, RiVolumeMuteFill, RiVolumeUpFill } from 'react-icons/all';
+import { RiVolumeDownFill, RiVolumeMuteFill, RiVolumeUpFill } from 'react-icons/ri';
 import { iconButtonStyle } from 'constants/style';
 
 const getViewbox = (volume: number) => {

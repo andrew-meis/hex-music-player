@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { IoMdMicrophone } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
 import { Artist } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC_PADDING } from 'constants/measures';

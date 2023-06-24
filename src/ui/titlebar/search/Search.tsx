@@ -11,13 +11,10 @@ import {
 } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  IoIosArrowBack,
-  IoIosArrowForward,
-  CgSearch,
-  MdClear,
-  RiRefreshLine,
-} from 'react-icons/all';
+import { CgSearch } from 'react-icons/cg';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
+import { MdClear } from 'react-icons/md';
+import { RiRefreshLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
 import useHistoryStack from 'hooks/useHistoryStack';

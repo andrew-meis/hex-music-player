@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { FaTags } from 'react-icons/all';
+import { FaTags } from 'react-icons/fa';
 import { WIDTH_CALC_PADDING } from 'constants/measures';
 
 interface FixedHeaderProps {

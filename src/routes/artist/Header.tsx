@@ -1,6 +1,7 @@
 import { Box, Chip, ClickAwayListener, SvgIcon } from '@mui/material';
 import React, { useMemo, useRef, useState } from 'react';
-import { BiChevronRight, HiArrowSmDown, HiArrowSmUp } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
+import { HiArrowSmUp, HiArrowSmDown } from 'react-icons/hi';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { usePrevious } from 'react-use';

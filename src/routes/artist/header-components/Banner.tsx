@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { sample } from 'lodash';
 import React, { useMemo, useRef } from 'react';
 import { FileWithPath, useDropzone } from 'react-dropzone';
-import { IoMdMicrophone } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
 import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';

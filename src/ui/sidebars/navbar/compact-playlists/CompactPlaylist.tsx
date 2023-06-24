@@ -2,7 +2,7 @@ import { Avatar, Box, ListItem, SvgIcon } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
-import { BsMusicNoteList } from 'react-icons/all';
+import { BsMusicNoteList } from 'react-icons/bs';
 import { NavLink } from 'react-router-dom';
 import { Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import Tooltip from 'components/tooltip/Tooltip';

@@ -1,6 +1,6 @@
 import { Box, SvgIcon } from '@mui/material';
 import React, { useMemo, useState } from 'react';
-import { BsMusicNoteList } from 'react-icons/all';
+import { BsMusicNoteList } from 'react-icons/bs';
 import { NavigateFunction } from 'react-router-dom';
 import { Library, Playlist } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';

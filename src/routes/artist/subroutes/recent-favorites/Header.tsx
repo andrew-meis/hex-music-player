@@ -8,14 +8,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useRef, useState } from 'react';
-import {
-  BiHash,
-  IoMdMicrophone,
-  MdDateRange,
-  RiHeartLine,
-  RiTimeLine,
-  RxCheck,
-} from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { IoMdMicrophone } from 'react-icons/io';
+import { MdDateRange } from 'react-icons/md';
+import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
+import { RxCheck } from 'react-icons/rx';
 import { useInView } from 'react-intersection-observer';
 import { NavLink, useOutletContext } from 'react-router-dom';
 import { ChipFilter, ChipSelect } from 'components/chips';
@@ -26,7 +23,6 @@ import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
 import { RecentFavoritesContext } from './RecentFavorites';
 
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: RecentFavoritesContext }) => {
   const {
     artist: artistData, days, filter, items, playTracks, setDays, setFilter,
@@ -242,6 +238,10 @@ const Header = ({ context }: { context?: RecentFavoritesContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;

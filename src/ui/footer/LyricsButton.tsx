@@ -1,5 +1,5 @@
 import { IconButton, SvgIcon } from '@mui/material';
-import { BsChatRightQuote } from 'react-icons/all';
+import { BsChatRightQuote } from 'react-icons/bs';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';

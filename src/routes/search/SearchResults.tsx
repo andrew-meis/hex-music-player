@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useMemo, useRef } from 'react';
-import { BiChevronRight } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
 import {
   Link,
   useLocation,

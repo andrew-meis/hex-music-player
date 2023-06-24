@@ -2,15 +2,13 @@ import {
   Box, ClickAwayListener, List, ListItem, ListSubheader, Slide, SvgIcon,
 } from '@mui/material';
 import React, { useRef, useState } from 'react';
-import {
-  BiChevronRight,
-  BsMusicNote,
-  IoMdMicrophone,
-  FaTags,
-  RiAlbumFill,
-  TiChartLine,
-} from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
+import { BsMusicNote } from 'react-icons/bs';
+import { FaTags } from 'react-icons/fa';
 import { HiHome } from 'react-icons/hi';
+import { IoMdMicrophone } from 'react-icons/io';
+import { RiAlbumFill } from 'react-icons/ri';
+import { TiChartLine } from 'react-icons/ti';
 import { NavLink } from 'react-router-dom';
 import Navlist from './navlist/Navlist';
 import PlaylistLinks from './playlists/PlaylistLinks';

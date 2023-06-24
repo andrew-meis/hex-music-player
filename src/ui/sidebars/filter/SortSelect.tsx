@@ -1,7 +1,8 @@
 import { InputAdornment, MenuItem, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { HiArrowSmUp, HiArrowSmDown, TbArrowsSort } from 'react-icons/all';
+import { HiArrowSmUp, HiArrowSmDown } from 'react-icons/hi';
+import { TbArrowsSort } from 'react-icons/tb';
 import { PlexSort, plexSort } from 'classes';
 import Select from 'components/select/Select';
 import { AlbumSortKeys, ArtistSortKeys, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';

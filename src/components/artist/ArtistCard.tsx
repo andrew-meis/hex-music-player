@@ -1,7 +1,7 @@
 import { SvgIcon } from '@mui/material';
 import moment from 'moment';
 import React from 'react';
-import { IoMdMicrophone } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { Artist, Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';

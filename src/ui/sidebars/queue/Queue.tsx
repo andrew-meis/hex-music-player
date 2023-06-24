@@ -2,7 +2,7 @@ import {
   Box, Slide, SvgIcon, Typography,
 } from '@mui/material';
 import React, { useRef } from 'react';
-import { BiChevronLeft, BiChevronRight } from 'react-icons/all';
+import { BiChevronLeft, BiChevronRight } from 'react-icons/bi';
 import PreviousTracksVirtuoso from './PreviousTracksVirtuoso';
 import UpcomingTracksVirtuoso from './UpcomingTracksVirtuoso';
 

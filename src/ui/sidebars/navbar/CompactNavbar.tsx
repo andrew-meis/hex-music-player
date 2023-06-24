@@ -2,14 +2,13 @@ import {
   Box,
   List, ListItem, SvgIcon,
 } from '@mui/material';
-import {
-  BsMusicNote,
-  IoMdMicrophone,
-  FaTags,
-  RiAlbumFill,
-  TiChartLine,
-} from 'react-icons/all';
+
+import { BsMusicNote } from 'react-icons/bs';
+import { FaTags } from 'react-icons/fa';
 import { HiHome } from 'react-icons/hi';
+import { IoMdMicrophone } from 'react-icons/io';
+import { RiAlbumFill } from 'react-icons/ri';
+import { TiChartLine } from 'react-icons/ti';
 import { NavLink } from 'react-router-dom';
 import Tooltip from 'components/tooltip/Tooltip';
 import CompactPlaylists from './compact-playlists/CompactPlaylists';

@@ -4,11 +4,8 @@ import {
   SvgIcon,
   Typography,
 } from '@mui/material';
-import {
-  BiHash,
-  RiHeartLine,
-  RiTimeLine,
-} from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';

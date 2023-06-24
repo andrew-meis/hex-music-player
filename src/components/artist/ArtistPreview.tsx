@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { UseQueryResult } from '@tanstack/react-query';
 import { useRef } from 'react';
-import { BiChevronRight } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
 import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';

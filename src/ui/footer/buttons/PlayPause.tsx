@@ -1,13 +1,12 @@
 import { IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   RiPauseCircleFill,
   RiPlayCircleFill,
   RiStopCircleFill,
-} from 'react-icons/all';
+} from 'react-icons/ri';
 import { PlayQueueItem } from 'api/index';
-import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import useKeyPress from 'hooks/useKeyPress';
 import useQueue from 'hooks/useQueue';
@@ -25,8 +24,6 @@ const PlayPause = () => {
   const player = usePlayerContext();
   const queryClient = useQueryClient();
   const queueId = useQueueId();
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState('');
   const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
   const { updateTimeline } = useQueue();
@@ -37,26 +34,6 @@ const PlayPause = () => {
     currentIndex = playQueue.items.findIndex((item) => item.id === playQueue.selectedItemId);
     nowPlaying = playQueue.items[currentIndex];
   }
-
-  useEffect(() => {
-    if (!!nowPlaying && ctrlPress) {
-      setText('Stop');
-      return;
-    }
-    if (playerState.isPlaying) {
-      setText('Pause');
-      return;
-    }
-    setText('Play');
-  }, [ctrlPress, nowPlaying, playerState.isPlaying]);
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleOpen = () => {
-    setOpen(true);
-  };
 
   const handlePlayPause = useCallback(async () => {
     if (ctrlPress) {
@@ -104,41 +81,21 @@ const PlayPause = () => {
   }, [onEvent]);
 
   return (
-    <Tooltip
-      PopperProps={{
-        modifiers: [
-          {
-            name: 'offset',
-            options: {
-              offset: [0, -12],
-            },
-          },
-        ],
+    <IconButton
+      disableRipple
+      disabled={queueId === 0}
+      sx={{
+        ...iconButtonStyle,
+        '&:active': { transform: 'scale(0.93)' },
       }}
-      open={open}
-      placement="top"
-      title={text}
-      onClose={handleClose}
-      onOpen={handleOpen}
+      onClick={handlePlayPause}
     >
-      <span>
-        <IconButton
-          disableRipple
-          disabled={queueId === 0}
-          sx={{
-            ...iconButtonStyle,
-            '&:active': { transform: 'scale(0.93)' },
-          }}
-          onClick={handlePlayPause}
-        >
-          <SvgIcon sx={{ width: '1.7em', height: '1.7em' }}>
-            {!!nowPlaying && ctrlPress && (<RiStopCircleFill />)}
-            {!ctrlPress && playerState.isPlaying && (<RiPauseCircleFill />)}
-            {!ctrlPress && !playerState.isPlaying && (<RiPlayCircleFill />)}
-          </SvgIcon>
-        </IconButton>
-      </span>
-    </Tooltip>
+      <SvgIcon sx={{ width: '1.7em', height: '1.7em' }}>
+        {!!nowPlaying && ctrlPress && (<RiStopCircleFill />)}
+        {!ctrlPress && playerState.isPlaying && (<RiPauseCircleFill />)}
+        {!ctrlPress && !playerState.isPlaying && (<RiPlayCircleFill />)}
+      </SvgIcon>
+    </IconButton>
   );
 };
 

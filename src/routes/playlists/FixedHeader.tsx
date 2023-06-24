@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { BsMusicNoteList } from 'react-icons/all';
+import { BsMusicNoteList } from 'react-icons/bs';
 
 interface FixedHeaderProps {
   width: number;

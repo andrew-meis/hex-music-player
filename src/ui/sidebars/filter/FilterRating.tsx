@@ -9,7 +9,9 @@ import {
 } from '@mui/material';
 import { isNumber } from 'lodash';
 import { useRef, useState } from 'react';
-import { BsDot, FaTimes, TiPlus } from 'react-icons/all';
+import { BsDot } from 'react-icons/bs';
+import { FaTimes } from 'react-icons/fa';
+import { TiPlus } from 'react-icons/ti';
 import { FilterObject } from './Filter';
 import { FilterInput } from './filterInputs';
 

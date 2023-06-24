@@ -5,11 +5,9 @@ import {
   MenuDivider,
   MenuItem,
 } from '@szhsin/react-menu';
-import React, { useCallback } from 'react';
-import {
-  BsMusicNoteList,
-  MdDelete,
-} from 'react-icons/all';
+import { useCallback } from 'react';
+import { BsMusicNoteList } from 'react-icons/bs';
+import { MdDelete } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
 import { Playlist } from 'api/index';
 import { ButtonSpecs, playlistButtons } from 'constants/buttons';

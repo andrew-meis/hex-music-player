@@ -5,7 +5,6 @@ import { useInView } from 'react-intersection-observer';
 import FixedHeader from './FixedHeader';
 import { PlaylistsContext } from './Playlists';
 
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: PlaylistsContext }) => {
   const { measurements } = context!;
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
@@ -50,6 +49,10 @@ const Header = ({ context }: { context?: PlaylistsContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;

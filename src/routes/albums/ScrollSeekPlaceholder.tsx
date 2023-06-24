@@ -2,7 +2,6 @@ import { Skeleton } from '@mui/lab';
 import { Box } from '@mui/material';
 import { AlbumsContext } from './Albums';
 
-// eslint-disable-next-line react/require-default-props
 const ScrollSeekPlaceholder = ({ context }: { context?: AlbumsContext }) => {
   const { grid: { cols }, measurements } = context!;
   const array = [...Array(cols).keys()];
@@ -35,6 +34,10 @@ const ScrollSeekPlaceholder = ({ context }: { context?: AlbumsContext }) => {
       ))}
     </Box>
   );
+};
+
+ScrollSeekPlaceholder.defaultProps = {
+  context: undefined,
 };
 
 export default ScrollSeekPlaceholder;

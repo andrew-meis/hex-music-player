@@ -1,9 +1,8 @@
 import { IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
-import { IoPlaySkipForward } from 'react-icons/all';
+import { IoPlaySkipForward } from 'react-icons/io5';
 import { PlayQueue, PlayQueueItem } from 'api/index';
-import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
 import { useQueueId } from 'queries/app-queries';
@@ -12,17 +11,6 @@ import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
 import { QueryKeys } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
-
-const popperProps = {
-  modifiers: [
-    {
-      name: 'offset',
-      options: {
-        offset: [0, -8],
-      },
-    },
-  ],
-};
 
 interface NextProps {
   handleRepeat: (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => Promise<void>;
@@ -99,23 +87,15 @@ const Next = ({ handleRepeat }: NextProps) => {
   }, [onEvent]);
 
   return (
-    <Tooltip
-      PopperProps={popperProps}
-      placement="top"
-      title="Next"
+    <IconButton
+      disableRipple
+      disabled={queueId === 0 || disableNext || !nextTrack}
+      size="small"
+      sx={iconButtonStyle}
+      onClick={handleNext}
     >
-      <span>
-        <IconButton
-          disableRipple
-          disabled={queueId === 0 || disableNext || !nextTrack}
-          size="small"
-          sx={iconButtonStyle}
-          onClick={handleNext}
-        >
-          <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipForward /></SvgIcon>
-        </IconButton>
-      </span>
-    </Tooltip>
+      <SvgIcon sx={{ width: '0.9em', height: '1em' }}><IoPlaySkipForward /></SvgIcon>
+    </IconButton>
   );
 };
 

@@ -7,11 +7,9 @@ import {
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useCallback } from 'react';
-import {
-  IoMdMicrophone,
-  MdPlaylistAdd,
-  TbWaveSawTool,
-} from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
+import { MdPlaylistAdd } from 'react-icons/md';
+import { TbWaveSawTool } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import { Artist } from 'api/index';
 import { ButtonSpecs, artistButtons } from 'constants/buttons';

@@ -1,7 +1,7 @@
 import { SvgIcon } from '@mui/material';
 import moment from 'moment';
 import React from 'react';
-import { RiAlbumFill } from 'react-icons/all';
+import { RiAlbumFill } from 'react-icons/ri';
 import { Link, NavigateFunction } from 'react-router-dom';
 import { Album, Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';

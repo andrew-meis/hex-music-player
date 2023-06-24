@@ -1,6 +1,6 @@
 import { ClickAwayListener, Chip, SvgIcon, InputBase } from '@mui/material';
 import React, { useRef, useState } from 'react';
-import { FiFilter } from 'react-icons/all';
+import { FiFilter } from 'react-icons/fi';
 import { MotionBox } from 'components/motion-components/motion-components';
 
 interface ChipFilterProps {

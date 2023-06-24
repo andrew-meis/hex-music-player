@@ -3,7 +3,7 @@ import { useMenuState } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { TiArrowBack } from 'react-icons/all';
+import { TiArrowBack } from 'react-icons/ti';
 import { NavLink } from 'react-router-dom';
 import { ItemProps, Virtuoso } from 'react-virtuoso';
 import { Library, PlayQueueItem } from 'api/index';

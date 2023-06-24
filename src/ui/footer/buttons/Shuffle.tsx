@@ -1,22 +1,10 @@
 import { IconButton, SvgIcon } from '@mui/material';
-import { RiShuffleFill } from 'react-icons/all';
+import { RiShuffleFill } from 'react-icons/ri';
 import { PlayQueueItem } from 'api/index';
-import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
 import { useCurrentQueue } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
-
-const popperProps = {
-  modifiers: [
-    {
-      name: 'offset',
-      options: {
-        offset: [0, -8],
-      },
-    },
-  ],
-};
 
 const Shuffle = () => {
   const player = usePlayerContext();
@@ -54,30 +42,22 @@ const Shuffle = () => {
   };
 
   return (
-    <Tooltip
-      PopperProps={popperProps}
-      placement="top"
-      title="Shuffle"
+    <IconButton
+      disableRipple
+      disabled={canShuffle()}
+      size="small"
+      sx={{
+        ...iconButtonStyle,
+        color: playQueue?.shuffled ? 'primary.main' : 'text.secondary',
+        '&:hover': {
+          backgroundColor: 'transparent',
+          color: playQueue?.shuffled ? 'primary.main' : 'text.primary',
+        },
+      }}
+      onClick={handleShuffle}
     >
-      <span>
-        <IconButton
-          disableRipple
-          disabled={canShuffle()}
-          size="small"
-          sx={{
-            ...iconButtonStyle,
-            color: playQueue?.shuffled ? 'primary.main' : 'text.secondary',
-            '&:hover': {
-              backgroundColor: 'transparent',
-              color: playQueue?.shuffled ? 'primary.main' : 'text.primary',
-            },
-          }}
-          onClick={handleShuffle}
-        >
-          <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiShuffleFill /></SvgIcon>
-        </IconButton>
-      </span>
-    </Tooltip>
+      <SvgIcon sx={{ width: '0.9em', height: '1em' }}><RiShuffleFill /></SvgIcon>
+    </IconButton>
   );
 };
 

@@ -1,7 +1,8 @@
 import {
   Box, BoxProps, Fab, IconButton, SvgIcon,
 } from '@mui/material';
-import { FiRadio, RiPlayFill, RiShuffleFill } from 'react-icons/all';
+import { FiRadio } from 'react-icons/fi';
+import { RiPlayFill, RiShuffleFill } from 'react-icons/ri';
 import { MotionBox } from 'components/motion-components/motion-components';
 import useKeyPress from 'hooks/useKeyPress';
 

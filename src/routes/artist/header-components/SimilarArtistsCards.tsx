@@ -1,6 +1,7 @@
 import { Avatar, Box, SvgIcon } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
-import { BiChevronRight, IoMdMicrophone } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
+import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
 import {

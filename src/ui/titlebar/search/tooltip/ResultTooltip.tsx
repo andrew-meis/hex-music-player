@@ -2,7 +2,7 @@ import {
   SvgIcon, Tooltip, Zoom,
 } from '@mui/material';
 import React from 'react';
-import { BiChevronRight } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
 import { Result } from 'types/types';
 import TooltipMenu from './TooltipMenu';
 

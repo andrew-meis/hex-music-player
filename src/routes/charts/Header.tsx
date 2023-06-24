@@ -3,12 +3,8 @@ import {
 } from '@mui/material';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  BiHash,
-  RiHeartLine,
-  RiRefreshLine,
-  RiTimeLine,
-} from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { RiRefreshLine, RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';

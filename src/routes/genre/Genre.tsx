@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { throttle, uniqBy } from 'lodash';
 import { useMemo, useRef, useState } from 'react';
-import { BiChevronRight } from 'react-icons/all';
+import { BiChevronRight } from 'react-icons/bi';
 import {
   useLocation,
   useNavigate,

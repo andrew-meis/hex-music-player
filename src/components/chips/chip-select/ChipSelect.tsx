@@ -1,6 +1,6 @@
 import { Box, IconButton, SvgIcon } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { CgChevronLeft, CgChevronRight } from 'react-icons/all';
+import { CgChevronLeft, CgChevronRight } from 'react-icons/cg';
 
 interface ChipSelectProps {
   bgleft?: string;

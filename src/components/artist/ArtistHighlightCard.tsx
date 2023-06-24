@@ -3,7 +3,7 @@ import { useMenuState } from '@szhsin/react-menu';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { IoMdMicrophone } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
 import { plexSort } from 'classes';

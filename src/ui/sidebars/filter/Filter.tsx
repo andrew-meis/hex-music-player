@@ -11,7 +11,8 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import hash from 'object-hash';
 import { useEffect, useState } from 'react';
-import { BiChevronDown, FaTimes } from 'react-icons/all';
+import { BiChevronDown } from 'react-icons/bi';
+import { FaTimes } from 'react-icons/fa';
 import { QueryKeys } from 'types/enums';
 import FilterAutocomplete from './FilterAutocomplete';
 import filterInputs, { FilterTypes, Operators } from './filterInputs';

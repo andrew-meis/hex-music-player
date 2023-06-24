@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { IoMdMicrophone } from 'react-icons/all';
+import { IoMdMicrophone } from 'react-icons/io';
 import { NavLink } from 'react-router-dom';
 import { Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';

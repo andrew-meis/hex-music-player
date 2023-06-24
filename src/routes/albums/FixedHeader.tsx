@@ -1,5 +1,5 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
-import { RiAlbumFill } from 'react-icons/all';
+import { RiAlbumFill } from 'react-icons/ri';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 
 interface FixedHeaderProps {

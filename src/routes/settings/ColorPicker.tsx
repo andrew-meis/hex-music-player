@@ -1,6 +1,6 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
 import { useState } from 'react';
-import { FiCheckCircle } from 'react-icons/all';
+import { RxCheck } from 'react-icons/rx';
 import { AppSettings } from 'types/interfaces';
 
 const colors = [
@@ -64,7 +64,7 @@ const ColorPicker = ({ primaryColor, updateConfig }: ColorPickerProps) => {
                 width={38}
               >
                 <SvgIcon>
-                  <FiCheckCircle />
+                  <RxCheck />
                 </SvgIcon>
               </Box>
             )}

@@ -1,8 +1,9 @@
 import { SvgIcon } from '@mui/material';
 import React from 'react';
-import {
-  BsPlayFill, FiRadio, RiShuffleFill, TiArrowForward,
-} from 'react-icons/all';
+import { BsPlayFill } from 'react-icons/bs';
+import { FiRadio } from 'react-icons/fi';
+import { RiShuffleFill } from 'react-icons/ri';
+import { TiArrowForward } from 'react-icons/ti';
 import { PlayActions } from 'types/enums';
 
 export interface ButtonSpecs {

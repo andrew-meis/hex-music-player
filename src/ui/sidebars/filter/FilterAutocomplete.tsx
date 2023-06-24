@@ -9,7 +9,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { isString } from 'lodash';
 import { useRef, useState } from 'react';
-import { FaTimes, TiPlus } from 'react-icons/all';
+import { FaTimes } from 'react-icons/fa';
+import { TiPlus } from 'react-icons/ti';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { filterOptionsQueryFn, MediaTag } from 'queries/library-query-fns';
 import { FilterObject } from './Filter';

@@ -8,15 +8,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useRef, useState } from 'react';
-import {
-  BiHash,
-  RiHeartLine,
-  RiTimeLine,
-  BsMusicNoteList,
-  HiArrowSmDown,
-  HiArrowSmUp,
-  RxCheck,
-} from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { BsMusicNoteList } from 'react-icons/bs';
+import { HiArrowSmUp, HiArrowSmDown } from 'react-icons/hi';
+import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
+import { RxCheck } from 'react-icons/rx';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import { Playlist } from 'api/index';

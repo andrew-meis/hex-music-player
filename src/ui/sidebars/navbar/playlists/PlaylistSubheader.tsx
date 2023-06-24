@@ -3,7 +3,8 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
-import { RiSendPlaneLine, TiPlus } from 'react-icons/all';
+import { RiSendPlaneLine } from 'react-icons/ri';
+import { TiPlus } from 'react-icons/ti';
 import { useNavigate } from 'react-router-dom';
 import { useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';

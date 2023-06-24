@@ -2,14 +2,10 @@ import {
   Avatar, Box, Chip, ClickAwayListener, Fade, SvgIcon, Typography,
 } from '@mui/material';
 import { useRef, useState } from 'react';
-import {
-  BiHash,
-  HiArrowSmDown,
-  HiArrowSmUp,
-  IoMdMicrophone,
-  RiHeartLine,
-  RiTimeLine,
-} from 'react-icons/all';
+import { BiHash } from 'react-icons/bi';
+import { HiArrowSmUp, HiArrowSmDown } from 'react-icons/hi';
+import { IoMdMicrophone } from 'react-icons/io';
+import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
 import { NavLink, useOutletContext } from 'react-router-dom';
 import { ChipFilter, ChipSelect } from 'components/chips';
@@ -34,7 +30,6 @@ const sortOptions = [
   { label: 'Title', sortKey: TrackSortKeys.TRACK_TITLE },
 ];
 
-// eslint-disable-next-line react/require-default-props
 const Header = ({ context }: { context?: ArtistTracksContext }) => {
   const {
     artist: artistData, filter, items, playTracks, setFilter, setSort, sort,
@@ -266,6 +261,10 @@ const Header = ({ context }: { context?: ArtistTracksContext }) => {
       </Box>
     </>
   );
+};
+
+Header.defaultProps = {
+  context: undefined,
 };
 
 export default Header;
