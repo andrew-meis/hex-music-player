@@ -104,10 +104,11 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         tracksInView={tracksInView}
       />
       <Box
+        bgcolor="background.paper"
         display="flex"
         flexWrap="wrap"
-        mt="8px"
         mx="auto"
+        position="relative"
         ref={tracksInView.ref}
         width={WIDTH_CALC}
       >
@@ -126,7 +127,7 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         />
       </Box>
       {similarArtists.length > 0 && (
-        <>
+        <Box bgcolor="background.paper" position="relative">
           <div style={{ height: 12, width: '100%' }} />
           <SimilarArtistsCards
             activeIndex={activeIndex}
@@ -141,14 +142,16 @@ const Header = ({ context }: { context?: ArtistContext }) => {
             colLength={colLength}
             setActiveIndex={setActiveIndex}
           />
-        </>
+        </Box>
       )}
-      <div style={{ height: 12, width: '100%' }} />
+      <Box bgcolor="background.paper" height={12} position="relative" width={1} />
       <Box
         alignItems="flex-end"
+        bgcolor="background.paper"
         display="flex"
         justifyContent="space-between"
         mx="auto"
+        position="relative"
         width={WIDTH_CALC}
       >
         <MotionTypography
@@ -177,9 +180,11 @@ const Header = ({ context }: { context?: ArtistContext }) => {
       </Box>
       <Box
         alignItems="center"
+        bgcolor="background.paper"
         display="flex"
         justifyContent="space-between"
         mx="auto"
+        position="relative"
         width={WIDTH_CALC}
       >
         <Box

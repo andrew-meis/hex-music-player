@@ -1,13 +1,17 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { NavLink } from 'react-router-dom';
+import { PlayQueueItem } from 'api/index';
 import { NowPlayingMenu } from 'components/menus';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { DragTypes } from 'types/enums';
 
 const typographyStyle = {
   whiteSpace: 'nowrap',
@@ -16,12 +20,47 @@ const typographyStyle = {
   lineHeight: 1.3,
 };
 
+const DraggableAvatar = ({ nowPlaying, onContextMenu, src }: {
+  nowPlaying: PlayQueueItem;
+  onContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
+  src: string;
+}) => {
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.TRACK,
+    item: () => [nowPlaying?.track],
+  }), [nowPlaying]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, nowPlaying]);
+
+  return (
+    <Avatar
+      alt={nowPlaying.track.title}
+      ref={drag}
+      src={src}
+      sx={{ width: 74, height: 74, marginX: '8px' }}
+      variant="rounded"
+      onContextMenu={onContextMenu}
+    />
+  );
+};
+
 const NowPlaying = () => {
   const library = useLibrary();
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch } = usePlayback();
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.TRACK,
+    item: () => [nowPlaying?.track],
+  }), [nowPlaying]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, nowPlaying]);
+
   const thumbSrc = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',
     {
@@ -53,11 +92,9 @@ const NowPlaying = () => {
           alignItems: 'center',
         }}
       >
-        <Avatar
-          alt={nowPlaying.track.title}
+        <DraggableAvatar
+          nowPlaying={nowPlaying}
           src={thumbSrc}
-          sx={{ width: 74, height: 74, marginX: '8px' }}
-          variant="rounded"
           onContextMenu={handleContextMenu}
         />
         <Box
@@ -69,6 +106,7 @@ const NowPlaying = () => {
           }}
         >
           <Typography
+            ref={drag}
             sx={{
               ...typographyStyle,
               fontFamily: 'Rubik, sans-serif',

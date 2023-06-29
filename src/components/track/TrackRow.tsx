@@ -1,6 +1,6 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import moment from 'moment';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Library, Track } from 'api/index';
 import PlayingAnimation from 'components/playing-animation/PlayingAnimation';
 import TrackRating from 'components/rating/TrackRating';
@@ -38,9 +38,15 @@ const getMetaText = (
   if (metaText === 'parentYear') {
     return track.parentYear;
   }
-  return track.viewCount
-    ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`
-    : 'unplayed';
+  return (
+    <Link className="link" to={`/history/${track.id}`}>
+      {
+        track.viewCount
+          ? `${track.viewCount} ${track.viewCount > 1 ? 'plays' : 'play'}`
+          : 'unplayed'
+      }
+    </Link>
+  );
 };
 
 interface TrackRowOptions {

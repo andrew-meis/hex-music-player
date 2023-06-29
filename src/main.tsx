@@ -21,9 +21,10 @@ import Artists from 'routes/artists/Artists';
 import Charts from 'routes/charts/Charts';
 import Genre from 'routes/genre/Genre';
 import Genres from 'routes/genres/Genres';
+import History from 'routes/history/History';
 import Home from 'routes/home/Home';
 import Login, { loginLoader } from 'routes/login/Login';
-import LyricsComponent from 'routes/lyrics/LyricsComponent';
+import Lyrics from 'routes/lyrics/Lyrics';
 import Playlist from 'routes/playlist/Playlist';
 import Playlists from 'routes/playlists/Playlists';
 import SearchResults from 'routes/search/SearchResults';
@@ -140,8 +141,13 @@ const router = createHashRouter([
         errorElement: <ErrorElement />,
       },
       {
+        path: '/history/:id',
+        element: <History />,
+        errorElement: <ErrorElement />,
+      },
+      {
         path: '/lyrics',
-        element: <LyricsComponent />,
+        element: <Lyrics />,
         errorElement: <ErrorElement />,
       },
       {

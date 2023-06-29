@@ -7,3 +7,33 @@
     background-position-x: calc(50% + var(--posX));
     background-position-y: 50px;
 }
+
+.icon {
+    background: var(--img) no-repeat;
+    background-color: var(--mui-palette-Avatar-defaultBg);
+    background-position-x: center;
+    background-position-y: center;
+    background-size: contain;
+    border-radius: 32px;
+    top: 48px;
+    height: 100%;
+    margin-left: 48px;
+    max-height: calc(40vh - 96px);
+    min-height: 294px;
+    position: fixed;
+    width: 406px;
+}
+
+.thumb {
+    background: var(--img) no-repeat;
+    background-position-x: center;
+    background-size: cover;
+    border-radius: 32px;
+    top: 48px;
+    height: 100%;
+    margin-left: 48px;
+    max-height: calc(40vh - 96px);
+    min-height: 294px;
+    position: fixed;
+    width: 406px;
+}

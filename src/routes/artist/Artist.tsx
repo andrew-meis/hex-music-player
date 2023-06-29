@@ -57,7 +57,9 @@ const List = React
       ref={listRef}
       style={{
         ...style,
+        backgroundColor: 'var(--mui-palette-background-paper)',
         minHeight: 'calc(100% - 114px)',
+        position: 'relative',
       }}
     >
       {children}

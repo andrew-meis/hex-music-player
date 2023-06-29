@@ -1,16 +1,16 @@
-import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { Box, Fade, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { useQuery } from '@tanstack/react-query';
 import chroma from 'chroma-js';
 import { motion } from 'framer-motion';
 import { sample } from 'lodash';
 import React, { useMemo, useRef } from 'react';
+import * as ReactDOMServer from 'react-dom/server';
 import { FileWithPath, useDropzone } from 'react-dropzone';
 import { IoMdMicrophone } from 'react-icons/io';
 import { InViewHookResponse, useInView } from 'react-intersection-observer';
 import { Textfit } from 'react-textfit';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail, useUploadArt } from 'hooks/plexHooks';
 import { AppSettings } from 'types/interfaces';
 import { ArtistContext } from '../Artist';
@@ -111,6 +111,10 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
     return Math.max(desiredImageWidth - (width + 50), 0);
   }, [bannerDimensions, width]);
 
+  const svgString = useMemo(() => encodeURIComponent(
+    ReactDOMServer.renderToStaticMarkup(<IoMdMicrophone />),
+  ), []);
+
   return (
     <>
       <Fade
@@ -141,6 +145,12 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
         height="40vh"
         minHeight={390}
         ref={bannerInView.ref}
+        style={{
+          '--color': chroma(color.current || greyColor).rgb(),
+          '--alpha': bannerInView.entry?.intersectionRatio
+            ? 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 1)
+            : 0,
+        } as React.CSSProperties}
       >
         {artist.art && bannerDimensions
           && (
@@ -150,8 +160,6 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
               initial={{ opacity: 0 }}
               style={{
                 '--img': `url(${bannerSrc})`,
-                '--color': chroma(color.current || greyColor).rgb(),
-                '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
                 '--posX': `${posX}px`,
                 '--grow': `${bannerResize}px`,
                 '--adjustment': `${growAdjustment}px`,
@@ -161,59 +169,31 @@ const Banner = ({ context, tracksInView }: BannerProps) => {
           )}
         {!artist.art && !!artist.thumb
           && (
-            <span
-              className={styles.banner}
-              style={{
-                display: 'flex',
-                '--color': chroma(color.current || greyColor).rgb(),
-                '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0) < 0.2
-                  ? 0.2
-                  : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
-              } as React.CSSProperties}
-            >
-              <Box alignItems="center" display="flex" height={1} mx="auto" width={WIDTH_CALC}>
-                <Avatar
-                  alt={artist.title}
-                  src={thumbSrc}
-                  sx={{
-                    width: 406,
-                    height: 406 * 0.7,
-                    borderRadius: '32px',
-                    '& > img': {
-                      objectPosition: 'center top',
-                    },
-                  }}
-                />
-              </Box>
-            </span>
+            <>
+              <motion.div
+                animate={{ opacity: 1 }}
+                className={styles.thumb}
+                initial={{ opacity: 0 }}
+                style={{
+                  '--img': `url(${thumbSrc})`,
+                } as React.CSSProperties}
+              />
+              <div className={styles.banner} style={{ zIndex: 0 }} />
+            </>
           )}
         {!artist.art && !artist.thumb
           && (
-            <span
-              className={styles.banner}
-              style={{
-                display: 'flex',
-                '--color': chroma(color.current || greyColor).rgb(),
-                '--alpha': 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0) < 0.2
-                  ? 0.2
-                  : 1 - (bannerInView.entry ? bannerInView.entry.intersectionRatio : 0),
-              } as React.CSSProperties}
-            >
-              <Box alignItems="center" display="flex" height={1} mx="auto" width={WIDTH_CALC}>
-                <Avatar
-                  alt={artist.title}
-                  sx={{
-                    width: 406,
-                    height: 406 * 0.7,
-                    borderRadius: '32px',
-                  }}
-                >
-                  <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
-                    <IoMdMicrophone />
-                  </SvgIcon>
-                </Avatar>
-              </Box>
-            </span>
+            <>
+              <motion.div
+                animate={{ opacity: 1 }}
+                className={styles.icon}
+                initial={{ opacity: 0 }}
+                style={{
+                  '--img': `url("data:image/svg+xml,${svgString}")`,
+                } as React.CSSProperties}
+              />
+              <div className={styles.banner} style={{ zIndex: 0 }} />
+            </>
           )}
         <Box position="absolute" width="80%">
           <Textfit max={72} min={24} mode="single">

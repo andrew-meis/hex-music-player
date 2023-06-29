@@ -59,7 +59,7 @@ const processLyrics = (data: LyricsData, duration: number) => {
   }];
 };
 
-const LyricsComponent = () => {
+const Lyrics = () => {
   const box = useRef<HTMLDivElement | null>();
   const [activeLine, setActiveLine] = useState<HTMLSpanElement | null>();
   const { data: nowPlaying } = useNowPlaying();
@@ -178,4 +178,4 @@ const LyricsComponent = () => {
   );
 };
 
-export default LyricsComponent;
+export default Lyrics;
