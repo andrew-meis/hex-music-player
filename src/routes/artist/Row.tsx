@@ -12,7 +12,7 @@ const Row = React.memo(({ albums, context }: RowProps) => {
     <Box
       display="flex"
       gap="8px"
-      height={measurements.ROW_HEIGHT + 8}
+      height={settings.albumText ? measurements.ROW_HEIGHT + 8 : measurements.ROW_HEIGHT}
       mx="auto"
       width={measurements.ROW_WIDTH}
     >
@@ -40,6 +40,7 @@ const Row = React.memo(({ albums, context }: RowProps) => {
           menuTarget={menuTarget}
           navigate={navigate}
           section={album.section}
+          showArtistTitle={album.section === 'Appears On'}
         />
       ))}
     </Box>

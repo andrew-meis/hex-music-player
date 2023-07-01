@@ -157,12 +157,12 @@ const QueueMenu = ({
           </>
         )}
       </NavLink>
-      <MenuDivider />
       {
         item.track.grandparentTitle === 'Various Artists'
         && artists.length === 1
         && (
           <>
+            <MenuDivider />
             <MenuHeader>Artists</MenuHeader>
             {artists.map((artist) => (
               <ArtistMenuItem
@@ -172,7 +172,6 @@ const QueueMenu = ({
                 onClick={() => handleArtistNavigate(artist)}
               />
             ))}
-            <MenuDivider />
           </>
         )
       }
@@ -181,13 +180,13 @@ const QueueMenu = ({
         && item.track.grandparentTitle !== 'Various Artists'
         && (
           <>
+            <MenuDivider />
             <MenuHeader>Artists</MenuHeader>
             <ArtistMenuItem
               thumb={item.track.grandparentThumb}
               title={item.track.grandparentTitle}
               onClick={() => handleTrackNavigate(item.track)}
             />
-            <MenuDivider />
           </>
         )
       }
@@ -195,6 +194,7 @@ const QueueMenu = ({
         artists.length > 1
         && (
           <>
+            <MenuDivider />
             <MenuHeader>Artists</MenuHeader>
             {artists.map((artist) => (
               <ArtistMenuItem
@@ -204,7 +204,6 @@ const QueueMenu = ({
                 onClick={() => handleArtistNavigate(artist)}
               />
             ))}
-            <MenuDivider />
           </>
         )
       }
@@ -213,6 +212,7 @@ const QueueMenu = ({
           <>
             {!isActive && (
               <>
+                <MenuDivider />
                 <MenuHeader>Album</MenuHeader>
                 <AlbumMenuItem
                   thumb={item.track.parentThumb}

@@ -17,15 +17,16 @@ import { PlexSort } from 'classes';
 import { AlbumMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
+import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
-import { AppConfig, CardMeasurements } from 'types/interfaces';
+import { AppConfig, AppSettings, CardMeasurements } from 'types/interfaces';
 import { FilterObject } from 'ui/sidebars/filter/Filter';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from './ScrollSeekPlaceholder';
+import ScrollSeekPlaceholderNoText from './ScrollSeekPlaceholderNoText';
 
 const containerSize = 100;
 
@@ -81,6 +82,7 @@ export interface AlbumsContext {
   menuTarget: Album[];
   navigate: NavigateFunction;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
+  settings: AppSettings;
   sort: PlexSort;
   uri: string;
 }
@@ -130,6 +132,7 @@ const Albums = () => {
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const { data: config } = useConfig();
+  const { data: settings } = useSettings();
   const { playSwitch, playUri } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
@@ -237,9 +240,9 @@ const Albums = () => {
   const measurements = useMemo(() => ({
     IMAGE_SIZE:
       Math.floor(((width - VIEW_PADDING) / grid.cols) - (((grid.cols - 1) * 8) / grid.cols)),
-    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) + 54,
+    ROW_HEIGHT: Math.floor((width - VIEW_PADDING) / grid.cols) + (settings.albumText ? 54 : 0),
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
-  }), [grid, width]);
+  }), [grid.cols, settings.albumText, width]);
 
   const uri = useMemo(() => {
     const uriParams = {
@@ -260,6 +263,7 @@ const Albums = () => {
     menuTarget,
     navigate,
     playUri,
+    settings,
     sort: sort.data,
     uri,
   }), [
@@ -272,6 +276,7 @@ const Albums = () => {
     menuTarget,
     navigate,
     playUri,
+    settings,
     sort.data,
     uri,
   ]);
@@ -294,7 +299,9 @@ const Albums = () => {
           components={{
             Footer: FooterWide,
             Header,
-            ScrollSeekPlaceholder,
+            ScrollSeekPlaceholder: settings.albumText
+              ? ScrollSeekPlaceholder
+              : ScrollSeekPlaceholderNoText,
           }}
           context={albumsContext}
           fixedItemHeight={measurements.ROW_HEIGHT}
@@ -307,7 +314,11 @@ const Albums = () => {
               return RowContent({ context, index, albums });
             }
             return (
-              <ScrollSeekPlaceholder context={albumsContext} />
+              <>
+                {settings.albumText
+                  ? <ScrollSeekPlaceholder context={albumsContext} />
+                  : <ScrollSeekPlaceholderNoText context={albumsContext} />}
+              </>
             );
           }}
           rangeChanged={(newRange) => {

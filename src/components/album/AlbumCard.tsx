@@ -115,8 +115,8 @@ const AlbumCard = ({
       <Title marginX="12px">
         {album.title}
       </Title>
-      {showArtistTitle && (
-        <Subtitle marginX="12px">
+      <Subtitle marginX="12px">
+        {showArtistTitle && (
           <Link
             className="link"
             state={{
@@ -128,37 +128,52 @@ const AlbumCard = ({
           >
             {album.parentTitle}
           </Link>
-        </Subtitle>
-      )}
-      <Subtitle marginX="12px">
+        )}
         {metaText === 'addedAt' && (
-          album.addedAt ? moment(album.addedAt).fromNow() : 'no date added'
+          <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
+            {album.addedAt ? moment(album.addedAt).fromNow() : 'no date added'}
+          </>
         )}
         {metaText === 'lastViewedAt' && (
-          album.lastViewedAt ? moment(album.lastViewedAt).fromNow() : 'unplayed'
+          <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
+            {album.lastViewedAt ? moment(album.lastViewedAt).fromNow() : 'unplayed'}
+          </>
         )}
         {metaText === 'originallyAvailableAt' && (
-          album.originallyAvailableAt
-            ? moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY')
-            : 'no release date'
+          <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
+            {album.originallyAvailableAt
+              ? moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY')
+              : 'no release date'}
+          </>
         )}
         {metaText === 'section' && (
           <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
             {sections[(album as AlbumWithSection).section]}
           </>
         )}
         {metaText === 'title' && (
           <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
             {sections[(album as AlbumWithSection).section]}
           </>
         )}
         {metaText === 'viewCount' && (
-          album.viewCount
-            ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
-            : 'unplayed'
+          <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
+            {album.viewCount
+              ? `${album.viewCount} ${album.viewCount > 1 ? 'plays' : 'play'}`
+              : 'unplayed'}
+          </>
         )}
         {metaText === 'year' && (
-          album.year ? album.year : 'no year'
+          <>
+            {showArtistTitle ? <>&nbsp;·&nbsp;</> : ''}
+            {album.year ? album.year : 'no year'}
+          </>
         )}
       </Subtitle>
     </MotionBox>

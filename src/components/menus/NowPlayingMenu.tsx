@@ -121,12 +121,12 @@ const NowPlayingMenu = ({
               </>
             )}
           </NavLink>
-          <MenuDivider />
           {
             tracks[0].grandparentTitle === 'Various Artists'
             && artists.length === 1
             && (
               <>
+                <MenuDivider />
                 <MenuHeader>Artists</MenuHeader>
                 {artists.map((artist) => (
                   <ArtistMenuItem
@@ -136,7 +136,6 @@ const NowPlayingMenu = ({
                     onClick={() => handleArtistNavigate(artist)}
                   />
                 ))}
-                <MenuDivider />
               </>
             )
           }
@@ -145,13 +144,13 @@ const NowPlayingMenu = ({
             && tracks[0].grandparentTitle !== 'Various Artists'
             && (
               <>
+                <MenuDivider />
                 <MenuHeader>Artists</MenuHeader>
                 <ArtistMenuItem
                   thumb={tracks[0].grandparentThumb}
                   title={tracks[0].grandparentTitle}
                   onClick={() => handleTrackNavigate(tracks[0])}
                 />
-                <MenuDivider />
               </>
             )
           }
@@ -159,6 +158,7 @@ const NowPlayingMenu = ({
             artists.length > 1
             && (
               <>
+                <MenuDivider />
                 <MenuHeader>Artists</MenuHeader>
                 {artists.map((artist) => (
                   <ArtistMenuItem
@@ -168,7 +168,6 @@ const NowPlayingMenu = ({
                     onClick={() => handleArtistNavigate(artist)}
                   />
                 ))}
-                <MenuDivider />
               </>
             )
           }
@@ -177,6 +176,7 @@ const NowPlayingMenu = ({
               <>
                 {!isActive && (
                   <>
+                    <MenuDivider />
                     <MenuHeader>Album</MenuHeader>
                     <AlbumMenuItem
                       thumb={tracks[0].parentThumb}

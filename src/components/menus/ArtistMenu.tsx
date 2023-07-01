@@ -3,11 +3,11 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
+  MenuHeader,
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { IoMdMicrophone } from 'react-icons/io';
 import { MdPlaylistAdd } from 'react-icons/md';
 import { RiHistoryFill } from 'react-icons/ri';
 import { TbWaveSawTool } from 'react-icons/tb';
@@ -16,6 +16,7 @@ import { Artist } from 'api/index';
 import { ButtonSpecs, artistButtons } from 'constants/buttons';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
+import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
 interface ArtistMenuProps extends ControlledMenuProps{
   artists: Artist[] | undefined;
@@ -82,10 +83,12 @@ const ArtistMenu = ({
             View play history
           </MenuItem>
           <MenuDivider />
-          <MenuItem onClick={() => handleArtistNavigate(artists[0])}>
-            <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-            Go to artist
-          </MenuItem>
+          <MenuHeader>Artists</MenuHeader>
+          <ArtistMenuItem
+            thumb={artists[0].thumb}
+            title={artists[0].title}
+            onClick={() => handleArtistNavigate(artists[0])}
+          />
         </>
       )}
       {children}

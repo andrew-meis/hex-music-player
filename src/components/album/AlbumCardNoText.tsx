@@ -20,6 +20,7 @@ interface AlbumCardNoTextProps {
   menuTarget: Album[];
   navigate: NavigateFunction;
   section?: string;
+  showArtistTitle?: boolean;
 }
 
 const AlbumCardNoText = ({
@@ -30,6 +31,7 @@ const AlbumCardNoText = ({
   menuTarget,
   navigate,
   section,
+  showArtistTitle,
 }: AlbumCardNoTextProps) => {
   const menuOpen = menuTarget.length > 0 && menuTarget.map((el) => el.id).includes(album.id);
   const thumbSrc = library.api.getAuthenticatedUrl(
@@ -50,6 +52,7 @@ const AlbumCardNoText = ({
 
   return (
     <MotionBox
+      borderRadius="4px"
       className={styles.container}
       data-id={album.id}
       data-section={section}
@@ -76,7 +79,7 @@ const AlbumCardNoText = ({
         enterDelay={500}
         enterNextDelay={300}
         key={album.id}
-        title={album.title}
+        title={showArtistTitle ? `${album.parentTitle} — ${album.title}` : album.title}
       >
         <MotionBox
           className={styles.image}
@@ -104,6 +107,7 @@ const AlbumCardNoText = ({
 
 AlbumCardNoText.defaultProps = {
   section: 'Albums',
+  showArtistTitle: true,
 };
 
 export default AlbumCardNoText;
