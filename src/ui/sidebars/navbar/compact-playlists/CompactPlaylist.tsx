@@ -1,13 +1,13 @@
 import { Avatar, Box, ListItem, SvgIcon } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { BsMusicNoteList } from 'react-icons/bs';
 import { NavLink } from 'react-router-dom';
-import { Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import Tooltip from 'components/tooltip/Tooltip';
 import { useAddToPlaylist } from 'hooks/playlistHooks';
-import { useThumbnail } from 'hooks/plexHooks';
+import { useLibrary } from 'queries/app-queries';
 import { DragTypes } from 'types/enums';
 
 interface CompactPlaylistProps {
@@ -20,8 +20,21 @@ interface CompactPlaylistProps {
 const CompactPlaylist = ({
   handleContextMenu, menuState, menuTarget, playlist,
 }: CompactPlaylistProps) => {
+  const library = useLibrary();
   const [open, setOpen] = useState(false);
-  const [thumbSrc] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 100);
+  const thumbSrc = useMemo(() => {
+    if (!playlist || (!playlist.thumb && !playlist.composite)) return undefined;
+    return library.api.getAuthenticatedUrl(
+      '/photo/:/transcode',
+      {
+        url: playlist.thumb || playlist.composite,
+        width: 100,
+        height: 100,
+        minSize: 1,
+        upscale: 1,
+      },
+    );
+  }, [library, playlist]);
   const addToPlaylist = useAddToPlaylist();
 
   useEffect(() => {
@@ -34,23 +47,23 @@ const CompactPlaylist = ({
     array: any[],
     itemType: null | string | symbol,
   ) => {
-    let tracks;
     if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
-      tracks = array.map((item) => item.track) as Track[];
-    } else {
-      tracks = array as Track[];
+      await addToPlaylist(playlist.id, array.map((item) => item.track.id));
+      return;
     }
-    await addToPlaylist(playlist.id, tracks.map((track) => track.id));
+    await addToPlaylist(playlist.id, array.map((item) => item.id));
   }, [addToPlaylist, playlist.id]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: [
+      DragTypes.ALBUM,
+      DragTypes.ARTIST,
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
       DragTypes.TRACK,
     ],
     drop: (
-      item: PlaylistItem[] | PlayQueueItem[] | Track[],
+      item: Album[] | Artist[] | PlaylistItem[] | PlayQueueItem[] | Track[],
       monitor,
     ) => handleDrop(item, monitor.getItemType()),
     collect: (monitor) => ({

@@ -225,7 +225,7 @@ const ResultRow = ({
     <ListItem
       disablePadding
       className={isHovered ? styles['results-list-hover'] : styles['results-list']}
-      ref={drag}
+      ref={(isGenre(result) || isPlaylist(result)) ? null : drag}
       sx={resultStyle}
       onClick={handleClick}
       onDragStart={(e) => {

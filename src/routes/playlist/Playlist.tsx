@@ -6,7 +6,7 @@ import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { PlexSort, plexSort } from 'classes';
-import { useMoveManyPlaylistItems } from 'hooks/playlistHooks';
+import { useAddToPlaylist, useMoveManyPlaylistItems } from 'hooks/playlistHooks';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useLibrary } from 'queries/app-queries';
@@ -55,6 +55,7 @@ const Playlist = () => {
   const playlist = usePlaylist(+id, library);
   const playlistItems = usePlaylistItems(+id, library);
   // other hooks
+  const addToPlaylist = useAddToPlaylist();
   const dropIndex = useRef<number | null>(null);
   const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
@@ -107,7 +108,7 @@ const Playlist = () => {
     }
   }, [playlistItems.data]);
 
-  const handleDrop = useCallback((
+  const handleDrop = useCallback(async (
     array: any[],
     index: number | null,
     itemType: null | string | symbol,
@@ -118,12 +119,19 @@ const Playlist = () => {
     const target = items[index];
     if (itemType === DragTypes.PLAYLIST_ITEM && target) {
       const prevId = getPrevId(target.id);
-      moveMany(+id, array.map((item) => item.id), prevId);
+      await moveMany(+id, array.map((item) => item.id), prevId);
+      return;
     }
     if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
-      moveMany(+id, array.map((item) => item.id), playlistItems.data.slice(-1)[0].id);
+      await moveMany(+id, array.map((item) => item.id), playlistItems.data.slice(-1)[0].id);
+      return;
     }
-  }, [getPrevId, id, items, moveMany, playlistItems.data]);
+    if (itemType === DragTypes.PLAYQUEUE_ITEM) {
+      await addToPlaylist(+id, array.map((item) => item.track.id));
+      return;
+    }
+    await addToPlaylist(+id, array.map((item) => item.id));
+  }, [addToPlaylist, getPrevId, id, items, moveMany, playlistItems.data]);
 
   useEffect(() => {
     queryClient.setQueryData(['selected-rows'], []);

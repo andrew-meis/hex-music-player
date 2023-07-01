@@ -16,12 +16,13 @@ export const useAddToPlaylist = () => {
   const queryClient = useQueryClient();
   const server = useServer();
   const toast = useToast();
-  return async (id: Playlist['id'], idsToAdd: number[]) => {
+  return async (id: Playlist['id'], idsToAdd: number[], quiet = false) => {
     const response = await library.addToPlaylist(
       id,
       // eslint-disable-next-line max-len
       `server://${server.clientIdentifier}/com.plexapp.plugins.library/library/metadata/${idsToAdd.join(',')}`,
     );
+    if (quiet) return;
     if (response.MediaContainer.leafCountAdded > 0) {
       await refetchPlaylistQueries(queryClient, id);
       toast({ type: 'success', text: 'Added to playlist' });

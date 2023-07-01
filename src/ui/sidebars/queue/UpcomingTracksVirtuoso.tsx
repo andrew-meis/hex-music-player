@@ -7,7 +7,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiCloseFill } from 'react-icons/ri';
 import { NavLink } from 'react-router-dom';
 import { ItemProps, Virtuoso } from 'react-virtuoso';
-import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import 'styles/queue.scss';
 import { QueueMenu } from 'components/menus';
 import Subtext from 'components/subtext/Subtext';
@@ -265,12 +265,6 @@ const UpcomingTracksVirtuoso = () => {
       return;
     }
     const target = items[index];
-    let tracks;
-    if (itemType === DragTypes.PLAYLIST_ITEM) {
-      tracks = array.map((item) => item.track) as Track[];
-    } else {
-      tracks = array as Track[];
-    }
     /** MOVE PLAYQUEUE ITEMS WITHIN QUEUE */
     if (itemType === DragTypes.PLAYQUEUE_ITEM && target) {
       const moveIds = array.map((queueItem) => queueItem.id);
@@ -285,20 +279,31 @@ const UpcomingTracksVirtuoso = () => {
       setSelectedRows([]);
       return;
     }
-    /** ADD OTHER ITEMS WITHIN QUEUE */
-    if (target) {
+    /** ADD PLAYLIST ITEMS */
+    if (itemType === DragTypes.PLAYLIST_ITEM && target) {
       const prevId = getPrevId(target.id);
-      await addMany(tracks as Track[], prevId as number);
+      await addMany(array.map((item) => item.track) as Track[], prevId as number);
       return;
     }
-    /** ADD OTHER ITEMS TO END OF QUEUE */
+    if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
+      await addLast(array.map((item) => item.track) as Track[]);
+      return;
+    }
+    /** ADD OTHER ITEMS */
+    if (target) {
+      const prevId = getPrevId(target.id);
+      await addMany(array as (Album | Artist | Track)[], prevId as number);
+      return;
+    }
     if (!target) {
-      await addLast(tracks as Track[]);
+      await addLast(array as (Album | Artist | Track)[]);
     }
   }, [addLast, addMany, getPrevId, items, moveMany, moveManyLast, setSelectedRows]);
 
   const [, drop] = useDrop(() => ({
     accept: [
+      DragTypes.ALBUM,
+      DragTypes.ARTIST,
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
       DragTypes.TRACK,

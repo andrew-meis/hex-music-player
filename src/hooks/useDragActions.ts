@@ -1,48 +1,123 @@
+import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
-import { PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, PlayQueueItem, Track } from 'api/index';
 import usePlayback from 'hooks/usePlayback';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId } from 'queries/app-queries';
 import { usePlayerContext } from 'root/Player';
+import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 
 const useDragActions = () => {
   const library = useLibrary();
   const player = usePlayerContext();
   const queueId = useQueueId();
   const { addToQueue, getQueue, removeFromQueue, updateQueue } = useQueue();
-  const { playTrack, playTracks } = usePlayback();
+  const { playAlbum, playArtist, playTracks } = usePlayback();
 
-  const addLast = useCallback(async (dragItem: Track | Track[]) => {
-    if (!queueId && !Array.isArray(dragItem)) {
-      await playTrack(dragItem);
+  const addLast = useCallback(async (dragItems: (Album | Artist | Track)[]) => {
+    if (isEmpty(dragItems)) return;
+    if (!queueId && isAlbum(dragItems[0])) {
+      const [album] = dragItems as Album[];
+      await playAlbum(album);
       return;
     }
-    if (!queueId && Array.isArray(dragItem)) {
-      await playTracks(dragItem);
+    if (!queueId && isArtist(dragItems[0])) {
+      const [artist] = dragItems as Artist[];
+      await playArtist(artist);
       return;
     }
-    const newQueue = await addToQueue({
-      newTracks: dragItem,
-      sendToast: true,
-      end: true,
-    });
-    await updateQueue(newQueue);
-    player.updateTracks(newQueue, 'update');
-  }, [addToQueue, playTrack, playTracks, player, queueId, updateQueue]);
+    if (!queueId && isTrack(dragItems[0])) {
+      const tracks = dragItems as Track[];
+      await playTracks(tracks);
+      return;
+    }
+    if (isAlbum(dragItems[0])) {
+      const [album] = dragItems as Album[];
+      const newQueue = await addToQueue({
+        newTracks: album,
+        sendToast: true,
+        end: true,
+      });
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+      return;
+    }
+    if (isArtist(dragItems[0])) {
+      const [artist] = dragItems as Artist[];
+      const newQueue = await addToQueue({
+        newTracks: artist,
+        sendToast: true,
+        end: true,
+      });
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+      return;
+    }
+    if (isTrack(dragItems[0])) {
+      const tracks = dragItems as Track[];
+      const newQueue = await addToQueue({
+        newTracks: tracks,
+        sendToast: true,
+        end: true,
+      });
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+    }
+  }, [addToQueue, playAlbum, playArtist, playTracks, player, queueId, updateQueue]);
 
-  const addMany = useCallback(async (dragItems: Track[], afterId: PlayQueueItem['id']) => {
-    if (!queueId) {
-      await playTracks(dragItems);
+  const addMany = useCallback(async (
+    dragItems: (Album | Artist | Track)[],
+    afterId: PlayQueueItem['id'],
+  ) => {
+    if (isEmpty(dragItems)) return;
+    if (!queueId && isAlbum(dragItems[0])) {
+      const [album] = dragItems as Album[];
+      await playAlbum(album);
       return;
     }
-    const newQueue = await addToQueue({
-      newTracks: dragItems,
-      sendToast: true,
-      after: afterId,
-    });
-    await updateQueue(newQueue);
-    player.updateTracks(newQueue, 'update');
-  }, [addToQueue, playTracks, player, queueId, updateQueue]);
+    if (!queueId && isArtist(dragItems[0])) {
+      const [artist] = dragItems as Artist[];
+      await playArtist(artist);
+      return;
+    }
+    if (!queueId && isTrack(dragItems[0])) {
+      const tracks = dragItems as Track[];
+      await playTracks(tracks);
+      return;
+    }
+    if (isAlbum(dragItems[0])) {
+      const [album] = dragItems as Album[];
+      const newQueue = await addToQueue({
+        newTracks: album,
+        sendToast: true,
+        after: afterId,
+      });
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+      return;
+    }
+    if (isArtist(dragItems[0])) {
+      const [artist] = dragItems as Artist[];
+      const newQueue = await addToQueue({
+        newTracks: artist,
+        sendToast: true,
+        after: afterId,
+      });
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+      return;
+    }
+    if (isTrack(dragItems[0])) {
+      const tracks = dragItems as Track[];
+      const newQueue = await addToQueue({
+        newTracks: tracks,
+        sendToast: true,
+        after: afterId,
+      });
+      await updateQueue(newQueue);
+      player.updateTracks(newQueue, 'update');
+    }
+  }, [addToQueue, playAlbum, playArtist, playTracks, player, queueId, updateQueue]);
 
   const moveLast = useCallback(async (item: PlayQueueItem) => {
     await removeFromQueue(item.id);

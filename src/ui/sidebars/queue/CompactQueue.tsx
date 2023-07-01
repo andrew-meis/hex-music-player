@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useMeasure } from 'react-use';
-import { Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { QueueMenu } from 'components/menus';
 import useDragActions from 'hooks/useDragActions';
 import { useLibrary } from 'queries/app-queries';
@@ -138,12 +138,6 @@ const CompactQueue = () => {
       return;
     }
     const target = items[index];
-    let tracks;
-    if (itemType === DragTypes.PLAYLIST_ITEM) {
-      tracks = array.map((item) => item.track) as Track[];
-    } else {
-      tracks = array as Track[];
-    }
     /** MOVE PLAYQUEUE ITEMS WITHIN QUEUE */
     if (itemType === DragTypes.PLAYQUEUE_ITEM && target) {
       const moveIds = array.map((queueItem) => queueItem.id);
@@ -156,20 +150,31 @@ const CompactQueue = () => {
       await moveManyLast(array);
       return;
     }
-    /** ADD OTHER ITEMS WITHIN QUEUE */
-    if (target) {
+    /** ADD PLAYLIST ITEMS */
+    if (itemType === DragTypes.PLAYLIST_ITEM && target) {
       const prevId = getPrevId(target.id);
-      await addMany(tracks as Track[], prevId as number);
+      await addMany(array.map((item) => item.track) as Track[], prevId as number);
       return;
     }
-    /** ADD OTHER ITEMS TO END OF QUEUE */
+    if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
+      await addLast(array.map((item) => item.track) as Track[]);
+      return;
+    }
+    /** ADD OTHER ITEMS */
+    if (target) {
+      const prevId = getPrevId(target.id);
+      await addMany(array as (Album | Artist | Track)[], prevId as number);
+      return;
+    }
     if (!target) {
-      await addLast(tracks as Track[]);
+      await addLast(array as (Album | Artist | Track)[]);
     }
   }, [addLast, addMany, getPrevId, items, moveMany, moveManyLast]);
 
   const [, drop] = useDrop(() => ({
     accept: [
+      DragTypes.ALBUM,
+      DragTypes.ARTIST,
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
       DragTypes.TRACK,

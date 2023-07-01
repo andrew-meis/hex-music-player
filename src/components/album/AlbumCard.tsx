@@ -1,6 +1,8 @@
 import { SvgIcon } from '@mui/material';
 import moment from 'moment';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiAlbumFill } from 'react-icons/ri';
 import { Link, NavigateFunction } from 'react-router-dom';
 import { Album, Library } from 'api/index';
@@ -8,6 +10,7 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import styles from 'styles/MotionImage.module.scss';
+import { DragTypes } from 'types/enums';
 import { AlbumWithSection, CardMeasurements } from 'types/interfaces';
 
 interface Map {
@@ -56,6 +59,15 @@ const AlbumCard = ({
     },
   );
 
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.ALBUM,
+    item: () => [album],
+  }), [album]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, album]);
+
   return (
     <MotionBox
       className={styles.container}
@@ -63,6 +75,7 @@ const AlbumCard = ({
       data-section={section}
       height={measurements.ROW_HEIGHT}
       key={album.id}
+      ref={drag}
       sx={{
         backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
         borderRadius: '4px',

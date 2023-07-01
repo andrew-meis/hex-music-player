@@ -1,15 +1,20 @@
 import { Box, SvgIcon } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useDrop } from 'react-dnd';
 import { BsMusicNoteList } from 'react-icons/bs';
 import { NavigateFunction } from 'react-router-dom';
-import { Library, Playlist } from 'api/index';
+import {
+  Album, Artist, Library, PlayQueueItem, Playlist, PlaylistItem, Track,
+} from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
+import { useAddToPlaylist } from 'hooks/playlistHooks';
 import usePlayback from 'hooks/usePlayback';
 import { usePlaylist } from 'queries/playlist-queries';
 import styles from 'styles/MotionImage.module.scss';
+import { DragTypes } from 'types/enums';
 import { CardMeasurements } from 'types/interfaces';
 
 interface PlaylistCardProps {
@@ -29,6 +34,7 @@ const PlaylistCard = ({
   menuTarget,
   navigate,
 }: PlaylistCardProps) => {
+  const addToPlaylist = useAddToPlaylist();
   const [hover, setHover] = useState(false);
   const { playPlaylist } = usePlayback();
   const { data: playlist, isLoading } = usePlaylist(id, library);
@@ -48,6 +54,35 @@ const PlaylistCard = ({
     );
   }, [library, playlist]);
 
+  const handleDrop = useCallback(async (
+    array: any[],
+    itemType: null | string | symbol,
+  ) => {
+    if (!playlist) return;
+    if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
+      await addToPlaylist(playlist.id, array.map((item) => item.track.id));
+      return;
+    }
+    await addToPlaylist(playlist.id, array.map((item) => item.id));
+  }, [addToPlaylist, playlist]);
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: [
+      DragTypes.ALBUM,
+      DragTypes.ARTIST,
+      DragTypes.PLAYLIST_ITEM,
+      DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.TRACK,
+    ],
+    drop: (
+      item: Album[] | Artist[] | PlaylistItem[] | PlayQueueItem[] | Track[],
+      monitor,
+    ) => handleDrop(item, monitor.getItemType()),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }), [playlist]);
+
   const handlePlay = () => playPlaylist(playlist!);
   const handleShuffle = () => playPlaylist(playlist!, true);
 
@@ -57,8 +92,10 @@ const PlaylistCard = ({
       data-id={id}
       height={measurements.ROW_HEIGHT}
       key={id}
+      ref={!playlist?.smart ? drop : null}
       sx={{
         backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
+        border: isOver ? '1px solid var(--mui-palette-primary-main)' : '1px solid transparent',
         borderRadius: '32px',
         contain: 'paint',
         '&:hover': {

@@ -1,6 +1,8 @@
 import { SvgIcon } from '@mui/material';
 import moment from 'moment';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { Artist, Library } from 'api/index';
@@ -9,6 +11,7 @@ import { imageMotion } from 'components/motion-components/motion-variants';
 import { Subtitle, Title } from 'components/typography/TitleSubtitle';
 import { ArtistPreview } from 'routes/genre/Genre';
 import styles from 'styles/MotionImage.module.scss';
+import { DragTypes } from 'types/enums';
 import { CardMeasurements } from 'types/interfaces';
 import { isArtist } from 'types/type-guards';
 
@@ -43,12 +46,22 @@ const ArtistCard = ({
     },
   );
 
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.ARTIST,
+    item: () => [artist],
+  }), [artist]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, artist]);
+
   return (
     <MotionBox
       className={styles.container}
       data-id={artist.id}
       height={measurements.ROW_HEIGHT}
       key={artist.id}
+      ref={drag}
       sx={{
         backgroundColor: open || menuOpen ? 'var(--mui-palette-action-selected)' : '',
         borderRadius: '32px',

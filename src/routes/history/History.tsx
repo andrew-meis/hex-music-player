@@ -1,12 +1,15 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
 import moment from 'moment';
-import React from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
-import { TiInfoLarge } from 'react-icons/ti';
-import { useLocation, useParams } from 'react-router-dom';
-import { ListProps, Virtuoso } from 'react-virtuoso';
+import { useLocation, useNavigationType, useParams } from 'react-router-dom';
+import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { Track } from 'api/index';
+import { TrackMenu } from 'components/menus';
 import { WIDTH_CALC } from 'constants/measures';
+import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useTrackHistory } from 'queries/track-queries';
 import Footer from 'routes/virtuoso-components/Footer';
@@ -17,20 +20,22 @@ const Header = () => (
     alignItems="flex-start"
     borderBottom="1px solid"
     borderColor="border.main"
+    boxSizing="border-box"
     color="text.secondary"
     display="flex"
     height={30}
     maxWidth={900}
     mx="auto"
+    paddingX={1}
     width={WIDTH_CALC}
   >
     <Box sx={{
-      marginRight: 'auto', textAlign: 'right', flexShrink: 0,
+      marginRight: 'auto', flexShrink: 0,
     }}
     >
-      <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-        <TiInfoLarge />
-      </SvgIcon>
+      <Typography variant="overline">
+        Title
+      </Typography>
     </Box>
     <Box sx={{
       width: '50px', marginLeft: 'auto', textAlign: 'right', flexShrink: 0,
@@ -61,69 +66,144 @@ const History = () => {
   const config = useConfig();
   const library = useLibrary();
   const location = useLocation();
+  const menuTarget = useRef<Track[]>();
+  const menuIndex = useRef<number>();
+  const navigationType = useNavigationType();
+  const virtuoso = useRef<VirtuosoHandle>(null);
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
+  const { playSwitch } = usePlayback();
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const { data } = useTrackHistory({
+  const { data, isLoading } = useTrackHistory({
     config: config.data,
     library,
     id: +id,
   });
 
+  const handleContextMenu = async (
+    event: React.MouseEvent<HTMLDivElement>,
+    index: number,
+    itemId: string,
+  ) => {
+    event.preventDefault();
+    const { tracks } = (await library.track(parseInt(itemId, 10)));
+    menuTarget.current = tracks;
+    menuIndex.current = index;
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  };
+
+  const handleScrollState = (isScrolling: boolean) => {
+    if (isScrolling) {
+      document.body.classList.add('disable-hover');
+    }
+    if (!isScrolling) {
+      document.body.classList.remove('disable-hover');
+    }
+  };
+
+  const initialScrollTop = useMemo(() => {
+    let top;
+    top = sessionStorage.getItem(`history-scroll ${id}`);
+    if (!top) return 0;
+    top = parseInt(top, 10);
+    if (navigationType === 'POP') {
+      return top;
+    }
+    sessionStorage.setItem(
+      `history-scroll ${id}`,
+      0 as unknown as string,
+    );
+    return 0;
+  }, [id, navigationType]);
+
+  if (!data || isLoading) {
+    return null;
+  }
+
   return (
-    <motion.div
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-      key={location.pathname}
-      style={{ height: '100%' }}
-      // onAnimationComplete={() => virtuoso.current
-      //   ?.scrollTo({ top: initialScrollTop })}
-    >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
+    <>
+      <motion.div
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        initial={{ opacity: 0 }}
+        key={location.pathname}
+        style={{ height: '100%' }}
+        onAnimationComplete={() => virtuoso.current
+          ?.scrollTo({ top: initialScrollTop })}
+      >
+        <Virtuoso
+          className="scroll-container"
+          components={{
+            Footer,
+            Header,
+            List,
+          }}
+          data={data}
+          fixedItemHeight={40}
+          isScrolling={handleScrollState}
+          itemContent={(index, item) => (
+            <Box
+              alignItems="center"
+              borderRadius="4px"
+              boxSizing="border-box"
+              display="flex"
+              height={40}
+              justifyContent="space-between"
+              paddingX={1}
+              sx={{
+                backgroundColor: menuIndex.current === index
+                  ? 'action.selected'
+                  : '',
+                color: menuIndex.current === index
+                  ? 'text.primary'
+                  : 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                  color: 'text.primary',
+                },
+              }}
+              width={1}
+              onContextMenu={(e) => handleContextMenu(e, index, item.ratingKey)}
+            >
+              <Typography
+                sx={{
+                  display: '-webkit-box',
+                  overflow: 'hidden',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: 1,
+                }}
+              >
+                {`${item.grandparentTitle} · ${item.parentTitle} · ${item.title}`}
+              </Typography>
+              <Typography flexShrink={0} minWidth={180} textAlign="right">
+                {moment.utc(item.viewedAt * 1000).format('DD MMM YYYY, h:mm a')}
+              </Typography>
+            </Box>
+          )}
+          ref={virtuoso}
+          style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
+          onScroll={(e) => {
+            const target = e.currentTarget as unknown as HTMLDivElement;
+            sessionStorage.setItem(
+              `history-scroll ${id}`,
+              target.scrollTop as unknown as string,
+            );
+          }}
+        />
+      </motion.div>
+      <TrackMenu
+        anchorPoint={anchorPoint}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        tracks={menuTarget.current}
+        onClose={() => {
+          menuIndex.current = undefined;
+          toggleMenu(false);
         }}
-        data={data}
-        fixedItemHeight={40}
-        // isScrolling={handleScrollState}
-        itemContent={(index, item) => (
-          <Box
-            alignItems="center"
-            borderRadius="4px"
-            color="text.secondary"
-            display="flex"
-            height={40}
-            justifyContent="space-between"
-            paddingX={1}
-            sx={{
-              boxSizing: 'border-box',
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              },
-            }}
-            width={1}
-          >
-            <Typography>
-              {`${item.grandparentTitle} · ${item.parentTitle} · ${item.title}`}
-            </Typography>
-            <Typography>
-              {moment.utc(item.viewedAt * 1000).format('DD MMM YYYY')}
-            </Typography>
-          </Box>
-        )}
-        // ref={virtuoso}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        onScroll={(e) => {
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `history-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
+        {...menuProps}
       />
-    </motion.div>
+    </>
   );
 };
 

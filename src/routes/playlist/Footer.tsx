@@ -6,12 +6,11 @@ import { DragTypes } from 'types/enums';
 import { PlaylistContext } from './Playlist';
 
 const Footer = ({ context }: { context?: PlaylistContext | undefined }) => {
+  const dragType = document.getElementById('playlist-box')?.getAttribute('data-drag-type');
   const { handleDrop, items, playlist } = context!;
   const [, drop] = useDrop(() => ({
     accept: [
       DragTypes.PLAYLIST_ITEM,
-      DragTypes.PLAYQUEUE_ITEM,
-      DragTypes.TRACK,
     ],
     drop: (
       item: PlaylistItem[] | PlayQueueItem[] | Track[],
@@ -29,14 +28,17 @@ const Footer = ({ context }: { context?: PlaylistContext | undefined }) => {
       ref={playlist?.smart ? null : drop}
       width={WIDTH_CALC}
       onDragEnter={() => {
+        if (dragType !== 'playlist-item') return;
         document.querySelector('.playlist-footer')
           ?.classList.add('playlist-footer-over');
       }}
       onDragLeave={() => {
+        if (dragType !== 'playlist-item') return;
         document.querySelector('.playlist-footer')
           ?.classList.remove('playlist-footer-over');
       }}
       onDrop={() => {
+        if (dragType !== 'playlist-item') return;
         document.querySelector('.playlist-footer')
           ?.classList.remove('playlist-footer-over');
       }}

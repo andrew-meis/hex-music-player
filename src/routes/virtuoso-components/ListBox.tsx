@@ -9,7 +9,8 @@ interface ListBoxProps {
   drag: (node: any) => void;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => void;
   hoverIndex: React.MutableRefObject<number | null>;
-  listRef: React.ForwardedRef<HTMLDivElement>
+  id?: string;
+  listRef: React.ForwardedRef<HTMLDivElement>;
   selectedRows: number[];
   style: React.CSSProperties | undefined;
 }
@@ -20,13 +21,16 @@ const ListBox = ({
   drag,
   handleContextMenu,
   hoverIndex,
+  id,
   listRef,
   selectedRows,
   style,
+  ...rest
 }: ListBoxProps) => (
   <ClickAwayListener onClickAway={clearRowSelection}>
     <Box
       className="list-box"
+      id={id}
       ref={mergeRefs(drag, listRef)}
       style={style}
       sx={{ maxWidth: '900px', mx: 'auto', width: WIDTH_CALC }}
@@ -52,10 +56,15 @@ const ListBox = ({
           draggedNode?.classList.add('dragged');
         }
       }}
+      {...rest}
     >
       {children}
     </Box>
   </ClickAwayListener>
 );
+
+ListBox.defaultProps = {
+  id: undefined,
+};
 
 export default ListBox;

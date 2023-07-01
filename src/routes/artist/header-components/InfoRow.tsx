@@ -4,6 +4,7 @@ import { flag } from 'country-emoji';
 import { isEmpty } from 'lodash';
 import { useCallback, useRef } from 'react';
 import emoji from 'react-easy-emoji';
+import { RiHistoryFill } from 'react-icons/ri';
 import { SiMusicbrainz } from 'react-icons/si';
 import { TbExternalLink, TbBrandLastfm } from 'react-icons/tb';
 import { NavigateFunction } from 'react-router-dom';
@@ -69,12 +70,13 @@ const FlagAndPlaycount = ({ artist }: {artist: Artist}) => (
 
 interface MenuBoxProps {
   artist: Artist;
+  navigate: NavigateFunction;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   refreshMetadata: (id: number) => Promise<void>
   width: number;
 }
 
-const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) => {
+const MenuBox = ({ artist, navigate, playSwitch, refreshMetadata, width }: MenuBoxProps) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const mbid = (artist.mbid[0].id as unknown as string).slice(7);
   const filters = window.electron.readFilters('filters');
@@ -121,6 +123,11 @@ const MenuBox = ({ artist, playSwitch, refreshMetadata, width }: MenuBoxProps) =
             {button.name}
           </MenuItem>
         ))}
+        <MenuDivider />
+        <MenuItem onClick={() => navigate(`/history/${artist.id}`)}>
+          <SvgIcon sx={{ mr: '8px' }}><RiHistoryFill /></SvgIcon>
+          View play history
+        </MenuItem>
         <MenuDivider />
         {hasHiddenReleases && (
           <MenuItem onClick={() => restoreAlbums(artist)}>
@@ -180,6 +187,7 @@ const InfoRow = ({
       >
         <MenuBox
           artist={artist}
+          navigate={navigate}
           playSwitch={playSwitch}
           refreshMetadata={refreshMetadata}
           width={32}
@@ -203,6 +211,7 @@ const InfoRow = ({
       <ChipGenres colors={colors} genres={artist.genre} navigate={navigate} />
       <MenuBox
         artist={artist}
+        navigate={navigate}
         playSwitch={playSwitch}
         refreshMetadata={refreshMetadata}
         width={180}

@@ -6,6 +6,7 @@ import useRowSelection from 'hooks/useRowSelection';
 import { RowProps } from './Playlist';
 
 const Row = React.memo(({ index, item, context }: RowProps) => {
+  const dragType = document.getElementById('playlist-box')?.getAttribute('data-drag-type');
   const { isRowSelected, toggleRowSelection } = useRowSelection();
   const [over, setOver] = useState(false);
   const {
@@ -52,7 +53,9 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
   return (
     <Box
       alignItems="center"
-      className={over ? 'playlist-track playlist-track-over' : 'playlist-track'}
+      className={over && dragType === 'playlist-item'
+        ? 'playlist-track playlist-track-over'
+        : 'playlist-track'}
       color="text.secondary"
       data-smart={playlist?.smart || sort.by !== 'index'}
       display="flex"

@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { IoMdMicrophone } from 'react-icons/io';
 import { MdPlaylistAdd } from 'react-icons/md';
-import { RiAlbumFill } from 'react-icons/ri';
+import { RiAlbumFill, RiHistoryFill } from 'react-icons/ri';
 import { TbWaveSawTool } from 'react-icons/tb';
 import { TiInfoLarge } from 'react-icons/ti';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -103,6 +103,10 @@ const TrackMenu = ({
           >
             <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
             Similar tracks
+          </MenuItem>
+          <MenuItem onClick={() => navigate(`/history/${tracks[0].id}`)}>
+            <SvgIcon sx={{ mr: '8px' }}><RiHistoryFill /></SvgIcon>
+            View play history
           </MenuItem>
           <MenuDivider />
           {

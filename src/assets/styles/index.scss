@@ -409,3 +409,15 @@ select:focus-visible {
   background-color: var(--mui-palette-action-selected) !important;
   color: var(--mui-palette-text-primary) !important;
 }
+
+#playlist-box {
+  border: 1px solid transparent;
+}
+
+#playlist-box[data-drag-type="album"][data-is-over="true"],
+#playlist-box[data-drag-type="artist"][data-is-over="true"],
+#playlist-box[data-drag-type="track"][data-is-over="true"],
+#playlist-box[data-drag-type="playqueue-item"][data-is-over="true"] {
+  border: 1px solid var(--mui-palette-primary-main);
+  border-radius: 4px;
+}

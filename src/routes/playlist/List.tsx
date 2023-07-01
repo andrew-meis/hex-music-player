@@ -1,12 +1,13 @@
-import { SvgIcon } from '@mui/material';
+import { Box, SvgIcon, Typography } from '@mui/material';
 import { MenuDivider, MenuItem } from '@szhsin/react-menu';
+import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { MdDelete } from 'react-icons/md';
 import { useKey } from 'react-use';
 import { ListProps } from 'react-virtuoso';
-import { PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import useRowSelection from 'hooks/useRowSelection';
@@ -30,16 +31,19 @@ const List = React
     const { getAllSelections, clearRowSelection } = useRowSelection();
     const selections = useMemo(() => getAllSelections(), [getAllSelections]);
 
-    const [, drop] = useDrop(() => ({
+    const [collectedProps, drop] = useDrop(() => ({
       accept: [
+        DragTypes.ALBUM,
+        DragTypes.ARTIST,
         DragTypes.PLAYLIST_ITEM,
         DragTypes.PLAYQUEUE_ITEM,
         DragTypes.TRACK,
       ],
       drop: (
-        item: PlaylistItem[] | PlayQueueItem[] | Track[],
+        item: Album[] | Artist[] | PlaylistItem[] | PlayQueueItem[] | Track[],
         monitor,
       ) => handleDrop(item, dropIndex.current, monitor.getItemType()),
+      collect: (monitor) => ({ isOver: monitor.isOver(), type: monitor.getItemType() }),
     }), [items]);
 
     const { drag, dragPreview } = useTrackDragDrop({
@@ -83,13 +87,60 @@ const List = React
       toggleMenu,
     } = useTrackMenu({ tracks: context?.items.map((item) => item.track) || [] });
 
+    if (isEmpty(children)) {
+      return (
+        <ListBox
+          clearRowSelection={clearRowSelection}
+          data-drag-type={collectedProps.type}
+          data-is-over={collectedProps.isOver}
+          drag={playlist?.smart || sort.by !== 'index' ? drag : dragDrop}
+          handleContextMenu={handleContextMenu}
+          hoverIndex={hoverIndex}
+          id="playlist-box"
+          listRef={listRef}
+          selectedRows={selections}
+          style={style}
+        >
+          <Box
+            alignItems="center"
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            paddingY={4}
+          >
+            <Typography
+              color="text.primary"
+              fontFamily="TT Commons, sans-serif"
+              fontWeight={700}
+              variant="h4"
+            >
+              No tracks!
+            </Typography>
+            {playlist?.smart && (
+              <Typography color="text.primary">
+                Nothing matches the filter criteria for this smart playlist.
+              </Typography>
+            )}
+            {!playlist?.smart && (
+              <Typography color="text.primary">
+                Drag something here to add it to the playlist.
+              </Typography>
+            )}
+          </Box>
+        </ListBox>
+      );
+    }
+
     return (
       <>
         <ListBox
           clearRowSelection={clearRowSelection}
+          data-drag-type={collectedProps.type}
+          data-is-over={collectedProps.isOver}
           drag={playlist?.smart || sort.by !== 'index' ? drag : dragDrop}
           handleContextMenu={handleContextMenu}
           hoverIndex={hoverIndex}
+          id="playlist-box"
           listRef={listRef}
           selectedRows={selections}
           style={style}

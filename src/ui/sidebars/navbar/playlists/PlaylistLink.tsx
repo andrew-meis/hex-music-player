@@ -3,7 +3,7 @@ import { MenuState } from '@szhsin/react-menu';
 import React, { useCallback } from 'react';
 import { useDrop } from 'react-dnd';
 import { NavLink } from 'react-router-dom';
-import { Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import {
   navlistBoxStyle,
   navlistActiveBox,
@@ -29,28 +29,26 @@ const PlaylistLink = ({
     array: any[],
     itemType: null | string | symbol,
   ) => {
-    let tracks;
     if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
-      tracks = array.map((item) => item.track) as Track[];
-    } else {
-      tracks = array as Track[];
+      await addToPlaylist(playlist.id, array.map((item) => item.track.id));
+      return;
     }
-    await addToPlaylist(playlist.id, tracks.map((track) => track.id));
+    await addToPlaylist(playlist.id, array.map((item) => item.id));
   }, [addToPlaylist, playlist.id]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: [
+      DragTypes.ALBUM,
+      DragTypes.ARTIST,
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
       DragTypes.TRACK,
     ],
     drop: (
-      item: PlaylistItem[] | PlayQueueItem[] | Track[],
+      item: Album[] | Artist[] | PlaylistItem[] | PlayQueueItem[] | Track[],
       monitor,
     ) => handleDrop(item, monitor.getItemType()),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
+    collect: (monitor) => ({ isOver: monitor.isOver() }),
   }), [playlist]);
 
   return (
