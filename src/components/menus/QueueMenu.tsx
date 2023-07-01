@@ -3,14 +3,12 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
+  MenuHeader,
   MenuItem,
-  SubMenu,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { BsPlayFill } from 'react-icons/bs';
-import { IoMdMicrophone } from 'react-icons/io';
 import { MdPlaylistAdd, MdClear } from 'react-icons/md';
-import { RiAlbumFill } from 'react-icons/ri';
 import { TbWaveSawTool } from 'react-icons/tb';
 import { TiArrowForward, TiInfoLarge } from 'react-icons/ti';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -18,6 +16,8 @@ import { Artist, PlayQueueItem, Track } from 'api/index';
 import useArtistMatch from 'hooks/useArtistMatch';
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
+import AlbumMenuItem from './menu-items/AlbumMenuItem';
+import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
 interface QueueMenuProps extends ControlledMenuProps {
   currentId: number | undefined;
@@ -145,90 +145,80 @@ const QueueMenu = ({
         <SvgIcon sx={{ mr: '8px' }}><TbWaveSawTool /></SvgIcon>
         Similar tracks
       </MenuItem>
-      <MenuDivider />
-      {
-        item.track.grandparentTitle === 'Various Artists'
-        && artists.length === 1
-        && (
-          <SubMenu
-            align="center"
-            direction="right"
-            label={(
-              <>
-                <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                Go to artist
-              </>
-            )}
-          >
-            {artists.map((artist) => (
-              <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
-                {artist.title}
-              </MenuItem>
-            ))}
-          </SubMenu>
-        )
-      }
-      {
-        (artists.length === 0 || artists.length === 1)
-        && item.track.grandparentTitle !== 'Various Artists'
-        && (
-          <SubMenu
-            align="center"
-            direction="right"
-            label={(
-              <>
-                <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                Go to artist
-              </>
-            )}
-          >
-            <MenuItem onClick={() => handleTrackNavigate(item.track)}>
-              {item.track.grandparentTitle}
-            </MenuItem>
-          </SubMenu>
-        )
-      }
-      {
-        artists.length > 1
-        && (
-          <SubMenu
-            align="center"
-            direction="right"
-            label={(
-              <>
-                <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                Go to artist
-              </>
-            )}
-          >
-            {artists.map((artist) => (
-              <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
-                {artist.title}
-              </MenuItem>
-            ))}
-          </SubMenu>
-        )
-      }
-      <NavLink className="nav-link" to={`/albums/${item.track.parentId}`}>
-        {({ isActive }) => (
-          <>
-            {!isActive && (
-              <MenuItem>
-                <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-                Go to album
-              </MenuItem>
-            )}
-          </>
-        )}
-      </NavLink>
       <NavLink className="nav-link" to={`/tracks/${item.track.id}`}>
         {({ isActive }) => (
           <>
             {!isActive && (
               <MenuItem>
                 <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
-                Track information
+                Track details
               </MenuItem>
+            )}
+          </>
+        )}
+      </NavLink>
+      <MenuDivider />
+      {
+        item.track.grandparentTitle === 'Various Artists'
+        && artists.length === 1
+        && (
+          <>
+            <MenuHeader>Artists</MenuHeader>
+            {artists.map((artist) => (
+              <ArtistMenuItem
+                key={artist.id}
+                thumb={artist.thumb}
+                title={artist.title}
+                onClick={() => handleArtistNavigate(artist)}
+              />
+            ))}
+            <MenuDivider />
+          </>
+        )
+      }
+      {
+        (artists.length === 0 || artists.length === 1)
+        && item.track.grandparentTitle !== 'Various Artists'
+        && (
+          <>
+            <MenuHeader>Artists</MenuHeader>
+            <ArtistMenuItem
+              thumb={item.track.grandparentThumb}
+              title={item.track.grandparentTitle}
+              onClick={() => handleTrackNavigate(item.track)}
+            />
+            <MenuDivider />
+          </>
+        )
+      }
+      {
+        artists.length > 1
+        && (
+          <>
+            <MenuHeader>Artists</MenuHeader>
+            {artists.map((artist) => (
+              <ArtistMenuItem
+                key={artist.id}
+                thumb={artist.thumb}
+                title={artist.title}
+                onClick={() => handleArtistNavigate(artist)}
+              />
+            ))}
+            <MenuDivider />
+          </>
+        )
+      }
+      <NavLink className="nav-link" to={`/albums/${item.track.parentId}`}>
+        {({ isActive }) => (
+          <>
+            {!isActive && (
+              <>
+                <MenuHeader>Album</MenuHeader>
+                <AlbumMenuItem
+                  thumb={item.track.parentThumb}
+                  title={item.track.parentTitle}
+                />
+              </>
             )}
           </>
         )}

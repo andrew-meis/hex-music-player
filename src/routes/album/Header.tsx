@@ -2,7 +2,9 @@ import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
 import moment from 'moment';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { BiHash } from 'react-icons/bi';
 import { IoMdMicrophone } from 'react-icons/io';
 import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
@@ -15,6 +17,7 @@ import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import usePlayback from 'hooks/usePlayback';
+import { DragTypes } from 'types/enums';
 import { AlbumContext } from './Album';
 import FixedHeader from './FixedHeader';
 
@@ -42,6 +45,15 @@ const Header = ({ context }: { context?: AlbumContext }) => {
   const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
   const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
+
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.ALBUM,
+    item: () => [album],
+  }), [album]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, album]);
 
   const { muted } = colors!;
   const color = chroma(muted).saturate(2).brighten(1).hex();
@@ -88,6 +100,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
           display="flex"
           height={272}
           position="relative"
+          ref={drag}
           sx={{
             backgroundImage:
             `radial-gradient(circle at 115% 85%, ${gradStart}, ${gradEndOne} 40%),

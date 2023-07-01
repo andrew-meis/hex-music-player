@@ -1,5 +1,7 @@
 import { SvgIcon } from '@mui/material';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { RiAlbumFill } from 'react-icons/ri';
 import { NavigateFunction } from 'react-router-dom';
 import { Album, Library } from 'api/index';
@@ -7,6 +9,7 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { imageMotion } from 'components/motion-components/motion-variants';
 import Tooltip from 'components/tooltip/Tooltip';
 import styles from 'styles/MotionImage.module.scss';
+import { DragTypes } from 'types/enums';
 import { CardMeasurements } from 'types/interfaces';
 
 interface AlbumCardNoTextProps {
@@ -36,6 +39,15 @@ const AlbumCardNoText = ({
     },
   );
 
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.ALBUM,
+    item: () => [album],
+  }), [album]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, album]);
+
   return (
     <MotionBox
       className={styles.container}
@@ -44,6 +56,7 @@ const AlbumCardNoText = ({
       height={measurements.IMAGE_SIZE}
       justifyContent="center"
       key={album.id}
+      ref={drag}
       whileHover="hover"
       width={measurements.IMAGE_SIZE}
       onContextMenu={handleContextMenu}

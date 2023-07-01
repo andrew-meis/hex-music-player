@@ -283,6 +283,7 @@ select:focus-visible {
   box-shadow: var(--mui-shadows-8);
   color: var(--mui-palette-text-primary);
   font-size: 0.875rem;
+  max-width: 164px;
   min-width: 164px;
   padding: 4px 0;
   z-index: 2000;
@@ -319,6 +320,11 @@ select:focus-visible {
   margin: 4px 10px;
 }
 
+.szh-menu__header {
+  color: var(--mui-palette-text-secondary);
+  padding: 0.2rem 0.5rem;
+}
+
 .szh-menu__item {
   cursor: default;
   border-radius: 4px;
@@ -326,6 +332,14 @@ select:focus-visible {
   margin: 0 4px 0 4px;
   min-height: 24px;
   padding: 6px 8px;
+}
+
+.szh-menu__item > span {
+  display: -webkit-box;
+  overflow: hidden;
+  word-break: break-all;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 }
 
 .szh-menu__item--anchor {

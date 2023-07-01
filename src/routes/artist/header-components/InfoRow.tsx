@@ -131,11 +131,11 @@ const MenuBox = ({ artist, navigate, playSwitch, refreshMetadata, width }: MenuB
         <MenuDivider />
         {hasHiddenReleases && (
           <MenuItem onClick={() => restoreAlbums(artist)}>
-            Restore Hidden
+            Restore hidden
           </MenuItem>
         )}
         <MenuItem onClick={() => refreshMetadata(artist.id)}>
-          Refresh Metadata
+          Refresh metadata
         </MenuItem>
         <MenuDivider />
         <MenuItem href={`https://fanart.tv/artist/${mbid}`} target="_blank">

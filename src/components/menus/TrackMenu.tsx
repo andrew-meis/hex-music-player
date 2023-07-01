@@ -3,14 +3,13 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
+  MenuHeader,
   MenuItem,
-  SubMenu,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { IoMdMicrophone } from 'react-icons/io';
 import { MdPlaylistAdd } from 'react-icons/md';
-import { RiAlbumFill, RiHistoryFill } from 'react-icons/ri';
+import { RiHistoryFill } from 'react-icons/ri';
 import { TbWaveSawTool } from 'react-icons/tb';
 import { TiInfoLarge } from 'react-icons/ti';
 import { NavLink, useNavigate } from 'react-router-dom';
@@ -19,6 +18,8 @@ import { ButtonSpecs, trackButtons, tracksButtons } from 'constants/buttons';
 import useArtistMatch from 'hooks/useArtistMatch';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
+import AlbumMenuItem from './menu-items/AlbumMenuItem';
+import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
 interface TrackMenuProps extends ControlledMenuProps{
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
@@ -108,90 +109,80 @@ const TrackMenu = ({
             <SvgIcon sx={{ mr: '8px' }}><RiHistoryFill /></SvgIcon>
             View play history
           </MenuItem>
-          <MenuDivider />
-          {
-            tracks[0].grandparentTitle === 'Various Artists'
-            && artists.length === 1
-            && (
-              <SubMenu
-                align="center"
-                direction="right"
-                label={(
-                  <>
-                    <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                    Go to artist
-                  </>
-                )}
-              >
-                {artists.map((artist) => (
-                  <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
-                    {artist.title}
-                  </MenuItem>
-                ))}
-              </SubMenu>
-            )
-          }
-          {
-            (artists.length === 0 || artists.length === 1)
-            && tracks[0].grandparentTitle !== 'Various Artists'
-            && (
-              <SubMenu
-                align="center"
-                direction="right"
-                label={(
-                  <>
-                    <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                    Go to artist
-                  </>
-                )}
-              >
-                <MenuItem onClick={() => handleTrackNavigate(tracks[0])}>
-                  {tracks[0].grandparentTitle}
-                </MenuItem>
-              </SubMenu>
-            )
-          }
-          {
-            artists.length > 1
-            && (
-              <SubMenu
-                align="center"
-                direction="right"
-                label={(
-                  <>
-                    <SvgIcon sx={{ mr: '8px' }}><IoMdMicrophone /></SvgIcon>
-                    Go to artist
-                  </>
-                )}
-              >
-                {artists.map((artist) => (
-                  <MenuItem key={artist.id} onClick={() => handleArtistNavigate(artist)}>
-                    {artist.title}
-                  </MenuItem>
-                ))}
-              </SubMenu>
-            )
-          }
-          <NavLink className="nav-link" to={`/albums/${tracks[0].parentId}`}>
-            {({ isActive }) => (
-              <>
-                {!isActive && (
-                  <MenuItem>
-                    <SvgIcon sx={{ mr: '8px' }}><RiAlbumFill /></SvgIcon>
-                    Go to album
-                  </MenuItem>
-                )}
-              </>
-            )}
-          </NavLink>
           <NavLink className="nav-link" to={`/tracks/${tracks[0].id}`}>
             {({ isActive }) => (
               <>
                 {!isActive && (
                   <MenuItem>
                     <SvgIcon sx={{ mr: '8px' }}><TiInfoLarge /></SvgIcon>
-                    Track information
+                    Track details
                   </MenuItem>
+                )}
+              </>
+            )}
+          </NavLink>
+          <MenuDivider />
+          {
+            tracks[0].grandparentTitle === 'Various Artists'
+            && artists.length === 1
+            && (
+              <>
+                <MenuHeader>Artists</MenuHeader>
+                {artists.map((artist) => (
+                  <ArtistMenuItem
+                    key={artist.id}
+                    thumb={artist.thumb}
+                    title={artist.title}
+                    onClick={() => handleArtistNavigate(artist)}
+                  />
+                ))}
+                <MenuDivider />
+              </>
+            )
+          }
+          {
+            (artists.length === 0 || artists.length === 1)
+            && tracks[0].grandparentTitle !== 'Various Artists'
+            && (
+              <>
+                <MenuHeader>Artists</MenuHeader>
+                <ArtistMenuItem
+                  thumb={tracks[0].grandparentThumb}
+                  title={tracks[0].grandparentTitle}
+                  onClick={() => handleTrackNavigate(tracks[0])}
+                />
+                <MenuDivider />
+              </>
+            )
+          }
+          {
+            artists.length > 1
+            && (
+              <>
+                <MenuHeader>Artists</MenuHeader>
+                {artists.map((artist) => (
+                  <ArtistMenuItem
+                    key={artist.id}
+                    thumb={artist.thumb}
+                    title={artist.title}
+                    onClick={() => handleArtistNavigate(artist)}
+                  />
+                ))}
+                <MenuDivider />
+              </>
+            )
+          }
+          <NavLink className="nav-link" to={`/albums/${tracks[0].parentId}`}>
+            {({ isActive }) => (
+              <>
+                {!isActive && (
+                  <>
+                    <MenuHeader>Album</MenuHeader>
+                    <AlbumMenuItem
+                      thumb={tracks[0].parentThumb}
+                      title={tracks[0].parentTitle}
+                    />
+                  </>
                 )}
               </>
             )}

@@ -1,7 +1,9 @@
 import { Avatar, Box, Fade, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
 import { Album, Library, Track } from 'api/index';
@@ -12,7 +14,7 @@ import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { PaletteState } from 'hooks/usePalette';
 import { PlayParams } from 'hooks/usePlayback';
-import { PlayActions } from 'types/enums';
+import { DragTypes, PlayActions } from 'types/enums';
 import FixedHeader from './FixedHeader';
 
 const titleStyle = {
@@ -41,6 +43,15 @@ const Header = ({ album, colors, library, playSwitch, track }: HeaderProps) => {
   const [thumbSrc] = useThumbnail(track.parentThumb || 'none', 300);
   const [thumbSrcSm] = useThumbnail(track.parentThumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
+
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.TRACK,
+    item: () => [track],
+  }), [track]);
+
+  useEffect(() => {
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, track]);
 
   const color = chroma(colors.muted).saturate(2).brighten(1).hex();
   const contrastColor = contrast(color, 'black') > contrast(color, 'white')
@@ -78,6 +89,7 @@ const Header = ({ album, colors, library, playSwitch, track }: HeaderProps) => {
           display="flex"
           height={272}
           position="relative"
+          ref={drag}
           sx={{
             backgroundImage:
             /* eslint-disable max-len */
