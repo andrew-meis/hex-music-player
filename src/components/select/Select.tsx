@@ -24,7 +24,7 @@ const Select = ({
     }}
     SelectDisplayProps={{
       style: {
-        paddingLeft: '6px',
+        paddingLeft: '8px',
       },
     }}
     inputProps={{
