@@ -177,7 +177,7 @@ const History = () => {
                 {`${item.grandparentTitle} · ${item.parentTitle} · ${item.title}`}
               </Typography>
               <Typography flexShrink={0} minWidth={180} textAlign="right">
-                {moment.utc(item.viewedAt * 1000).format('DD MMM YYYY, h:mm a')}
+                {moment.unix(item.viewedAt).format('DD MMM YYYY, h:mm a')}
               </Typography>
             </Box>
           )}

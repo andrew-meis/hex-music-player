@@ -226,7 +226,8 @@ const Filter = ({ pathname }: { pathname: string }) => {
         />
         <Box
           className="scroll-container"
-          height={panelRef.current!.clientHeight - (338 + (show ? 36 : 0) + (error ? 22 : 0))}
+          // eslint-disable-next-line max-len
+          height={(panelRef.current?.clientHeight || 600) - (338 + (show ? 36 : 0) + (error ? 22 : 0))}
           overflow="auto"
           sx={{
             transition: 'height 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
