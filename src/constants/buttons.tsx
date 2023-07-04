@@ -141,6 +141,20 @@ export const allButtons: ButtonSpecs[] = [
     action: PlayActions.PLAY_PLAYLIST,
     shuffle: true,
   },
+  {
+    type: 'playlist',
+    icon: <SvgIcon sx={{ mr: '8px' }}><TiArrowForward /></SvgIcon>,
+    name: 'Play next',
+    action: PlayActions.ADD_TRACKS,
+    shuffle: false,
+  },
+  {
+    type: 'playlist',
+    icon: <SvgIcon sx={{ mr: '8px', transform: 'scale(1,-1)' }}><TiArrowForward /></SvgIcon>,
+    name: 'Play last',
+    action: PlayActions.ADD_TRACKS_LAST,
+    shuffle: false,
+  },
 ];
 
 export const albumButtons = allButtons.filter((button) => button.type === 'album');

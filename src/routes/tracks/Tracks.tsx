@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import ky from 'ky';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Library, PlayQueueItem, Track, parseTrackContainer } from 'api/index';
@@ -97,10 +97,22 @@ const Tracks = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
     },
   );
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
+  const limit = useQuery(
+    [QueryKeys.LIMIT],
+    () => (''),
+    {
+      initialData: '',
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    },
+  );
   const location = useLocation();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
@@ -114,6 +126,7 @@ const Tracks = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
     },
   );
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -124,7 +137,7 @@ const Tracks = () => {
   const { data: config } = useConfig();
   const { playUri } = usePlayback();
 
-  const fetchTracks = async ({ pageParam = 0 }) => {
+  const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
     const params = new URLSearchParams();
     params.append('type', 10 as unknown as string);
     params.append('X-Plex-Container-Start', `${pageParam}`);
@@ -132,6 +145,9 @@ const Tracks = () => {
     addFiltersToParams(filters.data, params);
     if (sort.data) {
       params.append('sort', sort.data.stringify());
+    }
+    if (limit.data) {
+      params.append('limit', limit.data);
     }
     const url = [
       library.api.uri,
@@ -141,10 +157,10 @@ const Tracks = () => {
     const newResponse = await ky(url).json() as Record<string, any>;
     const container = parseTrackContainer(newResponse);
     return container;
-  };
+  }, [config.sectionId, filters.data, library.api, limit.data, sort.data]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_TRACKS, filters.data, sort.data],
+    queryKey: [QueryKeys.ALL_TRACKS, filters.data, limit.data, sort.data],
     queryFn: fetchTracks,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,

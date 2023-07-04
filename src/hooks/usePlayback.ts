@@ -181,6 +181,18 @@ const usePlayback = () => {
             player.updateTracks(newQueue, 'update');
             break;
           }
+          if (params.playlist && queueId === 0) {
+            await playPlaylist(params.playlist);
+            break;
+          }
+          if (params.playlist) {
+            const newQueue = await addToQueue({
+              newTracks: params.playlist, sendToast: true, next: true,
+            });
+            await updateQueue(newQueue);
+            player.updateTracks(newQueue, 'update');
+            break;
+          }
           if (params.tracks && queueId === 0) {
             await playTracks(params.tracks);
             break;
@@ -213,6 +225,18 @@ const usePlayback = () => {
           if (params.artist) {
             const newQueue = await addToQueue({
               newTracks: params.artist, sendToast: true, end: true,
+            });
+            await updateQueue(newQueue);
+            player.updateTracks(newQueue, 'update');
+            break;
+          }
+          if (params.playlist && queueId === 0) {
+            await playPlaylist(params.playlist);
+            break;
+          }
+          if (params.playlist) {
+            const newQueue = await addToQueue({
+              newTracks: params.playlist, sendToast: true, end: true,
             });
             await updateQueue(newQueue);
             player.updateTracks(newQueue, 'update');

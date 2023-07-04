@@ -122,9 +122,21 @@ const Artists = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
     },
   );
   const library = useLibrary();
+  const limit = useQuery(
+    [QueryKeys.LIMIT],
+    () => (''),
+    {
+      initialData: '',
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    },
+  );
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -138,6 +150,7 @@ const Artists = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
     },
   );
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -164,6 +177,9 @@ const Artists = () => {
     if (sort.data) {
       params.append('sort', sort.data.stringify());
     }
+    if (limit.data) {
+      params.append('limit', limit.data);
+    }
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
@@ -172,10 +188,10 @@ const Artists = () => {
     const newResponse = await ky(url).json() as Record<string, any>;
     const container = parseArtistContainer(newResponse);
     return container;
-  }, [config.sectionId, filters.data, library.api, sort.data]);
+  }, [config.sectionId, filters.data, library.api, limit.data, sort.data]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_ARTISTS, filters.data, sort.data],
+    queryKey: [QueryKeys.ALL_ARTISTS, filters.data, limit.data, sort.data],
     queryFn: fetchArtists,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,

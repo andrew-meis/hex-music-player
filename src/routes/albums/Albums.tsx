@@ -107,10 +107,22 @@ const Albums = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
     },
   );
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
+  const limit = useQuery(
+    [QueryKeys.LIMIT],
+    () => (''),
+    {
+      initialData: '',
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    },
+  );
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
@@ -124,6 +136,7 @@ const Albums = () => {
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
+      staleTime: Infinity,
     },
   );
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -136,7 +149,7 @@ const Albums = () => {
   const { playSwitch, playUri } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
-  const fetchAlbums = async ({ pageParam = 0 }) => {
+  const fetchAlbums = useCallback(async ({ pageParam = 0 }) => {
     const params = new URLSearchParams();
     params.append('type', 9 as unknown as string);
     params.append('X-Plex-Container-Start', `${pageParam}`);
@@ -144,6 +157,9 @@ const Albums = () => {
     addFiltersToParams(filters.data, params);
     if (sort.data) {
       params.append('sort', sort.data.stringify());
+    }
+    if (limit.data) {
+      params.append('limit', limit.data);
     }
     const url = [
       library.api.uri,
@@ -153,10 +169,10 @@ const Albums = () => {
     const newResponse = await ky(url).json() as Record<string, any>;
     const container = parseAlbumContainer(newResponse);
     return container;
-  };
+  }, [config.sectionId, filters.data, library.api, limit.data, sort.data]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_ALBUMS, filters.data, sort.data],
+    queryKey: [QueryKeys.ALL_ALBUMS, filters.data, limit.data, sort.data],
     queryFn: fetchAlbums,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,

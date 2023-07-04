@@ -32,7 +32,7 @@ const getMetaText = (
       ? `${track.ratingCount.toLocaleString()} ${track.ratingCount > 1 ? 'listeners' : 'listener'}`
       : 'no listeners';
   }
-  if (metaText === TrackSortKeys.RELEASE_DATE) {
+  if (metaText === TrackSortKeys.RELEASE_DATE && !!originallyAvailableAt) {
     return moment.utc(originallyAvailableAt).format('DD MMM YYYY');
   }
   if (metaText === 'parentYear') {

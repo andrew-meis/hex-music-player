@@ -58,7 +58,6 @@ const FilterAutocomplete = ({
   return (
     <Box
       component="form"
-      onClick={(e) => e.stopPropagation()}
       onSubmit={(e) => {
         e.preventDefault();
         if (value.current) {
@@ -82,7 +81,7 @@ const FilterAutocomplete = ({
         ListboxProps={{
           className: 'scroll-container',
           style: {
-            backgroundImage: 'var(--mui-overlays-2)',
+            backgroundImage: 'var(--mui-overlays-8)',
             overflow: 'overlay',
           },
         }}

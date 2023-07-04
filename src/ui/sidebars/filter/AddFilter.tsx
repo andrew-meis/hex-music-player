@@ -1,19 +1,22 @@
-import { Box, Chip, MenuItem, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Chip, MenuItem, SelectChangeEvent } from '@mui/material';
 import hash from 'object-hash';
 import React, { useState } from 'react';
 import Select from 'components/select/Select';
 import { FilterObject } from './Filter';
 import FilterAutocomplete from './FilterAutocomplete';
+import FilterBoolean from './FilterBoolean';
 import filterInputs, { FilterInput } from './filterInputs';
 import FilterRating from './FilterRating';
 import FilterText from './FilterText';
 
 interface AddFilterProps {
+  error: boolean;
   filters: FilterObject[];
+  setError: React.Dispatch<React.SetStateAction<boolean>>;
   setFilters: React.Dispatch<React.SetStateAction<FilterObject[]>>;
 }
 
-const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
+const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => {
   const [activeInput, setActiveInput] = useState<FilterInput>(filterInputs[0]);
   const [count, setCount] = useState(0);
   const [inputGroup, setInputGroup] = useState<'Album' | 'Artist' | 'Track'>('Artist');
@@ -47,9 +50,9 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
   };
 
   const updateInputGroup = (newGroup: 'Album' | 'Artist' | 'Track') => {
+    setInputGroup(newGroup);
     setSelectValue('title');
     setActiveInput(filterInputs[0]);
-    setInputGroup(newGroup);
     setCount(count + 1);
   };
 
@@ -58,24 +61,28 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
       border="1px solid"
       borderColor="border.main"
       borderRadius="4px"
+      marginBottom="4px"
       padding={0.5}
       sx={{
-        backgroundImage: 'var(--mui-overlays-5)',
+        backgroundImage: 'var(--mui-palette-common-overlay)',
       }}
     >
-      <Typography textAlign="center" variant="subtitle2">
-        new filter
-      </Typography>
       <Box display="flex" gap="4px">
         {['Artist', 'Album', 'Track'].map((group) => (
           <Chip
             key={group}
             label={group}
             sx={{
-              background: inputGroup === group ? 'var(--mui-palette-common-grey)' : 'transparent',
+              background: 'transparent',
               borderRadius: '4px',
+              color: inputGroup === group ? 'text.primary' : 'text.secondary',
               flexGrow: 1,
               fontSize: '1rem',
+              fontWeight: inputGroup === group ? 700 : 400,
+              '&:hover': {
+                background: 'transparent',
+                color: 'text.primary',
+              },
             }}
             onClick={() => updateInputGroup(group as 'Album' | 'Artist' | 'Track')}
           />
@@ -88,7 +95,7 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
             PaperProps: {
               className: 'scroll-container',
               style: {
-                maxHeight: 252,
+                maxHeight: 324,
                 overflow: 'overlay',
               },
             },
@@ -108,13 +115,23 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
             },
             marginThreshold: 0,
           }}
-          sx={{
-            transition: 'background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-            width: '100%',
-            '&:hover': {
+          inputProps={{
+            sx: {
+              backgroundColor: 'transparent',
               borderRadius: '4px',
-              backgroundColor: 'action.hover',
+              transition: 'background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+              '&:focus': {
+                backgroundColor: 'transparent',
+                borderRadius: '4px',
+              },
+              '&:hover': {
+                borderRadius: '4px',
+                backgroundColor: 'action.hover',
+              },
             },
+          }}
+          sx={{
+            width: '100%',
           }}
           value={selectValue}
           onChange={(e) => handleSelectChange(e as SelectChangeEvent)}
@@ -136,6 +153,13 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
         </Select>
       </Box>
       <Box key={count} mt="4px">
+        {activeInput.field === 'unmatched' && (
+          <FilterBoolean
+            group={inputGroup}
+            handleAddFilter={handleAddFilter}
+            input={activeInput}
+          />
+        )}
         {activeInput.field === 'userRating' && (
           <FilterRating
             group={inputGroup}
@@ -143,7 +167,7 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
             input={activeInput}
           />
         )}
-        {activeInput.options && activeInput.field !== 'userRating' && (
+        {activeInput.options && !['unmatched', 'userRating'].includes(activeInput.field) && (
           <FilterAutocomplete
             group={inputGroup}
             handleAddFilter={handleAddFilter}
@@ -152,9 +176,11 @@ const AddFilter = ({ filters, setFilters }: AddFilterProps) => {
         )}
         {!activeInput.options && (
           <FilterText
+            error={error}
             group={inputGroup}
             handleAddFilter={handleAddFilter}
             input={activeInput}
+            setError={setError}
           />
         )}
       </Box>

@@ -88,7 +88,7 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
         multiple
         ListboxProps={{
           style: {
-            backgroundImage: 'var(--mui-overlays-2)',
+            backgroundImage: 'var(--mui-overlays-8)',
           },
         }}
         componentsProps={{

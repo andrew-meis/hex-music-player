@@ -64,11 +64,13 @@ const PlaylistSubheader = ({ show, setShow }: PlaylistSubheaderProps) => {
       </ListSubheader>
       <Collapse in={show}>
         <Box
-          bgcolor="background.paper"
           borderRadius="4px"
           component="form"
           height="32px"
           marginX="14px"
+          sx={{
+            backgroundColor: 'var(--mui-palette-action-disabledBackground)',
+          }}
           onSubmit={handleSubmit}
         >
           <InputBase
