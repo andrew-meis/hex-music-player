@@ -2,29 +2,29 @@ import { Box, Chip, MenuItem, SelectChangeEvent } from '@mui/material';
 import hash from 'object-hash';
 import React, { useState } from 'react';
 import Select from 'components/select/Select';
-import { FilterObject } from './Filter';
-import FilterAutocomplete from './FilterAutocomplete';
-import FilterBoolean from './FilterBoolean';
-import filterInputs, { FilterInput } from './filterInputs';
-import FilterRating from './FilterRating';
-import FilterText from './FilterText';
+import FilterAutocomplete from './filter-inputs/FilterAutocomplete';
+import FilterBoolean from './filter-inputs/FilterBoolean';
+import FilterRating from './filter-inputs/FilterRating';
+import FilterText from './filter-inputs/FilterText';
+import { Filter } from './FilterPanel';
+import filterSchemas, { FilterSchema } from './filterSchemas';
 
-interface AddFilterProps {
+interface InputFilterProps {
   error: boolean;
-  filters: FilterObject[];
+  filters: Filter[];
   setError: React.Dispatch<React.SetStateAction<boolean>>;
-  setFilters: React.Dispatch<React.SetStateAction<FilterObject[]>>;
+  setFilters: React.Dispatch<React.SetStateAction<Filter[]>>;
 }
 
-const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => {
-  const [activeInput, setActiveInput] = useState<FilterInput>(filterInputs[0]);
+const InputFilter = ({ error, filters, setError, setFilters }: InputFilterProps) => {
+  const [activeSchema, setActiveSchema] = useState<FilterSchema>(filterSchemas[0]);
   const [count, setCount] = useState(0);
   const [inputGroup, setInputGroup] = useState<'Album' | 'Artist' | 'Track'>('Artist');
   const [selectValue, setSelectValue] = useState('title');
 
   const handleAddFilter = ({
     type, group, field, label, operator, value, display,
-  } : Omit<FilterObject, 'hash'>) => {
+  } : Omit<Filter, 'hash'>) => {
     if (!value) return;
     const newFilter = {
       type,
@@ -34,7 +34,7 @@ const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => 
       operator,
       value,
       display,
-    } as FilterObject;
+    } as Filter;
     const filterHash = hash.sha1(newFilter);
     newFilter.hash = filterHash;
     if (filters.some((currentFilter) => currentFilter.hash === filterHash)) return;
@@ -44,7 +44,7 @@ const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => 
   };
 
   const handleSelectChange = (event: SelectChangeEvent) => {
-    setActiveInput(filterInputs.find((input) => input.field === event.target.value)!);
+    setActiveSchema(filterSchemas.find((schema) => schema.field === event.target.value)!);
     setSelectValue(event.target.value as string);
     setCount(count + 1);
   };
@@ -52,7 +52,7 @@ const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => 
   const updateInputGroup = (newGroup: 'Album' | 'Artist' | 'Track') => {
     setInputGroup(newGroup);
     setSelectValue('title');
-    setActiveInput(filterInputs[0]);
+    setActiveSchema(filterSchemas[0]);
     setCount(count + 1);
   };
 
@@ -136,50 +136,50 @@ const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => 
           value={selectValue}
           onChange={(e) => handleSelectChange(e as SelectChangeEvent)}
         >
-          {filterInputs
-            .filter((input) => input.groups.includes(inputGroup))
-            .map((input) => (
+          {filterSchemas
+            .filter((schema) => schema.groups.includes(inputGroup))
+            .map((schema) => (
               <MenuItem
-                key={input.field}
+                key={schema.field}
                 sx={{
                   display: 'flex',
                   justifyContent: 'space-between',
                 }}
-                value={input.field}
+                value={schema.field}
               >
-                {input.label}
+                {schema.label}
               </MenuItem>
             ))}
         </Select>
       </Box>
       <Box key={count} mt="4px">
-        {activeInput.field === 'unmatched' && (
+        {activeSchema.field === 'unmatched' && (
           <FilterBoolean
             group={inputGroup}
             handleAddFilter={handleAddFilter}
-            input={activeInput}
+            schema={activeSchema}
           />
         )}
-        {activeInput.field === 'userRating' && (
+        {activeSchema.field === 'userRating' && (
           <FilterRating
             group={inputGroup}
             handleAddFilter={handleAddFilter}
-            input={activeInput}
+            schema={activeSchema}
           />
         )}
-        {activeInput.options && !['unmatched', 'userRating'].includes(activeInput.field) && (
+        {activeSchema.options && !['unmatched', 'userRating'].includes(activeSchema.field) && (
           <FilterAutocomplete
             group={inputGroup}
             handleAddFilter={handleAddFilter}
-            input={activeInput}
+            schema={activeSchema}
           />
         )}
-        {!activeInput.options && (
+        {!activeSchema.options && (
           <FilterText
             error={error}
             group={inputGroup}
             handleAddFilter={handleAddFilter}
-            input={activeInput}
+            schema={activeSchema}
             setError={setError}
           />
         )}
@@ -188,4 +188,4 @@ const AddFilter = ({ error, filters, setError, setFilters }: AddFilterProps) => 
   );
 };
 
-export default AddFilter;
+export default InputFilter;

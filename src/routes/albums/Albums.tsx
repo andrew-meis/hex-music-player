@@ -22,7 +22,7 @@ import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
 import { AppConfig, AppSettings, CardMeasurements } from 'types/interfaces';
-import { FilterObject } from 'ui/sidebars/filter/Filter';
+import { Filter } from 'ui/sidebars/filter-panel/FilterPanel';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from './ScrollSeekPlaceholder';
@@ -61,7 +61,7 @@ const operatorMap = {
   },
 };
 
-const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) => {
+const addFiltersToParams = (filters: Filter[], params: URLSearchParams) => {
   filters.forEach((filter) => params
     .append(
       // @ts-ignore
@@ -103,7 +103,7 @@ const Albums = () => {
     [QueryKeys.FILTERS],
     () => ([]),
     {
-      initialData: [] as FilterObject[],
+      initialData: [] as Filter[],
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
@@ -149,18 +149,22 @@ const Albums = () => {
   const { playSwitch, playUri } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
-  const fetchAlbums = useCallback(async ({ pageParam = 0 }) => {
-    const params = new URLSearchParams();
-    params.append('type', 9 as unknown as string);
-    params.append('X-Plex-Container-Start', `${pageParam}`);
-    params.append('X-Plex-Container-Size', `${containerSize}`);
-    addFiltersToParams(filters.data, params);
+  const params = useMemo(() => {
+    const newParams = new URLSearchParams();
+    newParams.append('type', 9 as unknown as string);
+    addFiltersToParams(filters.data, newParams);
     if (sort.data) {
-      params.append('sort', sort.data.stringify());
+      newParams.append('sort', sort.data.stringify());
     }
     if (limit.data) {
-      params.append('limit', limit.data);
+      newParams.append('limit', limit.data);
     }
+    return newParams;
+  }, [filters.data, limit.data, sort.data]);
+
+  const fetchAlbums = useCallback(async ({ pageParam = 0 }) => {
+    params.append('X-Plex-Container-Start', `${pageParam}`);
+    params.append('X-Plex-Container-Size', `${containerSize}`);
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
@@ -169,14 +173,14 @@ const Albums = () => {
     const newResponse = await ky(url).json() as Record<string, any>;
     const container = parseAlbumContainer(newResponse);
     return container;
-  }, [config.sectionId, filters.data, library.api, limit.data, sort.data]);
+  }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
     queryKey: [QueryKeys.ALL_ALBUMS, filters.data, limit.data, sort.data],
     queryFn: fetchAlbums,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 
@@ -260,14 +264,9 @@ const Albums = () => {
     ROW_WIDTH: (Math.floor((width - VIEW_PADDING) / grid.cols)) * grid.cols,
   }), [grid.cols, settings.albumText, width]);
 
-  const uri = useMemo(() => {
-    const uriParams = {
-      type: 9,
-      sort: sort.data.stringify(),
-    };
-    // eslint-disable-next-line max-len
-    return `/library/sections/${config.sectionId}/all?${new URLSearchParams(uriParams as any).toString()}`;
-  }, [config.sectionId, sort.data]);
+  const uri = useMemo(() => (
+    `/library/sections/${config.sectionId}/all?${params.toString()}`
+  ), [config.sectionId, params]);
 
   const albumsContext = useMemo(() => ({
     config,

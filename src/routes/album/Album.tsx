@@ -1,102 +1,39 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { countBy } from 'lodash';
-import React, { useEffect, useMemo, useRef } from 'react';
-import {
-  NavigateFunction,
-  useLocation,
-  useNavigate,
-  useNavigationType,
-  useParams,
-} from 'react-router-dom';
-import { GroupedVirtuoso, VirtuosoHandle } from 'react-virtuoso';
-import {
-  Artist,
-  Album as AlbumType,
-  Playlist,
-  Track,
-  Genre,
-  Library,
-  PlayQueueItem,
-} from 'api/index';
+import { isEmpty } from 'lodash';
+import { useMemo, useState } from 'react';
+import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
-import useFormattedTime from 'hooks/useFormattedTime';
-import { PaletteState } from 'hooks/usePalette';
-import usePlayback from 'hooks/usePlayback';
+import TrackTable from 'components/track/TrackTable';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
 import { useLibrary } from 'queries/app-queries';
-import { useIsPlaying } from 'queries/player-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import { RouteParams } from 'types/interfaces';
-import Footer from './Footer';
-import GroupRow from './GroupRow';
+import { AppPageViewSettings, RouteParams } from 'types/interfaces';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
 
-export interface AlbumContext {
-  album: {
-      album: AlbumType;
-      related: (AlbumType | Playlist | Track | Artist | Genre)[];
-  } | undefined;
-  colors: PaletteState | undefined;
-  getFormattedTime: (inMs: number) => string;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  library: Library;
-  navigate: NavigateFunction;
-  nowPlaying: PlayQueueItem | undefined;
-  playAlbumAtTrack: (track: Track, shuffle?: boolean) => Promise<void>;
-  tracks: Track[];
-}
-
-export interface GroupRowProps {
-  context: AlbumContext;
-  discNumber: number;
-}
-
-export interface RowProps {
-  context: AlbumContext;
-  index: number;
-  track: Track;
-}
-
-const GroupRowContent = (props: GroupRowProps) => <GroupRow {...props} />;
-const RowContent = (props: RowProps) => <Row {...props} />;
+const defaultViewSettings: AppPageViewSettings = {
+  columns: {
+    grandparentTitle: false,
+    lastViewedAt: false,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: false,
+    viewCount: false,
+  },
+  compact: false,
+  multiLineRating: true,
+  multiLineTitle: true,
+};
 
 const Album = () => {
-  const library = useLibrary();
-  // data loading
+  const viewSettings = window.electron.readConfig('album-view-settings') as AppPageViewSettings;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
+
+  const library = useLibrary();
   const album = useAlbum(+id, library);
   const albumTracks = useAlbumTracks(+id, library);
-  const counts = countBy(albumTracks.data, 'parentIndex');
-  const groupCounts = Object.values(counts);
-  const groups = Object.keys(counts).map((i) => +i);
-  // other hooks
-  const hoverIndex = useRef<number | null>(null);
   const location = useLocation();
-  const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const queryClient = useQueryClient();
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const { data: isPlaying } = useIsPlaying();
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
-  const { playAlbumAtTrack } = usePlayback();
-
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [id, queryClient]);
-
-  const handleScrollState = (isScrolling: boolean) => {
-    if (isScrolling) {
-      document.body.classList.add('disable-hover');
-    }
-    if (!isScrolling) {
-      document.body.classList.remove('disable-hover');
-    }
-  };
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -113,28 +50,6 @@ const Album = () => {
     return 0;
   }, [id, navigationType]);
 
-  const albumContext: Omit<AlbumContext, 'colors'> = useMemo(() => ({
-    album: album.data,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    library,
-    navigate,
-    nowPlaying,
-    playAlbumAtTrack,
-    tracks: albumTracks.data || [],
-  }), [
-    album.data,
-    albumTracks.data,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    library,
-    navigate,
-    nowPlaying,
-    playAlbumAtTrack,
-  ]);
-
   if (album.isLoading || albumTracks.isLoading || !album.data?.album) {
     return null;
   }
@@ -148,44 +63,56 @@ const Album = () => {
         if (isLoading || isError) {
           return null;
         }
-        const updatedContext = { ...albumContext, colors };
         return (
           <motion.div
             animate={{ opacity: 1 }}
+            className="scroll-container"
             exit={{ opacity: 0 }}
             initial={{ opacity: 0 }}
             key={location.pathname}
-            style={{ height: '100%' }}
-            onAnimationComplete={() => virtuoso.current
-              ?.scrollTo({ top: initialScrollTop })}
+            ref={setScrollRef}
+            style={{ height: '100%', overflow: 'overlay' }}
+            onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+            onScroll={(e) => {
+              const target = e.currentTarget as unknown as HTMLDivElement;
+              sessionStorage.setItem(
+                `album-scroll ${id}`,
+                target.scrollTop as unknown as string,
+              );
+            }}
           >
-            <GroupedVirtuoso
-              className="scroll-container"
-              components={{
-                Footer,
-                Header,
-                List,
+            <Header
+              album={album.data.album}
+              colors={colors}
+              library={library}
+            />
+            <TrackTable
+              columnOptions={
+                isEmpty(viewSettings.columns)
+                  ? defaultViewSettings.columns
+                  : viewSettings.columns
+              }
+              groupBy="parentIndex"
+              isViewCompact={
+                typeof viewSettings.compact !== 'undefined'
+                  ? viewSettings.compact
+                  : defaultViewSettings.compact
+              }
+              library={library}
+              multiLineRating={
+                typeof viewSettings.multiLineRating !== 'undefined'
+                  ? viewSettings.multiLineRating
+                  : defaultViewSettings.multiLineRating
+              }
+              scrollRef={scrollRef}
+              subtextOptions={{
+                albumTitle: false,
+                artistTitle: false,
+                showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
+                  ? viewSettings.multiLineTitle
+                  : defaultViewSettings.multiLineTitle,
               }}
-              context={updatedContext}
-              fixedItemHeight={56}
-              groupContent={(index) => GroupRowContent(
-                { context: updatedContext, discNumber: groups[index] },
-              )}
-              groupCounts={groupCounts}
-              increaseViewportBy={224}
-              isScrolling={handleScrollState}
-              itemContent={(index) => RowContent(
-                { context: updatedContext, index, track: albumTracks.data![index] },
-              )}
-              ref={virtuoso}
-              style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-              onScroll={(e) => {
-                const target = e.currentTarget as unknown as HTMLDivElement;
-                sessionStorage.setItem(
-                  `album-scroll ${id}`,
-                  target.scrollTop as unknown as string,
-                );
-              }}
+              tracks={albumTracks.data || []}
             />
           </motion.div>
         );

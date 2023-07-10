@@ -2,6 +2,7 @@ import {
   Box, Grid, Slider, Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
+import useFormattedTime from 'hooks/useFormattedTime';
 import useQueue from 'hooks/useQueue';
 import { useQueueId } from 'queries/app-queries';
 import { usePlayerState } from 'queries/player-queries';
@@ -16,14 +17,35 @@ const Seekbar = () => {
   const [isHovered, setHovered] = useState(false);
   const { data: nowPlaying } = useNowPlaying();
   const { data: playerState } = usePlayerState();
+  const { getFormattedTime } = useFormattedTime();
   const { updateTimeline } = useQueue();
 
   const changePosition = (event: Event, newValue: number | number[]) => {
-    const nodes = document.querySelectorAll('span.seekbar-value');
+    setDraggingPosition(newValue as number);
+    const nodes = Array.from(document.querySelectorAll('span.seekbar-value')) as HTMLElement[];
     nodes.forEach((node) => {
       node.classList.add('no-update');
+      if (node.classList.contains('MuiSlider-thumb')) {
+        // eslint-disable-next-line no-param-reassign
+        node.style.left = `${((newValue as number / playerState.duration) * 100)}%`;
+      }
     });
-    setDraggingPosition(newValue as number);
+    const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
+    seekbarTextNodes.forEach((node) => {
+      node.classList.add('no-update');
+    });
+    if (seekbarTextNodes[0]) {
+      (seekbarTextNodes[0] as HTMLElement)
+        .innerText = getFormattedTime(newValue as number);
+    }
+    if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('remaining')) {
+      (seekbarTextNodes[1] as HTMLElement)
+        .innerText = `-${getFormattedTime(playerState.duration - (newValue as number))}`;
+    }
+    if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('duration')) {
+      (seekbarTextNodes[1] as HTMLElement)
+        .innerText = getFormattedTime(playerState.duration);
+    }
   };
 
   const commitPosition = async (
@@ -32,6 +54,10 @@ const Seekbar = () => {
   ) => {
     const nodes = document.querySelectorAll('span.seekbar-value');
     nodes.forEach((node) => {
+      node.classList.remove('no-update');
+    });
+    const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
+    seekbarTextNodes.forEach((node) => {
       node.classList.remove('no-update');
     });
     player.setPosition(newValue as number);
@@ -68,7 +94,8 @@ const Seekbar = () => {
             min={0}
             size="small"
             slotProps={{
-              thumb: { className: 'seekbar-value' }, track: { className: 'seekbar-value' },
+              thumb: { className: 'seekbar-value' },
+              track: { className: 'seekbar-value' },
             }}
             sx={{
               '& .MuiSlider-thumb': {

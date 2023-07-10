@@ -21,7 +21,7 @@ export enum FilterTypes {
   DATETIME = 'datetime',
 }
 
-export interface FilterInput {
+export interface FilterSchema {
   groups: ('Artist' | 'Album' | 'Track')[];
   field: string;
   label: string;
@@ -30,7 +30,7 @@ export interface FilterInput {
   type: FilterTypes;
 }
 
-const filterInputs: FilterInput[] = [
+const filterSchemas: FilterSchema[] = [
   // metadata fields
   {
     groups: ['Artist', 'Album', 'Track'],
@@ -275,4 +275,4 @@ const filterInputs: FilterInput[] = [
   },
 ];
 
-export default filterInputs;
+export default filterSchemas;

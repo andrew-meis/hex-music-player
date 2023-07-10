@@ -4,85 +4,91 @@ import {
   Chip,
   Autocomplete,
   Box,
+  Rating as MuiRating,
   Typography,
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
-import { isString } from 'lodash';
+import { isNumber } from 'lodash';
 import { useRef, useState } from 'react';
+import { BsDot } from 'react-icons/bs';
 import { FaTimes } from 'react-icons/fa';
 import { TiPlus } from 'react-icons/ti';
-import { useConfig, useLibrary } from 'queries/app-queries';
-import { filterOptionsQueryFn, MediaTag } from 'queries/library-query-fns';
-import { FilterObject } from './Filter';
-import { FilterInput } from './filterInputs';
+import { Filter } from '../FilterPanel';
+import { FilterSchema } from '../filterSchemas';
 
-const groups = {
-  Artist: 8,
-  Album: 9,
-  Track: 10,
+export const Rating = ({ value }: {value: number}) => (
+  <MuiRating
+    readOnly
+    emptyIcon={(
+      <SvgIcon
+        sx={{
+          color: 'text.secondary',
+          width: '16px',
+          height: '16px',
+        }}
+      >
+        <BsDot />
+      </SvgIcon>
+    )}
+    size="small"
+    sx={{
+      display: 'flex',
+      '&.MuiRating-root': {
+        fontSize: '1rem',
+      },
+    }}
+    value={value / 2}
+  />
+);
+
+const renderOption = (option: string | number) => {
+  switch (true) {
+    case isNumber(option) && option === -1:
+      return <Typography lineHeight={1}>unrated</Typography>;
+    case isNumber(option) && option >= 0:
+      return <Rating value={option as number} />;
+    default:
+      return '';
+  }
 };
 
-interface FilterAutocompleteProps {
+interface FilterRatingProps {
   handleAddFilter:({
     type, group, field, label, operator, value, display,
-  }: Omit<FilterObject, 'hash'>) => void;
-  input: FilterInput;
+  }: Omit<Filter, 'hash'>) => void;
   group: 'Artist' | 'Album' | 'Track';
+  schema: FilterSchema;
 }
 
-const FilterAutocomplete = ({
-  handleAddFilter, input, group,
-}: FilterAutocompleteProps) => {
-  const config = useConfig();
-  const library = useLibrary();
+const FilterRating = ({ handleAddFilter, group, schema }: FilterRatingProps) => {
   const [count, setCount] = useState(0);
   const [disableInput, setDisableInput] = useState(false);
-  const [open, setOpen] = useState(false);
-  const value = useRef<MediaTag>();
-  const { data: options } = useQuery(
-    [input.field, group],
-    () => filterOptionsQueryFn({
-      config: config.data,
-      field: input.field,
-      library,
-      type: groups[group],
-    }),
-    {
-      enabled: open,
-      initialData: [],
-      refetchOnMount: true,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
+  const value = useRef<string | number>();
   return (
     <Box
       component="form"
+      onClick={(e) => e.stopPropagation()}
       onSubmit={(e) => {
         e.preventDefault();
-        if (value.current) {
-          handleAddFilter({
-            type: input.type,
-            group,
-            field: input.field,
-            label: input.label,
-            operator: input.operators[count % input.operators.length],
-            value: value.current.id,
-            display: value.current.title,
-          });
-        }
+        handleAddFilter({
+          type: schema.type,
+          group,
+          field: schema.field,
+          label: schema.label,
+          operator: schema.operators[count % schema.operators.length],
+          value: value.current,
+          display: value.current,
+        });
       }}
     >
       <Autocomplete
         disableClearable
+        disablePortal
         freeSolo
         fullWidth
         multiple
         ListboxProps={{
-          className: 'scroll-container',
           style: {
             backgroundImage: 'var(--mui-overlays-8)',
-            overflow: 'overlay',
           },
         }}
         componentsProps={{
@@ -98,13 +104,8 @@ const FilterAutocomplete = ({
           },
         }}
         disabled={disableInput}
-        getOptionLabel={(option) => {
-          if (isString(option)) {
-            return option;
-          }
-          return option.title;
-        }}
-        options={options}
+        getOptionLabel={(opt) => opt.toString()}
+        options={schema.options!}
         renderInput={(params) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { InputLabelProps, InputProps, ...rest } = params;
@@ -115,7 +116,6 @@ const FilterAutocomplete = ({
               endAdornment={(
                 <SvgIcon
                   sx={{
-                    color: 'text.primary',
                     cursor: 'pointer',
                     marginRight: '5px',
                     width: '0.7em',
@@ -124,15 +124,15 @@ const FilterAutocomplete = ({
                     },
                   }}
                   onClick={() => {
-                    if (value.current) {
+                    if (value.current && schema.options?.includes(value.current)) {
                       handleAddFilter({
-                        type: input.type,
+                        type: schema.type,
                         group,
-                        field: input.field,
-                        label: input.label,
-                        operator: input.operators[count % input.operators.length],
-                        value: value.current.id,
-                        display: value.current.title,
+                        field: schema.field,
+                        label: schema.label,
+                        operator: schema.operators[count % schema.operators.length],
+                        value: value.current,
+                        display: value.current,
                       });
                     }
                   }}
@@ -143,7 +143,7 @@ const FilterAutocomplete = ({
               startAdornment={(
                 <>
                   <Chip
-                    label={input.operators[count % input.operators.length]}
+                    label={schema.operators[count % schema.operators.length]}
                     size="small"
                     sx={{
                       borderRadius: '4px',
@@ -158,7 +158,9 @@ const FilterAutocomplete = ({
               sx={{
                 backgroundImage: 'var(--mui-overlays-2)',
                 borderRadius: '4px',
+                caretColor: 'transparent',
                 '& .MuiAutocomplete-input': {
+                  cursor: 'pointer',
                   minWidth: '0 !important',
                   padding: '4px 6px 5px',
                 },
@@ -166,29 +168,24 @@ const FilterAutocomplete = ({
             />
           );
         }}
-        renderOption={(props, option) => (
+        renderOption={(props, opt) => (
           <li {...props}>
-            <Typography
-              lineHeight={1}
-            >
-              {option.title}
-            </Typography>
+            {renderOption(opt)}
           </li>
         )}
-        renderTags={(values: MediaTag[], getTagProps) => (
-          values.map((option: MediaTag, index: number) => (
+        renderTags={(values: (string | number)[], getTagProps) => (
+          values.map((opt: string | number, index: number) => (
             <Chip
-              label={option.title.toString()}
+              label={isNumber(opt) && opt > 0
+                ? <Rating value={opt as number} />
+                : 'unrated'}
               size="small"
               sx={{
                 borderRadius: '4px',
-                flexShrink: 1,
                 marginLeft: '5px',
-                minWidth: '0 !important',
                 width: 'fit-content',
                 '& .MuiChip-deleteIcon': {
                   color: 'text.secondary',
-                  flexShrink: 0,
                   marginRight: '4px',
                   '&:hover': {
                     color: 'error.main',
@@ -204,22 +201,22 @@ const FilterAutocomplete = ({
           ))
         )}
         sx={{
-          '& .MuiAutocomplete-inputRoot': {
-            flexWrap: 'nowrap',
+          '& .Mui-disabled': {
+            color: 'text.primary',
           },
         }}
         onChange={(e, values) => {
           setDisableInput(values.length > 0);
           if (values.length > 0) {
-            if (isString(values[0])) return;
             [value.current] = values;
+          } else {
+            value.current = undefined;
           }
         }}
-        onClose={() => setOpen(false)}
-        onOpen={() => setOpen(true)}
+        onKeyDown={(e) => e.preventDefault()}
       />
     </Box>
   );
 };
 
-export default FilterAutocomplete;
+export default FilterRating;

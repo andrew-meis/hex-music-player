@@ -1,6 +1,6 @@
 import { AlertColor, PaletteMode } from '@mui/material';
 import { Location } from 'react-router-dom';
-import { Account, Album, Device, Library } from 'api/index';
+import { Account, Album, Device, Library, Track } from 'api/index';
 import { PlexSort } from 'classes';
 
 export interface AlbumWithSection extends Album {
@@ -35,6 +35,13 @@ export interface AppConfig {
   token?: string;
 }
 
+export interface AppPageViewSettings {
+  columns: Partial<Record<keyof Track, boolean>>;
+  compact: boolean;
+  multiLineRating: boolean;
+  multiLineTitle: boolean;
+}
+
 export interface AuthParams {
   account: Account;
   server: Device;
@@ -52,8 +59,8 @@ export interface ElectronAPI {
   quit: () => void;
   unmaximize: () => void;
   getAppInfo: () => AppInfo;
-  readConfig: (key: string) => AppSettings | AppConfig;
-  writeConfig: (key: string, value: any) => AppSettings | AppConfig;
+  readConfig: (key: string) => AppSettings | AppConfig | AppPageViewSettings;
+  writeConfig: (key: string, value: any) => AppSettings | AppConfig | AppPageViewSettings;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
   updatePlaying: (key: 'playing', value: boolean) => void;

@@ -43,40 +43,50 @@ const updatePlaybackValues = (
   getFormattedTime: (inMS: number) => string,
 ) => {
   const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
-  if (seekbarTextNodes[0]) {
+  if (seekbarTextNodes[0]
+    && !seekbarTextNodes[0].classList.contains('no-update')) {
     (seekbarTextNodes[0] as HTMLElement).innerText = getFormattedTime(position);
   }
-  if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('remaining')) {
+  if (seekbarTextNodes[1]
+    && seekbarTextNodes[1].classList.contains('remaining')
+    && !seekbarTextNodes[1].classList.contains('no-update')) {
     (seekbarTextNodes[1] as HTMLElement).innerText = `-${getFormattedTime(length - position)}`;
   }
-  if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('duration')) {
+  if (seekbarTextNodes[1]
+    && seekbarTextNodes[1].classList.contains('duration')
+    && !seekbarTextNodes[1].classList.contains('no-update')) {
     (seekbarTextNodes[1] as HTMLElement).innerText = getFormattedTime(length);
   }
   const seekbarValueNodes = document.querySelectorAll('span.seekbar-value');
   if (seekbarValueNodes[0] && !seekbarValueNodes[0].classList.contains('no-update')) {
     (seekbarValueNodes[0] as HTMLElement).style.width = `${(position / length) * 100}%`;
   }
-  if (seekbarValueNodes[1] && !seekbarValueNodes[1].classList.contains('no-update')) {
+  if (seekbarValueNodes[1] && !seekbarValueNodes[1].classList.contains('Mui-active')) {
     (seekbarValueNodes[1] as HTMLElement).style.left = `${(position / length) * 100}%`;
   }
 };
 
 const resetPlaybackValues = () => {
   const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
-  if (seekbarTextNodes[0]) {
+  if (seekbarTextNodes[0]
+    && !seekbarTextNodes[0].classList.contains('no-update')) {
     (seekbarTextNodes[0] as HTMLElement).innerText = '--:--';
   }
-  if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('remaining')) {
+  if (seekbarTextNodes[1]
+    && seekbarTextNodes[1].classList.contains('remaining')
+    && !seekbarTextNodes[1].classList.contains('no-update')) {
     (seekbarTextNodes[1] as HTMLElement).innerText = '---:--';
   }
-  if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('duration')) {
+  if (seekbarTextNodes[1]
+    && seekbarTextNodes[1].classList.contains('duration')
+    && !seekbarTextNodes[1].classList.contains('no-update')) {
     (seekbarTextNodes[1] as HTMLElement).innerText = '--:--';
   }
   const seekbarValueNodes = document.querySelectorAll('span.seekbar-value');
   if (seekbarValueNodes[0] && !seekbarValueNodes[0].classList.contains('no-update')) {
     (seekbarValueNodes[0] as HTMLElement).style.width = '0%';
   }
-  if (seekbarValueNodes[1] && !seekbarValueNodes[1].classList.contains('no-update')) {
+  if (seekbarValueNodes[1] && !seekbarValueNodes[1].classList.contains('Mui-active')) {
     (seekbarValueNodes[1] as HTMLElement).style.left = '0%';
   }
 };

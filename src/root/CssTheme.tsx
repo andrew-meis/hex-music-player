@@ -222,6 +222,45 @@ const createTheme = (primaryColor: string): Omit<Theme, 'palette'> & CssVarsThem
         },
       },
     },
+    MuiSwitch: {
+      styleOverrides: {
+        root: ({ theme: muiTheme }) => ({
+          height: 38,
+          width: 58,
+          padding: '8px',
+          transform: 'translate(8px, 0px)',
+          '& .Mui-disabled': {
+            '& .MuiSwitch-thumb': {
+              color: muiTheme.palette.action.selected,
+            },
+          },
+        }),
+        switchBase: {
+          padding: '10px',
+          ':hover': {
+            backgroundColor: 'transparent',
+          },
+          '&.Mui-checked': {
+            '&:hover': {
+              backgroundColor: 'transparent',
+            },
+            '& + .MuiSwitch-track': {
+              opacity: 1,
+            },
+          },
+        },
+        thumb: ({ theme: muiTheme }) => ({
+          boxShadow: 'none',
+          width: '18px',
+          height: '18px',
+          color: muiTheme.palette.common.white,
+        }),
+        track: {
+          backgroundColor: grey[500],
+          borderRadius: '10px',
+        },
+      },
+    },
     MuiToggleButtonGroup: {
       styleOverrides: {
         grouped: ({ theme: muiTheme }) => ({

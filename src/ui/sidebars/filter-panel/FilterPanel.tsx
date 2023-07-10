@@ -1,19 +1,19 @@
 import {
   Box, Chip, Collapse, InputAdornment, InputBase, SvgIcon, Typography,
 } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { MdOutlinePlaylistAddCheck } from 'react-icons/md';
 import { RiSendPlaneLine } from 'react-icons/ri';
-import { PlexSort } from 'classes';
+import { PlexSort, plexSort } from 'classes';
 import { useConfig, useLibrary, useServer } from 'queries/app-queries';
-import { QueryKeys } from 'types/enums';
-import AddFilter from './AddFilter';
-import AddLimit from './AddLimit';
-import { FilterTypes, Operators } from './filterInputs';
-import { Rating } from './FilterRating';
-import SortSelect from './SortSelect';
+import { AlbumSortKeys, ArtistSortKeys, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
+import { Rating } from './filter-inputs/FilterRating';
+import { FilterTypes, Operators } from './filterSchemas';
+import AddFilter from './InputFilter';
+import AddLimit from './InputLimit';
+import SortSelect from './InputSort';
 
 const operatorMap = {
   tag: {
@@ -52,7 +52,7 @@ const pathnameMap: Record<string, number> = {
   tracks: 10,
 };
 
-const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) => {
+const addFiltersToParams = (filters: Filter[], params: URLSearchParams) => {
   filters.forEach((filter) => params
     .append(
       // @ts-ignore
@@ -61,7 +61,13 @@ const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) =>
     ));
 };
 
-export interface FilterObject {
+const defaultSorts = {
+  album: plexSort(AlbumSortKeys.ARTIST_TITLE, SortOrders.ASC),
+  artist: plexSort(ArtistSortKeys.TITLE, SortOrders.ASC),
+  track: plexSort(TrackSortKeys.ARTIST_TITLE, SortOrders.ASC),
+};
+
+export interface Filter {
   type: FilterTypes;
   group: 'Artist' | 'Album' | 'Track';
   field: string;
@@ -72,17 +78,35 @@ export interface FilterObject {
   hash: string;
 }
 
-const Filter = ({ pathname }: { pathname: string }) => {
+const FilterPanel = ({ pathname }: { pathname: string }) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const library = useLibrary();
   const queryClient = useQueryClient();
   const server = useServer();
+  const trimmed = pathname.substring(1, pathname.length - 1) as 'album' | 'artist' | 'track';
   const type = pathnameMap[pathname.substring(1)];
   const [error, setError] = useState(false);
-  const [filters, setFilters] = useState<FilterObject[]>([]);
+  const [filters, setFilters] = useState<Filter[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [limit, setLimit] = useState<string>('');
   const [show, setShow] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [sort, setSort] = useState(defaultSorts[trimmed]);
   const [title, setTitle] = useState('');
   const { data: config } = useConfig();
+  useQuery(
+    [QueryKeys.FILTERS_AND_SORTING, pathname, filters, limit, sort],
+    () => ({
+      filters,
+      limit,
+      sort,
+    }),
+    {
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+    },
+  );
 
   useEffect(() => {
     queryClient.setQueryData([QueryKeys.FILTERS], filters);
@@ -97,7 +121,7 @@ const Filter = ({ pathname }: { pathname: string }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
     const params = new URLSearchParams();
-    const filterQuery = queryClient.getQueryData([QueryKeys.FILTERS]) as FilterObject[];
+    const filterQuery = queryClient.getQueryData([QueryKeys.FILTERS]) as Filter[];
     const limitQuery = queryClient.getQueryData([QueryKeys.LIMIT]) as string;
     let sortQuery;
     if (type === 8) {
@@ -311,4 +335,4 @@ const Filter = ({ pathname }: { pathname: string }) => {
   );
 };
 
-export default Filter;
+export default FilterPanel;

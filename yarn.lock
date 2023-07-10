@@ -839,8 +839,8 @@ __metadata:
   linkType: hard
 
 "@motionone/dom@npm:^10.15.3":
-  version: 10.15.5
-  resolution: "@motionone/dom@npm:10.15.5"
+  version: 10.16.2
+  resolution: "@motionone/dom@npm:10.16.2"
   dependencies:
     "@motionone/animation": ^10.15.1
     "@motionone/generators": ^10.15.1
@@ -848,7 +848,7 @@ __metadata:
     "@motionone/utils": ^10.15.1
     hey-listen: ^1.0.8
     tslib: ^2.3.1
-  checksum: 2453fe3df6a2b4b339d075bcd598bda1eee1926ba0ad881edfd154362b0992c91f31c08d83c469c7e8cb8bf8ebc0ed5530972673cf5c74d99e46e3772cf5f1cb
+  checksum: c75a7de62cd8af575634644bbc2c5abe606ff9000550e7b8d5a62ea691a0784bf18f57035bd1fad4b0148dbdc6db033f2565b6c8f80b87b40fbb232db8fe93aa
   languageName: node
   linkType: hard
 
@@ -1258,6 +1258,25 @@ __metadata:
     react-native:
       optional: true
   checksum: de703806af4efd124f89f03f25d917c7f74329c1df82d2f293ff6fbd6bb259f656f9634203fcef5d2da3920c09dc35046aa9f1e84de3ed2ba84b44bb822b4784
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-table@npm:^8.9.3":
+  version: 8.9.3
+  resolution: "@tanstack/react-table@npm:8.9.3"
+  dependencies:
+    "@tanstack/table-core": 8.9.3
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
+  checksum: a71fbbc608bb11b79ecd2b1a838fad2fc4140f9eb1a25bd44b6b1b4c6acd52741b5745e3e022390c642c284d0d528249360e322c0dbc3d34fea031611c207a7d
+  languageName: node
+  linkType: hard
+
+"@tanstack/table-core@npm:8.9.3":
+  version: 8.9.3
+  resolution: "@tanstack/table-core@npm:8.9.3"
+  checksum: 52c7e57daaa3160450fb0bde702ec0b8aab159e2b19efd1012e03b3e167acc52839f5b39578cc8bf96e91346719f400d0435a5191384c168d9477da82f276c38
   languageName: node
   linkType: hard
 
@@ -4337,6 +4356,7 @@ __metadata:
     "@szhsin/react-menu": 3.3.1
     "@tanstack/react-query": ^4.29.15
     "@tanstack/react-query-devtools": ^4.29.15
+    "@tanstack/react-table": ^8.9.3
     "@types/chroma-js": ^2.1.4
     "@types/lodash": ^4.14.191
     "@types/object-hash": ^3.0.2
@@ -4379,7 +4399,7 @@ __metadata:
     react-easy-emoji: ^1.8.1
     react-icons: ^4.10.1
     react-intersection-observer: ^9.5.1
-    react-router-dom: ^6.14.0
+    react-router-dom: 6.14.0
     react-textfit: ^1.1.1
     react-use: ^17.4.0
     react-use-websocket: ^4.2.0
@@ -6085,7 +6105,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.14.0":
+"react-router-dom@npm:6.14.0":
   version: 6.14.0
   resolution: "react-router-dom@npm:6.14.0"
   dependencies:
@@ -7079,10 +7099,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.1, tslib@npm:^2.4.0":
+"tslib@npm:^2.1.0, tslib@npm:^2.4.0":
   version: 2.5.0
   resolution: "tslib@npm:2.5.0"
   checksum: ae3ed5f9ce29932d049908ebfdf21b3a003a85653a9a140d614da6b767a93ef94f460e52c3d787f0e4f383546981713f165037dc2274df212ea9f8a4541004e1
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.3.1":
+  version: 2.6.0
+  resolution: "tslib@npm:2.6.0"
+  checksum: c01066038f950016a18106ddeca4649b4d76caa76ec5a31e2a26e10586a59fceb4ee45e96719bf6c715648e7c14085a81fee5c62f7e9ebee68e77a5396e5538f
   languageName: node
   linkType: hard
 

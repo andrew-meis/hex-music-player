@@ -30,44 +30,6 @@ const boxStyle = {
   marginTop: 0.5,
 };
 
-const switchStyle = {
-  marginLeft: 'auto',
-  width: '58px',
-  height: '38px',
-  padding: '8px',
-  transform: 'translate(8px, 0px)',
-  '& .MuiSwitch-switchBase': {
-    padding: '10px',
-    '&.Mui-checked': {
-      '& + .MuiSwitch-track': {
-        opacity: 1,
-        backgroundColor: 'primary.main',
-      },
-    },
-  },
-  '& .MuiSwitch-thumb': {
-    boxShadow: 'none',
-    width: '18px',
-    height: '18px',
-    color: 'common.white',
-  },
-  '& .Mui-disabled': {
-    '& .MuiSwitch-thumb': {
-      color: 'action.selected',
-    },
-  },
-  '& .MuiSwitch-track': {
-    backgroundColor: 'grey.500',
-    borderRadius: '10px',
-  },
-  '& .MuiSwitch-switchBase:hover': {
-    backgroundColor: 'transparent',
-  },
-  '& .MuiSwitch-switchBase.Mui-checked:hover': {
-    backgroundColor: 'transparent',
-  },
-};
-
 const Settings = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -163,7 +125,6 @@ const Settings = () => {
           <Typography sx={{ fontWeight: 600 }} variant="body1">Dark Mode</Typography>
           <Switch
             checked={settings.colorMode === 'dark'}
-            sx={switchStyle}
             onChange={handleDarkModeOption}
           />
         </Box>
@@ -172,19 +133,17 @@ const Settings = () => {
           <Switch
             checked={settings.dockedQueue}
             disabled={settings.compactQueue}
-            sx={switchStyle}
             onChange={handleQueueDrawerOption}
           />
         </Box>
         <Typography mt={-1} variant="subtitle2">
-          Use a smaller version of the queue toolbar
+          Keep the queue displayed on the right side of the window
         </Typography>
         <Box sx={boxStyle}>
           <Typography sx={{ fontWeight: 600 }} variant="body1">Compact Queue</Typography>
           <Switch
             checked={settings.compactQueue}
             disabled={settings.dockedQueue}
-            sx={switchStyle}
             onChange={handleMiniQueueOption}
           />
         </Box>
@@ -195,7 +154,6 @@ const Settings = () => {
           <Typography sx={{ fontWeight: 600 }} variant="body1">Compact Navigation</Typography>
           <Switch
             checked={settings.compactNav}
-            sx={switchStyle}
             onChange={handleCompactNavOption}
           />
         </Box>
@@ -207,7 +165,7 @@ const Settings = () => {
           <Typography sx={{ fontWeight: 600 }} variant="body1">Album Grid Text</Typography>
           <Switch
             checked={settings.albumText}
-            sx={switchStyle}
+            // sx={switchStyle}
             onChange={handleAlbumTextOption}
           />
         </Box>

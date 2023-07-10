@@ -4,7 +4,7 @@ import { FiFilter } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
-import Filter from 'ui/sidebars/filter/Filter';
+import FilterPanel from 'ui/sidebars/filter-panel/FilterPanel';
 
 const popperProps = {
   modifiers: [
@@ -82,7 +82,7 @@ const FilterDrawer = () => {
         transitionDuration={300}
         variant="persistent"
       >
-        <Filter pathname={location.pathname} />
+        <FilterPanel pathname={location.pathname} />
       </Drawer>
     </>
   );

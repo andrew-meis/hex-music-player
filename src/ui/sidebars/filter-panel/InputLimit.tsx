@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { QueryKeys } from 'types/enums';
 
-const AddLimit = () => {
+const InputLimit = () => {
   const queryClient = useQueryClient();
   const [limit, setLimit] = useState<string>('');
 
@@ -73,4 +73,4 @@ const AddLimit = () => {
   );
 };
 
-export default AddLimit;
+export default InputLimit;

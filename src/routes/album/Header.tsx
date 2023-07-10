@@ -5,20 +5,17 @@ import moment from 'moment';
 import React, { useEffect, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
-import { BiHash } from 'react-icons/bi';
 import { IoMdMicrophone } from 'react-icons/io';
-import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
-import { useOutletContext } from 'react-router-dom';
-import { Album } from 'api/index';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { Album, Library } from 'api/index';
 import { ChipGenres } from 'components/chips';
-import { AlbumMenu, MenuIcon } from 'components/menus';
+import { MenuIcon, AlbumMenu } from 'components/menus';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
-import { useThumbnail } from 'hooks/plexHooks';
+import { PaletteState } from 'hooks/usePalette';
 import usePlayback from 'hooks/usePlayback';
 import { DragTypes } from 'types/enums';
-import { AlbumContext } from './Album';
 import FixedHeader from './FixedHeader';
 
 const titleStyle = {
@@ -31,20 +28,49 @@ const titleStyle = {
   marginBottom: '5px',
 };
 
-const Header = ({ context }: { context?: AlbumContext }) => {
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
-  const { album: albumData, colors, navigate } = context!;
-  const { album } = albumData!;
-  const { playAlbum, playSwitch } = usePlayback();
+const Header: React.FC<{
+  album: Album,
+  colors: PaletteState,
+  library: Library,
+}> = ({ album, colors, library }) => {
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
-  // calculated values
-  const [parentThumbSrc] = useThumbnail(album.parentThumb || 'none', 100);
-  const [thumbSrc] = useThumbnail(album.thumb || 'none', 300);
-  const [thumbSrcSm] = useThumbnail(album.thumb || 'none', 100);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
+  const { playAlbum, playSwitch } = usePlayback();
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
+  const navigate = useNavigate();
+  const parentThumb = library.api.getAuthenticatedUrl(
+    '/photo/:/transcode',
+    {
+      url: album.parentThumb,
+      width: 100,
+      height: 100,
+      minSize: 1,
+      upscale: 1,
+    },
+  );
   const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
+  const thumb = library.api.getAuthenticatedUrl(
+    '/photo/:/transcode',
+    {
+      url: album.thumb,
+      width: 300,
+      height: 300,
+      minSize: 1,
+      upscale: 1,
+    },
+  );
+  const thumbSmall = library.api.getAuthenticatedUrl(
+    '/photo/:/transcode',
+    {
+      url: album.thumb,
+      width: 100,
+      height: 100,
+      minSize: 1,
+      upscale: 1,
+    },
+  );
 
   const [, drag, dragPreview] = useDrag(() => ({
     type: DragTypes.ALBUM,
@@ -55,7 +81,8 @@ const Header = ({ context }: { context?: AlbumContext }) => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, album]);
 
-  const { muted } = colors!;
+  const { muted } = colors;
+
   const color = chroma(muted).saturate(2).brighten(1).hex();
   const contrastMuted = contrast(color, 'black') > contrast(color, 'white')
     ? 'black'
@@ -66,10 +93,6 @@ const Header = ({ context }: { context?: AlbumContext }) => {
 
   const handlePlay = () => playAlbum(album as Album);
   const handleShuffle = () => playAlbum(album as Album, true);
-
-  if (!album) {
-    return null;
-  }
 
   return (
     <>
@@ -88,11 +111,11 @@ const Header = ({ context }: { context?: AlbumContext }) => {
             album={album}
             handlePlay={handlePlay}
             handleShuffle={handleShuffle}
-            thumbSrcSm={thumbSrcSm}
+            thumbSrcSm={thumbSmall}
           />
         </Box>
       </Fade>
-      <Box maxWidth="900px" mx="auto" ref={ref} width={WIDTH_CALC}>
+      <Box mx="auto" ref={ref} width={WIDTH_CALC}>
         <Box
           alignItems="flex-end"
           borderRadius="24px"
@@ -110,7 +133,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
         >
           <Avatar
             alt={album.title}
-            src={thumbSrc}
+            src={thumb}
             sx={{
               height: 236,
               m: '18px',
@@ -158,7 +181,7 @@ const Header = ({ context }: { context?: AlbumContext }) => {
                 >
                   <Avatar
                     alt={album.parentTitle}
-                    src={album.parentThumb ? parentThumbSrc : undefined}
+                    src={album.parentThumb ? parentThumb : undefined}
                     sx={{ width: '32px', height: '32px', ml: '2px' }}
                   >
                     <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
@@ -228,50 +251,9 @@ const Header = ({ context }: { context?: AlbumContext }) => {
             {...menuProps}
           />
         </Box>
-        <Box
-          alignItems="flex-start"
-          borderBottom="1px solid"
-          borderColor="border.main"
-          color="text.secondary"
-          display="flex"
-          height={30}
-          width="100%"
-        >
-          <Box maxWidth="10px" width="10px" />
-          <Box display="flex" flexShrink={0} justifyContent="center" width="40px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <BiHash />
-            </SvgIcon>
-          </Box>
-          <Box sx={{ width: '56px' }} />
-          <Box sx={{
-            width: '50%', flexGrow: 1, display: 'flex', justifyContent: 'flex-end',
-          }}
-          >
-            <span />
-          </Box>
-          <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiHeartLine />
-            </SvgIcon>
-          </Box>
-          <Box sx={{
-            width: '50px', marginLeft: 'auto', textAlign: 'right', flexShrink: 0,
-          }}
-          >
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiTimeLine />
-            </SvgIcon>
-          </Box>
-          <Box maxWidth="10px" width="10px" />
-        </Box>
       </Box>
     </>
   );
 };
 
-Header.defaultProps = {
-  context: undefined,
-};
-
-export default React.memo(Header);
+export default Header;

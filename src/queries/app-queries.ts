@@ -49,6 +49,7 @@ export const useAuth = (initialData?: AuthParams) => {
       refetchOnReconnect: 'always',
       refetchOnWindowFocus: false,
       retry: false,
+      staleTime: Infinity,
     },
   );
 };

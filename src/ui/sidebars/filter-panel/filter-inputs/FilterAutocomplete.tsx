@@ -4,91 +4,85 @@ import {
   Chip,
   Autocomplete,
   Box,
-  Rating as MuiRating,
   Typography,
 } from '@mui/material';
-import { isNumber } from 'lodash';
+import { useQuery } from '@tanstack/react-query';
+import { isString } from 'lodash';
 import { useRef, useState } from 'react';
-import { BsDot } from 'react-icons/bs';
 import { FaTimes } from 'react-icons/fa';
 import { TiPlus } from 'react-icons/ti';
-import { FilterObject } from './Filter';
-import { FilterInput } from './filterInputs';
+import { useConfig, useLibrary } from 'queries/app-queries';
+import { filterOptionsQueryFn, MediaTag } from 'queries/library-query-fns';
+import { Filter } from '../FilterPanel';
+import { FilterSchema } from '../filterSchemas';
 
-export const Rating = ({ value }: {value: number}) => (
-  <MuiRating
-    readOnly
-    emptyIcon={(
-      <SvgIcon
-        sx={{
-          color: 'text.secondary',
-          width: '16px',
-          height: '16px',
-        }}
-      >
-        <BsDot />
-      </SvgIcon>
-    )}
-    size="small"
-    sx={{
-      display: 'flex',
-      '&.MuiRating-root': {
-        fontSize: '1rem',
-      },
-    }}
-    value={value / 2}
-  />
-);
-
-const renderOption = (option: string | number) => {
-  switch (true) {
-    case isNumber(option) && option === -1:
-      return <Typography lineHeight={1}>unrated</Typography>;
-    case isNumber(option) && option >= 0:
-      return <Rating value={option as number} />;
-    default:
-      return '';
-  }
+const groups = {
+  Artist: 8,
+  Album: 9,
+  Track: 10,
 };
 
-interface FilterRatingProps {
+interface FilterAutocompleteProps {
   handleAddFilter:({
     type, group, field, label, operator, value, display,
-  }: Omit<FilterObject, 'hash'>) => void;
-  input: FilterInput;
+  }: Omit<Filter, 'hash'>) => void;
   group: 'Artist' | 'Album' | 'Track';
+  schema: FilterSchema;
 }
 
-const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
+const FilterAutocomplete = ({
+  handleAddFilter, group, schema,
+}: FilterAutocompleteProps) => {
+  const config = useConfig();
+  const library = useLibrary();
   const [count, setCount] = useState(0);
   const [disableInput, setDisableInput] = useState(false);
-  const value = useRef<string | number>();
+  const [open, setOpen] = useState(false);
+  const value = useRef<MediaTag>();
+  const { data: options } = useQuery(
+    [schema.field, group],
+    () => filterOptionsQueryFn({
+      config: config.data,
+      field: schema.field,
+      library,
+      type: groups[group],
+    }),
+    {
+      enabled: open,
+      initialData: [],
+      refetchOnMount: true,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  );
   return (
     <Box
       component="form"
-      onClick={(e) => e.stopPropagation()}
       onSubmit={(e) => {
         e.preventDefault();
-        handleAddFilter({
-          type: input.type,
-          group,
-          field: input.field,
-          label: input.label,
-          operator: input.operators[count % input.operators.length],
-          value: value.current,
-          display: value.current,
-        });
+        if (value.current) {
+          handleAddFilter({
+            type: schema.type,
+            group,
+            field: schema.field,
+            label: schema.label,
+            operator: schema.operators[count % schema.operators.length],
+            value: value.current.id,
+            display: value.current.title,
+          });
+        }
       }}
     >
       <Autocomplete
         disableClearable
-        disablePortal
         freeSolo
         fullWidth
         multiple
         ListboxProps={{
+          className: 'scroll-container',
           style: {
             backgroundImage: 'var(--mui-overlays-8)',
+            overflow: 'overlay',
           },
         }}
         componentsProps={{
@@ -104,8 +98,13 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
           },
         }}
         disabled={disableInput}
-        getOptionLabel={(opt) => opt.toString()}
-        options={input.options!}
+        getOptionLabel={(option) => {
+          if (isString(option)) {
+            return option;
+          }
+          return option.title;
+        }}
+        options={options}
         renderInput={(params) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { InputLabelProps, InputProps, ...rest } = params;
@@ -116,6 +115,7 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
               endAdornment={(
                 <SvgIcon
                   sx={{
+                    color: 'text.primary',
                     cursor: 'pointer',
                     marginRight: '5px',
                     width: '0.7em',
@@ -124,15 +124,15 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
                     },
                   }}
                   onClick={() => {
-                    if (value.current && input.options?.includes(value.current)) {
+                    if (value.current) {
                       handleAddFilter({
-                        type: input.type,
+                        type: schema.type,
                         group,
-                        field: input.field,
-                        label: input.label,
-                        operator: input.operators[count % input.operators.length],
-                        value: value.current,
-                        display: value.current,
+                        field: schema.field,
+                        label: schema.label,
+                        operator: schema.operators[count % schema.operators.length],
+                        value: value.current.id,
+                        display: value.current.title,
                       });
                     }
                   }}
@@ -143,7 +143,7 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
               startAdornment={(
                 <>
                   <Chip
-                    label={input.operators[count % input.operators.length]}
+                    label={schema.operators[count % schema.operators.length]}
                     size="small"
                     sx={{
                       borderRadius: '4px',
@@ -158,9 +158,7 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
               sx={{
                 backgroundImage: 'var(--mui-overlays-2)',
                 borderRadius: '4px',
-                caretColor: 'transparent',
                 '& .MuiAutocomplete-input': {
-                  cursor: 'pointer',
                   minWidth: '0 !important',
                   padding: '4px 6px 5px',
                 },
@@ -168,24 +166,29 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
             />
           );
         }}
-        renderOption={(props, opt) => (
+        renderOption={(props, option) => (
           <li {...props}>
-            {renderOption(opt)}
+            <Typography
+              lineHeight={1}
+            >
+              {option.title}
+            </Typography>
           </li>
         )}
-        renderTags={(values: (string | number)[], getTagProps) => (
-          values.map((opt: string | number, index: number) => (
+        renderTags={(values: MediaTag[], getTagProps) => (
+          values.map((option: MediaTag, index: number) => (
             <Chip
-              label={isNumber(opt) && opt > 0
-                ? <Rating value={opt as number} />
-                : 'unrated'}
+              label={option.title.toString()}
               size="small"
               sx={{
                 borderRadius: '4px',
+                flexShrink: 1,
                 marginLeft: '5px',
+                minWidth: '0 !important',
                 width: 'fit-content',
                 '& .MuiChip-deleteIcon': {
                   color: 'text.secondary',
+                  flexShrink: 0,
                   marginRight: '4px',
                   '&:hover': {
                     color: 'error.main',
@@ -201,22 +204,22 @@ const FilterRating = ({ handleAddFilter, input, group }: FilterRatingProps) => {
           ))
         )}
         sx={{
-          '& .Mui-disabled': {
-            color: 'text.primary',
+          '& .MuiAutocomplete-inputRoot': {
+            flexWrap: 'nowrap',
           },
         }}
         onChange={(e, values) => {
           setDisableInput(values.length > 0);
           if (values.length > 0) {
+            if (isString(values[0])) return;
             [value.current] = values;
-          } else {
-            value.current = undefined;
           }
         }}
-        onKeyDown={(e) => e.preventDefault()}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
       />
     </Box>
   );
 };
 
-export default FilterRating;
+export default FilterAutocomplete;

@@ -1,25 +1,25 @@
 import { InputBase, SvgIcon, Chip, Box } from '@mui/material';
 import { useState } from 'react';
 import { TiPlus } from 'react-icons/ti';
-import { FilterObject } from './Filter';
-import { FilterInput } from './filterInputs';
+import { Filter } from '../FilterPanel';
+import { FilterSchema } from '../filterSchemas';
 
 interface FilterInputProps {
   handleAddFilter:({
     type, group, field, label, operator, value, display,
-  }: Omit<FilterObject, 'hash'>) => void;
-  input: FilterInput;
+  }: Omit<Filter, 'hash'>) => void;
   group: 'Artist' | 'Album' | 'Track';
+  schema: FilterSchema;
 }
 
 const FilterBoolean = ({
   handleAddFilter,
-  input,
   group,
+  schema,
 }: FilterInputProps) => {
   const options = ['true', 'false'];
   const [count, setCount] = useState(0);
-  const operator = input.operators[0];
+  const operator = schema.operators[0];
 
   const handleClick = () => {
     let value;
@@ -29,10 +29,10 @@ const FilterBoolean = ({
       value = 0;
     }
     handleAddFilter({
-      type: input.type,
+      type: schema.type,
       group,
-      field: input.field,
-      label: input.label,
+      field: schema.field,
+      label: schema.label,
       operator,
       value,
       display: options[count % options.length],

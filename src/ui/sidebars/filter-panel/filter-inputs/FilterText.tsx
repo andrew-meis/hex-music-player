@@ -1,16 +1,16 @@
 import { InputBase, SvgIcon, Chip, Box, FormHelperText } from '@mui/material';
 import React, { useRef, useState } from 'react';
 import { TiPlus } from 'react-icons/ti';
-import { FilterObject } from './Filter';
-import { FilterInput, FilterTypes } from './filterInputs';
+import { Filter } from '../FilterPanel';
+import { FilterSchema, FilterTypes } from '../filterSchemas';
 
 interface FilterInputProps {
   error: boolean;
   handleAddFilter:({
     type, group, field, label, operator, value, display,
-  }: Omit<FilterObject, 'hash'>) => void;
+  }: Omit<Filter, 'hash'>) => void;
   group: 'Artist' | 'Album' | 'Track';
-  input: FilterInput;
+  schema: FilterSchema;
   setError: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -18,20 +18,20 @@ const FilterText = ({
   error,
   handleAddFilter,
   group,
-  input,
+  schema,
   setError,
 }: FilterInputProps) => {
   const timePeriods = ['seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'];
   const [count, setCount] = useState(0);
   const [period, setPeriod] = useState(0);
-  const operator = input.operators[count % input.operators.length];
+  const operator = schema.operators[count % schema.operators.length];
   const timePeriod = timePeriods[period % timePeriods.length];
   const value = useRef<string>();
 
   const isInputValid = () => {
     const regex = /^[0-9]+$/;
     if (!value.current) return false;
-    if (input.type === FilterTypes.INT && !value.current.match(regex)) return false;
+    if (schema.type === FilterTypes.INT && !value.current.match(regex)) return false;
     if ((operator === 'is in the last' || operator === 'is not in the last')
       && !value.current.match(regex)) return false;
     return true;
@@ -52,10 +52,10 @@ const FilterText = ({
       displayValue = value.current === '1' ? timePeriod.substring(0, timePeriod.length - 1) : `${value.current} ${timePeriod}`;
     }
     handleAddFilter({
-      type: input.type,
+      type: schema.type,
       group,
-      field: input.field,
-      label: input.label,
+      field: schema.field,
+      label: schema.label,
       operator,
       value: formattedValue || value.current,
       display: displayValue || value.current,
@@ -78,10 +78,10 @@ const FilterText = ({
       displayValue = value.current === '1' ? timePeriod.substring(0, timePeriod.length - 1) : `${value.current} ${timePeriod}`;
     }
     handleAddFilter({
-      type: input.type,
+      type: schema.type,
       group,
-      field: input.field,
-      label: input.label,
+      field: schema.field,
+      label: schema.label,
       operator,
       value: formattedValue || value.current,
       display: displayValue || value.current,

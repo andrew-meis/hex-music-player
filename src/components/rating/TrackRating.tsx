@@ -126,4 +126,4 @@ const Rating = ({ id, library, userRating }: RatingProps) => {
   );
 };
 
-export default Rating;
+export default React.memo(Rating);

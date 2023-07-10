@@ -15,7 +15,7 @@ import Footer from 'routes/virtuoso-components/Footer';
 import ScrollSeekPlaceholderNoIndex from 'routes/virtuoso-components/ScrollSeekPlaceholderNoIndex';
 import { QueryKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
-import { FilterObject } from 'ui/sidebars/filter/Filter';
+import { Filter } from 'ui/sidebars/filter-panel/FilterPanel';
 import Header from './Header';
 import List from './List';
 import Row from './Row';
@@ -53,7 +53,7 @@ const operatorMap = {
   },
 };
 
-const addFiltersToParams = (filters: FilterObject[], params: URLSearchParams) => {
+const addFiltersToParams = (filters: Filter[], params: URLSearchParams) => {
   filters.forEach((filter) => params
     .append(
       // @ts-ignore
@@ -93,7 +93,7 @@ const Tracks = () => {
     [QueryKeys.FILTERS],
     () => ([]),
     {
-      initialData: [] as FilterObject[],
+      initialData: [] as Filter[],
       refetchOnMount: false,
       refetchOnReconnect: false,
       refetchOnWindowFocus: false,
@@ -137,18 +137,22 @@ const Tracks = () => {
   const { data: config } = useConfig();
   const { playUri } = usePlayback();
 
-  const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
-    const params = new URLSearchParams();
-    params.append('type', 10 as unknown as string);
-    params.append('X-Plex-Container-Start', `${pageParam}`);
-    params.append('X-Plex-Container-Size', `${containerSize}`);
-    addFiltersToParams(filters.data, params);
+  const params = useMemo(() => {
+    const newParams = new URLSearchParams();
+    newParams.append('type', 10 as unknown as string);
+    addFiltersToParams(filters.data, newParams);
     if (sort.data) {
-      params.append('sort', sort.data.stringify());
+      newParams.append('sort', sort.data.stringify());
     }
     if (limit.data) {
-      params.append('limit', limit.data);
+      newParams.append('limit', limit.data);
     }
+    return newParams;
+  }, [filters.data, limit.data, sort.data]);
+
+  const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
+    params.append('X-Plex-Container-Start', `${pageParam}`);
+    params.append('X-Plex-Container-Size', `${containerSize}`);
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,
@@ -157,14 +161,14 @@ const Tracks = () => {
     const newResponse = await ky(url).json() as Record<string, any>;
     const container = parseTrackContainer(newResponse);
     return container;
-  }, [config.sectionId, filters.data, library.api, limit.data, sort.data]);
+  }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
     queryKey: [QueryKeys.ALL_TRACKS, filters.data, limit.data, sort.data],
     queryFn: fetchTracks,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 
@@ -229,14 +233,9 @@ const Tracks = () => {
     return 0;
   }, [navigationType]);
 
-  const uri = useMemo(() => {
-    const uriParams = {
-      type: 10,
-      sort: sort.data.stringify(),
-    };
-    // eslint-disable-next-line max-len
-    return `/library/sections/${config.sectionId}/all?${new URLSearchParams(uriParams as any).toString()}`;
-  }, [config.sectionId, sort.data]);
+  const uri = useMemo(() => (
+    `/library/sections/${config.sectionId}/all?${params.toString()}`
+  ), [config.sectionId, params]);
 
   const tracksContext: TracksContext = useMemo(() => ({
     config,

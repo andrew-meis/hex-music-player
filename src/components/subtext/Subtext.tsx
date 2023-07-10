@@ -1,6 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import { Track } from 'api/index';
 
+export interface SubtextOptions {
+  albumTitle: boolean;
+  artistTitle: boolean;
+  showSubtext: boolean;
+}
+
 const Subtext = ({ track, showAlbum }: {track: Track, showAlbum: boolean}) => (
   <>
     <NavLink

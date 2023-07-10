@@ -144,9 +144,14 @@ const SimilarArtists = () => {
     const similar = artist.data?.hubs.find((hub) => hub.hubIdentifier === 'artist.similar');
     let sonicSimilar = artist.data?.hubs
       .find((hub) => hub.hubIdentifier === 'external.artist.similar.sonically');
-    const sonicFiltered = sonicSimilar?.items
-      .filter((sonicArtist) => similar?.items
-        .every((similarArtist) => similarArtist.id !== sonicArtist.id));
+    let sonicFiltered;
+    if (similar && similar.items.length > 0) {
+      sonicFiltered = sonicSimilar?.items
+        .filter((sonicArtist) => similar?.items
+          .every((similarArtist) => similarArtist.id !== sonicArtist.id));
+    } else {
+      sonicFiltered = sonicSimilar?.items;
+    }
     if (similar && similar.items.length > 0 && sonicSimilar && sonicFiltered) {
       sonicSimilar = { ...sonicSimilar, items: sonicFiltered || [] };
     }

@@ -89,6 +89,7 @@ export enum QueryKeys {
   ARTISTS = 'artists',
   ARTISTS_BY_GENRE = 'artists-by-genre',
   FILTERS = 'filters', // only updated programmatically
+  FILTERS_AND_SORTING = 'filters-and-sorting',
   GENRES = 'genres',
   HISTORY = 'history',
   LASTFM_SEARCH = 'lastfm-search',

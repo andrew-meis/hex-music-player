@@ -114,7 +114,7 @@ const defaultSorts = {
   track: plexSort(TrackSortKeys.ARTIST_TITLE, SortOrders.ASC),
 };
 
-const SortSelect = ({ pathname }: { pathname: string }) => {
+const InputSort = ({ pathname }: { pathname: string }) => {
   const queryClient = useQueryClient();
   const trimmed = pathname.substring(1, pathname.length - 1) as 'album' | 'artist' | 'track';
   const [sort, setSort] = useState(defaultSorts[trimmed]);
@@ -238,4 +238,4 @@ const SortSelect = ({ pathname }: { pathname: string }) => {
   );
 };
 
-export default SortSelect;
+export default InputSort;
