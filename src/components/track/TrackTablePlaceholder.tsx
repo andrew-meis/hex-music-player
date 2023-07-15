@@ -27,7 +27,7 @@ const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> =
 };
 
 const TrackTablePlaceholder: React.FC<{
-  columns: Column<PlaylistItem | Track, unknown>[],
+  columns: Column<PlaylistItem, unknown>[] | Column<Track, unknown>[],
   compact: boolean,
   isGrouped: boolean,
   singleLineRating: boolean,

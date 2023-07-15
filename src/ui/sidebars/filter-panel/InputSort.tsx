@@ -1,5 +1,5 @@
 import { Box, Chip, MenuItem, SvgIcon, Typography } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { CgArrowLongDown } from 'react-icons/cg';
 import { PlexSort, plexSort } from 'classes';
@@ -118,6 +118,22 @@ const InputSort = ({ pathname }: { pathname: string }) => {
   const queryClient = useQueryClient();
   const trimmed = pathname.substring(1, pathname.length - 1) as 'album' | 'artist' | 'track';
   const [sort, setSort] = useState(defaultSorts[trimmed]);
+
+  const sortQuery = useQuery(
+    [QueryKeys.SORT_TRACKS],
+    () => sort,
+    {
+      initialData: sort,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    },
+  );
+
+  useEffect(() => {
+    setSort(sortQuery.data);
+  }, [sortQuery.data]);
 
   useEffect(() => {
     if (pathname === '/albums') {

@@ -4,15 +4,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { PlaylistItem, Track } from 'api/index';
 import Palette from 'components/palette/Palette';
-import TrackTable from 'components/track/TrackTable';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
 import { useLibrary } from 'queries/app-queries';
 import { PlayActions } from 'types/enums';
-import { AppPageViewSettings, RouteParams } from 'types/interfaces';
+import { AppTrackViewSettings, RouteParams } from 'types/interfaces';
 import Header from './Header';
+import Subheader from './Subheader';
+import TrackTable from './TrackTable';
 
-const defaultViewSettings: AppPageViewSettings = {
+const defaultViewSettings: AppTrackViewSettings = {
   columns: {
     grandparentTitle: false,
     lastViewedAt: false,
@@ -28,7 +29,7 @@ const defaultViewSettings: AppPageViewSettings = {
 };
 
 const Album = () => {
-  const viewSettings = window.electron.readConfig('album-view-settings') as AppPageViewSettings;
+  const viewSettings = window.electron.readConfig('album-view-settings') as AppTrackViewSettings;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
   const library = useLibrary();
@@ -36,6 +37,7 @@ const Album = () => {
   const albumTracks = useAlbumTracks(+id, library);
   const location = useLocation();
   const navigationType = useNavigationType();
+  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
 
@@ -103,6 +105,11 @@ const Album = () => {
               handlePlayNow={handlePlayNow}
               library={library}
             />
+            <Subheader
+              album={album.data.album}
+              colors={colors}
+              openColumnDialog={() => setOpen(true)}
+            />
             <TrackTable
               columnOptions={
                 isEmpty(viewSettings.columns)
@@ -121,9 +128,11 @@ const Album = () => {
                   ? viewSettings.multiLineRating
                   : defaultViewSettings.multiLineRating
               }
+              open={open}
               playbackFn={handlePlayNow}
               rows={albumTracks.data || []}
               scrollRef={scrollRef}
+              setOpen={setOpen}
               subtextOptions={{
                 albumTitle: false,
                 artistTitle: false,

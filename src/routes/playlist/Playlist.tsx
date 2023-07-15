@@ -7,7 +7,6 @@ import { useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Album, Artist, PlayQueueItem, PlaylistItem, Track } from 'api/index';
-import TrackTable from 'components/track/TrackTable';
 import { useAddToPlaylist, useMovePlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import usePlayback from 'hooks/usePlayback';
 import useToast from 'hooks/useToast';
@@ -15,11 +14,13 @@ import { useLibrary } from 'queries/app-queries';
 import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
 import mergeRefs from 'scripts/merge-refs';
 import { DragTypes, PlayActions } from 'types/enums';
-import { AppPageViewSettings, RouteParams } from 'types/interfaces';
+import { AppTrackViewSettings, RouteParams } from 'types/interfaces';
 import { isPlaylistItem } from 'types/type-guards';
 import Header from './Header';
+import Subheader from './Subheader';
+import TrackTable from './TrackTable';
 
-const defaultViewSettings: AppPageViewSettings = {
+const defaultViewSettings: AppTrackViewSettings = {
   columns: {
     grandparentTitle: false,
     lastViewedAt: false,
@@ -35,7 +36,7 @@ const defaultViewSettings: AppPageViewSettings = {
 };
 
 const Playlist = () => {
-  const viewSettings = window.electron.readConfig('playlist-view-settings') as AppPageViewSettings;
+  const viewSettings = window.electron.readConfig('playlist-view-settings') as AppTrackViewSettings;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
   const addToPlaylist = useAddToPlaylist();
@@ -48,6 +49,7 @@ const Playlist = () => {
   const removeFromPlaylist = useRemoveFromPlaylist();
   const toast = useToast();
   const [filter, setFilter] = useState('');
+  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
 
@@ -90,7 +92,7 @@ const Playlist = () => {
       monitor,
     ) => handleDrop(item, monitor.getItemType()),
     collect: (monitor) => ({ isOver: (monitor.isOver() && !playlist.data?.smart) }),
-  }));
+  }), [playlist.data]);
 
   const handlePlayNow = useCallback(async (
     key?: string,
@@ -181,8 +183,12 @@ const Playlist = () => {
       }}
     >
       <Header
-        filter={filter}
         handlePlayNow={handlePlayNow}
+        playlist={playlist.data}
+      />
+      <Subheader
+        filter={filter}
+        openColumnDialog={() => setOpen(true)}
         playlist={playlist.data}
         setFilter={setFilter}
       />
@@ -204,9 +210,11 @@ const Playlist = () => {
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
+        open={open}
         playbackFn={handlePlayNow}
         rows={items}
         scrollRef={scrollRef}
+        setOpen={setOpen}
         subtextOptions={{
           albumTitle: true,
           artistTitle: true,

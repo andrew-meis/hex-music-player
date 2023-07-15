@@ -11,10 +11,10 @@ import styles from './TrackTable.module.scss';
 const TrackTableRow: React.FC<ItemProps<PlaylistItem | Track> & {
   compact: boolean,
   isSorted: boolean,
-  prevId: number | undefined,
-  row: Row<PlaylistItem | Track>,
+  prevId?: number,
+  row: Row<PlaylistItem> | Row<Track>,
   selectedItems: (PlaylistItem | Track)[],
-  trackDropFn: ((droppedItems: PlaylistItem[], prevId?: number) => Promise<void>) | undefined,
+  trackDropFn?: ((droppedItems: PlaylistItem[], prevId?: number) => Promise<void>) | undefined,
   onClick: (event: React.MouseEvent) => void,
   onContextMenu: (e: React.MouseEvent) => void,
   onDragEnd: () => void,
@@ -51,7 +51,7 @@ const TrackTableRow: React.FC<ItemProps<PlaylistItem | Track> & {
           return 'none';
       }
     })(),
-  });
+  }, [row]);
 
   const [{ isOver }, drop] = useDrop(() => ({
     accept: [DragTypes.PLAYLIST_ITEM],
@@ -89,6 +89,11 @@ const TrackTableRow: React.FC<ItemProps<PlaylistItem | Track> & {
       onDragStart={onDragStart}
     />
   );
+};
+
+TrackTableRow.defaultProps = {
+  prevId: undefined,
+  trackDropFn: undefined,
 };
 
 export default TrackTableRow;

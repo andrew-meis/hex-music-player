@@ -4,8 +4,9 @@ import React from 'react';
 const iconSx = {
   color: 'text.secondary',
   cursor: 'pointer',
-  height: 18,
-  paddingTop: '4px',
+  height: 32,
+  marginRight: 1,
+  width: 24,
   '&:hover': {
     color: 'text.primary',
   },
@@ -38,16 +39,11 @@ const TableSettingsIcon = () => (
 );
 
 const TableSettings: React.FC<{
-  isIndexOrThumbVisible: boolean,
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-}> = ({ isIndexOrThumbVisible, setOpen }) => (
+  openColumnDialog: () => void,
+}> = ({ openColumnDialog }) => (
   <SvgIcon
-    sx={{
-      paddingLeft: isIndexOrThumbVisible ? 0 : '4px',
-      width: isIndexOrThumbVisible ? 54 : 18,
-      ...iconSx,
-    }}
-    onClick={() => setOpen(true)}
+    sx={iconSx}
+    onClick={openColumnDialog}
   >
     <TableSettingsIcon />
   </SvgIcon>

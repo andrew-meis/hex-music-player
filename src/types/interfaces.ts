@@ -35,7 +35,7 @@ export interface AppConfig {
   token?: string;
 }
 
-export interface AppPageViewSettings {
+export interface AppTrackViewSettings {
   columns: Partial<Record<keyof Track, boolean>>;
   compact: boolean;
   multiLineRating: boolean;
@@ -59,8 +59,8 @@ export interface ElectronAPI {
   quit: () => void;
   unmaximize: () => void;
   getAppInfo: () => AppInfo;
-  readConfig: (key: string) => AppSettings | AppConfig | AppPageViewSettings;
-  writeConfig: (key: string, value: any) => AppSettings | AppConfig | AppPageViewSettings;
+  readConfig: (key: string) => AppSettings | AppConfig | AppTrackViewSettings;
+  writeConfig: (key: string, value: any) => AppSettings | AppConfig | AppTrackViewSettings;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
   updatePlaying: (key: 'playing', value: boolean) => void;

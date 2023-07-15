@@ -22,6 +22,7 @@ import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
 import { Link, NavLink } from 'react-router-dom';
 import {
   ItemProps,
+  ListRange,
   ScrollSeekPlaceholderProps,
   TableProps,
   TableVirtuoso,
@@ -29,15 +30,17 @@ import {
 import { Library, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
+import {
+  ParentIndexCell, IndexCell, ThumbCell, TitleCell, RatingCell,
+} from 'components/track/cells';
+import { ColumnVisibilityDialog } from 'components/track/column-headers';
+import styles from 'components/track/TrackTable.module.scss';
+import TrackTablePlaceholder from 'components/track/TrackTablePlaceholder';
+import TrackTableRow from 'components/track/TrackTableRow';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { ParentIndexCell, IndexCell, ThumbCell, TitleCell, RatingCell } from './cells';
-import { ColumnVisibilityDialog } from './column-headers';
-import styles from './TrackTable.module.scss';
-import TrackTablePlaceholder from './TrackTablePlaceholder';
-import TrackTableRow from './TrackTableRow';
 
 const columnHelper = createColumnHelper<Track>();
 
@@ -63,9 +66,12 @@ const TableFoot = React.forwardRef((
 
 const TrackTable: React.FC<{
   columnOptions: Partial<Record<keyof Track, boolean>>,
+  isScrollingFn: (isScrolling: boolean) => void,
   isViewCompact: boolean,
   library: Library,
+  listRange: React.MutableRefObject<ListRange | undefined>,
   multiLineRating: boolean,
+  open: boolean,
   playbackFn: (
     key?: string,
     shuffle?: boolean,
@@ -73,15 +79,24 @@ const TrackTable: React.FC<{
   ) => Promise<void>;
   rows: Track[],
   scrollRef: HTMLDivElement | null,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setSorting: React.Dispatch<React.SetStateAction<SortingState>>,
+  sorting: SortingState,
   subtextOptions: SubtextOptions,
 }> = ({
   columnOptions,
+  isScrollingFn,
   isViewCompact,
   library,
+  listRange,
   multiLineRating,
+  open,
   playbackFn,
   rows,
   scrollRef,
+  setOpen,
+  setSorting,
+  sorting,
   subtextOptions,
 }) => {
   const queryClient = useQueryClient();
@@ -89,7 +104,6 @@ const TrackTable: React.FC<{
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [compact, setCompact] = useState(isViewCompact);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
-  const [open, setOpen] = useState(false);
 
   const [ratingOptions, setRatingOptions] = useState(multiLineRating);
   const [titleOptions, setTitleOptions] = useState<SubtextOptions>(subtextOptions);
@@ -101,7 +115,6 @@ const TrackTable: React.FC<{
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });
   const [grouping, setGrouping] = useState<GroupingState>([]);
   const [rowSelection, setRowSelection] = useState({});
-  const [sorting, setSorting] = useState<SortingState>([]);
 
   const selectedItems = useMemo(() => Object.keys(rowSelection)
     .map((i) => rows[+i]), [rows, rowSelection]);
@@ -115,7 +128,7 @@ const TrackTable: React.FC<{
     columnHelper.accessor('index', {
       cell: (info) => (
         <IndexCell
-          index={info.getValue()}
+          index={info.row.index + 1}
           isPlaying={isPlaying}
           playing={nowPlaying?.track.id === info.row.original.id}
         />
@@ -280,10 +293,12 @@ const TrackTable: React.FC<{
     columns,
     data: rows,
     enableRowSelection: true,
+    enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getGroupedRowModel: getGroupedRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
     onColumnVisibilityChange: setColumnVisibility,
     onGroupingChange: setGrouping,
     onRowSelectionChange: setRowSelection,
@@ -453,12 +468,11 @@ const TrackTable: React.FC<{
             return (
               <TrackTableRow
                 compact={compact}
-                data-row-id={row.getIsGrouped() ? null : row.original.id}
+                data-row-id={row.getIsGrouped() ? null : row.original?.id}
                 data-selected={row.getIsSelected()}
                 data-selected-above={prev?.getIsSelected() || false}
                 data-selected-below={next?.getIsSelected() || false}
                 isSorted={!isEmpty(sorting)}
-                prevId={row.getIsGrouped() ? undefined : prev?.original.id}
                 row={row}
                 selectedItems={selectedItems}
                 onClick={(e) => handleClick(e, row)}
@@ -516,7 +530,7 @@ const TrackTable: React.FC<{
           </>
         )}
         fixedItemHeight={compact ? 40 : 56}
-        isScrolling={handleScrollState}
+        isScrolling={isScrollingFn || handleScrollState}
         itemContent={(index) => {
           const row = table.getRowModel().rows[index];
           if (row.getIsGrouped()) {
@@ -546,6 +560,11 @@ const TrackTable: React.FC<{
             ));
         }}
         key={`${compact}`}
+        rangeChanged={(newRange) => {
+          if (!listRange) return;
+          // eslint-disable-next-line no-param-reassign
+          listRange.current = newRange;
+        }}
         scrollSeekConfiguration={{
           enter: (velocity) => Math.abs(velocity) > 500,
           exit: (velocity) => Math.abs(velocity) < 100,
@@ -573,7 +592,7 @@ const TrackTable: React.FC<{
         setTitleOptions={setTitleOptions}
         table={table}
         titleOptions={titleOptions}
-        viewKey="track"
+        viewKey="tracks"
       />
     </>
   );

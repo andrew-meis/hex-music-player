@@ -1,23 +1,17 @@
-import {
-  Box,
-  Fade,
-  SvgIcon,
-  Typography,
-} from '@mui/material';
-import { BiHash } from 'react-icons/bi';
-import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
+import { Box, Fade, Typography } from '@mui/material';
+import React from 'react';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import FixedHeader from './FixedHeader';
-import { TracksContext } from './Tracks';
 
-const Header = ({ context }: { context?: TracksContext | undefined }) => {
-  const { playUri, uri } = context!;
+const Header: React.FC<{
+  handlePlayNow: (key?: string, shuffle?: boolean) => Promise<void>,
+}> = ({ handlePlayNow }) => {
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
-  const handlePlay = () => playUri(uri, false);
-  const handleShuffle = () => playUri(uri, true);
+  const handlePlay = () => handlePlayNow();
+  const handleShuffle = () => handlePlayNow(undefined, true);
 
   return (
     <>
@@ -40,7 +34,6 @@ const Header = ({ context }: { context?: TracksContext | undefined }) => {
         </Box>
       </Fade>
       <Box
-        maxWidth="900px"
         mx="auto"
         ref={ref}
         width={WIDTH_CALC}
@@ -55,53 +48,9 @@ const Header = ({ context }: { context?: TracksContext | undefined }) => {
           <Typography variant="h1">Tracks</Typography>
           <PlayShuffleButton handlePlay={handlePlay} handleShuffle={handleShuffle} />
         </Box>
-        <Box
-          alignItems="flex-start"
-          borderBottom="1px solid"
-          borderColor="border.main"
-          color="text.secondary"
-          display="flex"
-          height={30}
-          width="100%"
-        >
-          <Box maxWidth="10px" width="10px" />
-          <Box display="flex" flexShrink={0} justifyContent="center" width="40px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <BiHash />
-            </SvgIcon>
-          </Box>
-          <Box sx={{ width: '56px' }} />
-          <Box
-            sx={{
-              alignItems: 'center',
-              width: '50%',
-              flexGrow: 1,
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
-          />
-          <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiHeartLine />
-            </SvgIcon>
-          </Box>
-          <Box sx={{
-            width: '50px', marginLeft: 'auto', textAlign: 'right', flexShrink: 0,
-          }}
-          >
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiTimeLine />
-            </SvgIcon>
-          </Box>
-          <Box maxWidth="10px" width="10px" />
-        </Box>
       </Box>
     </>
   );
-};
-
-Header.defaultProps = {
-  context: undefined,
 };
 
 export default Header;

@@ -5,7 +5,7 @@ import { BiAlbum } from 'react-icons/bi';
 import { PlaylistItem, Track } from 'api/index';
 
 const ParentIndexCell: React.FC<{
-  info: CellContext<PlaylistItem | Track, number>;
+  info: CellContext<Track, number> | CellContext<PlaylistItem, number>;
 }> = ({ info }) => (
   <div style={{ display: 'flex' }}>
     <SvgIcon sx={{ paddingRight: '8px', width: 40 }}>

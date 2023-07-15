@@ -10,7 +10,6 @@ import { BsMusicNoteList } from 'react-icons/bs';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
 import { Playlist, PlaylistItem, Track } from 'api/index';
-import { ChipFilter } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
@@ -26,19 +25,15 @@ const titleStyle = {
 };
 
 const Header: React.FC<{
-  filter: string,
   handlePlayNow: (
     key?: string,
     shuffle?: boolean,
     sortedItems?: (PlaylistItem | Track)[],
   ) => Promise<void>,
   playlist: Playlist,
-  setFilter: React.Dispatch<React.SetStateAction<string>>,
 }> = ({
-  filter,
   handlePlayNow,
   playlist,
-  setFilter,
 }) => {
   const { width } = useOutletContext() as { width: number };
   const countNoun = playlist.leafCount > 1 || playlist.leafCount === 0 ? 'tracks' : 'track';
@@ -151,18 +146,6 @@ const Header: React.FC<{
               mr="10px"
             />
           </Box>
-        </Box>
-        <Box
-          alignItems="center"
-          display="flex"
-          height={72}
-          justifyContent="space-between"
-          mt={1}
-        >
-          <ChipFilter
-            filter={filter}
-            setFilter={setFilter}
-          />
         </Box>
       </Box>
     </>

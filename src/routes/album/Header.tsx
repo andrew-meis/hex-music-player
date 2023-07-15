@@ -1,21 +1,17 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
-import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
 import { reduce } from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/io';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Album, Library, PlaylistItem, Track } from 'api/index';
-import { ChipGenres } from 'components/chips';
-import { MenuIcon, AlbumMenu } from 'components/menus';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { PaletteState } from 'hooks/usePalette';
-import usePlayback from 'hooks/usePlayback';
 import { DragTypes } from 'types/enums';
 import FixedHeader from './FixedHeader';
 
@@ -41,9 +37,6 @@ const Header: React.FC<{
 }> = ({ album, colors, handlePlayNow, library }) => {
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
-  const { playSwitch } = usePlayback();
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
   const navigate = useNavigate();
   const parentThumb = library.api.getAuthenticatedUrl(
@@ -230,38 +223,6 @@ const Header: React.FC<{
               mr="10px"
             />
           </Box>
-        </Box>
-        <Box
-          alignItems="center"
-          display="flex"
-          height={72}
-          justifyContent="space-between"
-          mt={1}
-        >
-          <ChipGenres
-            colors={Object.values(colors!)}
-            genres={album.genre}
-            navigate={navigate}
-          />
-          <MenuIcon
-            height={32}
-            menuRef={menuRef}
-            menuState={menuProps.state}
-            toggleMenu={toggleMenu}
-            width={24}
-          />
-          <AlbumMenu
-            arrow
-            portal
-            albumLink={false}
-            albums={[album]}
-            align="center"
-            anchorRef={menuRef}
-            direction="left"
-            playSwitch={playSwitch}
-            toggleMenu={toggleMenu}
-            {...menuProps}
-          />
         </Box>
       </Box>
     </>

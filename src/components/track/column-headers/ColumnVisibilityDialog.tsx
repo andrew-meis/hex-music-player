@@ -1,19 +1,20 @@
 import {
   Box, Button, Dialog, FormControlLabel, SvgIcon, Switch, Typography,
 } from '@mui/material';
-import { Table } from '@tanstack/react-table';
+import { Column, Table } from '@tanstack/react-table';
 import { isEqual } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { MdClear } from 'react-icons/md';
-import { useLocation } from 'react-router-dom';
 import { PlaylistItem, Track } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { SubtextOptions } from 'components/subtext/Subtext';
-import { AppPageViewSettings } from 'types/interfaces';
+import { AppTrackViewSettings } from 'types/interfaces';
 
 const viewSettingsMap: Record<string, string> = {
-  albums: 'album-view-settings',
-  playlists: 'playlist-view-settings',
+  album: 'album-view-settings',
+  playlist: 'playlist-view-settings',
+  track: 'track-view-settings',
+  tracks: 'tracks-view-settings',
 };
 
 const columnMap: Partial<Record<keyof Track, string>> = {
@@ -37,8 +38,9 @@ const ColumnVisibilityDialog: React.FC<{
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   setRatingOptions: React.Dispatch<React.SetStateAction<boolean>>,
   setTitleOptions: React.Dispatch<React.SetStateAction<SubtextOptions>>,
-  table: Table<PlaylistItem | Track>,
+  table: Table<Track> | Table<PlaylistItem>,
   titleOptions: SubtextOptions,
+  viewKey: string,
 }> = ({
   compact,
   open,
@@ -49,12 +51,11 @@ const ColumnVisibilityDialog: React.FC<{
   setTitleOptions,
   table,
   titleOptions,
+  viewKey,
 }) => {
-  const { pathname } = useLocation();
-  const basePath = pathname.slice(1, pathname.lastIndexOf('/'));
   const [saveCount, setSaveCount] = useState(0);
   const visibleColumns = table.getVisibleLeafColumns();
-  const currentSettings: AppPageViewSettings = useMemo(() => {
+  const currentSettings: AppTrackViewSettings = useMemo(() => {
     const columns: Partial<Record<keyof Track, boolean>> = {};
     table.getAllColumns()
       .forEach((column) => {
@@ -70,7 +71,7 @@ const ColumnVisibilityDialog: React.FC<{
   }, [compact, ratingOptions, table, titleOptions.showSubtext, visibleColumns]);
 
   const disabled = useMemo(() => {
-    const savedSettings = window.electron.readConfig(viewSettingsMap[basePath]);
+    const savedSettings = window.electron.readConfig(viewSettingsMap[viewKey]);
     return isEqual(savedSettings, currentSettings);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveCount, currentSettings]);
@@ -121,7 +122,7 @@ const ColumnVisibilityDialog: React.FC<{
           display="flex"
           flexWrap="wrap"
         >
-          {table.getAllLeafColumns()
+          {(table.getAllLeafColumns() as Column<Track, unknown>[])
             .filter((column) => !['parentIndex', 'title'].includes(column.id))
             .map((column) => (
               <div key={column.id} style={{ height: 38, width: '50%' }}>
@@ -150,7 +151,7 @@ const ColumnVisibilityDialog: React.FC<{
           lineHeight={1.5}
           marginTop={1}
         >
-          Album View Settings
+          Row Settings
         </Typography>
         <Box
           alignItems="center"
@@ -221,7 +222,7 @@ const ColumnVisibilityDialog: React.FC<{
               Set as Default
             </Typography>
             <Typography mt={-1} variant="subtitle2">
-              Save the current settings for the album page
+              Save the current settings for this view
             </Typography>
           </div>
           <MotionBox
@@ -244,7 +245,7 @@ const ColumnVisibilityDialog: React.FC<{
               }}
               variant="contained"
               onClick={() => {
-                window.electron.writeConfig(viewSettingsMap[basePath], currentSettings);
+                window.electron.writeConfig(viewSettingsMap[viewKey], currentSettings);
                 setSaveCount(saveCount + 1);
                 setOpen(false);
               }}

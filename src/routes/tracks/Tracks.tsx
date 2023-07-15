@@ -1,24 +1,21 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import { SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
 import ky from 'ky';
+import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
-import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, PlayQueueItem, Track, parseTrackContainer } from 'api/index';
+import { ListRange } from 'react-virtuoso';
+import { Track, parseTrackContainer } from 'api/index';
 import { PlexSort } from 'classes';
-import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { useIsPlaying } from 'queries/player-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import Footer from 'routes/virtuoso-components/Footer';
-import ScrollSeekPlaceholderNoIndex from 'routes/virtuoso-components/ScrollSeekPlaceholderNoIndex';
 import { QueryKeys } from 'types/enums';
-import { AppConfig } from 'types/interfaces';
+import { AppTrackViewSettings } from 'types/interfaces';
 import { Filter } from 'ui/sidebars/filter-panel/FilterPanel';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
+import Subheader from './Subheader';
+import TrackTable from './TrackTable';
 
 const containerSize = 100;
 
@@ -64,30 +61,25 @@ const addFiltersToParams = (filters: Filter[], params: URLSearchParams) => {
 
 const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
-export interface TracksContext {
-  config: AppConfig;
-  getFormattedTime: (inMs: number) => string;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
-  sort: PlexSort;
-  tracks: Track[];
-  uri: string;
-}
-
-export interface RowProps {
-  context: TracksContext;
-  index: number;
-  track: Track;
-}
-
-const RowContent = (props: RowProps) => <Row {...props} />;
-
 const defaultSort = 'artist.titleSort:asc';
 
+const defaultViewSettings: AppTrackViewSettings = {
+  columns: {
+    grandparentTitle: true,
+    lastViewedAt: false,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: true,
+    viewCount: false,
+  },
+  compact: false,
+  multiLineRating: true,
+  multiLineTitle: true,
+};
+
 const Tracks = () => {
+  const viewSettings = window.electron.readConfig('tracks-view-settings') as AppTrackViewSettings;
   const fetchTimeout = useRef(0);
   const filters = useQuery(
     [QueryKeys.FILTERS],
@@ -100,7 +92,6 @@ const Tracks = () => {
       staleTime: Infinity,
     },
   );
-  const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
   const limit = useQuery(
     [QueryKeys.LIMIT],
@@ -117,7 +108,16 @@ const Tracks = () => {
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
   const range = useRef<ListRange>();
-  const scrollCount = useRef(0);
+  const [containerStart, setContainerStart] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
+  const [sorting, setSorting] = useState<SortingState>([{
+    desc: false,
+    id: 'grandparentTitle',
+  }]);
+  const { data: config } = useConfig();
+  const { playUri } = usePlayback();
+
   const sort = useQuery(
     [QueryKeys.SORT_TRACKS],
     () => PlexSort.parse(defaultSort),
@@ -129,26 +129,32 @@ const Tracks = () => {
       staleTime: Infinity,
     },
   );
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const [containerStart, setContainerStart] = useState(0);
-  const { getFormattedTime } = useFormattedTime();
-  const { data: isPlaying } = useIsPlaying();
-  const { data: nowPlaying } = useNowPlaying();
-  const { data: config } = useConfig();
-  const { playUri } = usePlayback();
+
+  useEffect(() => {
+    const [newSort] = sorting.map((columnSort) => PlexSort.parseColumnSort(columnSort));
+    queryClient.setQueryData([QueryKeys.SORT_TRACKS], newSort);
+  }, [queryClient, sorting]);
+
+  useEffect(() => {
+    const newSorting = [PlexSort.createColumnSort(sort.data)];
+    setSorting(newSorting);
+  }, [sort.data]);
 
   const params = useMemo(() => {
     const newParams = new URLSearchParams();
     newParams.append('type', 10 as unknown as string);
     addFiltersToParams(filters.data, newParams);
-    if (sort.data) {
-      newParams.append('sort', sort.data.stringify());
+    if (!isEmpty(sorting)) {
+      const sortString = sorting
+        .map((columnSort) => PlexSort.parseColumnSort(columnSort).stringify())
+        .join(',');
+      newParams.append('sort', sortString);
     }
     if (limit.data) {
       newParams.append('limit', limit.data);
     }
     return newParams;
-  }, [filters.data, limit.data, sort.data]);
+  }, [filters.data, limit.data, sorting]);
 
   const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
     params.append('X-Plex-Container-Start', `${pageParam}`);
@@ -164,7 +170,7 @@ const Tracks = () => {
   }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_TRACKS, filters.data, limit.data, sort.data],
+    queryKey: [QueryKeys.ALL_TRACKS, filters.data, limit.data, sorting],
     queryFn: fetchTracks,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,
@@ -237,84 +243,72 @@ const Tracks = () => {
     `/library/sections/${config.sectionId}/all?${params.toString()}`
   ), [config.sectionId, params]);
 
-  const tracksContext: TracksContext = useMemo(() => ({
-    config,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    library,
-    nowPlaying,
-    playUri,
-    sort: sort.data,
-    tracks: flatTracks,
-    uri,
-  }), [
-    config,
-    flatTracks,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    library,
-    nowPlaying,
-    playUri,
-    sort.data,
-    uri,
-  ]);
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+  ) => {
+    playUri(uri, shuffle, key);
+  }, [playUri, uri]);
 
   if (isLoading || !data) return null;
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
+      className="scroll-container"
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
+      ref={setScrollRef}
+      style={{ height: '100%', overflow: 'overlay' }}
+      onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          'tracks-scroll',
+          target.scrollTop as unknown as string,
+        );
+      }}
     >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-          ScrollSeekPlaceholder: ScrollSeekPlaceholderNoIndex,
-        }}
-        context={tracksContext}
-        fixedItemHeight={56}
-        increaseViewportBy={168}
-        isScrolling={handleScrollState}
-        itemContent={(index, _item, context) => {
-          const trackContainer = data.pages.find((page) => page.offset === roundDown(index));
-          if (trackContainer) {
-            const track = trackContainer.tracks[index - trackContainer.offset];
-            return RowContent({ context, index, track });
-          }
-          return (
-            <ScrollSeekPlaceholderNoIndex height={56} />
-          );
-        }}
-        rangeChanged={(newRange) => {
-          range.current = newRange;
-        }}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={data.pages[0].totalSize}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            'tracks-scroll',
-            target.scrollTop as unknown as string,
-          );
+      <Header
+        handlePlayNow={handlePlayNow}
+      />
+      <Subheader
+        count={flatTracks.length}
+        openColumnDialog={() => setOpen(true)}
+      />
+      <TrackTable
+        columnOptions={
+          isEmpty(viewSettings.columns)
+            ? defaultViewSettings.columns
+            : viewSettings.columns
+        }
+        isScrollingFn={handleScrollState}
+        isViewCompact={
+          typeof viewSettings.compact !== 'undefined'
+            ? viewSettings.compact
+            : defaultViewSettings.compact
+        }
+        library={library}
+        listRange={range}
+        multiLineRating={
+          typeof viewSettings.multiLineRating !== 'undefined'
+            ? viewSettings.multiLineRating
+            : defaultViewSettings.multiLineRating
+        }
+        open={open}
+        playbackFn={handlePlayNow}
+        rows={flatTracks}
+        scrollRef={scrollRef}
+        setOpen={setOpen}
+        setSorting={setSorting}
+        sorting={sorting}
+        subtextOptions={{
+          albumTitle: true,
+          artistTitle: true,
+          showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
+            ? viewSettings.multiLineTitle
+            : defaultViewSettings.multiLineTitle,
         }}
       />
     </motion.div>

@@ -280,12 +280,14 @@ const UpcomingTracksVirtuoso = () => {
       return;
     }
     /** ADD PLAYLIST ITEMS */
-    if ((itemType === DragTypes.PLAYLIST_ITEM || DragTypes.SMART_PLAYLIST_ITEM) && target) {
+    if ((itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.SMART_PLAYLIST_ITEM)
+      && target) {
       const prevId = getPrevId(target.id);
       await addMany(array.map((item) => item.track) as Track[], prevId as number);
       return;
     }
-    if ((itemType === DragTypes.PLAYLIST_ITEM || DragTypes.SMART_PLAYLIST_ITEM) && !target) {
+    if ((itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.SMART_PLAYLIST_ITEM)
+      && !target) {
       await addLast(array.map((item) => item.track) as Track[]);
       return;
     }

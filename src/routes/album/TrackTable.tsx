@@ -29,15 +29,17 @@ import {
 import { Library, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
+import {
+  IndexCell, ParentIndexCell, RatingCell, ThumbCell, TitleCell,
+} from 'components/track/cells';
+import { ColumnVisibilityDialog } from 'components/track/column-headers';
+import styles from 'components/track/TrackTable.module.scss';
+import TrackTablePlaceholder from 'components/track/TrackTablePlaceholder';
+import TrackTableRow from 'components/track/TrackTableRow';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { ParentIndexCell, IndexCell, ThumbCell, TitleCell, RatingCell } from './cells';
-import { ColumnVisibilityDialog } from './column-headers';
-import styles from './TrackTable.module.scss';
-import TrackTablePlaceholder from './TrackTablePlaceholder';
-import TrackTableRow from './TrackTableRow';
 
 const columnHelper = createColumnHelper<Track>();
 
@@ -63,9 +65,11 @@ const TableFoot = React.forwardRef((
 
 const TrackTable: React.FC<{
   columnOptions: Partial<Record<keyof Track, boolean>>,
+  groupBy: keyof Track,
   isViewCompact: boolean,
   library: Library,
   multiLineRating: boolean,
+  open: boolean,
   playbackFn: (
     key?: string,
     shuffle?: boolean,
@@ -73,15 +77,19 @@ const TrackTable: React.FC<{
   ) => Promise<void>;
   rows: Track[],
   scrollRef: HTMLDivElement | null,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   subtextOptions: SubtextOptions,
 }> = ({
   columnOptions,
+  groupBy,
   isViewCompact,
   library,
   multiLineRating,
+  open,
   playbackFn,
   rows,
   scrollRef,
+  setOpen,
   subtextOptions,
 }) => {
   const queryClient = useQueryClient();
@@ -89,7 +97,6 @@ const TrackTable: React.FC<{
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [compact, setCompact] = useState(isViewCompact);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
-  const [open, setOpen] = useState(false);
 
   const [ratingOptions, setRatingOptions] = useState(multiLineRating);
   const [titleOptions, setTitleOptions] = useState<SubtextOptions>(subtextOptions);
@@ -99,7 +106,7 @@ const TrackTable: React.FC<{
   const { data: nowPlaying } = useNowPlaying();
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });
-  const [grouping, setGrouping] = useState<GroupingState>([]);
+  const [grouping, setGrouping] = useState<GroupingState>(groupBy ? [groupBy] : []);
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -287,7 +294,10 @@ const TrackTable: React.FC<{
     onColumnVisibilityChange: setColumnVisibility,
     onGroupingChange: setGrouping,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
+    onSortingChange: (newSort) => {
+      setGrouping(groupBy ? [groupBy] : []);
+      setSorting(newSort);
+    },
     state: {
       columnVisibility,
       expanded: true,
@@ -439,17 +449,6 @@ const TrackTable: React.FC<{
             const next = table.getRowModel().rows[props['data-index'] + 1];
             const prev = table.getRowModel().rows[props['data-index'] - 1];
             const row = table.getRowModel().rows[props['data-index']];
-            if (!row.original) {
-              return (
-                <TrackTablePlaceholder
-                  columns={table.getVisibleLeafColumns()}
-                  compact={compact}
-                  isGrouped={false}
-                  singleLineRating={!ratingOptions}
-                  singleLineTitle={!titleOptions.showSubtext}
-                />
-              );
-            }
             return (
               <TrackTableRow
                 compact={compact}
@@ -458,7 +457,6 @@ const TrackTable: React.FC<{
                 data-selected-above={prev?.getIsSelected() || false}
                 data-selected-below={next?.getIsSelected() || false}
                 isSorted={!isEmpty(sorting)}
-                prevId={row.getIsGrouped() ? undefined : prev?.original.id}
                 row={row}
                 selectedItems={selectedItems}
                 onClick={(e) => handleClick(e, row)}
@@ -573,7 +571,7 @@ const TrackTable: React.FC<{
         setTitleOptions={setTitleOptions}
         table={table}
         titleOptions={titleOptions}
-        viewKey="track"
+        viewKey="album"
       />
     </>
   );
