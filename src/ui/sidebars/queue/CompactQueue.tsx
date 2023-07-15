@@ -151,12 +151,12 @@ const CompactQueue = () => {
       return;
     }
     /** ADD PLAYLIST ITEMS */
-    if (itemType === DragTypes.PLAYLIST_ITEM && target) {
+    if ((itemType === DragTypes.PLAYLIST_ITEM || DragTypes.SMART_PLAYLIST_ITEM) && target) {
       const prevId = getPrevId(target.id);
       await addMany(array.map((item) => item.track) as Track[], prevId as number);
       return;
     }
-    if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
+    if ((itemType === DragTypes.PLAYLIST_ITEM || DragTypes.SMART_PLAYLIST_ITEM) && !target) {
       await addLast(array.map((item) => item.track) as Track[]);
       return;
     }
@@ -177,6 +177,7 @@ const CompactQueue = () => {
       DragTypes.ARTIST,
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.SMART_PLAYLIST_ITEM,
       DragTypes.TRACK,
     ],
     drop: (

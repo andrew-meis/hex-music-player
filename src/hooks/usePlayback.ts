@@ -35,9 +35,13 @@ const usePlayback = () => {
   } = useQueue();
   const { data: nowPlaying } = useNowPlaying();
 
-  const playAlbum = useCallback(async (album: Album, shuffle: boolean = false) => {
+  const playAlbum = useCallback(async (
+    album: Album,
+    shuffle: boolean = false,
+    key: string | undefined = undefined,
+  ) => {
     const uri = `${server.uri}${album.key}`;
-    const newQueue = await createQueue(uri, shuffle);
+    const newQueue = await createQueue(uri, shuffle, key);
     player.initTracks(newQueue);
   }, [createQueue, player, server.uri]);
 
@@ -258,7 +262,7 @@ const usePlayback = () => {
           break;
         case PlayActions.PLAY_ALBUM:
           if (params.album) {
-            await playAlbum(params.album, params.shuffle);
+            await playAlbum(params.album, params.shuffle, params.key);
           }
           break;
         case PlayActions.PLAY_ALBUM_AT_TRACK:
@@ -288,7 +292,7 @@ const usePlayback = () => {
           break;
         case PlayActions.PLAY_PLAYLIST:
           if (params.playlist) {
-            await playPlaylist(params.playlist, params.shuffle);
+            await playPlaylist(params.playlist, params.shuffle, params.key);
           }
           break;
         case PlayActions.PLAY_TRACK:

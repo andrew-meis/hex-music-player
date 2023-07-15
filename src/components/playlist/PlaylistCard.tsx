@@ -59,7 +59,11 @@ const PlaylistCard = ({
     itemType: null | string | symbol,
   ) => {
     if (!playlist) return;
-    if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
+    if (
+      itemType === DragTypes.PLAYLIST_ITEM
+      || itemType === DragTypes.PLAYQUEUE_ITEM
+      || itemType === DragTypes.SMART_PLAYLIST_ITEM
+    ) {
       await addToPlaylist(playlist.id, array.map((item) => item.track.id));
       return;
     }
@@ -73,6 +77,7 @@ const PlaylistCard = ({
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
       DragTypes.TRACK,
+      DragTypes.SMART_PLAYLIST_ITEM,
     ],
     drop: (
       item: Album[] | Artist[] | PlaylistItem[] | PlayQueueItem[] | Track[],

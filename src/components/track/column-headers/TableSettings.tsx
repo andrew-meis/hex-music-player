@@ -5,9 +5,7 @@ const iconSx = {
   color: 'text.secondary',
   cursor: 'pointer',
   height: 18,
-  paddingLeft: '4px',
   paddingTop: '4px',
-  width: 18,
   '&:hover': {
     color: 'text.primary',
   },
@@ -40,9 +38,17 @@ const TableSettingsIcon = () => (
 );
 
 const TableSettings: React.FC<{
+  isIndexOrThumbVisible: boolean,
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-}> = ({ setOpen }) => (
-  <SvgIcon sx={iconSx} onClick={() => setOpen(true)}>
+}> = ({ isIndexOrThumbVisible, setOpen }) => (
+  <SvgIcon
+    sx={{
+      paddingLeft: isIndexOrThumbVisible ? 0 : '4px',
+      width: isIndexOrThumbVisible ? 54 : 18,
+      ...iconSx,
+    }}
+    onClick={() => setOpen(true)}
+  >
     <TableSettingsIcon />
   </SvgIcon>
 );

@@ -1,14 +1,15 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
+import { reduce } from 'lodash';
 import moment from 'moment';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/io';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { Album, Library } from 'api/index';
+import { Album, Library, PlaylistItem, Track } from 'api/index';
 import { ChipGenres } from 'components/chips';
 import { MenuIcon, AlbumMenu } from 'components/menus';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
@@ -31,13 +32,18 @@ const titleStyle = {
 const Header: React.FC<{
   album: Album,
   colors: PaletteState,
+  handlePlayNow: (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: (PlaylistItem | Track)[],
+  ) => Promise<void>,
   library: Library,
-}> = ({ album, colors, library }) => {
+}> = ({ album, colors, handlePlayNow, library }) => {
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
-  const { playAlbum, playSwitch } = usePlayback();
+  const { playSwitch } = usePlayback();
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
   const navigate = useNavigate();
   const parentThumb = library.api.getAuthenticatedUrl(
@@ -81,18 +87,25 @@ const Header: React.FC<{
     dragPreview(getEmptyImage(), { captureDraggingState: true });
   }, [dragPreview, album]);
 
-  const { muted } = colors;
+  const baseColor = useMemo(() => {
+    const hsvBrightest = reduce(colors, (result, value) => (
+      (chroma(value).get('hsv.v')) > (chroma(result).get('hsv.v')) ? value : result)) as string;
+    let chromaColor = chroma(hsvBrightest);
+    if (chromaColor.get('hsv.s') >= 0.4) {
+      chromaColor = chromaColor.set('hsv.s', 0.4);
+    }
+    return chromaColor;
+  }, [colors]);
 
-  const color = chroma(muted).saturate(2).brighten(1).hex();
+  const color = chroma(baseColor).hex();
   const contrastMuted = contrast(color, 'black') > contrast(color, 'white')
     ? 'black'
     : 'white';
-  const gradStart = chroma(muted).brighten().css();
-  const gradEndOne = chroma(muted).alpha(0.6).css();
-  const gradEndTwo = chroma(muted).css();
+  const gradStart = baseColor.brighten(0.3).alpha(0.75).css();
+  const gradEndOne = baseColor.saturate(0.3).alpha(0.75).css();
 
-  const handlePlay = () => playAlbum(album as Album);
-  const handleShuffle = () => playAlbum(album as Album, true);
+  const handlePlay = () => handlePlayNow();
+  const handleShuffle = () => handlePlayNow(undefined, true);
 
   return (
     <>
@@ -125,9 +138,7 @@ const Header: React.FC<{
           position="relative"
           ref={drag}
           sx={{
-            backgroundImage:
-            `radial-gradient(circle at 115% 85%, ${gradStart}, ${gradEndOne} 40%),
-              radial-gradient(circle at 5% 5%, ${gradStart}, ${gradEndTwo} 70%)`,
+            backgroundImage: `radial-gradient(circle at 50% -15%, ${gradStart}, ${gradEndOne} 80%)`,
           }}
           top={8}
         >
@@ -170,9 +181,10 @@ const Header: React.FC<{
                   height="36px"
                   sx={{
                     background: !colors ? 'active.selected' : color,
+                    boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.5)',
                     cursor: 'pointer',
                     transition: 'box-shadow 200ms ease-in',
-                    '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.3)' },
+                    '&:hover': { boxShadow: 'inset 0 0 0 1000px rgba(255, 255, 255, 0.75)' },
                   }}
                   onClick={() => navigate(
                     `/artists/${album.parentId}`,

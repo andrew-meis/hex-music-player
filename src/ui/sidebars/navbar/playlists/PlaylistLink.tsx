@@ -29,7 +29,11 @@ const PlaylistLink = ({
     array: any[],
     itemType: null | string | symbol,
   ) => {
-    if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
+    if (
+      itemType === DragTypes.PLAYLIST_ITEM
+      || itemType === DragTypes.PLAYQUEUE_ITEM
+      || itemType === DragTypes.SMART_PLAYLIST_ITEM
+    ) {
       await addToPlaylist(playlist.id, array.map((item) => item.track.id));
       return;
     }
@@ -42,6 +46,7 @@ const PlaylistLink = ({
       DragTypes.ARTIST,
       DragTypes.PLAYLIST_ITEM,
       DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.SMART_PLAYLIST_ITEM,
       DragTypes.TRACK,
     ],
     drop: (

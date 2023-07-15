@@ -5,15 +5,21 @@ import { Table } from '@tanstack/react-table';
 import { isEqual } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { MdClear } from 'react-icons/md';
-import { Track } from 'api/index';
+import { useLocation } from 'react-router-dom';
+import { PlaylistItem, Track } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { SubtextOptions } from 'components/subtext/Subtext';
 import { AppPageViewSettings } from 'types/interfaces';
 
+const viewSettingsMap: Record<string, string> = {
+  albums: 'album-view-settings',
+  playlists: 'playlist-view-settings',
+};
+
 const columnMap: Partial<Record<keyof Track, string>> = {
   duration: 'Duration',
   grandparentTitle: 'Album Artist',
-  index: 'Track Number',
+  index: 'Track Number / Index',
   lastViewedAt: 'Last Played',
   originalTitle: 'Track Artist',
   parentTitle: 'Album',
@@ -31,7 +37,7 @@ const ColumnVisibilityDialog: React.FC<{
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   setRatingOptions: React.Dispatch<React.SetStateAction<boolean>>,
   setTitleOptions: React.Dispatch<React.SetStateAction<SubtextOptions>>,
-  table: Table<Track>,
+  table: Table<PlaylistItem | Track>,
   titleOptions: SubtextOptions,
 }> = ({
   compact,
@@ -44,6 +50,8 @@ const ColumnVisibilityDialog: React.FC<{
   table,
   titleOptions,
 }) => {
+  const { pathname } = useLocation();
+  const basePath = pathname.slice(1, pathname.lastIndexOf('/'));
   const [saveCount, setSaveCount] = useState(0);
   const visibleColumns = table.getVisibleLeafColumns();
   const currentSettings: AppPageViewSettings = useMemo(() => {
@@ -62,7 +70,7 @@ const ColumnVisibilityDialog: React.FC<{
   }, [compact, ratingOptions, table, titleOptions.showSubtext, visibleColumns]);
 
   const disabled = useMemo(() => {
-    const savedSettings = window.electron.readConfig('album-view-settings');
+    const savedSettings = window.electron.readConfig(viewSettingsMap[basePath]);
     return isEqual(savedSettings, currentSettings);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveCount, currentSettings]);
@@ -236,7 +244,7 @@ const ColumnVisibilityDialog: React.FC<{
               }}
               variant="contained"
               onClick={() => {
-                window.electron.writeConfig('album-view-settings', currentSettings);
+                window.electron.writeConfig(viewSettingsMap[basePath], currentSettings);
                 setSaveCount(saveCount + 1);
                 setOpen(false);
               }}

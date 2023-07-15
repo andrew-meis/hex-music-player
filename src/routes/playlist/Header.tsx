@@ -1,45 +1,20 @@
 import {
   Avatar,
   Box,
-  Chip,
-  ClickAwayListener,
   Fade,
   SvgIcon,
   Typography,
 } from '@mui/material';
-import { useRef, useState } from 'react';
-import { BiHash } from 'react-icons/bi';
+import React from 'react';
 import { BsMusicNoteList } from 'react-icons/bs';
-import { HiArrowSmUp, HiArrowSmDown } from 'react-icons/hi';
-import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
-import { RxCheck } from 'react-icons/rx';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
-import { Playlist } from 'api/index';
-import { plexSort } from 'classes';
-import { ChipFilter, ChipSelect } from 'components/chips';
+import { Playlist, PlaylistItem, Track } from 'api/index';
+import { ChipFilter } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
-import SelectTooltip from 'components/tooltip/SelectTooltip';
-import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
+import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
-import usePlayback from 'hooks/usePlayback';
-import { SortOrders } from 'types/enums';
 import FixedHeader from './FixedHeader';
-import { PlaylistContext } from './Playlist';
-
-const sortOptions = [
-  { label: 'Album', sortKey: 'parentTitle' },
-  { label: 'Artist', sortKey: 'grandparentTitle' },
-  { label: 'Date Added', sortKey: 'addedAt' },
-  { label: 'Duration', sortKey: 'duration' },
-  { label: 'Last Played', sortKey: 'lastViewedAt' },
-  { label: 'Last Rated', sortKey: 'lastRatedAt' },
-  { label: 'Playcount', sortKey: 'viewCount' },
-  { label: 'Popularity', sortKey: 'ratingCount' },
-  { label: 'Rating', sortKey: 'userRating' },
-  { label: 'Title', sortKey: 'title' },
-  { label: 'Year', sortKey: 'parentYear' },
-];
 
 const titleStyle = {
   overflow: 'hidden',
@@ -50,41 +25,31 @@ const titleStyle = {
   fontWeight: 600,
 };
 
-const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
-  const { filter, playlist, setFilter, setSort, sort } = context!;
-  const chipRef = useRef<HTMLDivElement | null>(null);
-  const { playPlaylist } = usePlayback();
+const Header: React.FC<{
+  filter: string,
+  handlePlayNow: (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: (PlaylistItem | Track)[],
+  ) => Promise<void>,
+  playlist: Playlist,
+  setFilter: React.Dispatch<React.SetStateAction<string>>,
+}> = ({
+  filter,
+  handlePlayNow,
+  playlist,
+  setFilter,
+}) => {
   const { width } = useOutletContext() as { width: number };
-  const countNoun = playlist!.leafCount > 1 || playlist!.leafCount === 0 ? 'tracks' : 'track';
-  const [open, setOpen] = useState(false);
+  const countNoun = playlist.leafCount > 1 || playlist.leafCount === 0 ? 'tracks' : 'track';
   const [thumbSrc] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 300);
   const [thumbSrcSm] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 100);
   const { ref, inView, entry } = useInView({
     threshold: [0.99, 0],
   });
 
-  const maxWidth = 900;
-  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
-    - 20 // x-padding + tooltip offset
-    - (chipRef.current?.clientWidth || 0);
-
-  const handlePlay = () => playPlaylist(playlist as Playlist);
-  const handleShuffle = () => playPlaylist(playlist as Playlist, true);
-
-  const handleSort = (sortKey: string) => {
-    setOpen(false);
-    if (sortKey === 'index') {
-      setSort(plexSort('index', SortOrders.DESC));
-      return;
-    }
-    if (sort.by === sortKey) {
-      const newSort = sort.reverseOrder();
-      setSort(newSort);
-      return;
-    }
-    const newSort = sort.setBy(sortKey);
-    setSort(newSort);
-  };
+  const handlePlay = () => handlePlayNow();
+  const handleShuffle = () => handlePlayNow(undefined, true);
 
   if (!playlist) {
     return null;
@@ -111,7 +76,7 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
           />
         </Box>
       </Fade>
-      <Box maxWidth={maxWidth} mx="auto" ref={ref} width={WIDTH_CALC}>
+      <Box mx="auto" ref={ref} width={WIDTH_CALC}>
         <Box
           alignItems="flex-end"
           borderRadius="24px"
@@ -194,130 +159,14 @@ const Header = ({ context }: { context?: PlaylistContext | undefined }) => {
           justifyContent="space-between"
           mt={1}
         >
-          <SelectTooltip
-            maxWidth={tooltipMaxWidth}
-            open={open}
-            placement="right"
-            title={(
-              <ClickAwayListener onClickAway={() => setOpen(false)}>
-                <ChipSelect maxWidth={tooltipMaxWidth}>
-                  <Chip
-                    color="default"
-                    label={(
-                      <Box alignItems="center" display="flex">
-                        Default Order
-                        {sort.by === 'index' && (
-                          <SvgIcon viewBox="0 0 16 24">
-                            <RxCheck />
-                          </SvgIcon>
-                        )}
-                      </Box>
-                    )}
-                    sx={{ fontSize: '0.9rem' }}
-                    onClick={() => handleSort('index')}
-                  />
-                  <Box bgcolor="border.main" flexShrink={0} height={32} width="1px" />
-                  {sortOptions.map((option) => (
-                    <Chip
-                      color="default"
-                      key={option.sortKey}
-                      label={(
-                        <Box alignItems="center" display="flex">
-                          {option.label}
-                          {sort.by === option.sortKey && (
-                            <SvgIcon viewBox="0 0 16 24">
-                              {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-                            </SvgIcon>
-                          )}
-                        </Box>
-                      )}
-                      sx={{ fontSize: '0.9rem' }}
-                      onClick={() => handleSort(option.sortKey)}
-                    />
-                  ))}
-                </ChipSelect>
-              </ClickAwayListener>
-            )}
-          >
-            <Chip
-              color="primary"
-              label={(
-                <>
-                  {sort.by === 'index' && (
-                    <Box alignItems="center" display="flex">
-                      Default Order
-                      <SvgIcon viewBox="0 0 16 24">
-                        <RxCheck />
-                      </SvgIcon>
-                    </Box>
-                  )}
-                  {sort.by !== 'index' && (
-                    <Box alignItems="center" display="flex">
-                      {sortOptions.find((option) => option.sortKey === sort.by)?.label}
-                      <SvgIcon viewBox="0 0 16 24">
-                        {(sort.order === 'asc' ? <HiArrowSmUp /> : <HiArrowSmDown />)}
-                      </SvgIcon>
-                    </Box>
-                  )}
-                </>
-              )}
-              ref={chipRef}
-              sx={{ fontSize: '0.9rem' }}
-              onClick={() => setOpen(true)}
-            />
-          </SelectTooltip>
           <ChipFilter
             filter={filter}
             setFilter={setFilter}
           />
         </Box>
-        <Box
-          alignItems="flex-start"
-          borderBottom="1px solid"
-          borderColor="border.main"
-          color="text.secondary"
-          display="flex"
-          height={30}
-          width="100%"
-        >
-          <Box maxWidth="10px" width="10px" />
-          <Box display="flex" flexShrink={0} justifyContent="center" width="40px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <BiHash />
-            </SvgIcon>
-          </Box>
-          <Box sx={{ width: '56px' }} />
-          <Box
-            sx={{
-              alignItems: 'center',
-              width: '50%',
-              flexGrow: 1,
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
-          />
-          <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiHeartLine />
-            </SvgIcon>
-          </Box>
-          <Box sx={{
-            width: '50px', marginLeft: 'auto', textAlign: 'right', flexShrink: 0,
-          }}
-          >
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiTimeLine />
-            </SvgIcon>
-          </Box>
-          <Box maxWidth="10px" width="10px" />
-        </Box>
       </Box>
     </>
   );
-};
-
-Header.defaultProps = {
-  context: undefined,
 };
 
 export default Header;

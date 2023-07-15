@@ -1,54 +1,85 @@
 import { Row } from '@tanstack/react-table';
-import React, { useEffect } from 'react';
-import { useDrag } from 'react-dnd';
+import React, { useCallback, useEffect } from 'react';
+import { useDrag, useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { ItemProps } from 'react-virtuoso';
-import { Track } from 'api/index';
+import { PlaylistItem, Track } from 'api/index';
 import { DragTypes } from 'types/enums';
+import { isPlaylistItem, isSmartPlaylistItem, isTrack } from 'types/type-guards';
 import styles from './TrackTable.module.scss';
 
-const TrackTableRow: React.FC<ItemProps<Track> & {
+const TrackTableRow: React.FC<ItemProps<PlaylistItem | Track> & {
   compact: boolean,
-  row: Row<Track>,
-  selectedTracks: Track[],
+  isSorted: boolean,
+  prevId: number | undefined,
+  row: Row<PlaylistItem | Track>,
+  selectedItems: (PlaylistItem | Track)[],
+  trackDropFn: ((droppedItems: PlaylistItem[], prevId?: number) => Promise<void>) | undefined,
   onClick: (event: React.MouseEvent) => void,
   onContextMenu: (e: React.MouseEvent) => void,
   onDragEnd: () => void,
   onDragStart: () => void,
 }> = ({
   compact,
+  isSorted,
+  prevId,
   row,
-  selectedTracks,
+  selectedItems,
+  trackDropFn,
   onClick,
   onContextMenu,
   onDragEnd,
   onDragStart,
   ...props
 }) => {
-  const { original: track } = row;
+  const { original: item } = row;
 
   const [, drag, dragPreview] = useDrag({
     item: () => {
-      if (selectedTracks.map((selected) => selected.id).includes(track.id)) return selectedTracks;
-      return [track];
+      if (selectedItems.map((selected) => selected.id).includes(item.id)) return selectedItems;
+      return [item];
     },
-    type: DragTypes.TRACK,
+    type: (() => {
+      switch (true) {
+        case isTrack(item):
+          return DragTypes.TRACK;
+        case isPlaylistItem(item):
+          return DragTypes.PLAYLIST_ITEM;
+        case isSmartPlaylistItem(item):
+          return DragTypes.SMART_PLAYLIST_ITEM;
+        default:
+          return 'none';
+      }
+    })(),
   });
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: [DragTypes.PLAYLIST_ITEM],
+    canDrop: () => !isSorted,
+    drop: async (droppedItems: PlaylistItem[]) => {
+      if (!trackDropFn) return;
+      trackDropFn(droppedItems, prevId);
+    },
+    collect: (monitor) => ({ isOver: (monitor.isOver() && !monitor.getItem()[0].smart) }),
+  }));
 
   useEffect(() => {
     dragPreview(getEmptyImage(), { captureDraggingState: true });
-  }, [dragPreview, track]);
+  }, [dragPreview, item]);
+
+  const dragDrop = useCallback((node: any) => {
+    drag(drop(node));
+  }, [drag, drop]);
 
   return (
     <tr
       {...props}
       className={[
         styles.row,
-        row.getIsSelected() ? styles['row-selected'] : null,
         'track-table-row',
       ].join(' ')}
-      data-track-id={row.getIsGrouped() ? null : track.id}
-      ref={drag}
+      data-is-over={isOver && !isSorted}
+      ref={dragDrop}
       style={{
         height: compact ? 40 : 56,
       }}

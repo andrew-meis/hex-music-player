@@ -2,10 +2,10 @@ import { SvgIcon, Typography } from '@mui/material';
 import { CellContext } from '@tanstack/react-table';
 import React from 'react';
 import { BiAlbum } from 'react-icons/bi';
-import { Track } from 'api/index';
+import { PlaylistItem, Track } from 'api/index';
 
 const ParentIndexCell: React.FC<{
-  info: CellContext<Track, number>;
+  info: CellContext<PlaylistItem | Track, number>;
 }> = ({ info }) => (
   <div style={{ display: 'flex' }}>
     <SvgIcon sx={{ paddingRight: '8px', width: 40 }}>

@@ -2,6 +2,18 @@ th {
   border-bottom: 1px solid var(--mui-palette-border-main);
 }
 
+th[data-is-sortable="true"] {
+  cursor: pointer;
+}
+
+th[data-is-sortable="true"]:hover > span {
+  color: var(--mui-palette-text-primary);
+}
+
+th[data-is-sortable="true"]:hover > svg {
+  color: var(--mui-palette-text-primary);
+}
+
 tr > {
   th:last-child {
     padding-right: 8px;
@@ -10,6 +22,12 @@ tr > {
 
 .row {
   color: var(--mui-palette-text-secondary);
+  transform: translateZ(0);
+}
+
+.row:hover {
+  background-color: var(--mui-palette-action-hover);
+  color: var(--mui-palette-text-primary);
 }
 
 .row > {
@@ -24,6 +42,35 @@ tr > {
     border-top-right-radius: 4px;
     padding-right: 8px;
   }
+}
+
+.row[data-non-dragged="true"] {
+  background-color: var(--mui-palette-background-paper) !important;
+  color: var(--mui-palette-text-secondary) !important;
+}
+
+.row[data-dragged="true"] {
+  background-color: var(--mui-palette-action-selected) !important;
+  color: var(--mui-palette-text-primary) !important;
+}
+
+.row[data-is-over="true"] > td::after {
+  background-color: var(--mui-palette-primary-main);
+  content: '';
+  height: 1px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+
+.row[data-selected="true"] {
+  background-color: var(--mui-palette-action-selected);
+  color: var(--mui-palette-text-primary);
+}
+
+.row[data-selected="true"]:hover {
+  background-color: var(--mui-palette-action-hoverSelected);
 }
 
 .row[data-selected-above="true"] > {
@@ -42,30 +89,6 @@ tr > {
   :last-child {
     border-bottom-right-radius: 0 !important;
   }
-}
-
-.row:hover {
-  background-color: var(--mui-palette-action-hover);
-  color: var(--mui-palette-text-primary);
-}
-
-.row-non-dragged {
-  background-color: var(--mui-palette-background-paper) !important;
-  color: var(--mui-palette-text-secondary) !important;
-}
-
-.row-dragged {
-  background-color: var(--mui-palette-action-selected) !important;
-  color: var(--mui-palette-text-primary) !important;
-}
-
-.row-selected {
-  background-color: var(--mui-palette-action-selected);
-  color: var(--mui-palette-text-primary);
-}
-
-.row-selected:hover {
-  background-color: var(--mui-palette-action-hoverSelected);
 }
 
 td.duration {
@@ -116,12 +139,12 @@ th.parentTitle {
 
 td.parentYear,
 th.parentYear {
-  width: 48px;
+  width: 64px;
 }
 
 td.viewCount,
 th.viewCount {
-  width: 88px;
+  width: 104px;
 }
 
 td.index {
@@ -147,12 +170,14 @@ th.parentIndex {
 }
 
 td.thumb {
-  padding: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
   width: 40px;
 }
 
 th.thumb {
-  padding: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
   width: 40px;
 }
 

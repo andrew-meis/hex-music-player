@@ -1,154 +1,146 @@
-import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { inPlaceSort } from 'fast-sort';
+import { SvgIcon } from '@mui/material';
+import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isEmpty } from 'lodash';
+import { useCallback, useMemo, useState } from 'react';
+import { useDrop } from 'react-dnd';
+import { MdDelete } from 'react-icons/md';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, Playlist as PlaylistType, PlaylistItem, PlayQueueItem, Track } from 'api/index';
-import { PlexSort, plexSort } from 'classes';
-import { useAddToPlaylist, useMoveManyPlaylistItems } from 'hooks/playlistHooks';
-import useFormattedTime from 'hooks/useFormattedTime';
+import { Album, Artist, PlayQueueItem, PlaylistItem, Track } from 'api/index';
+import TrackTable from 'components/track/TrackTable';
+import { useAddToPlaylist, useMovePlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import usePlayback from 'hooks/usePlayback';
+import useToast from 'hooks/useToast';
 import { useLibrary } from 'queries/app-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import ScrollSeekPlaceholderNoIndex from 'routes/virtuoso-components/ScrollSeekPlaceholderNoIndex';
-import { DragTypes, SortOrders } from 'types/enums';
-import { RouteParams } from 'types/interfaces';
-import Footer from './Footer';
+import mergeRefs from 'scripts/merge-refs';
+import { DragTypes, PlayActions } from 'types/enums';
+import { AppPageViewSettings, RouteParams } from 'types/interfaces';
+import { isPlaylistItem } from 'types/type-guards';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
 
-export interface PlaylistContext {
-  dropIndex: React.MutableRefObject<number | null>;
-  filter: string;
-  getFormattedTime: (inMs: number) => string;
-  handleDrop: (array: any[], index: number | null, itemType: null | string | symbol) => void;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  items: PlaylistItem[];
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  playlist: PlaylistType | undefined;
-  playPlaylist:
-    (playlist: PlaylistType, shuffle?: boolean, key?: string | undefined) => Promise<void>;
-  queryClient: QueryClient;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<PlexSort>>;
-  sort: PlexSort;
-}
-
-export interface RowProps {
-  index: number;
-  item: PlaylistItem;
-  context: PlaylistContext;
-}
-
-const RowContent = (props: RowProps) => <Row {...props} />;
+const defaultViewSettings: AppPageViewSettings = {
+  columns: {
+    grandparentTitle: false,
+    lastViewedAt: false,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: true,
+    viewCount: false,
+  },
+  compact: false,
+  multiLineRating: true,
+  multiLineTitle: true,
+};
 
 const Playlist = () => {
-  const library = useLibrary();
-  // data loading
+  const viewSettings = window.electron.readConfig('playlist-view-settings') as AppPageViewSettings;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
+
+  const addToPlaylist = useAddToPlaylist();
+  const library = useLibrary();
+  const location = useLocation();
+  const move = useMovePlaylistItems();
+  const navigationType = useNavigationType();
   const playlist = usePlaylist(+id, library);
   const playlistItems = usePlaylistItems(+id, library);
-  // other hooks
-  const addToPlaylist = useAddToPlaylist();
-  const dropIndex = useRef<number | null>(null);
-  const hoverIndex = useRef<number | null>(null);
-  const location = useLocation();
-  const moveMany = useMoveManyPlaylistItems();
-  const navigationType = useNavigationType();
-  const queryClient = useQueryClient();
-  const scrollCount = useRef(0);
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const [sort, setSort] = useState(plexSort('index', SortOrders.DESC));
+  const removeFromPlaylist = useRemoveFromPlaylist();
+  const toast = useToast();
   const [filter, setFilter] = useState('');
-  const { data: isPlaying } = useIsPlaying();
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
-  const { playPlaylist } = usePlayback();
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
+  const { playSwitch } = usePlayback();
 
   const items = useMemo(() => {
     if (!playlistItems.data) {
       return [];
     }
-    let newItems = structuredClone(playlistItems.data);
     if (filter !== '') {
-      newItems = newItems.filter(
+      return playlistItems.data.filter(
         (item) => item.track.title?.toLowerCase().includes(filter.toLowerCase())
         || item.track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
         || item.track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
         || item.track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
       );
     }
-    if (sort.by === 'index') {
-      return newItems;
-    }
-    if (sort.order === 'asc') {
-      inPlaceSort(newItems).asc((item) => item.track[sort.by as keyof Track]);
-    }
-    if (sort.order === 'desc') {
-      inPlaceSort(newItems).desc((item) => item.track[sort.by as keyof Track]);
-    }
-    return newItems;
-  }, [filter, sort, playlistItems.data]);
-
-  const getPrevId = useCallback((itemId: PlaylistItem['id']) => {
-    try {
-      if (playlistItems.data) {
-        const index = playlistItems.data.findIndex((item) => item.id === itemId);
-        return playlistItems.data[index - 1].id;
-      }
-      return undefined;
-    } catch {
-      return undefined;
-    }
-  }, [playlistItems.data]);
+    return playlistItems.data;
+  }, [filter, playlistItems.data]);
 
   const handleDrop = useCallback(async (
     array: any[],
-    index: number | null,
     itemType: null | string | symbol,
   ) => {
-    if (!playlistItems.data || !items || typeof index !== 'number') {
-      return;
-    }
-    const target = items[index];
-    if (itemType === DragTypes.PLAYLIST_ITEM && target) {
-      const prevId = getPrevId(target.id);
-      await moveMany(+id, array.map((item) => item.id), prevId);
-      return;
-    }
-    if (itemType === DragTypes.PLAYLIST_ITEM && !target) {
-      await moveMany(+id, array.map((item) => item.id), playlistItems.data.slice(-1)[0].id);
-      return;
-    }
     if (itemType === DragTypes.PLAYQUEUE_ITEM) {
       await addToPlaylist(+id, array.map((item) => item.track.id));
       return;
     }
     await addToPlaylist(+id, array.map((item) => item.id));
-  }, [addToPlaylist, getPrevId, id, items, moveMany, playlistItems.data]);
+  }, [addToPlaylist, id]);
 
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [id, queryClient]);
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: [
+      DragTypes.ALBUM,
+      DragTypes.ARTIST,
+      DragTypes.PLAYQUEUE_ITEM,
+      DragTypes.TRACK,
+    ],
+    canDrop: () => !playlist.data?.smart,
+    drop: (
+      item: Album[] | Artist[] | PlaylistItem[] | PlayQueueItem[] | Track[],
+      monitor,
+    ) => handleDrop(item, monitor.getItemType()),
+    collect: (monitor) => ({ isOver: (monitor.isOver() && !playlist.data?.smart) }),
+  }));
 
-  const handleContainerDrop = () => {
-    dropIndex.current = -1;
-  };
-
-  const handleScrollState = (isScrolling: boolean) => {
-    if (isScrolling) {
-      document.body.classList.add('disable-hover');
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: (PlaylistItem | Track)[],
+  ) => {
+    if (filter === '' && !sortedItems) {
+      playSwitch(PlayActions.PLAY_PLAYLIST, { key, playlist: playlist.data, shuffle });
+      return;
     }
-    if (!isScrolling) {
-      document.body.classList.remove('disable-hover');
+    if (!sortedItems) {
+      const tracks = items.map(({ track }) => track);
+      playSwitch(PlayActions.PLAY_TRACKS, { key, tracks, shuffle });
+      return;
     }
-  };
+    const tracks = (sortedItems as PlaylistItem[]).map(({ track }) => track);
+    playSwitch(PlayActions.PLAY_TRACKS, { key, tracks, shuffle });
+  }, [filter, items, playSwitch, playlist.data]);
+
+  const handleRemove = useCallback((selectedItems: (Track | PlaylistItem)[]) => {
+    if (!selectedItems.every((item): item is PlaylistItem => isPlaylistItem(item))) return;
+    if (playlist.data?.smart) {
+      toast({ type: 'error', text: 'Cannot edit smart playlist' });
+      return;
+    }
+    selectedItems.forEach((item) => {
+      removeFromPlaylist(item.playlistId, item.id);
+    });
+  }, [playlist.data?.smart, removeFromPlaylist, toast]);
+
+  const additionalMenuOptions = useCallback((selectedItems: (Track | PlaylistItem)[]) => (
+    <>
+      <MenuDivider />
+      <MenuItem
+        className="error"
+        onClick={() => handleRemove(selectedItems)}
+      >
+        <SvgIcon sx={{ mr: '8px' }}><MdDelete /></SvgIcon>
+        Remove
+      </MenuItem>
+    </>
+  ), [handleRemove]);
+
+  const handleTrackDrop = useCallback(async (droppedItems: PlaylistItem[], prevId?: number) => {
+    await move(
+      +id,
+      droppedItems.map((droppedItem) => droppedItem.id),
+      prevId === Infinity ? playlistItems.data?.slice(-1)[0].id : prevId,
+    );
+  }, [id, move, playlistItems.data]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -165,86 +157,65 @@ const Playlist = () => {
     return 0;
   }, [id, navigationType]);
 
-  const playlistContext: PlaylistContext = useMemo(() => ({
-    dropIndex,
-    filter,
-    getFormattedTime,
-    handleDrop,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playlist: playlist.data,
-    playPlaylist,
-    queryClient,
-    setFilter,
-    setSort,
-    sort,
-  }), [
-    dropIndex,
-    filter,
-    getFormattedTime,
-    handleDrop,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playlist.data,
-    playPlaylist,
-    queryClient,
-    setFilter,
-    setSort,
-    sort,
-  ]);
-
-  if (playlist.isLoading || playlistItems.isLoading) {
+  if (playlist.isLoading || playlistItems.isLoading || !playlist.data) {
     return null;
   }
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
+      className="scroll-container"
+      data-is-over={isOver}
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
-      onDropCapture={handleContainerDrop}
+      ref={mergeRefs(drop, setScrollRef)}
+      style={{ height: '100%', overflow: 'overlay' }}
+      onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          `playlist-scroll ${id}`,
+          target.scrollTop as unknown as string,
+        );
+      }}
     >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-          ScrollSeekPlaceholder: ScrollSeekPlaceholderNoIndex,
+      <Header
+        filter={filter}
+        handlePlayNow={handlePlayNow}
+        playlist={playlist.data}
+        setFilter={setFilter}
+      />
+      <TrackTable
+        additionalMenuOptions={playlist.data.smart ? undefined : additionalMenuOptions}
+        columnOptions={
+          isEmpty(viewSettings.columns)
+            ? defaultViewSettings.columns
+            : viewSettings.columns
+        }
+        isViewCompact={
+          typeof viewSettings.compact !== 'undefined'
+            ? viewSettings.compact
+            : defaultViewSettings.compact
+        }
+        library={library}
+        multiLineRating={
+          typeof viewSettings.multiLineRating !== 'undefined'
+            ? viewSettings.multiLineRating
+            : defaultViewSettings.multiLineRating
+        }
+        playbackFn={handlePlayNow}
+        rows={items}
+        scrollRef={scrollRef}
+        subtextOptions={{
+          albumTitle: true,
+          artistTitle: true,
+          showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
+            ? viewSettings.multiLineTitle
+            : defaultViewSettings.multiLineTitle,
         }}
-        context={playlistContext}
-        data={items}
-        fixedItemHeight={56}
-        isScrolling={handleScrollState}
-        itemContent={(index, item, context) => RowContent({ index, item, context })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={items.length}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `playlist-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
+        trackDropFn={handleTrackDrop}
+        onDeleteKey={handleRemove}
       />
     </motion.div>
   );

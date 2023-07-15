@@ -54,7 +54,11 @@ const getText = (item: any, itemType: any) => {
     const [artist] = item as Artist[];
     return `${artist.title}`;
   }
-  if (itemType === DragTypes.PLAYLIST_ITEM || itemType === DragTypes.PLAYQUEUE_ITEM) {
+  if (
+    itemType === DragTypes.PLAYLIST_ITEM
+    || itemType === DragTypes.PLAYQUEUE_ITEM
+    || itemType === DragTypes.SMART_PLAYLIST_ITEM
+  ) {
     const [{ track }] = item as PlaylistItem[] | PlayQueueItem[];
     return `${track.title} — ${track.originalTitle || track.grandparentTitle}`;
   }

@@ -2,7 +2,7 @@
 import { Skeleton, SkeletonProps } from '@mui/material';
 import { Column } from '@tanstack/react-table';
 import React from 'react';
-import { Track } from 'api/index';
+import { PlaylistItem, Track } from 'api/index';
 import styles from './TrackTable.module.scss';
 
 const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> = {
@@ -26,8 +26,8 @@ const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> =
   viewCount: [{ variant: 'text', width: 64 }],
 };
 
-const TrackPlaceholder: React.FC<{
-  columns: Column<Track, unknown>[],
+const TrackTablePlaceholder: React.FC<{
+  columns: Column<PlaylistItem | Track, unknown>[],
   compact: boolean,
   isGrouped: boolean,
   singleLineRating: boolean,
@@ -68,4 +68,4 @@ const TrackPlaceholder: React.FC<{
   );
 };
 
-export default TrackPlaceholder;
+export default TrackTablePlaceholder;

@@ -1,5 +1,6 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import ky from 'ky';
+import { useCallback } from 'react';
 import { parsePlaylistContainer, Playlist, PlaylistItem } from 'api/index';
 import useToast from 'hooks/useToast';
 import { useLibrary, useServer } from 'queries/app-queries';
@@ -62,10 +63,10 @@ export const useDeletePlaylist = () => {
   };
 };
 
-export const useMoveManyPlaylistItems = () => {
+export const useMovePlaylistItems = () => {
   const library = useLibrary();
   const queryClient = useQueryClient();
-  return async (playlistId: number, playlistItemIds: number[], afterId?: number) => {
+  return useCallback(async (playlistId: number, playlistItemIds: number[], afterId?: number) => {
     // eslint-disable-next-line no-restricted-syntax
     for (const [index, id] of playlistItemIds.entries()) {
       if (index === 0 && afterId) {
@@ -83,16 +84,16 @@ export const useMoveManyPlaylistItems = () => {
       }
     }
     await refetchPlaylistQueries(queryClient, playlistId);
-  };
+  }, [library, queryClient]);
 };
 
 export const useRemoveFromPlaylist = () => {
   const library = useLibrary();
   const queryClient = useQueryClient();
   const toast = useToast();
-  return async (playlistId: Playlist['id'], itemId: PlaylistItem['id']) => {
+  return useCallback(async (playlistId: Playlist['id'], itemId: PlaylistItem['id']) => {
     await library.removeFromPlaylist(playlistId, itemId);
     await refetchPlaylistQueries(queryClient, playlistId);
     toast({ type: 'error', text: 'Removed from playlist' });
-  };
+  }, [library, queryClient, toast]);
 };

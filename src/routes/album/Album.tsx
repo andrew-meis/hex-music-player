@@ -1,11 +1,14 @@
 import { motion } from 'framer-motion';
 import { isEmpty } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
+import { PlaylistItem, Track } from 'api/index';
 import Palette from 'components/palette/Palette';
 import TrackTable from 'components/track/TrackTable';
+import usePlayback from 'hooks/usePlayback';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
 import { useLibrary } from 'queries/app-queries';
+import { PlayActions } from 'types/enums';
 import { AppPageViewSettings, RouteParams } from 'types/interfaces';
 import Header from './Header';
 
@@ -34,6 +37,19 @@ const Album = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
+  const { playSwitch } = usePlayback();
+
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: (PlaylistItem | Track)[],
+  ) => {
+    if (!sortedItems) {
+      playSwitch(PlayActions.PLAY_ALBUM, { album: album.data?.album, key, shuffle });
+      return;
+    }
+    playSwitch(PlayActions.PLAY_TRACKS, { key, tracks: sortedItems as Track[], shuffle });
+  }, [album.data?.album, playSwitch]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -84,6 +100,7 @@ const Album = () => {
             <Header
               album={album.data.album}
               colors={colors}
+              handlePlayNow={handlePlayNow}
               library={library}
             />
             <TrackTable
@@ -104,6 +121,8 @@ const Album = () => {
                   ? viewSettings.multiLineRating
                   : defaultViewSettings.multiLineRating
               }
+              playbackFn={handlePlayNow}
+              rows={albumTracks.data || []}
               scrollRef={scrollRef}
               subtextOptions={{
                 albumTitle: false,
@@ -112,7 +131,6 @@ const Album = () => {
                   ? viewSettings.multiLineTitle
                   : defaultViewSettings.multiLineTitle,
               }}
-              tracks={albumTracks.data || []}
             />
           </motion.div>
         );

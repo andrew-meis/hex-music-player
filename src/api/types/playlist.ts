@@ -24,6 +24,7 @@ export interface PlaylistItem {
   librarySectionID: number,
   librarySectionKey: string,
   librarySectionTitle: string,
+  smart: boolean,
   track: Track,
 }
 
@@ -31,16 +32,17 @@ export interface NormalizedPlaylistItem extends Omit<PlaylistItem, 'track'> {
   track: number,
 }
 
-const toPlaylistItem = (playlistId: number) => (
+const toPlaylistItem = (playlistId: number, smart: boolean) => (
   $data: Prism<any>,
 ): PlaylistItem => ({
   _type: 'playlistItem',
-  // items in a smart playlist do not have a playlistItemID
-  id: $data.get<number>('playlistItemID', { quiet: true }).value,
+  // eslint-disable-next-line max-len
+  id: $data.get<number>('playlistItemID', { quiet: true }).value || $data.get<string>('ratingKey').transform(toNumber).value,
   librarySectionID: $data.get<number>('librarySectionID').value,
   librarySectionKey: $data.get<string>('librarySectionKey').value,
   librarySectionTitle: $data.get<string>('librarySectionTitle').value,
   playlistId,
+  smart,
   track: $data.transform(toTrack).value,
 });
 
@@ -83,6 +85,7 @@ const toPlaylist = ($data: Prism<any>): Playlist => {
   }
 
   const playlistId = $data.get('ratingKey').transform(toNumber).value;
+  const smart = $data.get<boolean>('smart').value;
 
   return {
     ...$data.transform(toMediaContainer).value,
@@ -120,7 +123,7 @@ const toPlaylist = ($data: Prism<any>): Playlist => {
     items: $data
       .get('Metadata', { quiet: true })
       .toArray()
-      .map(toPlaylistItem(playlistId)),
+      .map(toPlaylistItem(playlistId, smart)),
   };
 };
 
