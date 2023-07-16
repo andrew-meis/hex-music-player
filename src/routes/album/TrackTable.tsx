@@ -30,13 +30,15 @@ import {
 import { Library, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
+import { TrackTablePlaceholder, TrackTableRow, styles } from 'components/track-table';
 import {
-  IndexCell, ParentIndexCell, RatingCell, ThumbCell, TitleCell,
-} from 'components/track/cells';
-import { ColumnVisibilityDialog } from 'components/track/column-headers';
-import styles from 'components/track/TrackTable.module.scss';
-import TrackTablePlaceholder from 'components/track/TrackTablePlaceholder';
-import TrackTableRow from 'components/track/TrackTableRow';
+  ParentIndexCell,
+  IndexCell,
+  ThumbCell,
+  TitleCell,
+  RatingCell,
+} from 'components/track-table/cells';
+import { ColumnVisibilityDialog } from 'components/track-table/columns';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -563,6 +565,7 @@ const TrackTable: React.FC<{
         {...menuProps}
       />
       <ColumnVisibilityDialog
+        useTrackNumber
         compact={compact}
         open={open}
         ratingOptions={ratingOptions}

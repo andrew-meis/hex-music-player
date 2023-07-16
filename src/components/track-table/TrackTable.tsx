@@ -35,7 +35,7 @@ import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
 import { ParentIndexCell, IndexCell, ThumbCell, TitleCell, RatingCell } from './cells';
-import { ColumnVisibilityDialog } from './column-headers';
+import { ColumnVisibilityDialog } from './columns';
 import styles from './TrackTable.module.scss';
 import TrackTablePlaceholder from './TrackTablePlaceholder';
 import TrackTableRow from './TrackTableRow';

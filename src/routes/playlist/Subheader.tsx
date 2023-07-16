@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import { Playlist } from 'api/index';
 import { ChipFilter } from 'components/chips';
 import { MenuIcon, PlaylistMenu } from 'components/menus';
-import { TableSettings } from 'components/track/column-headers';
+import TableSettings from 'components/track-table/TrackTableSettings';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 

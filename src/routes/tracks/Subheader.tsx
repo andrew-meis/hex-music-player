@@ -1,6 +1,6 @@
 import { Box, Chip } from '@mui/material';
 import React from 'react';
-import { TableSettings } from 'components/track/column-headers';
+import TableSettings from 'components/track-table/TrackTableSettings';
 import { WIDTH_CALC } from 'constants/measures';
 
 const Subheader: React.FC<{

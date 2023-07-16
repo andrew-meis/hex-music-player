@@ -20,7 +20,7 @@ const viewSettingsMap: Record<string, string> = {
 const columnMap: Partial<Record<keyof Track, string>> = {
   duration: 'Duration',
   grandparentTitle: 'Album Artist',
-  index: 'Track Number / Index',
+  index: 'Index',
   lastViewedAt: 'Last Played',
   originalTitle: 'Track Artist',
   parentTitle: 'Album',
@@ -40,6 +40,7 @@ const ColumnVisibilityDialog: React.FC<{
   setTitleOptions: React.Dispatch<React.SetStateAction<SubtextOptions>>,
   table: Table<Track> | Table<PlaylistItem>,
   titleOptions: SubtextOptions,
+  useTrackNumber?: boolean,
   viewKey: string,
 }> = ({
   compact,
@@ -51,6 +52,7 @@ const ColumnVisibilityDialog: React.FC<{
   setTitleOptions,
   table,
   titleOptions,
+  useTrackNumber,
   viewKey,
 }) => {
   const [saveCount, setSaveCount] = useState(0);
@@ -137,7 +139,9 @@ const ColumnVisibilityDialog: React.FC<{
                   label={(
                     <>
                       &nbsp;&nbsp;
-                      {columnMap[column.id as keyof Track]}
+                      {useTrackNumber && column.id === 'index'
+                        ? 'Track Number'
+                        : columnMap[column.id as keyof Track]}
                     </>
                   )}
                 />
@@ -259,6 +263,10 @@ const ColumnVisibilityDialog: React.FC<{
       </Box>
     </Dialog>
   );
+};
+
+ColumnVisibilityDialog.defaultProps = {
+  useTrackNumber: false,
 };
 
 export default ColumnVisibilityDialog;

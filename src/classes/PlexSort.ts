@@ -48,7 +48,7 @@ export class PlexSort {
   }
 
   static parseColumnSort(sort: ColumnSort, type: 'album' | 'artist' | 'track') {
-    let by;
+    let by: string;
     if (type === 'album') {
       by = albumSortKeyMap[sort.id as keyof Album | 'random']!;
     }
