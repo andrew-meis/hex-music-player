@@ -1,5 +1,6 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
@@ -12,9 +13,9 @@ import { VIEW_PADDING } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumnsWide } from 'scripts/get-columns';
 import { PlayActions } from 'types/enums';
@@ -43,6 +44,7 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Playlists = () => {
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const library = useLibrary();
   const location = useLocation();
   const navigate = useNavigate();
@@ -53,7 +55,6 @@ const Playlists = () => {
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);
   const { data: config } = useConfig();
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch } = usePlayback();
   const { getFormattedTime } = useFormattedTime();

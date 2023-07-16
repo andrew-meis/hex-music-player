@@ -1,14 +1,14 @@
 import { IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { IoPlaySkipForward } from 'react-icons/io5';
 import { PlayQueue, PlayQueueItem } from 'api/index';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
 import { useQueueId } from 'queries/app-queries';
-import { usePlayerState } from 'queries/player-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
-import { usePlayerContext } from 'root/Player';
+import { playbackDurationAtom, playbackIsPlayingAtom, usePlayerContext } from 'root/Player';
 import { QueryKeys } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
 
@@ -17,11 +17,13 @@ interface NextProps {
 }
 
 const Next = ({ handleRepeat }: NextProps) => {
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const player = usePlayerContext();
   const queryClient = useQueryClient();
   const queueId = useQueueId();
+  const setDuration = useSetAtom(playbackDurationAtom);
+  const setIsPlaying = useSetAtom(playbackIsPlayingAtom);
   const [disableNext, setDisableNext] = useState(false);
-  const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
   const { updateTimeline } = useQueue();
 
@@ -48,29 +50,29 @@ const Next = ({ handleRepeat }: NextProps) => {
         player.applyTrackGain(nextTrack.track);
       }
       player.next();
-      if (!playerState.isPlaying) {
+      if (!isPlaying) {
         player.play();
       }
       player.updateTracks(newQueue as PlayQueue, 'next');
-      queryClient.setQueryData(
-        [QueryKeys.PLAYER_STATE],
-        () => {
-          if (isPlayQueueItem(nextTrack)) {
-            return ({ duration: nextTrack.track.duration, isPlaying: true });
-          }
-          return ({ duration: 0, isPlaying: true });
-        },
-      );
+      setDuration(() => {
+        if (isPlayQueueItem(nextTrack)) {
+          return nextTrack.track.duration;
+        }
+        return 0;
+      });
+      setIsPlaying(() => true);
       setDisableNext(false);
     }
   }, [
     handleRepeat,
+    isPlaying,
     nextTrack,
     nowPlaying,
     player,
-    playerState,
     queryClient,
     queueId,
+    setDuration,
+    setIsPlaying,
     updateTimeline,
   ]);
 

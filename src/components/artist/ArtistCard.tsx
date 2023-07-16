@@ -125,7 +125,7 @@ const ArtistCard = ({
             ? `${artist.viewCount} ${artist.viewCount > 1 ? 'plays' : 'play'}`
             : 'unplayed'
         )}
-        {(!metaText || metaText === 'titleSort' || metaText === 'random')
+        {(!metaText || metaText === 'title' || metaText === 'random')
         && isArtist(artist)
         && artist.genre.slice(0, 2).map(
           (g, i, a) => `${g.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,

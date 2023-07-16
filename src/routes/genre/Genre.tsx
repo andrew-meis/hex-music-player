@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { throttle, uniqBy } from 'lodash';
 import { useMemo, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/bi';
@@ -22,9 +23,9 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import { useAlbumsByGenre } from 'queries/album-queries';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import { useLastfmTag } from 'queries/last-fm-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useTracksByGenre } from 'queries/track-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import { getColumnsNarrow } from 'scripts/get-columns';
 import { AlbumSortKeys, SortOrders } from 'types/enums';
 import { LocationWithState, RouteParams } from 'types/interfaces';
@@ -53,13 +54,13 @@ const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => 
 
 const Genre = () => {
   const box = useRef<HTMLDivElement>(null);
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const library = useLibrary();
   const location = useLocation() as LocationWithState;
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const [expandedText, setExpandedText] = useState(false);
   const { data: config } = useConfig();
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
   const { getFormattedTime } = useFormattedTime();

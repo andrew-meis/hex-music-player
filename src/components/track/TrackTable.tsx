@@ -14,6 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { useAtomValue } from 'jotai';
 import { isEmpty, isEqual, range } from 'lodash';
 import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -31,8 +32,8 @@ import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import { ParentIndexCell, IndexCell, ThumbCell, TitleCell, RatingCell } from './cells';
 import { ColumnVisibilityDialog } from './column-headers';
 import styles from './TrackTable.module.scss';
@@ -84,6 +85,8 @@ const TrackTable: React.FC<{
   scrollRef,
   subtextOptions,
 }) => {
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
+
   const queryClient = useQueryClient();
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -95,7 +98,6 @@ const TrackTable: React.FC<{
   const [titleOptions, setTitleOptions] = useState<SubtextOptions>(subtextOptions);
 
   const { playSwitch } = usePlayback();
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });

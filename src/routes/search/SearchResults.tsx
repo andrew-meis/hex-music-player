@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { useMemo, useRef } from 'react';
 import { BiChevronRight } from 'react-icons/bi';
 import {
@@ -20,8 +21,8 @@ import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import { useLibrary } from 'queries/app-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import Header from './Header';
@@ -50,11 +51,11 @@ const Subheader = ({ text }: { text: string }) => (
 
 const SearchResults = () => {
   const box = useRef<HTMLDivElement>(null);
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const location = useLocation();
   const library = useLibrary();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { width } = useOutletContext() as { width: number };

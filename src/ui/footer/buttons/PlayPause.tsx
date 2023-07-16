@@ -1,5 +1,5 @@
 import { IconButton, SvgIcon } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import {
   RiPauseCircleFill,
@@ -11,20 +11,18 @@ import { iconButtonStyle } from 'constants/style';
 import useKeyPress from 'hooks/useKeyPress';
 import useQueue from 'hooks/useQueue';
 import { useQueueId } from 'queries/app-queries';
-import { usePlayerState } from 'queries/player-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
-import { usePlayerContext } from 'root/Player';
-import { QueryKeys } from 'types/enums';
+import { playbackIsPlayingAtom, usePlayerContext } from 'root/Player';
 import { isPlayQueueItem } from 'types/type-guards';
 
 const { platform } = window.electron.getAppInfo();
 
 const PlayPause = () => {
   const ctrlPress = useKeyPress(platform === 'darwin' ? 'Meta' : 'Control');
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const player = usePlayerContext();
-  const queryClient = useQueryClient();
   const queueId = useQueueId();
-  const { data: playerState } = usePlayerState();
+  const setIsPlaying = useSetAtom(playbackIsPlayingAtom);
   const { data: playQueue } = useCurrentQueue();
   const { updateTimeline } = useQueue();
 
@@ -44,29 +42,23 @@ const PlayPause = () => {
       player.resetApp();
       return;
     }
-    if (playerState.isPlaying) {
+    if (isPlaying) {
       player.pause();
       if (isPlayQueueItem(nowPlaying)) {
         player.clearTimer();
         updateTimeline(nowPlaying.id, 'paused', player.getPosition(), nowPlaying.track);
       }
-      queryClient.setQueryData(
-        [QueryKeys.PLAYER_STATE],
-        () => ({ ...playerState, isPlaying: false }),
-      );
+      setIsPlaying(() => false);
     }
-    if (!playerState.isPlaying) {
+    if (!isPlaying) {
       player.play();
       if (isPlayQueueItem(nowPlaying)) {
         updateTimeline(nowPlaying.id, 'playing', player.getPosition(), nowPlaying.track);
         player.startTimer(nowPlaying);
       }
-      queryClient.setQueryData(
-        [QueryKeys.PLAYER_STATE],
-        () => ({ ...playerState, isPlaying: true }),
-      );
+      setIsPlaying(() => true);
     }
-  }, [ctrlPress, nowPlaying, player, playerState, queryClient, updateTimeline]);
+  }, [ctrlPress, isPlaying, nowPlaying, player, setIsPlaying, updateTimeline]);
 
   const onEvent = useCallback(async (action: { event: string }) => {
     if (action.event === 'play-pause' && !!nowPlaying) {
@@ -92,8 +84,8 @@ const PlayPause = () => {
     >
       <SvgIcon sx={{ width: '1.7em', height: '1.7em' }}>
         {!!nowPlaying && ctrlPress && (<RiStopCircleFill />)}
-        {!ctrlPress && playerState.isPlaying && (<RiPauseCircleFill />)}
-        {!ctrlPress && !playerState.isPlaying && (<RiPlayCircleFill />)}
+        {!ctrlPress && isPlaying && (<RiPauseCircleFill />)}
+        {!ctrlPress && !isPlaying && (<RiPlayCircleFill />)}
       </SvgIcon>
     </IconButton>
   );

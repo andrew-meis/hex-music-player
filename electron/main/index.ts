@@ -32,7 +32,11 @@ function writeData(key, value, file) {
 
 function readData(key, file) {
   const contents = parseData(file);
-  return contents[key] || {};
+  try {
+    return contents[key];
+  } catch {
+    return {};
+  }
 }
 
 function UpsertKeyValue(obj, keyToChange, value) {

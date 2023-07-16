@@ -30,6 +30,7 @@
     "fast-sort": "^3.4.0",
     "fast-xml-parser": "^4.0.13",
     "framer-motion": "8.4.6",
+    "jotai": "^2.2.2",
     "ky": "^0.33.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

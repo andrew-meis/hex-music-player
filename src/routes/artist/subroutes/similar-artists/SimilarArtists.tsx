@@ -1,6 +1,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
@@ -21,8 +22,8 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
@@ -97,6 +98,7 @@ const SimilarArtists = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const artist = useArtist(+id, library);
 
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
@@ -108,7 +110,6 @@ const SimilarArtists = () => {
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();

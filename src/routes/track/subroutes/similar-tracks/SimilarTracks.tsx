@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
@@ -9,9 +10,9 @@ import { PlexSort, plexSort } from 'classes';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useSimilarTracks, useTrack } from 'queries/track-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import Footer from 'routes/virtuoso-components/Footer';
 import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
 import { SortOrders } from 'types/enums';
@@ -46,6 +47,7 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 
 const SimilarTracks = () => {
   const config = useConfig();
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const library = useLibrary();
   const navigationType = useNavigationType();
   // data loading
@@ -63,7 +65,6 @@ const SimilarTracks = () => {
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [filter, setFilter] = useState('');
   const [sort, setSort] = useState(plexSort('distance', SortOrders.DESC));
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playTracks } = usePlayback();

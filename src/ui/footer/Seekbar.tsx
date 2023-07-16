@@ -1,70 +1,80 @@
-import {
-  Box, Grid, Slider, Typography,
-} from '@mui/material';
-import React, { useState } from 'react';
+import { Box, Grid, Slider, Typography } from '@mui/material';
+import { useAtom, useAtomValue, useSetAtom, useStore } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
+import { isBoolean } from 'lodash';
+import React, { useEffect, useRef, useState } from 'react';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useQueue from 'hooks/useQueue';
 import { useQueueId } from 'queries/app-queries';
-import { usePlayerState } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
-import { usePlayerContext } from 'root/Player';
+import {
+  playbackProgressAtom,
+  playbackDurationAtom,
+  usePlayerContext,
+  playbackIsPlayingAtom,
+} from 'root/Player';
+
+export const displayRemainingAtom = atomWithStorage('display-remaining', true, {
+  getItem: (key, initialValue) => {
+    const savedValue = window.electron.readConfig(key);
+    if (!isBoolean(savedValue)) return initialValue;
+    return savedValue as boolean;
+  },
+  setItem: (key, newValue) => window.electron.writeConfig(key, newValue),
+  removeItem: (key) => window.electron.writeConfig(key, true),
+});
 
 const Seekbar = () => {
+  const store = useStore();
+  const duration = useAtomValue(playbackDurationAtom);
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
+
+  const elapsed = useRef<HTMLSpanElement>(null);
+  const remaining = useRef<HTMLSpanElement>(null);
+  const thumb = useRef<HTMLSpanElement>(null);
+  const track = useRef<HTMLSpanElement>(null);
+
   const player = usePlayerContext();
   const queueId = useQueueId();
-  const [displayRemaining, setDisplayRemaining] = useState(true);
-  const [draggingPosition, setDraggingPosition] = useState<number>(0);
-  const [isHovered, setHovered] = useState(false);
+  const [draggingPosition, setDraggingPosition] = useState(0);
+  const setPlayerPosition = useSetAtom(playbackProgressAtom);
   const { data: nowPlaying } = useNowPlaying();
-  const { data: playerState } = usePlayerState();
   const { getFormattedTime } = useFormattedTime();
   const { updateTimeline } = useQueue();
+  const [displayRemaining, setDisplayRemaining] = useAtom(displayRemainingAtom);
+
+  useEffect(() => {
+    store.sub(playbackProgressAtom, () => {
+      if (!elapsed.current || !remaining.current || !thumb.current || !track.current) return;
+      const newProgress = store.get(playbackProgressAtom);
+      elapsed.current.innerText = getFormattedTime(newProgress.position);
+      remaining.current.innerText = displayRemaining
+        ? `-${getFormattedTime(newProgress.duration - newProgress.position)}`
+        : getFormattedTime(newProgress.duration);
+      thumb.current.style.left = `
+        ${((draggingPosition || newProgress.position) / newProgress.duration) * 100}%
+      `;
+      track.current.style.width = `
+        ${((draggingPosition || newProgress.position) / newProgress.duration) * 100}%
+      `;
+    });
+  }, [displayRemaining, draggingPosition, getFormattedTime, store]);
 
   const changePosition = (event: Event, newValue: number | number[]) => {
     setDraggingPosition(newValue as number);
-    const nodes = Array.from(document.querySelectorAll('span.seekbar-value')) as HTMLElement[];
-    nodes.forEach((node) => {
-      node.classList.add('no-update');
-      if (node.classList.contains('MuiSlider-thumb')) {
-        // eslint-disable-next-line no-param-reassign
-        node.style.left = `${((newValue as number / playerState.duration) * 100)}%`;
-      }
-    });
-    const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
-    seekbarTextNodes.forEach((node) => {
-      node.classList.add('no-update');
-    });
-    if (seekbarTextNodes[0]) {
-      (seekbarTextNodes[0] as HTMLElement)
-        .innerText = getFormattedTime(newValue as number);
-    }
-    if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('remaining')) {
-      (seekbarTextNodes[1] as HTMLElement)
-        .innerText = `-${getFormattedTime(playerState.duration - (newValue as number))}`;
-    }
-    if (seekbarTextNodes[1] && seekbarTextNodes[1].classList.contains('duration')) {
-      (seekbarTextNodes[1] as HTMLElement)
-        .innerText = getFormattedTime(playerState.duration);
-    }
   };
 
   const commitPosition = async (
     event: React.SyntheticEvent | Event,
     newValue: number | number[],
   ) => {
-    const nodes = document.querySelectorAll('span.seekbar-value');
-    nodes.forEach((node) => {
-      node.classList.remove('no-update');
-    });
-    const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
-    seekbarTextNodes.forEach((node) => {
-      node.classList.remove('no-update');
-    });
+    setDraggingPosition(0);
     player.setPosition(newValue as number);
+    setPlayerPosition((state) => ({ ...state, position: newValue as number }));
     if (nowPlaying) {
       await updateTimeline(
         nowPlaying.id,
-        playerState.isPlaying ? 'playing' : 'paused',
+        isPlaying ? 'playing' : 'paused',
         player.currentPosition(),
         nowPlaying.track,
       );
@@ -84,29 +94,36 @@ const Seekbar = () => {
       <Grid container>
         <Grid item display="flex" justifyContent="flex-end" width="50px">
           <Typography mr="8px" mt="4px" position="absolute" variant="subtitle2">
-            <span className="seekbar-text">{queueId === 0 ? '--:--' : ''}</span>
+            <span ref={elapsed}>{queueId === 0 ? '--:--' : ''}</span>
           </Typography>
         </Grid>
         <Grid item xs>
           <Slider
             disabled={queueId === 0}
-            max={playerState.duration || 1}
+            max={duration || 1}
             min={0}
             size="small"
             slotProps={{
-              thumb: { className: 'seekbar-value' },
-              track: { className: 'seekbar-value' },
+              thumb: {
+                ref: thumb,
+              },
+              track: {
+                ref: track,
+              },
             }}
             sx={{
               '& .MuiSlider-thumb': {
-                display: isHovered ? 'flex' : 'none',
+                display: 'none',
+              },
+              '&:hover': {
+                '& .MuiSlider-thumb': {
+                  display: 'flex',
+                },
               },
             }}
-            value={queueId === 0 ? 0 : draggingPosition}
+            value={0}
             onChange={changePosition}
             onChangeCommitted={commitPosition}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
           />
         </Grid>
         <Grid
@@ -116,18 +133,9 @@ const Seekbar = () => {
           width="50px"
           onClick={() => setDisplayRemaining(!displayRemaining)}
         >
-          {displayRemaining
-            && (
-              <Typography ml="8px" mt="4px" position="absolute" variant="subtitle2">
-                <span className="seekbar-text remaining">{queueId === 0 ? '--:--' : ''}</span>
-              </Typography>
-            )}
-          {!displayRemaining
-            && (
-              <Typography ml="8px" mt="4px" position="absolute" variant="subtitle2">
-                <span className="seekbar-text duration">{queueId === 0 ? '--:--' : ''}</span>
-              </Typography>
-            )}
+          <Typography ml="8px" mt="4px" position="absolute" variant="subtitle2">
+            <span ref={remaining}>{queueId === 0 ? '--:--' : ''}</span>
+          </Typography>
         </Grid>
       </Grid>
     </Box>

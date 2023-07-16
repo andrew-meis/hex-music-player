@@ -1,15 +1,38 @@
-import { Updater, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
+import { isNumber } from 'lodash';
 import React, {
-  ReactNode, useCallback, useContext, useEffect, useRef,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
 } from 'react';
 import { PlayQueue, PlayQueueItem, Track } from 'api/index';
 import { Gapless5, IsGapless5, LogLevel } from 'classes';
-import useFormattedTime from 'hooks/useFormattedTime';
 import useQueue from 'hooks/useQueue';
 import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
-import { PlayerState } from 'types/interfaces';
+
+// STATE
+export const playbackDurationAtom = atom(0);
+export const playbackIsPlayingAtom = atom(false);
+export const playbackProgressAtom = atom({
+  duration: 0,
+  position: 0,
+});
+export const volumeAtom = atomWithStorage('volume', 40, {
+  getItem: (key, initialValue) => {
+    const savedValue = window.electron.readConfig(key);
+    if (!isNumber(savedValue)) return initialValue;
+    return savedValue as number;
+  },
+  setItem: (key, newValue) => window.electron.writeConfig(key, newValue),
+  removeItem: (key) => window.electron.writeConfig(key, 40),
+});
 
 interface Gapless5Extended extends IsGapless5 {
   applyTrackGain: (track: Track) => void;
@@ -37,61 +60,11 @@ export const usePlayerContext = () => {
   return player;
 };
 
-const updatePlaybackValues = (
-  position: number,
-  length: number,
-  getFormattedTime: (inMS: number) => string,
-) => {
-  const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
-  if (seekbarTextNodes[0]
-    && !seekbarTextNodes[0].classList.contains('no-update')) {
-    (seekbarTextNodes[0] as HTMLElement).innerText = getFormattedTime(position);
-  }
-  if (seekbarTextNodes[1]
-    && seekbarTextNodes[1].classList.contains('remaining')
-    && !seekbarTextNodes[1].classList.contains('no-update')) {
-    (seekbarTextNodes[1] as HTMLElement).innerText = `-${getFormattedTime(length - position)}`;
-  }
-  if (seekbarTextNodes[1]
-    && seekbarTextNodes[1].classList.contains('duration')
-    && !seekbarTextNodes[1].classList.contains('no-update')) {
-    (seekbarTextNodes[1] as HTMLElement).innerText = getFormattedTime(length);
-  }
-  const seekbarValueNodes = document.querySelectorAll('span.seekbar-value');
-  if (seekbarValueNodes[0] && !seekbarValueNodes[0].classList.contains('no-update')) {
-    (seekbarValueNodes[0] as HTMLElement).style.width = `${(position / length) * 100}%`;
-  }
-  if (seekbarValueNodes[1] && !seekbarValueNodes[1].classList.contains('Mui-active')) {
-    (seekbarValueNodes[1] as HTMLElement).style.left = `${(position / length) * 100}%`;
-  }
-};
-
-const resetPlaybackValues = () => {
-  const seekbarTextNodes = document.querySelectorAll('span.seekbar-text');
-  if (seekbarTextNodes[0]
-    && !seekbarTextNodes[0].classList.contains('no-update')) {
-    (seekbarTextNodes[0] as HTMLElement).innerText = '--:--';
-  }
-  if (seekbarTextNodes[1]
-    && seekbarTextNodes[1].classList.contains('remaining')
-    && !seekbarTextNodes[1].classList.contains('no-update')) {
-    (seekbarTextNodes[1] as HTMLElement).innerText = '---:--';
-  }
-  if (seekbarTextNodes[1]
-    && seekbarTextNodes[1].classList.contains('duration')
-    && !seekbarTextNodes[1].classList.contains('no-update')) {
-    (seekbarTextNodes[1] as HTMLElement).innerText = '--:--';
-  }
-  const seekbarValueNodes = document.querySelectorAll('span.seekbar-value');
-  if (seekbarValueNodes[0] && !seekbarValueNodes[0].classList.contains('no-update')) {
-    (seekbarValueNodes[0] as HTMLElement).style.width = '0%';
-  }
-  if (seekbarValueNodes[1] && !seekbarValueNodes[1].classList.contains('Mui-active')) {
-    (seekbarValueNodes[1] as HTMLElement).style.left = '0%';
-  }
-};
-
 const Player = ({ children }: {children: ReactNode}) => {
+  const setDuration = useSetAtom(playbackDurationAtom);
+  const [isPlaying, setIsPlaying] = useAtom(playbackIsPlayingAtom);
+  const setProgress = useSetAtom(playbackProgressAtom);
+  const volume = useAtomValue(volumeAtom);
   const initialized = useRef<boolean | null>(null);
   const loadQueue = useRef<PlayQueueItem[]>([]);
   const library = useLibrary();
@@ -101,33 +74,23 @@ const Player = ({ children }: {children: ReactNode}) => {
   const { data: nowPlaying } = useNowPlaying();
   const { data: playQueue } = useCurrentQueue();
   const { data: settings } = useSettings();
-  const { getFormattedTime } = useFormattedTime();
   const { setQueueId, updateTimeline } = useQueue();
-  const volume = useQuery(
-    ['volume'],
-    () => 40,
-    {
-      initialData: 40,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
 
-  const { current: player } = useRef(new (Gapless5 as any)({
+  const player = useMemo(() => (new (Gapless5 as any)({
     ...playerOptions,
     loop: settings.repeat !== 'repeat-none',
     singleMode: settings.repeat === 'repeat-one',
-  }) as Gapless5Extended);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }) as Gapless5Extended), []);
 
   player.applyTrackGain = (track: Track) => {
     if (track.media[0].parts[0].streams[0].gain) {
-      const decibelLevel = 20 * Math.log10(volume.data / 100);
+      const decibelLevel = 20 * Math.log10(volume / 100);
       const adjustedDecibels = decibelLevel + (+track.media[0].parts[0].streams[0].gain);
       const gainLevel = 10 ** (adjustedDecibels / 20);
       player.setVolume(gainLevel);
     } else {
-      player.setVolume(volume.data / 150);
+      player.setVolume(volume / 150);
     }
   };
 
@@ -159,7 +122,7 @@ const Player = ({ children }: {children: ReactNode}) => {
     if (nowPlaying) {
       player.applyTrackGain(nowPlaying.track);
     }
-  }, [nowPlaying, player, volume.data]);
+  }, [nowPlaying, player, volume]);
 
   useEffect(() => {
     if (player.isPlaying() && nowPlaying) {
@@ -194,15 +157,16 @@ const Player = ({ children }: {children: ReactNode}) => {
 
   player.resetApp = async () => {
     initialized.current = false;
-    resetPlaybackValues();
     player.stop();
     await setQueueId(0);
     player.removeAllTracks();
     queryClient.removeQueries([QueryKeys.PLAYQUEUE]);
-    queryClient.setQueryData(
-      [QueryKeys.PLAYER_STATE],
-      () => ({ duration: 0, isPlaying: false }),
-    );
+    setDuration(() => 0);
+    setIsPlaying(() => false);
+    setProgress({
+      duration: 0,
+      position: 0,
+    });
   };
 
   player.updateTracks = (queue: PlayQueue, action: 'next' | 'prev' | 'update') => {
@@ -255,10 +219,8 @@ const Player = ({ children }: {children: ReactNode}) => {
       await setQueueId(0);
       player.removeAllTracks();
       queryClient.removeQueries([QueryKeys.PLAYQUEUE]);
-      queryClient.setQueryData(
-        [QueryKeys.PLAYER_STATE],
-        () => ({ duration: 0, isPlaying: false }),
-      );
+      setDuration(() => 0);
+      setIsPlaying(() => false);
     }
   };
 
@@ -266,10 +228,8 @@ const Player = ({ children }: {children: ReactNode}) => {
     if (playQueue) {
       if (nowPlaying && settings.repeat === 'repeat-one') {
         await updateTimeline(nowPlaying.id, 'playing', 0, nowPlaying.track);
-        queryClient.setQueryData(
-          [QueryKeys.PLAYER_STATE],
-          () => ({ duration: nowPlaying.track.duration, isPlaying: true }),
-        );
+        setDuration(() => nowPlaying.track.duration);
+        setIsPlaying(() => true);
         return;
       }
       const currentIndex = playQueue.items
@@ -285,24 +245,19 @@ const Player = ({ children }: {children: ReactNode}) => {
         await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
         const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]) as PlayQueue;
         player.updateTracks(newQueue, 'next');
-        queryClient.setQueryData(
-          [QueryKeys.PLAYER_STATE],
-          () => ({ duration: next.track.duration, isPlaying: true }),
-        );
+        setDuration(() => next.track.duration);
+        setIsPlaying(() => true);
         startTimer(next);
       }
     }
   };
 
   player.onload = async () => {
-    queryClient.setQueryData(
-      [QueryKeys.PLAYER_STATE],
-      () => ({ isPlaying: player.isPlaying(), duration: player.currentLength() }),
-    );
+    setDuration(() => player.currentLength());
+    setIsPlaying(() => player.isPlaying());
     const newTrack = loadQueue.current.shift();
     if (!newTrack) {
-      const playerState = queryClient.getQueryData([QueryKeys.PLAYER_STATE]) as PlayerState;
-      if (playerState.isPlaying) {
+      if (isPlaying) {
         player.play();
       }
       return;
@@ -319,25 +274,21 @@ const Player = ({ children }: {children: ReactNode}) => {
   };
 
   player.onplay = () => {
+    setDuration(() => player.currentLength());
+    setIsPlaying(() => true);
     window.electron.updatePlaying('playing', true);
-    queryClient.setQueryData(
-      [QueryKeys.PLAYER_STATE],
-      (current: Updater<PlayerState, PlayerState> | undefined) => ({ ...current, isPlaying: true }),
-    );
   };
 
   player.onpause = () => {
+    setIsPlaying(() => false);
     window.electron.updatePlaying('playing', false);
-    queryClient.setQueryData(
-      [QueryKeys.PLAYER_STATE],
-      (
-        current: Updater<PlayerState, PlayerState> | undefined,
-      ) => ({ ...current, isPlaying: false }),
-    );
   };
 
-  player.ontick = (position, length) => {
-    updatePlaybackValues(position, length, getFormattedTime);
+  player.ontick = (position, duration) => {
+    setProgress(() => ({
+      duration,
+      position,
+    }));
   };
 
   return (

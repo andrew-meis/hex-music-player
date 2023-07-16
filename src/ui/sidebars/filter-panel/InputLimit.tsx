@@ -1,16 +1,12 @@
 import { Box, InputAdornment, InputBase, SvgIcon } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import { atom, useAtom } from 'jotai';
+import React from 'react';
 import { FaTimes } from 'react-icons/fa';
-import { QueryKeys } from 'types/enums';
+
+export const limitAtom = atom('');
 
 const InputLimit = () => {
-  const queryClient = useQueryClient();
-  const [limit, setLimit] = useState<string>('');
-
-  useEffect(() => {
-    queryClient.setQueryData([QueryKeys.LIMIT], limit);
-  }, [limit, queryClient]);
+  const [limit, setLimit] = useAtom(limitAtom);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { value } = e.target;

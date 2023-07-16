@@ -32,7 +32,7 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
     setOpen,
     setOpenArtist,
     setOpenCard,
-    sort,
+    sortBy,
     virtuoso,
     width,
   } = context;
@@ -108,7 +108,7 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
             library={library}
             measurements={measurements}
             menuTarget={menuTarget}
-            metaText={sort.by}
+            metaText={sortBy}
             open={openArtist.id === artist.id}
             onClick={(e) => handleClick(e, artist, colIndex)}
           >

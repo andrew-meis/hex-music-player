@@ -1,8 +1,10 @@
 import { Box, IconButton, Slider, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { RiVolumeDownFill, RiVolumeMuteFill, RiVolumeUpFill } from 'react-icons/ri';
 import { iconButtonStyle } from 'constants/style';
+import { volumeAtom } from 'root/Player';
 
 const getViewbox = (volume: number) => {
   if (volume === 0) return '0 0 24 24';
@@ -11,9 +13,9 @@ const getViewbox = (volume: number) => {
 };
 
 const VolumeSlider = () => {
+  const [volume, setVolume] = useAtom(volumeAtom);
   const queryClient = useQueryClient();
   const [isHovered, setHovered] = useState(false);
-  const [volume, setVolume] = useState(40);
   const [prevVolume, setPrevVolume] = useState(0);
 
   useEffect(() => {

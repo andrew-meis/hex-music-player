@@ -1,10 +1,11 @@
 import { Box, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import ky from 'ky';
 import { useEffect, useRef, useState } from 'react';
 import { WIDTH_CALC } from 'constants/measures';
-import { usePlayPosition } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackProgressAtom } from 'root/Player';
 import { QueryKeys } from 'types/enums';
 
 interface LyricsData {
@@ -61,9 +62,9 @@ const processLyrics = (data: LyricsData, duration: number) => {
 
 const Lyrics = () => {
   const box = useRef<HTMLDivElement | null>();
+  const { position } = useAtomValue(playbackProgressAtom);
   const [activeLine, setActiveLine] = useState<HTMLSpanElement | null>();
   const { data: nowPlaying } = useNowPlaying();
-  const { data: playbackPosition } = usePlayPosition();
   const { data: lyrics } = useQuery(
     [QueryKeys.LYRICS, nowPlaying?.id],
     async () => {
@@ -131,14 +132,14 @@ const Lyrics = () => {
                 // eslint-disable-next-line react/no-array-index-key
                 key={index}
                 ref={
-                  playbackPosition.position > lyric.startOffset
+                  position > lyric.startOffset
                     ? setActiveLine
                     : null
                 }
                 sx={{
                   fontWeight: 600,
                   ...getTextStyle(
-                    playbackPosition.position,
+                    position,
                     lyric.startOffset,
                     nowPlaying?.track.duration || 0,
                   ),
@@ -156,14 +157,14 @@ const Lyrics = () => {
               // eslint-disable-next-line react/no-array-index-key
               key={index}
               ref={
-                playbackPosition.position > lyric.startOffset
-                && playbackPosition.position < next.startOffset
+                position > lyric.startOffset
+                && position < next.startOffset
                   ? setActiveLine
                   : null
               }
               sx={{
                 fontWeight: 600,
-                ...getTextStyle(playbackPosition.position, lyric.startOffset, next.startOffset),
+                ...getTextStyle(position, lyric.startOffset, next.startOffset),
               }}
               variant="h4"
             >

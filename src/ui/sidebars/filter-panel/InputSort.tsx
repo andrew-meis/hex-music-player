@@ -1,33 +1,47 @@
 import { Box, Chip, MenuItem, SvgIcon, Typography } from '@mui/material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import React from 'react';
 import { CgArrowLongDown } from 'react-icons/cg';
-import { PlexSort, plexSort } from 'classes';
+import { Album, Artist, Track } from 'api/index';
 import Select from 'components/select/Select';
-import { AlbumSortKeys, ArtistSortKeys, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
+import { albumSortingAtom } from 'routes/albums/Albums';
+import { artistSortingAtom } from 'routes/artists/Artists';
+import { trackSortingAtom } from 'routes/tracks/Tracks';
 
-const albumSortOptions = [
+const albumSortOptions: {
+  value: keyof Album | 'random',
+  label: string,
+  type: 'alpha' | 'date' | 'number',
+}[] = [
   { value: 'addedAt', label: 'Date Added', type: 'date' },
-  { value: 'artist.titleSort', label: 'Artist', type: 'alpha' },
+  { value: 'parentTitle', label: 'Artist', type: 'alpha' },
   { value: 'lastViewedAt', label: 'Last Played', type: 'date' },
   { value: 'viewCount', label: 'Playcount', type: 'number' },
   { value: 'random', label: 'Random', type: 'alpha' },
   { value: 'originallyAvailableAt', label: 'Release Date', type: 'date' },
-  { value: 'titleSort', label: 'Title', type: 'alpha' },
+  { value: 'title', label: 'Title', type: 'alpha' },
   { value: 'year', label: 'Year', type: 'date' },
 ];
 
-const artistSortOptions = [
+const artistSortOptions: {
+  value: keyof Artist | 'random',
+  label: string,
+  type: 'alpha' | 'date' | 'number',
+}[] = [
   { value: 'addedAt', label: 'Date Added', type: 'date' },
   { value: 'lastViewedAt', label: 'Last Played', type: 'date' },
   { value: 'viewCount', label: 'Playcount', type: 'number' },
   { value: 'random', label: 'Random', type: 'alpha' },
-  { value: 'titleSort', label: 'Title', type: 'alpha' },
+  { value: 'title', label: 'Title', type: 'alpha' },
 ];
 
-const trackSortOptions = [
-  { value: 'album.titleSort', label: 'Album', type: 'alpha' },
-  { value: 'artist.titleSort', label: 'Artist', type: 'alpha' },
+const trackSortOptions: {
+  value: keyof Track | 'random',
+  label: string,
+  type: 'alpha' | 'date' | 'number',
+}[] = [
+  { value: 'parentTitle', label: 'Album', type: 'alpha' },
+  { value: 'grandparentTitle', label: 'Artist', type: 'alpha' },
   { value: 'addedAt', label: 'Date Added', type: 'date' },
   { value: 'duration', label: 'Duration', type: 'number' },
   { value: 'lastViewedAt', label: 'Last Played', type: 'date' },
@@ -35,9 +49,9 @@ const trackSortOptions = [
   { value: 'viewCount', label: 'Playcount', type: 'number' },
   { value: 'ratingCount', label: 'Popularity', type: 'number' },
   { value: 'random', label: 'Random', type: 'alpha' },
-  { value: 'album.originallyAvailableAt', label: 'Release Date', type: 'date' },
-  { value: 'titleSort', label: 'Title', type: 'alpha' },
-  { value: 'album.year', label: 'Year', type: 'date' },
+  // { value: 'album.originallyAvailableAt', label: 'Release Date', type: 'date' },
+  { value: 'title', label: 'Title', type: 'alpha' },
+  { value: 'parentYear', label: 'Year', type: 'date' },
 ];
 
 const sx = {
@@ -46,12 +60,10 @@ const sx = {
   lineHeight: '10px',
 };
 
-interface SortOrderTextProps {
+const SortOrderText: React.FC<{
   by: string;
   order: 'asc' | 'desc';
-}
-
-const SortOrderText = ({ by, order }: SortOrderTextProps) => {
+}> = ({ by, order }) => {
   const allSortOptions = [...albumSortOptions, ...artistSortOptions, ...trackSortOptions];
   const { type } = allSortOptions.find((opt) => opt.value === by)!;
 
@@ -108,72 +120,36 @@ const SortOrderText = ({ by, order }: SortOrderTextProps) => {
   );
 };
 
-const defaultSorts = {
-  album: plexSort(AlbumSortKeys.ARTIST_TITLE, SortOrders.ASC),
-  artist: plexSort(ArtistSortKeys.TITLE, SortOrders.ASC),
-  track: plexSort(TrackSortKeys.ARTIST_TITLE, SortOrders.ASC),
-};
-
 const InputSort = ({ pathname }: { pathname: string }) => {
-  const queryClient = useQueryClient();
   const trimmed = pathname.substring(1, pathname.length - 1) as 'album' | 'artist' | 'track';
-  const [sort, setSort] = useState(defaultSorts[trimmed]);
-
-  const sortQuery = useQuery(
-    [QueryKeys.SORT_TRACKS],
-    () => sort,
-    {
-      initialData: sort,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
-
-  useEffect(() => {
-    setSort(sortQuery.data);
-  }, [sortQuery.data]);
-
-  useEffect(() => {
-    if (pathname === '/albums') {
-      const newSort = queryClient.getQueryData([QueryKeys.SORT_ALBUMS]) as PlexSort;
-      setSort(newSort || defaultSorts.album);
-      return;
+  const [[sorting], setSorting] = useAtom((() => {
+    switch (true) {
+      case (trimmed === 'album'):
+        return albumSortingAtom;
+      case (trimmed === 'artist'):
+        return artistSortingAtom;
+      case (trimmed === 'track'):
+        return trackSortingAtom;
+      default:
+        return trackSortingAtom;
     }
-    if (pathname === '/artists') {
-      const newSort = queryClient.getQueryData([QueryKeys.SORT_ARTISTS]) as PlexSort;
-      setSort(newSort || defaultSorts.artist);
-      return;
-    }
-    if (pathname === '/tracks') {
-      const newSort = queryClient.getQueryData([QueryKeys.SORT_TRACKS]) as PlexSort;
-      setSort(newSort || defaultSorts.track);
-    }
-  }, [pathname, queryClient]);
-
-  useEffect(() => {
-    if (!sort) return;
-    if (pathname === '/albums') {
-      queryClient.setQueryData([QueryKeys.SORT_ALBUMS], sort);
-    }
-    if (pathname === '/artists') {
-      queryClient.setQueryData([QueryKeys.SORT_ARTISTS], sort);
-    }
-    if (pathname === '/tracks') {
-      queryClient.setQueryData([QueryKeys.SORT_TRACKS], sort);
-    }
-  }, [sort, queryClient, pathname]);
+  })());
 
   const handleReverseSort = () => {
-    const newSort = sort.reverseOrder();
-    setSort(newSort);
+    const newSort = {
+      desc: !sorting.desc,
+      id: sorting.id,
+    };
+    setSorting([newSort]);
   };
 
   const handleSelect = (e: any) => {
     const sortKey = e.target.getAttribute('data-value');
-    const newSort = sort.setBy(sortKey);
-    setSort(newSort);
+    const newSort = {
+      desc: sorting.desc,
+      id: sortKey,
+    };
+    setSorting([newSort]);
   };
 
   return (
@@ -188,7 +164,7 @@ const InputSort = ({ pathname }: { pathname: string }) => {
             backgroundColor: 'action.hover',
           },
         }}
-        value={sort.by}
+        value={sorting.id}
       >
         {pathname === '/albums' && albumSortOptions.map((option) => (
           <MenuItem
@@ -219,14 +195,14 @@ const InputSort = ({ pathname }: { pathname: string }) => {
         ))}
       </Select>
       <Chip
-        disabled={sort.by === 'random'}
-        label={sort.order === 'asc'
+        disabled={sorting.id === 'random'}
+        label={!sorting.desc
           ? (
             <Box display="flex" mt="4px">
               <SvgIcon viewBox="0 4 24 24">
                 <CgArrowLongDown />
               </SvgIcon>
-              <SortOrderText by={sort.by} order={sort.order} />
+              <SortOrderText by={sorting.id} order={sorting.desc ? 'desc' : 'asc'} />
             </Box>
           )
           : (
@@ -234,7 +210,7 @@ const InputSort = ({ pathname }: { pathname: string }) => {
               <SvgIcon viewBox="0 4 24 24">
                 <CgArrowLongDown />
               </SvgIcon>
-              <SortOrderText by={sort.by} order={sort.order} />
+              <SortOrderText by={sorting.id} order={sorting.desc ? 'desc' : 'asc'} />
             </Box>
           )}
         sx={{

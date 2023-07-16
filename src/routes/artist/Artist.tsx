@@ -2,6 +2,7 @@ import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/md';
@@ -30,9 +31,9 @@ import {
   useArtistAppearances,
   useArtistTracks,
 } from 'queries/artist-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
@@ -102,6 +103,8 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Artist = () => {
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
+
   const config = useConfig();
   const library = useLibrary();
   // data loading
@@ -140,7 +143,6 @@ const Artist = () => {
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
   const { getFormattedTime } = useFormattedTime();

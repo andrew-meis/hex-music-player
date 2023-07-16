@@ -1,19 +1,25 @@
 import {
   Box, Chip, Collapse, InputAdornment, InputBase, SvgIcon, Typography,
 } from '@mui/material';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { atom, useAtom, useAtomValue } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { MdOutlinePlaylistAddCheck } from 'react-icons/md';
 import { RiSendPlaneLine } from 'react-icons/ri';
-import { PlexSort, plexSort } from 'classes';
+import { PlexSort } from 'classes';
 import { useConfig, useLibrary, useServer } from 'queries/app-queries';
-import { AlbumSortKeys, ArtistSortKeys, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
+import { albumSortingAtom } from 'routes/albums/Albums';
+import { artistSortingAtom } from 'routes/artists/Artists';
+import { trackSortingAtom } from 'routes/tracks/Tracks';
+import { QueryKeys } from 'types/enums';
 import { Rating } from './filter-inputs/FilterRating';
 import { FilterTypes, Operators } from './filterSchemas';
 import AddFilter from './InputFilter';
-import AddLimit from './InputLimit';
+import AddLimit, { limitAtom } from './InputLimit';
 import SortSelect from './InputSort';
+
+export const filtersAtom = atom<Filter[]>([]);
 
 const operatorMap = {
   tag: {
@@ -61,12 +67,6 @@ const addFiltersToParams = (filters: Filter[], params: URLSearchParams) => {
     ));
 };
 
-const defaultSorts = {
-  album: plexSort(AlbumSortKeys.ARTIST_TITLE, SortOrders.ASC),
-  artist: plexSort(ArtistSortKeys.TITLE, SortOrders.ASC),
-  track: plexSort(TrackSortKeys.ARTIST_TITLE, SortOrders.ASC),
-};
-
 export interface Filter {
   type: FilterTypes;
   group: 'Artist' | 'Album' | 'Track';
@@ -81,37 +81,22 @@ export interface Filter {
 const FilterPanel = ({ pathname }: { pathname: string }) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const library = useLibrary();
+  const limit = useAtomValue(limitAtom);
   const queryClient = useQueryClient();
   const server = useServer();
-  const trimmed = pathname.substring(1, pathname.length - 1) as 'album' | 'artist' | 'track';
   const type = pathnameMap[pathname.substring(1)];
+  const albumSorting = useAtomValue(albumSortingAtom);
+  const artistSorting = useAtomValue(artistSortingAtom);
+  const trackSorting = useAtomValue(trackSortingAtom);
   const [error, setError] = useState(false);
-  const [filters, setFilters] = useState<Filter[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [limit, setLimit] = useState<string>('');
+  const [filters, setFilters] = useAtom(filtersAtom);
   const [show, setShow] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [sort, setSort] = useState(defaultSorts[trimmed]);
   const [title, setTitle] = useState('');
   const { data: config } = useConfig();
-  useQuery(
-    [QueryKeys.FILTERS_AND_SORTING, pathname, filters, limit, sort],
-    () => ({
-      filters,
-      limit,
-      sort,
-    }),
-    {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
 
   useEffect(() => {
-    queryClient.setQueryData([QueryKeys.FILTERS], filters);
     if (filters.length === 0) setShow(false);
-  }, [filters, queryClient]);
+  }, [filters]);
 
   const handleRemoveFilter = (filterHash: string) => {
     const newFilters = filters.filter((filter) => filter.hash !== filterHash);
@@ -121,24 +106,29 @@ const FilterPanel = ({ pathname }: { pathname: string }) => {
   const handleSubmit = async (event: React.FormEvent<HTMLDivElement>) => {
     event.preventDefault();
     const params = new URLSearchParams();
-    const filterQuery = queryClient.getQueryData([QueryKeys.FILTERS]) as Filter[];
-    const limitQuery = queryClient.getQueryData([QueryKeys.LIMIT]) as string;
-    let sortQuery;
+    let sorting;
+    let sortType: 'artist' | 'album' | 'track';
     if (type === 8) {
-      sortQuery = queryClient.getQueryData([QueryKeys.SORT_ARTISTS]) as PlexSort;
+      sorting = artistSorting;
+      sortType = 'artist';
     }
     if (type === 9) {
-      sortQuery = queryClient.getQueryData([QueryKeys.SORT_ALBUMS]) as PlexSort;
+      sorting = albumSorting;
+      sortType = 'album';
     }
     if (type === 10) {
-      sortQuery = queryClient.getQueryData([QueryKeys.SORT_TRACKS]) as PlexSort;
+      sorting = trackSorting;
+      sortType = 'track';
     }
-    addFiltersToParams(filterQuery, params);
-    if (sortQuery) {
-      params.append('sort', sortQuery.stringify());
+    addFiltersToParams(filters, params);
+    if (sorting) {
+      const sortString = sorting
+        .map((columnSort) => PlexSort.parseColumnSort(columnSort, sortType).stringify())
+        .join(',');
+      params.append('sort', sortString);
     }
-    if (limitQuery) {
-      params.append('limit', limitQuery);
+    if (limit) {
+      params.append('limit', limit);
     }
     /* eslint-disable max-len */
     const uri = `${server.uri}/library/sections/${config.sectionId!}/all?type=${type}&${params.toString()}`;

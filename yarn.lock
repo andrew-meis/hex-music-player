@@ -4384,6 +4384,7 @@ __metadata:
     fast-sort: ^3.4.0
     fast-xml-parser: ^4.0.13
     framer-motion: 8.4.6
+    jotai: ^2.2.2
     ky: ^0.33.3
     lodash: ^4.17.21
     moment: ^2.29.4
@@ -4855,6 +4856,18 @@ __metadata:
   bin:
     jake: ./bin/cli.js
   checksum: 56c913ecf5a8d74325d0af9bc17a233bad50977438d44864d925bb6c45c946e0fee8c4c1f5fe2225471ef40df5222e943047982717ebff0d624770564d3c46ba
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "jotai@npm:2.2.2"
+  peerDependencies:
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+  checksum: 6b3a62714a22984afd4f089e5bb904dc9d7dc8f6eb26135746bf154da760e485bcd5d83b08297e9f1f3f7843eb8d604c9b480fdae97786170f2d00de0ad2f87b
   languageName: node
   linkType: hard
 

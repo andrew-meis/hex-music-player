@@ -1,8 +1,10 @@
 import { useMenuState } from '@szhsin/react-menu';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
+import { atom, useAtomValue } from 'jotai';
 import ky from 'ky';
-import { throttle } from 'lodash';
+import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction,
@@ -22,11 +24,17 @@ import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
 import { AppConfig, AppSettings, CardMeasurements } from 'types/interfaces';
-import { Filter } from 'ui/sidebars/filter-panel/FilterPanel';
+import { Filter, filtersAtom } from 'ui/sidebars/filter-panel/FilterPanel';
+import { limitAtom } from 'ui/sidebars/filter-panel/InputLimit';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from './ScrollSeekPlaceholder';
 import ScrollSeekPlaceholderNoText from './ScrollSeekPlaceholderNoText';
+
+export const albumSortingAtom = atom<SortingState>([{
+  desc: false,
+  id: 'parentTitle',
+}]);
 
 const containerSize = 100;
 
@@ -83,7 +91,7 @@ export interface AlbumsContext {
   navigate: NavigateFunction;
   playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
   settings: AppSettings;
-  sort: PlexSort;
+  sortBy: string;
   uri: string;
 }
 
@@ -95,50 +103,18 @@ export interface RowProps {
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-const defaultSort = 'artist.titleSort:asc';
-
 const Albums = () => {
   const fetchTimeout = useRef(0);
-  const filters = useQuery(
-    [QueryKeys.FILTERS],
-    () => ([]),
-    {
-      initialData: [] as Filter[],
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const filters = useAtomValue(filtersAtom);
   const hoverIndex = useRef<number | null>(null);
   const library = useLibrary();
-  const limit = useQuery(
-    [QueryKeys.LIMIT],
-    () => (''),
-    {
-      initialData: '',
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
   const scrollCount = useRef(0);
-  const sort = useQuery(
-    [QueryKeys.SORT_ALBUMS],
-    () => PlexSort.parse(defaultSort),
-    {
-      initialData: PlexSort.parse(defaultSort),
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const sorting = useAtomValue(albumSortingAtom);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
@@ -152,15 +128,18 @@ const Albums = () => {
   const params = useMemo(() => {
     const newParams = new URLSearchParams();
     newParams.append('type', 9 as unknown as string);
-    addFiltersToParams(filters.data, newParams);
-    if (sort.data) {
-      newParams.append('sort', sort.data.stringify());
+    addFiltersToParams(filters, newParams);
+    if (!isEmpty(sorting)) {
+      const sortString = sorting
+        .map((columnSort) => PlexSort.parseColumnSort(columnSort, 'album').stringify())
+        .join(',');
+      newParams.append('sort', sortString);
     }
-    if (limit.data) {
-      newParams.append('limit', limit.data);
+    if (limit) {
+      newParams.append('limit', limit);
     }
     return newParams;
-  }, [filters.data, limit.data, sort.data]);
+  }, [filters, limit, sorting]);
 
   const fetchAlbums = useCallback(async ({ pageParam = 0 }) => {
     params.append('X-Plex-Container-Start', `${pageParam}`);
@@ -176,7 +155,7 @@ const Albums = () => {
   }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_ALBUMS, filters.data, limit.data, sort.data],
+    queryKey: [QueryKeys.ALL_ALBUMS, filters, limit, sorting],
     queryFn: fetchAlbums,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,
@@ -279,7 +258,7 @@ const Albums = () => {
     navigate,
     playUri,
     settings,
-    sort: sort.data,
+    sortBy: sorting[0].id,
     uri,
   }), [
     config,
@@ -292,7 +271,7 @@ const Albums = () => {
     navigate,
     playUri,
     settings,
-    sort.data,
+    sorting,
     uri,
   ]);
 

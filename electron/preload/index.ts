@@ -13,8 +13,8 @@ contextBridge.exposeInMainWorld('electron', {
   getAppInfo: () => ipcRenderer.sendSync('get-app-info'),
   readConfig: (key) => ipcRenderer.sendSync('read-config', { key }),
   writeConfig: (key, value) => ipcRenderer.sendSync('write-config', { key, value }),
-  readFilters: (key) => ipcRenderer.sendSync('read-config', { key }),
-  writeFilters: (key, value) => ipcRenderer.sendSync('write-config', { key, value }),
+  readFilters: (key) => ipcRenderer.sendSync('read-filters', { key }),
+  writeFilters: (key, value) => ipcRenderer.sendSync('write-filters', { key, value }),
   // communicate player state to and from main process
   updatePlaying: (key, value) => ipcRenderer.send('update-playing', { key, value }),
   receive: (channel, func) => {

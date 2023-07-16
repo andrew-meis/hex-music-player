@@ -1,8 +1,10 @@
 import { useMenuState } from '@szhsin/react-menu';
-import { UseQueryResult, useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { UseQueryResult, useInfiniteQuery } from '@tanstack/react-query';
+import { SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
+import { atom, useAtomValue } from 'jotai';
 import ky from 'ky';
-import { throttle } from 'lodash';
+import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   NavigateFunction, useLocation, useNavigate, useNavigationType, useOutletContext,
@@ -18,16 +20,22 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
 import { AppConfig, CardMeasurements } from 'types/interfaces';
-import { Filter } from 'ui/sidebars/filter-panel/FilterPanel';
+import { Filter, filtersAtom } from 'ui/sidebars/filter-panel/FilterPanel';
+import { limitAtom } from 'ui/sidebars/filter-panel/InputLimit';
 import Header from './Header';
 import Row from './Row';
 import ScrollSeekPlaceholder from './ScrollSeekPlaceholder';
+
+export const artistSortingAtom = atom<SortingState>([{
+  desc: false,
+  id: 'title',
+}]);
 
 const containerSize = 100;
 
@@ -96,7 +104,7 @@ export interface ArtistsContext {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setOpenArtist: React.Dispatch<React.SetStateAction<OpenArtist>>;
   setOpenCard: React.Dispatch<React.SetStateAction<{row: number, index: number}>>;
-  sort: PlexSort;
+  sortBy: string;
   virtuoso: React.RefObject<VirtuosoHandle>;
   width: number;
   uri: string;
@@ -110,49 +118,18 @@ export interface RowProps {
 
 const RowContent = (props: RowProps) => <Row {...props} />;
 
-const defaultSort = 'titleSort:asc';
-
 const Artists = () => {
   const fetchTimeout = useRef(0);
-  const filters = useQuery(
-    [QueryKeys.FILTERS],
-    () => ([]),
-    {
-      initialData: [] as Filter[],
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const filters = useAtomValue(filtersAtom);
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const library = useLibrary();
-  const limit = useQuery(
-    [QueryKeys.LIMIT],
-    () => (''),
-    {
-      initialData: '',
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
   const scrollCount = useRef(0);
-  const sort = useQuery(
-    [QueryKeys.SORT_ARTISTS],
-    () => PlexSort.parse(defaultSort),
-    {
-      initialData: PlexSort.parse(defaultSort),
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const sorting = useAtomValue(artistSortingAtom);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [containerStart, setContainerStart] = useState(0);
@@ -162,7 +139,6 @@ const Artists = () => {
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
   const { data: config } = useConfig();
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { playSwitch, playUri } = usePlayback();
   const { getFormattedTime } = useFormattedTime();
@@ -171,15 +147,18 @@ const Artists = () => {
   const params = useMemo(() => {
     const newParams = new URLSearchParams();
     newParams.append('type', 8 as unknown as string);
-    addFiltersToParams(filters.data, newParams);
-    if (sort.data) {
-      newParams.append('sort', sort.data.stringify());
+    addFiltersToParams(filters, newParams);
+    if (!isEmpty(sorting)) {
+      const sortString = sorting
+        .map((columnSort) => PlexSort.parseColumnSort(columnSort, 'artist').stringify())
+        .join(',');
+      newParams.append('sort', sortString);
     }
-    if (limit.data) {
-      newParams.append('limit', limit.data);
+    if (limit) {
+      newParams.append('limit', limit);
     }
     return newParams;
-  }, [filters.data, limit.data, sort.data]);
+  }, [filters, limit, sorting]);
 
   const fetchArtists = useCallback(async ({ pageParam = 0 }) => {
     params.append('X-Plex-Container-Start', `${pageParam}`);
@@ -195,7 +174,7 @@ const Artists = () => {
   }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_ARTISTS, filters.data, limit.data, sort.data],
+    queryKey: [QueryKeys.ALL_ARTISTS, filters, limit, sorting],
     queryFn: fetchArtists,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,
@@ -320,7 +299,7 @@ const Artists = () => {
     setOpen,
     setOpenArtist,
     setOpenCard,
-    sort: sort.data,
+    sortBy: sorting[0].id,
     uri,
     virtuoso,
     width,
@@ -345,7 +324,7 @@ const Artists = () => {
     setOpen,
     setOpenArtist,
     setOpenCard,
-    sort.data,
+    sorting,
     uri,
     virtuoso,
     width,

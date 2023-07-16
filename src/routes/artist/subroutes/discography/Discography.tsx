@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
@@ -14,8 +15,8 @@ import {
   useArtistAppearances,
   useArtistTracks,
 } from 'queries/artist-queries';
-import { useIsPlaying } from 'queries/player-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { playbackIsPlayingAtom } from 'root/Player';
 import Footer from 'routes/virtuoso-components/Footer';
 import Group from 'routes/virtuoso-components/Group';
 import TopItemList from 'routes/virtuoso-components/TopItemList';
@@ -85,11 +86,11 @@ const Discography = () => {
   });
   // other hooks
   const hoverIndex = useRef<number | null>(null);
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const queryClient = useQueryClient();
   const topmostGroup = useRef<number>(0);
   const virtuoso = useRef<GroupedVirtuosoHandle>(null);
   const [filter, setFilter] = useState('All Releases');
-  const { data: isPlaying } = useIsPlaying();
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { playAlbum, playAlbumAtTrack, playArtist, playArtistRadio } = usePlayback();

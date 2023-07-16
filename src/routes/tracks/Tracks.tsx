@@ -1,9 +1,10 @@
-import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
+import { atom, useAtom, useAtomValue } from 'jotai';
 import ky from 'ky';
 import { isEmpty } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { ListRange } from 'react-virtuoso';
 import { Track, parseTrackContainer } from 'api/index';
@@ -12,10 +13,16 @@ import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { QueryKeys } from 'types/enums';
 import { AppTrackViewSettings } from 'types/interfaces';
-import { Filter } from 'ui/sidebars/filter-panel/FilterPanel';
+import { Filter, filtersAtom } from 'ui/sidebars/filter-panel/FilterPanel';
+import { limitAtom } from 'ui/sidebars/filter-panel/InputLimit';
 import Header from './Header';
 import Subheader from './Subheader';
 import TrackTable from './TrackTable';
+
+export const trackSortingAtom = atom<SortingState>([{
+  desc: false,
+  id: 'grandparentTitle',
+}]);
 
 const containerSize = 100;
 
@@ -61,8 +68,6 @@ const addFiltersToParams = (filters: Filter[], params: URLSearchParams) => {
 
 const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 
-const defaultSort = 'artist.titleSort:asc';
-
 const defaultViewSettings: AppTrackViewSettings = {
   columns: {
     grandparentTitle: true,
@@ -81,29 +86,9 @@ const defaultViewSettings: AppTrackViewSettings = {
 const Tracks = () => {
   const viewSettings = window.electron.readConfig('tracks-view-settings') as AppTrackViewSettings;
   const fetchTimeout = useRef(0);
-  const filters = useQuery(
-    [QueryKeys.FILTERS],
-    () => ([]),
-    {
-      initialData: [] as Filter[],
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const filters = useAtomValue(filtersAtom);
   const library = useLibrary();
-  const limit = useQuery(
-    [QueryKeys.LIMIT],
-    () => (''),
-    {
-      initialData: '',
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
@@ -111,50 +96,25 @@ const Tracks = () => {
   const [containerStart, setContainerStart] = useState(0);
   const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
-  const [sorting, setSorting] = useState<SortingState>([{
-    desc: false,
-    id: 'grandparentTitle',
-  }]);
+  const [sorting, setSorting] = useAtom(trackSortingAtom);
   const { data: config } = useConfig();
   const { playUri } = usePlayback();
-
-  const sort = useQuery(
-    [QueryKeys.SORT_TRACKS],
-    () => PlexSort.parse(defaultSort),
-    {
-      initialData: PlexSort.parse(defaultSort),
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
-
-  useEffect(() => {
-    const [newSort] = sorting.map((columnSort) => PlexSort.parseColumnSort(columnSort));
-    queryClient.setQueryData([QueryKeys.SORT_TRACKS], newSort);
-  }, [queryClient, sorting]);
-
-  useEffect(() => {
-    const newSorting = [PlexSort.createColumnSort(sort.data)];
-    setSorting(newSorting);
-  }, [sort.data]);
 
   const params = useMemo(() => {
     const newParams = new URLSearchParams();
     newParams.append('type', 10 as unknown as string);
-    addFiltersToParams(filters.data, newParams);
+    addFiltersToParams(filters, newParams);
     if (!isEmpty(sorting)) {
       const sortString = sorting
-        .map((columnSort) => PlexSort.parseColumnSort(columnSort).stringify())
+        .map((columnSort) => PlexSort.parseColumnSort(columnSort, 'track').stringify())
         .join(',');
       newParams.append('sort', sortString);
     }
-    if (limit.data) {
-      newParams.append('limit', limit.data);
+    if (limit) {
+      newParams.append('limit', limit);
     }
     return newParams;
-  }, [filters.data, limit.data, sorting]);
+  }, [filters, limit, sorting]);
 
   const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
     params.append('X-Plex-Container-Start', `${pageParam}`);
@@ -170,7 +130,7 @@ const Tracks = () => {
   }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_TRACKS, filters.data, limit.data, sorting],
+    queryKey: [QueryKeys.ALL_TRACKS, filters, limit, sorting],
     queryFn: fetchTracks,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,

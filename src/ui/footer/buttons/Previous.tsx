@@ -1,14 +1,14 @@
 import { IconButton, SvgIcon } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useState } from 'react';
 import { IoPlaySkipBack } from 'react-icons/io5';
 import { PlayQueue, PlayQueueItem } from 'api/index';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
 import { useQueueId } from 'queries/app-queries';
-import { usePlayerState } from 'queries/player-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
-import { usePlayerContext } from 'root/Player';
+import { playbackDurationAtom, playbackIsPlayingAtom, usePlayerContext } from 'root/Player';
 import { QueryKeys } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
 
@@ -17,11 +17,12 @@ interface PreviousProps {
 }
 
 const Previous = ({ handleRepeat }: PreviousProps) => {
+  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const player = usePlayerContext();
   const queryClient = useQueryClient();
   const queueId = useQueueId();
+  const setDuration = useSetAtom(playbackDurationAtom);
   const [disablePrev, setDisablePrev] = useState(false);
-  const { data: playerState } = usePlayerState();
   const { data: playQueue } = useCurrentQueue();
   const { updateTimeline } = useQueue();
 
@@ -49,13 +50,13 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
       const { trackNumber } = player.playlist!;
       player.cue();
       player.playlist!.trackNumber = trackNumber;
-      if (!playerState.isPlaying) {
+      if (!isPlaying) {
         player.pause();
       }
       if (isPlayQueueItem(nowPlaying)) {
         await updateTimeline(
           nowPlaying.id,
-          playerState.isPlaying ? 'playing' : 'paused',
+          isPlaying ? 'playing' : 'paused',
           0,
           nowPlaying.track,
         );
@@ -74,25 +75,23 @@ const Previous = ({ handleRepeat }: PreviousProps) => {
       await queryClient.refetchQueries([QueryKeys.PLAYQUEUE, queueId]);
       const newQueue = queryClient.getQueryData([QueryKeys.PLAYQUEUE, queueId]);
       player.updateTracks(newQueue as PlayQueue, 'prev');
-      queryClient.setQueryData(
-        [QueryKeys.PLAYER_STATE],
-        () => {
-          if (isPlayQueueItem(prevTrack)) {
-            return ({ ...playerState, duration: prevTrack.track.duration });
-          }
-          return ({ ...playerState, duration: 0 });
-        },
-      );
+      setDuration(() => {
+        if (isPlayQueueItem(prevTrack)) {
+          return prevTrack.track.duration;
+        }
+        return 0;
+      });
       setDisablePrev(false);
     }
   }, [
     handleRepeat,
+    isPlaying,
     nowPlaying,
     player,
-    playerState,
     prevTrack,
     queryClient,
     queueId,
+    setDuration,
     updateTimeline,
   ]);
 
