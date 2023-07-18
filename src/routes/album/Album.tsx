@@ -135,7 +135,7 @@ const Album = () => {
               setOpen={setOpen}
               subtextOptions={{
                 albumTitle: false,
-                artistTitle: false,
+                artistTitle: true,
                 showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
                   ? viewSettings.multiLineTitle
                   : defaultViewSettings.multiLineTitle,

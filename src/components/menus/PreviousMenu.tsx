@@ -3,7 +3,6 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
-  MenuHeader,
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -147,7 +146,6 @@ const PreviousMenu = ({
         && (
           <>
             <MenuDivider />
-            <MenuHeader>Artists</MenuHeader>
             {artists.map((artist) => (
               <ArtistMenuItem
                 key={artist.id}
@@ -165,7 +163,6 @@ const PreviousMenu = ({
         && (
           <>
             <MenuDivider />
-            <MenuHeader>Artists</MenuHeader>
             <ArtistMenuItem
               thumb={item.track.grandparentThumb}
               title={item.track.grandparentTitle}
@@ -179,7 +176,6 @@ const PreviousMenu = ({
         && (
           <>
             <MenuDivider />
-            <MenuHeader>Artists</MenuHeader>
             {artists.map((artist) => (
               <ArtistMenuItem
                 key={artist.id}
@@ -197,7 +193,6 @@ const PreviousMenu = ({
             {!isActive && (
               <>
                 <MenuDivider />
-                <MenuHeader>Album</MenuHeader>
                 <AlbumMenuItem
                   thumb={item.track.parentThumb}
                   title={item.track.parentTitle}

@@ -3,7 +3,6 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
-  MenuHeader,
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -90,7 +89,6 @@ const AlbumMenu = ({
           {artistLink && (
             <>
               <MenuDivider />
-              <MenuHeader>Artists</MenuHeader>
               <ArtistMenuItem
                 thumb={albums[0].parentThumb}
                 title={albums[0].parentTitle}
@@ -101,7 +99,6 @@ const AlbumMenu = ({
           {albumLink && (
             <>
               <MenuDivider />
-              <MenuHeader>Album</MenuHeader>
               <AlbumMenuItem
                 thumb={albums[0].thumb}
                 title={albums[0].title}

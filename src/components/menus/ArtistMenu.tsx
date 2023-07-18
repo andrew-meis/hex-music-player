@@ -3,7 +3,6 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
-  MenuHeader,
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -83,7 +82,6 @@ const ArtistMenu = ({
             View play history
           </MenuItem>
           <MenuDivider />
-          <MenuHeader>Artists</MenuHeader>
           <ArtistMenuItem
             thumb={artists[0].thumb}
             title={artists[0].title}

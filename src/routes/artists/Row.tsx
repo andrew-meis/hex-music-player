@@ -15,14 +15,11 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
 
 const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
   const {
-    getFormattedTime,
     grid,
-    isPlaying,
     library,
     handleContextMenu,
     measurements,
     menuTarget,
-    nowPlaying,
     open,
     openArtist,
     openArtistQuery,
@@ -160,10 +157,7 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
           />
           {openArtist && open && openArtistQuery.data && openArtistTracksQuery.data && (
             <ArtistPreview
-              getFormattedTime={getFormattedTime}
-              isPlaying={isPlaying}
               library={library}
-              nowPlaying={nowPlaying}
               openArtist={openArtist}
               openArtistQuery={openArtistQuery}
               openArtistTracksQuery={openArtistTracksQuery}

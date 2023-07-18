@@ -22,7 +22,6 @@ const FixedHeader = ({ days, end, handlePlay, handleShuffle, start }: FixedHeade
     display="flex"
     height={70}
     marginX="auto"
-    maxWidth="888px"
     paddingX="6px"
     width={WIDTH_CALC_PADDING}
   >

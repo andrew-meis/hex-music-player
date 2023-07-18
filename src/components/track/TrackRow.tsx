@@ -158,12 +158,12 @@ const TrackRow = ({
         height={20}
         justifyContent="space-between"
       >
-        <Typography fontSize="0.875rem" sx={typographyStyle}>
-          <Subtext showAlbum={options.showAlbumTitle} track={track} />
+        <Typography fontSize="0.95rem" sx={typographyStyle}>
+          <Subtext showArtist showAlbum={options.showAlbumTitle} track={track} />
         </Typography>
         <Typography
           flexShrink={0}
-          fontSize="0.875rem"
+          fontSize="0.95rem"
           lineHeight="20px"
           marginLeft="8px"
           minWidth={80}

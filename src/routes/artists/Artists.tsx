@@ -11,17 +11,14 @@ import {
 } from 'react-router-dom';
 import { ListRange, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import {
-  Album, Artist, Hub, Library, PlayQueueItem, Track, parseArtistContainer,
+  Album, Artist, Hub, Library, Track, parseArtistContainer,
 } from 'api/index';
 import { PlexSort, plexSort } from 'classes';
 import { ArtistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
-import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
@@ -85,15 +82,12 @@ type OpenArtist = Pick<Artist, 'id' | 'guid' | 'title'>;
 
 export interface ArtistsContext {
   config: AppConfig;
-  getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  isPlaying: boolean;
   library: Library;
   measurements: CardMeasurements;
   menuTarget: Artist[];
   navigate: NavigateFunction;
-  nowPlaying: PlayQueueItem | undefined;
   open: boolean;
   openArtist: OpenArtist;
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
@@ -121,7 +115,6 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 const Artists = () => {
   const fetchTimeout = useRef(0);
   const filters = useAtomValue(filtersAtom);
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const library = useLibrary();
   const limit = useAtomValue(limitAtom);
   const location = useLocation();
@@ -139,9 +132,7 @@ const Artists = () => {
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
   const { data: config } = useConfig();
-  const { data: nowPlaying } = useNowPlaying();
   const { playSwitch, playUri } = usePlayback();
-  const { getFormattedTime } = useFormattedTime();
   const { width } = useOutletContext() as { height: number, width: number };
 
   const params = useMemo(() => {
@@ -280,15 +271,12 @@ const Artists = () => {
 
   const artistsContext = useMemo(() => ({
     config,
-    getFormattedTime,
     grid,
     handleContextMenu,
-    isPlaying,
     library,
     measurements,
     menuTarget,
     navigate,
-    nowPlaying,
     open,
     openArtist,
     openArtistQuery,
@@ -305,15 +293,12 @@ const Artists = () => {
     width,
   }), [
     config,
-    getFormattedTime,
     grid,
     handleContextMenu,
-    isPlaying,
     library,
     measurements,
     menuTarget,
     navigate,
-    nowPlaying,
     open,
     openArtist,
     openArtistQuery,

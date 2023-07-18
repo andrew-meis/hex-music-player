@@ -17,7 +17,7 @@ const typographyStyle = {
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  lineHeight: 1.3,
+  lineHeight: '20px',
 };
 
 const DraggableAvatar = ({ nowPlaying, onContextMenu, src }: {
@@ -124,8 +124,8 @@ const NowPlaying = () => {
               {nowPlaying.track.title}
             </NavLink>
           </Typography>
-          <Typography sx={{ ...typographyStyle, fontSize: '0.875rem', color: 'text.secondary' }}>
-            <Subtext showAlbum track={nowPlaying.track} />
+          <Typography sx={{ ...typographyStyle, fontSize: '0.95rem', color: 'text.secondary' }}>
+            <Subtext showAlbum showArtist track={nowPlaying.track} />
           </Typography>
           <TrackRating
             id={nowPlaying.track.id}

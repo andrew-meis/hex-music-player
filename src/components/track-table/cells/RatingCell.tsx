@@ -4,6 +4,17 @@ import { Link } from 'react-router-dom';
 import { Library, Track } from 'api/index';
 import Rating from 'components/rating/TrackRating';
 
+const formatPlaycount = (x: number) => {
+  switch (true) {
+    case x === 1:
+      return `${x} play`;
+    case x > 1:
+      return `${x} plays`;
+    default:
+      return 'unplayed';
+  }
+};
+
 const RatingCell: React.FC<{
   library: Library,
   showAdditionalRow: boolean,
@@ -17,16 +28,12 @@ const RatingCell: React.FC<{
         userRating={(track.userRating / 2) || 0}
       />
     </div>
-    {showAdditionalRow && (
+    {showAdditionalRow && track.globalViewCount && (
       <Typography fontSize="0.95rem" lineHeight="20px">
         <Link className="link" to={`/history/${track.id}`}>
-          {
-            track.viewCount
-              ? `${track.viewCount} ${track.viewCount > 1
-                ? 'plays'
-                : 'play'}`
-              : 'unplayed'
-          }
+          {track.globalViewCount
+            ? formatPlaycount(track.globalViewCount)
+            : formatPlaycount(track.viewCount)}
         </Link>
       </Typography>
     )}

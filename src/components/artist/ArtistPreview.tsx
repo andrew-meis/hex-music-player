@@ -1,11 +1,11 @@
 import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { UseQueryResult } from '@tanstack/react-query';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { BiChevronRight } from 'react-icons/bi';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
-import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Hub, Library, Track } from 'api/index';
 import { ArtistMenu, MenuIcon } from 'components/menus';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
@@ -14,27 +14,19 @@ import { PlayParams } from 'hooks/usePlayback';
 import { thresholds } from 'routes/artist/Header';
 import { PlayActions } from 'types/enums';
 
-interface ArtistPreviewProps {
-  getFormattedTime: (inMs: number) => string;
-  isPlaying: boolean;
+const ArtistPreview: React.FC<{
   library: Library,
-  nowPlaying: PlayQueueItem | undefined;
   openArtist: Pick<Artist, 'id' | 'guid' | 'title'>;
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
   openArtistTracksQuery: UseQueryResult<Track[]>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
-}
-
-const ArtistPreview = ({
-  getFormattedTime,
-  isPlaying,
+}> = ({
   library,
-  nowPlaying,
   openArtist,
   openArtistQuery,
   openArtistTracksQuery,
   playSwitch,
-}: ArtistPreviewProps) => {
+}) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const { ref, entry } = useInView({ threshold: thresholds });
@@ -90,10 +82,7 @@ const ArtistPreview = ({
           entry && entry.intersectionRatio > 0.3
             ? (
               <TrackCarousel
-                getFormattedTime={getFormattedTime}
-                isPlaying={isPlaying}
                 library={library}
-                nowPlaying={nowPlaying}
                 rows={5}
                 tracks={openArtistTracksQuery.data!}
               />

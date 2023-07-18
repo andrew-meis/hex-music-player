@@ -1,52 +1,41 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
 import moment, { Moment } from 'moment';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, PlayQueueItem, Track } from 'api/index';
-import useFormattedTime from 'hooks/useFormattedTime';
+import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { useNowPlaying } from 'queries/plex-queries';
 import { useTopTracks } from 'queries/track-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
-import Footer from 'routes/virtuoso-components/Footer';
-import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { AppConfig } from 'types/interfaces';
+import { AppTrackViewSettings } from 'types/interfaces';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
 
-export interface ChartsContext {
-  config: AppConfig;
-  days: number;
-  endDate: moment.Moment;
-  startDate: moment.Moment;
-  getFormattedTime: (inMs: number) => string;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isFetching: boolean;
-  isPlaying: boolean;
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  playUri: (uri: string, shuffle?: boolean, key?: string) => Promise<void>;
-  setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
-  setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>;
-  setDays: React.Dispatch<React.SetStateAction<number>>;
-  topTracks: Track[] | undefined;
-  uri: string;
-}
-
-export interface RowProps {
-  context: ChartsContext;
-  index: number;
-  track: Track;
-}
-
-const RowContent = (props: RowProps) => <Row {...props} />;
+const defaultViewSettings: AppTrackViewSettings = {
+  columns: {
+    globalViewCount: true,
+    grandparentTitle: false,
+    lastViewedAt: false,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: true,
+    viewCount: false,
+  },
+  compact: false,
+  multiLineRating: true,
+  multiLineTitle: true,
+};
 
 const Charts = () => {
+  const config = useConfig();
+  const library = useLibrary();
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const viewSettings = window.electron.readConfig('charts-view-settings') as AppTrackViewSettings;
+  const [open, setOpen] = useState(false);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
+  const { playUri } = usePlayback();
+
   const navigationType = useNavigationType();
   const savedState = JSON.parse(sessionStorage.getItem('charts-state') || '{}');
   const [days, setDays] = useState(() => {
@@ -67,26 +56,14 @@ const Charts = () => {
     }
     return moment().hours(0).minutes(0).seconds(0);
   });
-  // data loading
-  const config = useConfig();
-  const library = useLibrary();
-  const { data: topTracks, isFetching, isLoading } = useTopTracks({
+
+  const { data: tracks, isFetching, isLoading } = useTopTracks({
     config: config.data,
     library,
     limit: 100,
     start: startDate.unix(),
     end: endDate.unix(),
   });
-  // other hooks
-  const hoverIndex = useRef<number | null>(null);
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const location = useLocation();
-  const scrollCount = useRef(0);
-  const queryClient = useQueryClient();
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
-  const { playUri } = usePlayback();
 
   useEffect(() => {
     queryClient.setQueryData(['selected-rows'], []);
@@ -108,15 +85,6 @@ const Charts = () => {
       .seconds(0));
     setEndDate(moment().hours(23).minutes(59).seconds(59));
   }, [days]);
-
-  const handleScrollState = (isScrolling: boolean) => {
-    if (isScrolling) {
-      document.body.classList.add('disable-hover');
-    }
-    if (!isScrolling) {
-      document.body.classList.remove('disable-hover');
-    }
-  };
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -145,83 +113,74 @@ const Charts = () => {
     return `/library/all/top?${new URLSearchParams(uriParams as any).toString()}`;
   }, [config.data, endDate, startDate]);
 
-  const chartsContext: ChartsContext = useMemo(() => ({
-    config: config.data,
-    days,
-    endDate,
-    startDate,
-    getFormattedTime,
-    hoverIndex,
-    isFetching,
-    isPlaying,
-    library,
-    nowPlaying,
-    playUri,
-    setDays,
-    setEndDate,
-    setStartDate,
-    topTracks,
-    uri,
-  }), [
-    config,
-    days,
-    endDate,
-    startDate,
-    getFormattedTime,
-    hoverIndex,
-    isFetching,
-    isPlaying,
-    library,
-    nowPlaying,
-    playUri,
-    setDays,
-    setEndDate,
-    setStartDate,
-    topTracks,
-    uri,
-  ]);
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+  ) => {
+    playUri(uri, shuffle, key);
+  }, [playUri, uri]);
+
+  if (isLoading) return null;
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
+      className="scroll-container"
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
+      ref={setScrollRef}
+      style={{ height: '100%', overflow: 'overlay' }}
+      onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          'charts-scroll',
+          target.scrollTop as unknown as string,
+        );
+      }}
     >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-          ScrollSeekPlaceholder,
+      <Header
+        days={days}
+        endDate={endDate}
+        handlePlayNow={handlePlayNow}
+        isFetching={isFetching}
+        openColumnDialog={() => setOpen(true)}
+        setDays={setDays}
+        setEndDate={setEndDate}
+        setStartDate={setStartDate}
+        startDate={startDate}
+      />
+      <TrackTable
+        columnOptions={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.columns
+            : defaultViewSettings.columns
+        }
+        isViewCompact={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.compact
+            : defaultViewSettings.compact
+        }
+        library={library}
+        multiLineRating={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineRating
+            : defaultViewSettings.multiLineRating
+        }
+        open={open}
+        playbackFn={handlePlayNow}
+        rows={tracks || []}
+        scrollRef={scrollRef}
+        setOpen={setOpen}
+        subtextOptions={{
+          albumTitle: true,
+          artistTitle: true,
+          showSubtext: typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineTitle
+            : defaultViewSettings.multiLineTitle,
         }}
-        context={chartsContext}
-        data={isLoading ? [] : topTracks}
-        fixedItemHeight={56}
-        isScrolling={handleScrollState}
-        itemContent={(index, item, context) => RowContent({ context, index, track: item })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={isLoading || topTracks === undefined ? 0 : topTracks.length}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            'charts-scroll',
-            target.scrollTop as unknown as string,
-          );
-        }}
+        viewKey="charts"
       />
     </motion.div>
   );

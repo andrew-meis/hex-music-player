@@ -1,2 +1,2 @@
 export { default as ColumnVisibilityDialog } from './ColumnVisibilityDialog';
-export { default as TableSettings } from '../TrackTableSettings';
+export { default as useDefaultColumns } from './useDefaultColumns';

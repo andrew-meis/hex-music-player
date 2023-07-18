@@ -54,9 +54,7 @@ interface TrackTabsProps {
 }
 
 const TrackTabs = ({ artist, context }: TrackTabsProps) => {
-  const {
-    getFormattedTime, isPlaying, library, nowPlaying, topTracks, recentFavorites,
-  } = context!;
+  const { library, topTracks, recentFavorites } = context!;
   const listLength = topTracks!.length >= 5 || recentFavorites!.length >= 5
     ? 5
     : Math.max(topTracks!.length, recentFavorites!.length);
@@ -116,20 +114,14 @@ const TrackTabs = ({ artist, context }: TrackTabsProps) => {
       </Tabs>
       <TabPanel index={0} value={tab}>
         <TrackCarousel
-          getFormattedTime={getFormattedTime}
-          isPlaying={isPlaying}
           library={library}
-          nowPlaying={nowPlaying}
           rows={5}
           tracks={topTracks!}
         />
       </TabPanel>
       <TabPanel index={1} value={tab}>
         <TrackCarousel
-          getFormattedTime={getFormattedTime}
-          isPlaying={isPlaying}
           library={library}
-          nowPlaying={nowPlaying}
           rows={5}
           tracks={recentFavorites!}
         />

@@ -1,7 +1,6 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
@@ -14,16 +13,13 @@ import {
   useParams,
 } from 'react-router-dom';
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from 'react-virtuoso';
-import { Album, Artist, Hub, Library, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist, Hub, Library, Track } from 'api/index';
 import { plexSort } from 'classes';
 import { ArtistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
-import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
@@ -59,16 +55,13 @@ export interface SimilarArtistItems {
 
 export interface SimilarArtistContext {
   artist: { albums: Album[], artist: Artist, hubs: Hub[] } | undefined;
-  getFormattedTime: (inMs: number) => string;
   grid: { cols: number };
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  isPlaying: boolean;
   items: SimilarArtistItems;
   library: Library;
   measurements: CardMeasurements;
   menuTarget: Artist[];
   navigate: NavigateFunction;
-  nowPlaying: PlayQueueItem | undefined;
   open: boolean;
   openArtist: Pick<Artist, 'id' | 'guid' | 'title'>;
   openArtistQuery: UseQueryResult<{albums: Album[], artist: Artist, hubs: Hub[]}>,
@@ -98,7 +91,6 @@ const SimilarArtists = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const artist = useArtist(+id, library);
 
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const queryClient = useQueryClient();
@@ -110,8 +102,6 @@ const SimilarArtists = () => {
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
   const { playSwitch } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
@@ -233,16 +223,13 @@ const SimilarArtists = () => {
 
   const similarArtistContext = useMemo(() => ({
     artist: artist.data,
-    getFormattedTime,
     grid,
     handleContextMenu,
-    isPlaying,
     items,
     library,
     measurements,
     menuTarget,
     navigate,
-    nowPlaying,
     open,
     openArtist,
     openArtistQuery,
@@ -257,16 +244,13 @@ const SimilarArtists = () => {
     width,
   }), [
     artist.data,
-    getFormattedTime,
     grid,
     handleContextMenu,
-    isPlaying,
     items,
     library,
     measurements,
     menuTarget,
     navigate,
-    nowPlaying,
     open,
     openArtist,
     openArtistQuery,

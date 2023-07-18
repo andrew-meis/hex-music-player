@@ -1,15 +1,14 @@
 import {
-  Box, Chip, Fade, IconButton, SvgIcon, TextField, Typography,
+  Box, Chip, Divider, Fade, IconButton, SvgIcon, TextField, Typography,
 } from '@mui/material';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
-import { BiHash } from 'react-icons/bi';
-import { RiRefreshLine, RiHeartLine, RiTimeLine } from 'react-icons/ri';
+import { RiRefreshLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import TableSettings from 'components/track-table/TrackTableSettings';
 import { WIDTH_CALC } from 'constants/measures';
 import { iconButtonStyle } from 'constants/style';
-import { ChartsContext } from './Charts';
 import FixedHeader from './FixedHeader';
 
 const dayOptions = [7, 30, 90, 365];
@@ -23,18 +22,27 @@ const textFieldStyle = {
   },
 };
 
-const Header = ({ context }: { context?: ChartsContext | undefined }) => {
-  const {
-    days,
-    isFetching,
-    playUri,
-    setDays,
-    endDate,
-    setEndDate,
-    startDate,
-    setStartDate,
-    uri,
-  } = context!;
+const Header: React.FC<{
+  days: number,
+  endDate: moment.Moment,
+  handlePlayNow: (key?: string, shuffle?: boolean) => Promise<void>
+  isFetching: boolean,
+  openColumnDialog: () => void,
+  setDays: React.Dispatch<React.SetStateAction<number>>,
+  setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>,
+  setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>,
+  startDate: moment.Moment,
+}> = ({
+  days,
+  endDate,
+  handlePlayNow,
+  isFetching,
+  openColumnDialog,
+  setDays,
+  setEndDate,
+  setStartDate,
+  startDate,
+}) => {
   const endInput = useRef<HTMLInputElement>();
   const startInput = useRef<HTMLInputElement>();
   const [end, setEnd] = useState(endDate);
@@ -47,8 +55,8 @@ const Header = ({ context }: { context?: ChartsContext | undefined }) => {
     setEnd(endDate);
   }, [endDate, startDate]);
 
-  const handlePlay = () => playUri(uri);
-  const handleShuffle = () => playUri(uri, true);
+  const handlePlay = () => handlePlayNow();
+  const handleShuffle = () => handlePlayNow(undefined, true);
 
   const handleSetDates = (event: React.FormEvent) => {
     event.preventDefault();
@@ -80,7 +88,6 @@ const Header = ({ context }: { context?: ChartsContext | undefined }) => {
       >
         <Box
           height={71}
-          maxWidth="1600px"
           position="fixed"
           width={1}
           zIndex={400}
@@ -95,7 +102,6 @@ const Header = ({ context }: { context?: ChartsContext | undefined }) => {
         </Box>
       </Fade>
       <Box
-        maxWidth="900px"
         mx="auto"
         ref={ref}
         width={WIDTH_CALC}
@@ -200,54 +206,24 @@ const Header = ({ context }: { context?: ChartsContext | undefined }) => {
               </SvgIcon>
             )}
           </Box>
-        </Box>
-        <Box
-          alignItems="flex-start"
-          borderBottom="1px solid"
-          borderColor="border.main"
-          color="text.secondary"
-          display="flex"
-          height={30}
-          width="100%"
-        >
-          <Box maxWidth="10px" width="10px" />
-          <Box display="flex" flexShrink={0} justifyContent="center" width="40px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <BiHash />
-            </SvgIcon>
-          </Box>
-          <Box sx={{ width: '56px' }} />
-          <Box
+          <Divider
+            orientation="vertical"
             sx={{
-              alignItems: 'center',
-              width: '50%',
-              flexGrow: 1,
-              display: 'flex',
-              justifyContent: 'flex-end',
+              borderColor: 'var(--mui-palette-border-main)',
+              height: 36,
+              ml: '12px',
+              mr: '14px',
             }}
           />
-          <Box display="flex" flexShrink={0} justifyContent="flex-end" mx="5px" width="80px">
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiHeartLine />
-            </SvgIcon>
+          <Box mt="2px">
+            <TableSettings
+              openColumnDialog={openColumnDialog}
+            />
           </Box>
-          <Box sx={{
-            width: '50px', marginLeft: 'auto', textAlign: 'right', flexShrink: 0,
-          }}
-          >
-            <SvgIcon sx={{ height: '18px', width: '18px', py: '5px' }}>
-              <RiTimeLine />
-            </SvgIcon>
-          </Box>
-          <Box maxWidth="10px" width="10px" />
         </Box>
       </Box>
     </>
   );
-};
-
-Header.defaultProps = {
-  context: undefined,
 };
 
 export default Header;

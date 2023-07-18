@@ -3,7 +3,6 @@ import {
   ControlledMenu,
   ControlledMenuProps,
   MenuDivider,
-  MenuHeader,
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
@@ -163,7 +162,6 @@ const QueueMenu = ({
         && (
           <>
             <MenuDivider />
-            <MenuHeader>Artists</MenuHeader>
             {artists.map((artist) => (
               <ArtistMenuItem
                 key={artist.id}
@@ -181,7 +179,6 @@ const QueueMenu = ({
         && (
           <>
             <MenuDivider />
-            <MenuHeader>Artists</MenuHeader>
             <ArtistMenuItem
               thumb={item.track.grandparentThumb}
               title={item.track.grandparentTitle}
@@ -195,7 +192,6 @@ const QueueMenu = ({
         && (
           <>
             <MenuDivider />
-            <MenuHeader>Artists</MenuHeader>
             {artists.map((artist) => (
               <ArtistMenuItem
                 key={artist.id}
@@ -213,7 +209,6 @@ const QueueMenu = ({
             {!isActive && (
               <>
                 <MenuDivider />
-                <MenuHeader>Album</MenuHeader>
                 <AlbumMenuItem
                   thumb={item.track.parentThumb}
                   title={item.track.parentTitle}

@@ -2,7 +2,6 @@ import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/md';
@@ -15,13 +14,12 @@ import {
   useParams,
 } from 'react-router-dom';
 import { ListProps, Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Album, Artist as TypeArtist, Library, PlayQueueItem, Track } from 'api/index';
+import { Album, Artist as TypeArtist, Library, Track } from 'api/index';
 import { HexSort, plexSort } from 'classes';
 import { AlbumMenu } from 'components/menus';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
-import useFormattedTime from 'hooks/useFormattedTime';
 import useHideAlbum from 'hooks/useHideAlbum';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
 import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
@@ -31,9 +29,7 @@ import {
   useArtistAppearances,
   useArtistTracks,
 } from 'queries/artist-queries';
-import { useNowPlaying } from 'queries/plex-queries';
 import { useRecentTracks } from 'queries/track-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
@@ -73,14 +69,11 @@ export interface ArtistContext {
   cols: number;
   filter: string;
   filters: string[];
-  getFormattedTime: (inMs: number) => string;
   handleContextMenu: (event: React.MouseEvent<HTMLDivElement>) => void;
-  isPlaying: boolean;
   library: Library;
   measurements: CardMeasurements;
   menuTarget: Album[];
   navigate: NavigateFunction;
-  nowPlaying: PlayQueueItem | undefined;
   playArtist: (artist: TypeArtist, shuffle?: boolean) => Promise<void>;
   playArtistRadio: (artist: TypeArtist) => Promise<void>;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
@@ -103,8 +96,6 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Artist = () => {
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
-
   const config = useConfig();
   const library = useLibrary();
   // data loading
@@ -143,9 +134,7 @@ const Artist = () => {
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
-  const { data: nowPlaying } = useNowPlaying();
   const { data: settings } = useSettings();
-  const { getFormattedTime } = useFormattedTime();
   const { playArtist, playArtistRadio, playSwitch } = usePlayback();
   const { refreshMetadata } = useLibraryMaintenance();
   const { width } = useOutletContext() as { width: number };
@@ -266,14 +255,11 @@ const Artist = () => {
     cols: grid.cols,
     filter,
     filters: data.filters,
-    getFormattedTime,
     handleContextMenu,
-    isPlaying,
     library,
     measurements,
     menuTarget,
     navigate,
-    nowPlaying,
     playArtist,
     playArtistRadio,
     playSwitch,
@@ -289,15 +275,12 @@ const Artist = () => {
     artist.data,
     data,
     filter,
-    getFormattedTime,
     grid.cols,
     handleContextMenu,
-    isPlaying,
     library,
     measurements,
     menuTarget,
     navigate,
-    nowPlaying,
     playArtist,
     playArtistRadio,
     playSwitch,

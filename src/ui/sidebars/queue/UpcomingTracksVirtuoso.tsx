@@ -147,7 +147,7 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
             color="text.primary"
             fontFamily="Rubik, sans-serif"
             fontSize="0.95rem"
-            sx={{ ...typographyStyle }}
+            sx={typographyStyle}
           >
             <NavLink
               className="link"
@@ -160,10 +160,10 @@ const Row = React.memo(({ index, item, context }: RowProps) => {
           </Typography>
           <Typography
             color="text.secondary"
-            fontSize="0.875rem"
-            sx={{ ...typographyStyle }}
+            fontSize="0.955rem"
+            sx={typographyStyle}
           >
-            <Subtext showAlbum={false} track={track} />
+            <Subtext showArtist showAlbum={false} track={track} />
           </Typography>
         </Box>
         {!isDragging && (

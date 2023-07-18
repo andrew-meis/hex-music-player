@@ -28,7 +28,7 @@ const TitleCell: React.FC<{
     </Typography>
     {options.showSubtext && (
       <Typography fontSize="0.95rem" sx={typographyStyle}>
-        <Subtext showAlbum={options.albumTitle} track={track} />
+        <Subtext showAlbum={options.albumTitle} showArtist={options.artistTitle} track={track} />
       </Typography>
     )}
   </>

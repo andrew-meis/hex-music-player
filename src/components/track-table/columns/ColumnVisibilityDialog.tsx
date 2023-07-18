@@ -12,6 +12,7 @@ import { AppTrackViewSettings } from 'types/interfaces';
 
 const viewSettingsMap: Record<string, string> = {
   album: 'album-view-settings',
+  charts: 'charts-view-settings',
   playlist: 'playlist-view-settings',
   track: 'track-view-settings',
   tracks: 'tracks-view-settings',
