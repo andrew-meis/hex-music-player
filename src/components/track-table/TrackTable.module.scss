@@ -103,6 +103,7 @@ th.duration {
   width: 64px;
 }
 
+td.distance,
 td.grandparentTitle,
 td.lastViewedAt,
 td.originalTitle,
@@ -117,6 +118,7 @@ td.viewCount {
   width: 128px;
 }
 
+th.distance,
 th.grandparentTitle,
 th.lastViewedAt,
 th.originalTitle,
@@ -137,6 +139,8 @@ th.parentTitle {
   width: 66%;
 }
 
+td.distance,
+th.distance,
 td.parentYear,
 th.parentYear {
   width: 64px;

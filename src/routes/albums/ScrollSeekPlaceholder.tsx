@@ -20,16 +20,16 @@ const ScrollSeekPlaceholder = ({ context }: { context?: AlbumsContext }) => {
           key={value}
         >
           <Skeleton
-            height={measurements.IMAGE_SIZE - 24}
+            height={measurements.IMAGE_SIZE - 8}
             sx={{
               borderRadius: '4px',
-              margin: '12px',
+              margin: '4px',
             }}
             variant="rectangular"
-            width={measurements.IMAGE_SIZE - 24}
+            width={measurements.IMAGE_SIZE - 8}
           />
-          <Skeleton sx={{ marginLeft: '12px' }} variant="text" width="70%" />
-          <Skeleton sx={{ marginLeft: '12px' }} variant="text" width="60%" />
+          <Skeleton sx={{ marginLeft: '4px' }} variant="text" width="70%" />
+          <Skeleton sx={{ marginLeft: '4px' }} variant="text" width="60%" />
         </Box>
       ))}
     </Box>

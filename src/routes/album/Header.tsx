@@ -8,7 +8,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend';
 import { IoMdMicrophone } from 'react-icons/io';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { Album, Library, PlaylistItem, Track } from 'api/index';
+import { Album, Library, Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { PaletteState } from 'hooks/usePalette';
@@ -31,7 +31,7 @@ const Header: React.FC<{
   handlePlayNow: (
     key?: string,
     shuffle?: boolean,
-    sortedItems?: (PlaylistItem | Track)[],
+    sortedItems?: Track[],
   ) => Promise<void>,
   library: Library,
 }> = ({ album, colors, handlePlayNow, library }) => {

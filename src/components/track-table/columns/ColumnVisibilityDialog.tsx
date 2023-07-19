@@ -14,6 +14,8 @@ const viewSettingsMap: Record<string, string> = {
   album: 'album-view-settings',
   charts: 'charts-view-settings',
   playlist: 'playlist-view-settings',
+  recent: 'recent-favorites-view-settings',
+  similar: 'similar-tracks-view-settings',
   track: 'track-view-settings',
   tracks: 'tracks-view-settings',
 };

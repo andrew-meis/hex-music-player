@@ -1,5 +1,5 @@
 import { SvgIcon, Typography } from '@mui/material';
-import { createColumnHelper } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 import moment from 'moment';
 import React, { useMemo } from 'react';
 import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
@@ -28,6 +28,7 @@ const formatPlaycount = (x: number) => {
 };
 
 const useDefaultColumns = ({
+  additionalColumns,
   isPlaying,
   library,
   nowPlaying,
@@ -35,13 +36,14 @@ const useDefaultColumns = ({
   titleOptions,
   useTrackNumber,
 }: {
+  additionalColumns: ColumnDef<Track, any>[],
   isPlaying: boolean,
   library: Library,
   nowPlaying: PlayQueueItem | undefined,
   ratingOptions: boolean,
   titleOptions: SubtextOptions,
   useTrackNumber?: boolean,
-}) => useMemo(() => ([
+}): ColumnDef<Track, any>[] => useMemo(() => ([
   columnHelper.accessor('parentIndex', {
     cell: (info) => <ParentIndexCell info={info} />,
     header: '',
@@ -182,6 +184,7 @@ const useDefaultColumns = ({
     ),
     sortUndefined: -1,
   }),
+  ...additionalColumns || [],
   columnHelper.accessor('parentYear', {
     cell: (info) => (info.getValue()),
     header: () => (
@@ -205,6 +208,14 @@ const useDefaultColumns = ({
     cell: (info) => moment.utc(info.getValue()).format('mm:ss'),
     header: () => <SvgIcon sx={iconSx}><RiTimeLine /></SvgIcon>,
   }),
-]), [isPlaying, library, nowPlaying?.track.id, ratingOptions, titleOptions, useTrackNumber]);
+]), [
+  additionalColumns,
+  isPlaying,
+  library,
+  nowPlaying?.track.id,
+  ratingOptions,
+  titleOptions,
+  useTrackNumber,
+]);
 
 export default useDefaultColumns;

@@ -12,7 +12,6 @@ import Header from './Header';
 
 const defaultViewSettings: AppTrackViewSettings = {
   columns: {
-    globalViewCount: true,
     grandparentTitle: false,
     lastViewedAt: false,
     originalTitle: false,

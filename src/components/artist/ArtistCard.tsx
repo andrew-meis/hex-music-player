@@ -63,12 +63,8 @@ const ArtistCard = ({
       key={artist.id}
       ref={drag}
       sx={{
-        backgroundColor: open || menuOpen ? 'var(--mui-palette-action-selected)' : '',
-        borderRadius: '32px',
+        cursor: 'pointer',
         contain: 'paint',
-        '&:hover': {
-          backgroundColor: open || menuOpen ? 'var(--mui-palette-action-selected)' : '',
-        },
       }}
       whileHover="hover"
       width={measurements.IMAGE_SIZE}
@@ -148,4 +144,4 @@ ArtistCard.defaultProps = {
   onClick: undefined,
 };
 
-export default ArtistCard;
+export default React.memo(ArtistCard);

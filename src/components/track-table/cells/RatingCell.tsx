@@ -28,7 +28,7 @@ const RatingCell: React.FC<{
         userRating={(track.userRating / 2) || 0}
       />
     </div>
-    {showAdditionalRow && track.globalViewCount && (
+    {showAdditionalRow && (
       <Typography fontSize="0.95rem" lineHeight="20px">
         <Link className="link" to={`/history/${track.id}`}>
           {track.globalViewCount

@@ -1,73 +1,52 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, PlayQueueItem, Track } from 'api/index';
-import useFormattedTime from 'hooks/useFormattedTime';
+import { Track } from 'api/index';
+import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
-import { ArtistQueryData, useArtist } from 'queries/artist-queries';
-import { useNowPlaying } from 'queries/plex-queries';
+import { useArtist } from 'queries/artist-queries';
 import { useRecentTracks } from 'queries/track-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
-import Footer from 'routes/virtuoso-components/Footer';
-import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { AppConfig, LocationWithState, RouteParams } from 'types/interfaces';
+import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
 
-export interface RecentFavoritesContext {
-  artist: ArtistQueryData | undefined;
-  config: AppConfig;
-  days: number;
-  filter: string;
-  getFormattedTime: (inMs: number) => string;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  items: Track[];
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
-  setDays: React.Dispatch<React.SetStateAction<number>>;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-}
-
-export interface RowProps {
-  context: RecentFavoritesContext;
-  index: number;
-  track: Track;
-}
-
-const RowContent = (props: RowProps) => <Row {...props} />;
+const defaultViewSettings: AppTrackViewSettings = {
+  columns: {
+    grandparentTitle: false,
+    lastViewedAt: false,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: true,
+    viewCount: false,
+  },
+  compact: false,
+  multiLineRating: true,
+  multiLineTitle: true,
+};
 
 const RecentFavorites = () => {
+  const { id } = useParams<keyof RouteParams>() as RouteParams;
+
   const config = useConfig();
   const library = useLibrary();
-  const navigationType = useNavigationType();
-  const [days, setDays] = useState(90);
-  // data loading
   const location = useLocation() as LocationWithState;
-  const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const artist = useArtist(+id, library);
-  const { data: tracks, isLoading } = useRecentTracks({
+  const navigationType = useNavigationType();
+  const viewSettings = window.electron
+    .readConfig('recent-favorites-view-settings') as AppTrackViewSettings;
+  const [days, setDays] = useState(90);
+  const [filter, setFilter] = useState('');
+  const [open, setOpen] = useState(false);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
+  const { playTracks } = usePlayback();
+
+  const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
+  const { data: tracks, isLoading: tracksLoading } = useRecentTracks({
     config: config.data,
     library,
     id: +id,
     days,
   });
-  // other hooks
-  const hoverIndex = useRef<number | null>(null);
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const queryClient = useQueryClient();
-  const scrollCount = useRef(0);
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const [filter, setFilter] = useState('');
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
-  const { playTracks } = usePlayback();
 
   const items = useMemo(() => {
     if (!tracks) {
@@ -84,19 +63,6 @@ const RecentFavorites = () => {
     );
   }, [filter, tracks]);
 
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [id, queryClient]);
-
-  const handleScrollState = (isScrolling: boolean) => {
-    if (isScrolling) {
-      document.body.classList.add('disable-hover');
-    }
-    if (!isScrolling) {
-      document.body.classList.remove('disable-hover');
-    }
-  };
-
   const initialScrollTop = useMemo(() => {
     let top;
     top = sessionStorage.getItem(`recent-favorites-scroll ${id}`);
@@ -112,77 +78,78 @@ const RecentFavorites = () => {
     return 0;
   }, [id, navigationType]);
 
-  const recentFavoritesContext: RecentFavoritesContext = useMemo(() => ({
-    artist: artist.data,
-    config: config.data,
-    days,
-    filter,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playTracks,
-    setDays,
-    setFilter,
-  }), [
-    artist.data,
-    config,
-    days,
-    filter,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playTracks,
-    setDays,
-    setFilter,
-  ]);
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: Track[],
+  ) => {
+    if (!sortedItems) {
+      playTracks(items, shuffle, key);
+      return;
+    }
+    playTracks(sortedItems, shuffle, key);
+  }, [items, playTracks]);
+
+  if (artistLoading || tracksLoading) {
+    return null;
+  }
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
+      className="scroll-container"
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
+      ref={setScrollRef}
+      style={{ height: '100%', overflow: 'overlay' }}
+      onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          `recent-favorites-scroll ${id}`,
+          target.scrollTop as unknown as string,
+        );
+      }}
     >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-          ScrollSeekPlaceholder,
+      <Header
+        artist={artist!.artist}
+        days={days}
+        filter={filter}
+        handlePlayNow={handlePlayNow}
+        setDays={setDays}
+        setFilter={setFilter}
+      />
+      <TrackTable
+        columnOptions={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.columns
+            : defaultViewSettings.columns
+        }
+        isViewCompact={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.compact
+            : defaultViewSettings.compact
+        }
+        library={library}
+        multiLineRating={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineRating
+            : defaultViewSettings.multiLineRating
+        }
+        open={open}
+        playbackFn={handlePlayNow}
+        rows={items || []}
+        scrollRef={scrollRef}
+        setOpen={setOpen}
+        subtextOptions={{
+          albumTitle: true,
+          artistTitle: true,
+          showSubtext: typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineTitle
+            : defaultViewSettings.multiLineTitle,
         }}
-        context={recentFavoritesContext}
-        data={artist.isLoading || isLoading ? [] : items}
-        fixedItemHeight={56}
-        isScrolling={handleScrollState}
-        itemContent={(index, item, context) => RowContent({ context, index, track: item })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={isLoading || tracks === undefined ? 0 : items.length}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `recent-favorites-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
+        viewKey="recent"
       />
     </motion.div>
   );

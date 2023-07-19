@@ -1,111 +1,77 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { inPlaceSort } from 'fast-sort';
+import { Typography } from '@mui/material';
+import { CellContext } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Library, PlayQueueItem, Track } from 'api/index';
-import { PlexSort, plexSort } from 'classes';
-import useFormattedTime from 'hooks/useFormattedTime';
+import { Track } from 'api/index';
+import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
-import { useNowPlaying } from 'queries/plex-queries';
+import { useLibrary } from 'queries/app-queries';
 import { useSimilarTracks, useTrack } from 'queries/track-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
-import Footer from 'routes/virtuoso-components/Footer';
-import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { SortOrders } from 'types/enums';
-import { AppConfig, LocationWithState, RouteParams } from 'types/interfaces';
+import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
 
-export interface SimilarTracksContext {
-  config: AppConfig;
-  currentTrack: Track | undefined;
-  filter: string;
-  getFormattedTime: (inMs: number) => string;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  items: Track[];
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<PlexSort>>;
-  sort: PlexSort;
-}
-
-export interface RowProps {
-  context: SimilarTracksContext;
-  index: number;
-  track: Track;
-}
-
-const RowContent = (props: RowProps) => <Row {...props} />;
+const defaultViewSettings: AppTrackViewSettings = {
+  columns: {
+    distance: true,
+    grandparentTitle: false,
+    lastViewedAt: false,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: true,
+    viewCount: false,
+  },
+  compact: false,
+  multiLineRating: true,
+  multiLineTitle: true,
+};
 
 const SimilarTracks = () => {
-  const config = useConfig();
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const library = useLibrary();
-  const navigationType = useNavigationType();
-  // data loading
-  const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const currentTrack = useTrack({ id: +id, library });
-  const { data: tracks, isLoading } = useSimilarTracks({
-    library,
-    track: currentTrack.data,
-  });
-  // other hooks
-  const hoverIndex = useRef<number | null>(null);
-  const scrollCount = useRef(0);
-  const queryClient = useQueryClient();
-  const virtuoso = useRef<VirtuosoHandle>(null);
+
+  const library = useLibrary();
+  const location = useLocation() as LocationWithState;
+  const navigationType = useNavigationType();
+  const viewSettings = window.electron
+    .readConfig('similar-tracks-view-settings') as AppTrackViewSettings;
   const [filter, setFilter] = useState('');
-  const [sort, setSort] = useState(plexSort('distance', SortOrders.DESC));
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
+  const [open, setOpen] = useState(false);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playTracks } = usePlayback();
+
+  const { data: currentTrack, isLoading: trackLoading } = useTrack({ id: +id, library });
+  const { data: tracks, isLoading: tracksLoading } = useSimilarTracks({
+    library,
+    track: currentTrack,
+  });
+
+  const additionalColumns = [{
+    id: 'distance',
+    accessorFn: (track: Track) => track.distance,
+    cell: (info: CellContext<Track, number>) => ((1 - info.getValue())
+      .toLocaleString('en', { style: 'percent' })),
+    header: () => (
+      <Typography color="text.secondary" lineHeight="24px" variant="overline">
+        Score
+      </Typography>
+    ),
+  }];
 
   const items = useMemo(() => {
     if (!tracks) {
       return [];
     }
-    let newItems = structuredClone(tracks);
     if (filter !== '') {
-      newItems = newItems.filter(
+      return tracks.filter(
         (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
         || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
         || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
         || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
       );
     }
-    if (sort.order === 'asc') {
-      inPlaceSort(newItems).asc((track) => track[sort.by as keyof Track]);
-    }
-    if (sort.order === 'desc') {
-      inPlaceSort(newItems).desc((track) => track[sort.by as keyof Track]);
-    }
-    if (sort.by === 'distance') {
-      return newItems.reverse();
-    }
-    return newItems;
-  }, [filter, sort, tracks]);
-
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [id, queryClient]);
-
-  const handleScrollState = (isScrolling: boolean) => {
-    if (isScrolling) {
-      document.body.classList.add('disable-hover');
-    }
-    if (!isScrolling) {
-      document.body.classList.remove('disable-hover');
-    }
-  };
+    return tracks;
+  }, [filter, tracks]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -122,81 +88,77 @@ const SimilarTracks = () => {
     return 0;
   }, [id, navigationType]);
 
-  const similarTracksContext: SimilarTracksContext = useMemo(() => ({
-    config: config.data,
-    currentTrack: currentTrack.data,
-    filter,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playTracks,
-    setFilter,
-    setSort,
-    sort,
-  }), [
-    config,
-    currentTrack.data,
-    filter,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playTracks,
-    setFilter,
-    setSort,
-    sort,
-  ]);
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: Track[],
+  ) => {
+    if (!sortedItems) {
+      playTracks(items, shuffle, key);
+      return;
+    }
+    playTracks(sortedItems, shuffle, key);
+  }, [items, playTracks]);
 
-  if (currentTrack.isLoading || isLoading) {
+  if (trackLoading || tracksLoading) {
     return null;
   }
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
+      className="scroll-container"
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
+      ref={setScrollRef}
+      style={{ height: '100%', overflow: 'overlay' }}
+      onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          `similar-tracks-scroll ${id}`,
+          target.scrollTop as unknown as string,
+        );
+      }}
     >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-          ScrollSeekPlaceholder,
+      <Header
+        filter={filter}
+        handlePlayNow={handlePlayNow}
+        setFilter={setFilter}
+        track={currentTrack!}
+      />
+      <TrackTable
+        additionalColumns={additionalColumns}
+        columnOptions={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.columns
+            : defaultViewSettings.columns
+        }
+        isViewCompact={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.compact
+            : defaultViewSettings.compact
+        }
+        library={library}
+        multiLineRating={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineRating
+            : defaultViewSettings.multiLineRating
+        }
+        open={open}
+        playbackFn={handlePlayNow}
+        rows={items || []}
+        scrollRef={scrollRef}
+        setOpen={setOpen}
+        subtextOptions={{
+          albumTitle: true,
+          artistTitle: true,
+          showSubtext: typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineTitle
+            : defaultViewSettings.multiLineTitle,
         }}
-        context={similarTracksContext}
-        data={currentTrack.isLoading || isLoading ? [] : items}
-        fixedItemHeight={56}
-        isScrolling={handleScrollState}
-        itemContent={(index, item, context) => RowContent({ context, index, track: item })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={isLoading || tracks === undefined ? 0 : items.length}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `similar-tracks-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
+        viewKey="similar"
       />
     </motion.div>
   );

@@ -2,6 +2,7 @@ import { ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import {
+  ColumnDef,
   GroupingState,
   Row,
   SortingState,
@@ -50,6 +51,7 @@ const TableFoot = React.forwardRef((
 ));
 
 const TrackTable: React.FC<{
+  additionalColumns?: ColumnDef<Track, any>[],
   columnOptions: Partial<Record<keyof Track, boolean>>,
   isViewCompact: boolean,
   library: Library,
@@ -66,6 +68,7 @@ const TrackTable: React.FC<{
   subtextOptions: SubtextOptions,
   viewKey: string,
 }> = ({
+  additionalColumns,
   columnOptions,
   isViewCompact,
   library,
@@ -101,6 +104,7 @@ const TrackTable: React.FC<{
     .map((i) => rows[+i]), [rows, rowSelection]);
 
   const columns = useDefaultColumns({
+    additionalColumns: additionalColumns || [],
     isPlaying,
     library,
     nowPlaying,
@@ -409,6 +413,10 @@ const TrackTable: React.FC<{
       />
     </>
   );
+};
+
+TrackTable.defaultProps = {
+  additionalColumns: [],
 };
 
 const arePropsEqual = (prev: any, next: any) => isEqual(prev, next);

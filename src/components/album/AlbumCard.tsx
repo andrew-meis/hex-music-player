@@ -76,32 +76,25 @@ const AlbumCard = ({
       height={measurements.ROW_HEIGHT}
       key={album.id}
       ref={drag}
-      sx={{
-        backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
-        borderRadius: '4px',
-        contain: 'paint',
-        '&:hover': {
-          backgroundColor: menuOpen ? 'var(--mui-palette-action-selected)' : '',
-        },
-      }}
-      whileHover="hover"
       width={measurements.IMAGE_SIZE}
-      onClick={() => navigate(`/albums/${album.id}`)}
       onContextMenu={handleContextMenu}
     >
       <MotionBox
         bgcolor="action.selected"
         className={styles.image}
         flexDirection="column-reverse"
-        height={measurements.IMAGE_SIZE - 24}
-        margin="12px"
+        height={measurements.IMAGE_SIZE - 8}
         style={{
           borderRadius: '4px',
+          cursor: 'pointer',
+          margin: '4px',
           transition: '0.2s',
           '--img': `url(${thumbSrc})`,
         } as React.CSSProperties}
         variants={menuOpen ? {} : imageMotion}
-        width={measurements.IMAGE_SIZE - 24}
+        whileHover="hover"
+        width={measurements.IMAGE_SIZE - 8}
+        onClick={() => navigate(`/albums/${album.id}`)}
       >
         {!album.thumb && (
           <SvgIcon
@@ -112,10 +105,16 @@ const AlbumCard = ({
           </SvgIcon>
         )}
       </MotionBox>
-      <Title marginX="12px">
-        {album.title}
+      <Title marginX={0.5}>
+        <Link
+          className="link"
+          to={`/albums/${album.id}`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {album.title}
+        </Link>
       </Title>
-      <Subtitle marginX="12px">
+      <Subtitle marginX={0.5}>
         {showArtistTitle && (
           <Link
             className="link"
@@ -186,4 +185,4 @@ AlbumCard.defaultProps = {
   showArtistTitle: true,
 };
 
-export default AlbumCard;
+export default React.memo(AlbumCard);

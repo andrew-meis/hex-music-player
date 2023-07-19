@@ -13,7 +13,7 @@ const getCaretPos = (cols: number, openIndex: number, width: number) => {
   return (((colWidth * openIndex) + (8 * openIndex) + (colWidth / 2)) - 1);
 };
 
-const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
+const Row = ({ artists, context, index: rowIndex }: RowProps) => {
   const {
     grid,
     library,
@@ -131,7 +131,7 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
         onExit={() => setOpen(false)}
       >
         <Box
-          borderTop="1px solid var(--mui-palette-action-hover)"
+          borderTop="1px solid var(--mui-palette-border-main)"
           height={320}
           margin="auto"
           marginBottom="8px"
@@ -145,8 +145,8 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
             height={18}
             position="absolute"
             sx={{
-              borderLeft: '1px solid var(--mui-palette-action-hover)',
-              borderTop: '1px solid var(--mui-palette-action-hover)',
+              borderLeft: '1px solid var(--mui-palette-border-main)',
+              borderTop: '1px solid var(--mui-palette-border-main)',
               left: caretPos,
               overflow: 'hidden',
               top: '-14px',
@@ -168,6 +168,6 @@ const Row = React.memo(({ artists, context, index: rowIndex }: RowProps) => {
       </Collapse>
     </Box>
   );
-});
+};
 
-export default Row;
+export default React.memo(Row);

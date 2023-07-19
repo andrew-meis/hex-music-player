@@ -9,16 +9,16 @@
 }
 
 .container {
-  background-image: linear-gradient(
-    rgba(var(--mui-palette-text-primaryChannel) / 0.04), rgba(var(--mui-palette-text-primaryChannel) / 0.04)
-  );
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   transition: 0.2s;
 }
 
-.container:hover {
+.container[data-use-background="true"] {
+  cursor: pointer;
+}
+
+.container[data-use-background="true"]:hover {
   background-color: var(--mui-palette-action-hover);
 }
 

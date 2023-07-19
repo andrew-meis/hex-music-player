@@ -4,7 +4,7 @@ import AlbumCard from 'components/album/AlbumCard';
 import AlbumCardNoText from 'components/album/AlbumCardNoText';
 import { RowProps } from './Albums';
 
-const Row = React.memo(({ albums, context }: RowProps) => {
+const Row = ({ albums, context }: RowProps) => {
   const {
     handleContextMenu,
     library,
@@ -53,6 +53,6 @@ const Row = React.memo(({ albums, context }: RowProps) => {
       </Box>
     </Box>
   );
-});
+};
 
-export default Row;
+export default React.memo(Row);

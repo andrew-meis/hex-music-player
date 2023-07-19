@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { PlaylistItem, Track } from 'api/index';
+import { Track } from 'api/index';
 import Palette from 'components/palette/Palette';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
@@ -44,7 +44,7 @@ const Album = () => {
   const handlePlayNow = useCallback(async (
     key?: string,
     shuffle?: boolean,
-    sortedItems?: (PlaylistItem | Track)[],
+    sortedItems?: Track[],
   ) => {
     if (!sortedItems) {
       playSwitch(PlayActions.PLAY_ALBUM, { album: album.data?.album, key, shuffle });
