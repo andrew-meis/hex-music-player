@@ -6,6 +6,7 @@ import { NavLink } from 'react-router-dom';
 import { Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { sortedTracksAtom } from 'components/track-table/TrackTable';
+import { WIDTH_CALC } from 'constants/measures';
 import { AlbumWithSection } from 'types/interfaces';
 
 const titleStyle = {
@@ -52,7 +53,8 @@ export const ReleaseHeader: React.FC<{
     <Box
       color="text.primary"
       display="flex"
-      margin={1.5}
+      margin="auto"
+      width={WIDTH_CALC}
     >
       <Avatar
         src={thumbSrc}

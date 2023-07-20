@@ -1,4 +1,4 @@
-import { Avatar, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import { sort } from 'fast-sort';
 import { motion } from 'framer-motion';
 import { isEmpty } from 'lodash';
@@ -19,6 +19,7 @@ import {
   AppTrackViewSettings,
 } from 'types/interfaces';
 import Header from './Header';
+import ReleaseAvatar from './ReleaseAvatar';
 import ReleaseHeader from './ReleaseHeader';
 
 const defaultViewSettings: AppTrackViewSettings = {
@@ -141,27 +142,16 @@ const Discography = () => {
         className="scroll-container"
         height="calc(100% - 72px)"
         overflow="auto"
-        width={170}
+        width={174}
       >
         {releases.map((release, index) => (
-          <Avatar
+          <ReleaseAvatar
+            index={index}
+            isActiveRelease={activeRelease?.id === release.id}
             key={release.id}
-            src={library.api.getAuthenticatedUrl(
-              '/photo/:/transcode',
-              {
-                url: release.thumb, width: 300, height: 300, minSize: 1, upscale: 1,
-              },
-            )}
-            sx={{
-              cursor: activeRelease?.id !== release.id ? 'pointer' : 'default',
-              height: 152,
-              mb: 1,
-              ml: 1,
-              mt: index === 0 ? 1 : 0,
-              width: 152,
-            }}
-            variant="rounded"
-            onClick={() => setActiveRelease(release)}
+            library={library}
+            release={release}
+            setActiveRelease={setActiveRelease}
           />
         ))}
       </Box>

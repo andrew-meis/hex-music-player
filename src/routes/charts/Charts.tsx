@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { isEmpty } from 'lodash';
 import moment, { Moment } from 'moment';
@@ -31,7 +30,6 @@ const Charts = () => {
   const config = useConfig();
   const library = useLibrary();
   const location = useLocation();
-  const queryClient = useQueryClient();
   const viewSettings = window.electron.readConfig('charts-view-settings') as AppTrackViewSettings;
   const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
@@ -65,10 +63,6 @@ const Charts = () => {
     start: startDate.unix(),
     end: endDate.unix(),
   });
-
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [queryClient]);
 
   useEffect(() => () => sessionStorage.setItem(
     'charts-state',
