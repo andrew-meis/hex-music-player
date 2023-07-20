@@ -97,18 +97,18 @@ const Playlist = () => {
   const handlePlayNow = useCallback(async (
     key?: string,
     shuffle?: boolean,
-    sortedItems?: (PlaylistItem | Track)[],
+    sortedItems?: PlaylistItem[],
   ) => {
-    if (filter === '' && !sortedItems) {
+    if (filter === '' && (!sortedItems || isEmpty(sortedItems))) {
       playSwitch(PlayActions.PLAY_PLAYLIST, { key, playlist: playlist.data, shuffle });
       return;
     }
-    if (!sortedItems) {
+    if (!sortedItems || isEmpty(sortedItems)) {
       const tracks = items.map(({ track }) => track);
       playSwitch(PlayActions.PLAY_TRACKS, { key, tracks, shuffle });
       return;
     }
-    const tracks = (sortedItems as PlaylistItem[]).map(({ track }) => track);
+    const tracks = sortedItems.map(({ track }) => track);
     playSwitch(PlayActions.PLAY_TRACKS, { key, tracks, shuffle });
   }, [filter, items, playSwitch, playlist.data]);
 

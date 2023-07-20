@@ -46,11 +46,11 @@ const Album = () => {
     shuffle?: boolean,
     sortedItems?: Track[],
   ) => {
-    if (!sortedItems) {
-      playSwitch(PlayActions.PLAY_ALBUM, { album: album.data?.album, key, shuffle });
+    if (sortedItems && !isEmpty(sortedItems)) {
+      playSwitch(PlayActions.PLAY_TRACKS, { key, tracks: sortedItems as Track[], shuffle });
       return;
     }
-    playSwitch(PlayActions.PLAY_TRACKS, { key, tracks: sortedItems as Track[], shuffle });
+    playSwitch(PlayActions.PLAY_ALBUM, { album: album.data?.album, key, shuffle });
   }, [album.data?.album, playSwitch]);
 
   const initialScrollTop = useMemo(() => {

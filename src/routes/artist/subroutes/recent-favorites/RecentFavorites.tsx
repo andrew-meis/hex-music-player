@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Track } from 'api/index';
@@ -83,11 +84,11 @@ const RecentFavorites = () => {
     shuffle?: boolean,
     sortedItems?: Track[],
   ) => {
-    if (!sortedItems) {
-      playTracks(items, shuffle, key);
+    if (sortedItems && !isEmpty(sortedItems)) {
+      playTracks(sortedItems, shuffle, key);
       return;
     }
-    playTracks(sortedItems, shuffle, key);
+    playTracks(items, shuffle, key);
   }, [items, playTracks]);
 
   if (artistLoading || tracksLoading) {

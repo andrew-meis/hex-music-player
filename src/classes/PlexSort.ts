@@ -25,6 +25,7 @@ const trackSortKeyMap: Partial<Record<keyof Track | 'random', string>> = {
   duration: 'duration',
   grandparentTitle: 'artist.titleSort',
   lastRatedAt: 'lastRatedAt',
+  originallyAvailableAt: 'album.originallyAvailableAt',
   originalTitle: 'originalTitle',
   parentTitle: 'album.titleSort',
   parentYear: 'album.year',

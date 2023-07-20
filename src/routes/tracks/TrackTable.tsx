@@ -1,6 +1,5 @@
 import { ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   GroupingState,
   Row,
@@ -15,7 +14,7 @@ import {
 } from '@tanstack/react-table';
 import { useAtomValue } from 'jotai';
 import { isEmpty, isEqual, range } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { BsArrowDownShort, BsArrowUpShort } from 'react-icons/bs';
 import {
   ItemProps,
@@ -59,7 +58,6 @@ const TrackTable: React.FC<{
   playbackFn: (
     key?: string,
     shuffle?: boolean,
-    sortedItems?: Track[],
   ) => Promise<void>;
   rows: Track[],
   scrollRef: HTMLDivElement | null,
@@ -84,7 +82,6 @@ const TrackTable: React.FC<{
   subtextOptions,
 }) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const queryClient = useQueryClient();
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [compact, setCompact] = useState(isViewCompact);
@@ -104,6 +101,7 @@ const TrackTable: React.FC<{
     .map((i) => rows[+i]), [rows, rowSelection]);
 
   const columns = useDefaultColumns({
+    additionalColumns: [],
     isPlaying,
     library,
     nowPlaying,
@@ -134,23 +132,10 @@ const TrackTable: React.FC<{
     },
   });
 
-  useEffect(() => {
-    const sortedItems = table.getSortedRowModel().flatRows
-      .filter((flatRow) => !flatRow.getIsGrouped())
-      .map(({ original }) => original);
-    queryClient.setQueryData(['track-table-sorted'], sortedItems);
-  }, [queryClient, table]);
-
   const handleClick = useCallback((event: React.MouseEvent, row: Row<Track>) => {
     if (event.button !== 0) return;
     if (event.detail === 2) {
-      let sortedItems;
-      if (!isEmpty(sorting)) {
-        sortedItems = table.getSortedRowModel().flatRows
-          .filter((flatRow) => !flatRow.getIsGrouped())
-          .map(({ original }) => original);
-      }
-      playbackFn(row.original.key, false, sortedItems);
+      playbackFn(row.original.key, false);
     }
     const { id } = row.original;
     const selectedIds = selectedItems.map((item) => item.id);
@@ -187,7 +172,7 @@ const TrackTable: React.FC<{
       return;
     }
     table.setRowSelection({ [row.id]: true });
-  }, [playbackFn, rowSelection, selectedItems, sorting, table]);
+  }, [playbackFn, rowSelection, selectedItems, table]);
 
   const handleContextMenu = useCallback((
     event: React.MouseEvent<Element>,

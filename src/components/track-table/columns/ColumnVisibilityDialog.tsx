@@ -12,6 +12,7 @@ import { AppTrackViewSettings } from 'types/interfaces';
 
 const viewSettingsMap: Record<string, string> = {
   album: 'album-view-settings',
+  artist: 'artist-tracks-view-settings',
   charts: 'charts-view-settings',
   playlist: 'playlist-view-settings',
   recent: 'recent-favorites-view-settings',
@@ -25,6 +26,7 @@ const columnMap: Partial<Record<keyof Track, string>> = {
   grandparentTitle: 'Album Artist',
   index: 'Index',
   lastViewedAt: 'Last Played',
+  originallyAvailableAt: 'Release Date',
   originalTitle: 'Track Artist',
   parentTitle: 'Album',
   parentYear: 'Year',

@@ -1,11 +1,14 @@
 import {
   Box, Chip, Divider, Fade, IconButton, SvgIcon, TextField, Typography,
 } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { RiRefreshLine } from 'react-icons/ri';
 import { useInView } from 'react-intersection-observer';
+import { Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import TableSettings from 'components/track-table/TrackTableSettings';
 import { WIDTH_CALC } from 'constants/measures';
 import { iconButtonStyle } from 'constants/style';
@@ -25,7 +28,7 @@ const textFieldStyle = {
 const Header: React.FC<{
   days: number,
   endDate: moment.Moment,
-  handlePlayNow: (key?: string, shuffle?: boolean) => Promise<void>
+  handlePlayNow: (key?: string, shuffle?: boolean, sortedItems?: Track[]) => Promise<void>
   isFetching: boolean,
   openColumnDialog: () => void,
   setDays: React.Dispatch<React.SetStateAction<number>>,
@@ -43,6 +46,7 @@ const Header: React.FC<{
   setStartDate,
   startDate,
 }) => {
+  const sortedTracks = useAtomValue(sortedTracksAtom);
   const endInput = useRef<HTMLInputElement>();
   const startInput = useRef<HTMLInputElement>();
   const [end, setEnd] = useState(endDate);
@@ -55,7 +59,7 @@ const Header: React.FC<{
     setEnd(endDate);
   }, [endDate, startDate]);
 
-  const handlePlay = () => handlePlayNow();
+  const handlePlay = () => handlePlayNow(undefined, false, sortedTracks);
   const handleShuffle = () => handlePlayNow(undefined, true);
 
   const handleSetDates = (event: React.FormEvent) => {

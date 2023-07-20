@@ -1,7 +1,7 @@
 import { AlertColor, PaletteMode } from '@mui/material';
+import { SortingState } from '@tanstack/react-table';
 import { Location } from 'react-router-dom';
 import { Account, Album, Device, Library, Track } from 'api/index';
-import { PlexSort } from 'classes';
 
 export interface AlbumWithSection extends Album {
   section: string;
@@ -74,7 +74,7 @@ export interface CardMeasurements {
 }
 
 export interface LocationWithState extends Location {
-  state: { guid: string, title: string, sort: PlexSort }
+  state: { guid: string, title: string, sorting: SortingState }
 }
 
 export interface PlayerState {

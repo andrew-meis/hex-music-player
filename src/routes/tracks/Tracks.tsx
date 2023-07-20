@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
 import { atom, useAtom, useAtomValue } from 'jotai';
@@ -91,7 +91,6 @@ const Tracks = () => {
   const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigationType = useNavigationType();
-  const queryClient = useQueryClient();
   const range = useRef<ListRange>();
   const [containerStart, setContainerStart] = useState(0);
   const [open, setOpen] = useState(false);
@@ -154,10 +153,6 @@ const Tracks = () => {
     });
     return array as Track[];
   }, [data]);
-
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [queryClient]);
 
   const handleScrollState = (isScrolling: boolean) => {
     if (isScrolling) {

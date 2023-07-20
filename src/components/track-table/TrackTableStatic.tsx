@@ -1,6 +1,7 @@
 import { ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import {
+  ColumnDef,
   Row,
   VisibilityState,
   flexRender,
@@ -21,6 +22,7 @@ import styles from './TrackTable.module.scss';
 import TrackTableRowStatic from './TrackTableRowStatic';
 
 const TrackTableStatic: React.FC<{
+  additionalColumns?: ColumnDef<Track, any>[],
   columnOptions: Partial<Record<keyof Track, boolean>>,
   isViewCompact: boolean,
   library: Library,
@@ -29,13 +31,13 @@ const TrackTableStatic: React.FC<{
   playbackFn: (
     key?: string,
     shuffle?: boolean,
-    sortedItems?: Track[],
   ) => Promise<void>;
   rows: Track[],
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   subtextOptions: SubtextOptions,
   viewKey: string,
 }> = ({
+  additionalColumns,
   columnOptions,
   isViewCompact,
   library,
@@ -66,6 +68,7 @@ const TrackTableStatic: React.FC<{
     .map((i) => rows[+i]), [rows, rowSelection]);
 
   const columns = useDefaultColumns({
+    additionalColumns: additionalColumns || [],
     isPlaying,
     library,
     nowPlaying,
@@ -89,7 +92,7 @@ const TrackTableStatic: React.FC<{
   const handleClick = useCallback((event: React.MouseEvent, row: Row<Track>) => {
     if (event.button !== 0) return;
     if (event.detail === 2) {
-      playbackFn(row.original.key, false, rows);
+      playbackFn(row.original.key, false);
     }
     const { id } = row.original;
     const selectedIds = selectedItems.map((item) => item.id);
@@ -126,7 +129,7 @@ const TrackTableStatic: React.FC<{
       return;
     }
     table.setRowSelection({ [row.id]: true });
-  }, [playbackFn, rowSelection, rows, selectedItems, table]);
+  }, [playbackFn, rowSelection, selectedItems, table]);
 
   const handleContextMenu = useCallback((
     event: React.MouseEvent<Element>,
@@ -251,6 +254,10 @@ const TrackTableStatic: React.FC<{
       />
     </>
   );
+};
+
+TrackTableStatic.defaultProps = {
+  additionalColumns: [],
 };
 
 const arePropsEqual = (prev: any, next: any) => isEqual(prev, next);

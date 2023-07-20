@@ -1,8 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { isEmpty } from 'lodash';
 import moment, { Moment } from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+import { Track } from 'api/index';
 import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
@@ -33,7 +35,7 @@ const Charts = () => {
   const viewSettings = window.electron.readConfig('charts-view-settings') as AppTrackViewSettings;
   const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
-  const { playUri } = usePlayback();
+  const { playTracks, playUri } = usePlayback();
 
   const navigationType = useNavigationType();
   const savedState = JSON.parse(sessionStorage.getItem('charts-state') || '{}');
@@ -115,9 +117,14 @@ const Charts = () => {
   const handlePlayNow = useCallback(async (
     key?: string,
     shuffle?: boolean,
+    sortedItems?: Track[],
   ) => {
+    if (sortedItems && !isEmpty(sortedItems)) {
+      playTracks(sortedItems, shuffle, key);
+      return;
+    }
     playUri(uri, shuffle, key);
-  }, [playUri, uri]);
+  }, [playTracks, playUri, uri]);
 
   if (isLoading) return null;
 

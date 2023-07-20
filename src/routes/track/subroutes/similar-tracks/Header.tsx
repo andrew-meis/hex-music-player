@@ -1,4 +1,5 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import React from 'react';
 import { IoMdMicrophone } from 'react-icons/io';
 import { useInView } from 'react-intersection-observer';
@@ -6,6 +7,7 @@ import { NavLink } from 'react-router-dom';
 import { Track } from 'api/index';
 import { ChipFilter } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
@@ -21,10 +23,11 @@ const Header: React.FC<{
   setFilter,
   track,
 }) => {
+  const sortedTracks = useAtomValue(sortedTracksAtom);
   const [thumbSrcSm] = useThumbnail(track.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
 
-  const handlePlay = () => handlePlayNow();
+  const handlePlay = () => handlePlayNow(undefined, false, sortedTracks);
   const handleShuffle = () => handlePlayNow(undefined, true);
 
   return (

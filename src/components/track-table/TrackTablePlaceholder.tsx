@@ -6,10 +6,12 @@ import { PlaylistItem, Track } from 'api/index';
 import styles from './TrackTable.module.scss';
 
 const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> = {
+  distance: [{ variant: 'text', width: '50%' }],
   duration: [{ sx: { ml: 'auto' }, variant: 'text', width: 50 }],
   grandparentTitle: [{ variant: 'text', width: '50%' }],
   index: [{ sx: { display: 'none' } }],
   lastViewedAt: [{ variant: 'text', width: 88 }],
+  originallyAvailableAt: [{ variant: 'text', width: '70%' }],
   originalTitle: [{ variant: 'text', width: '70%' }],
   parentIndex: [{ sx: { display: 'none' } }],
   parentTitle: [{ variant: 'text', width: '50%' }],

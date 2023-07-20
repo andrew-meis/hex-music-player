@@ -1,6 +1,5 @@
 import { ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   ColumnDef,
   GroupingState,
@@ -14,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useAtomValue } from 'jotai';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty, isEqual, range } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsArrowDownShort, BsArrowUpShort } from 'react-icons/bs';
@@ -35,6 +34,8 @@ import { ColumnVisibilityDialog, useDefaultColumns } from './columns';
 import styles from './TrackTable.module.scss';
 import TrackTablePlaceholder from './TrackTablePlaceholder';
 import TrackTableRow from './TrackTableRow';
+
+export const sortedTracksAtom = atom<Track[]>([]);
 
 const TableFoot = React.forwardRef((
   { style, ...props }: TableProps,
@@ -82,8 +83,7 @@ const TrackTable: React.FC<{
   viewKey,
 }) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
-
-  const queryClient = useQueryClient();
+  const setSortedTracks = useSetAtom(sortedTracksAtom);
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [compact, setCompact] = useState(isViewCompact);
@@ -134,19 +134,19 @@ const TrackTable: React.FC<{
   });
 
   useEffect(() => {
-    const sortedItems = table.getSortedRowModel().flatRows
-      .filter((flatRow) => !flatRow.getIsGrouped())
+    const sortedItems = table.getRowModel().rows
+      .filter((_row) => !_row.getIsGrouped())
       .map(({ original }) => original);
-    queryClient.setQueryData(['track-table-sorted'], sortedItems);
-  }, [queryClient, table]);
+    setSortedTracks(sortedItems);
+  }, [rows, setSortedTracks, sorting, table]);
 
   const handleClick = useCallback((event: React.MouseEvent, row: Row<Track>) => {
     if (event.button !== 0) return;
     if (event.detail === 2) {
       let sortedItems;
       if (!isEmpty(sorting)) {
-        sortedItems = table.getSortedRowModel().flatRows
-          .filter((flatRow) => !flatRow.getIsGrouped())
+        sortedItems = table.getRowModel().rows
+          .filter((_row) => !_row.getIsGrouped())
           .map(({ original }) => original);
       }
       playbackFn(row.original.key, false, sortedItems);

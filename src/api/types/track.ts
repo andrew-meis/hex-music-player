@@ -44,6 +44,7 @@ export interface Track {
   librarySectionId: number,
   librarySectionKey: string,
   librarySectionTitle: string,
+  originallyAvailableAt: Date;
   originalTitle: string,
   parentGuid: string,
   parentIndex: number,
@@ -111,6 +112,9 @@ const toTrack = ($data: Prism<any>): Track => ({
   librarySectionId: $data.get<number>('librarySectionId').value,
   librarySectionKey: $data.get<string>('librarySectionKey').value,
   librarySectionTitle: $data.get<string>('librarySectionTitle').value,
+  originallyAvailableAt: $data
+    .get<number>('originallyAvailableAt', { quiet: true })
+    .transform(toDateFromSeconds).value,
   originalTitle: $data.get<string>('originalTitle', { quiet: true }).value,
   parentGuid: $data.get<string>('parentGuid', { quiet: true }).value,
   parentIndex: $data.get<number>('parentIndex', { quiet: true }).value,

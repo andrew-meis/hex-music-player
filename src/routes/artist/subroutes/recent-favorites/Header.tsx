@@ -7,6 +7,7 @@ import {
   SvgIcon,
   Typography,
 } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import React, { useRef, useState } from 'react';
 import { IoMdMicrophone } from 'react-icons/io';
 import { MdDateRange } from 'react-icons/md';
@@ -17,6 +18,7 @@ import { Artist, Track } from 'api/index';
 import { ChipFilter, ChipSelect } from 'components/chips';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
+import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
@@ -37,19 +39,19 @@ const Header: React.FC<{
   setFilter,
 }) => {
   const chipRef = useRef<HTMLDivElement | null>(null);
+  const sortedTracks = useAtomValue(sortedTracksAtom);
   const [open, setOpen] = useState(false);
   const [thumbSrcSm] = useThumbnail(artist.thumb || 'none', 100);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
 
-  const maxWidth = 900;
-  const tooltipMaxWidth = Math.min(maxWidth, width - VIEW_PADDING)
+  const tooltipMaxWidth = width - VIEW_PADDING
     - 20 // x-padding + tooltip offset
     - (chipRef.current?.clientWidth || 0);
 
   const options = [14, 30, 90, 180, 365];
 
-  const handlePlay = () => handlePlayNow();
+  const handlePlay = () => handlePlayNow(undefined, false, sortedTracks);
   const handleShuffle = () => handlePlayNow(undefined, true);
 
   return (

@@ -1,139 +1,127 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { Typography } from '@mui/material';
+import { CellContext, SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { atom, useAtom } from 'jotai';
+import { isEmpty } from 'lodash';
+import moment from 'moment';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Album, Library, PlayQueueItem, Track } from 'api/index';
+import { Album, Track } from 'api/index';
 import { PlexSort } from 'classes';
-import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useConfig, useLibrary } from 'queries/app-queries';
 import {
-  ArtistQueryData,
   useArtist,
   useArtistAppearances,
   useArtistTracks,
 } from 'queries/artist-queries';
-import { useNowPlaying } from 'queries/plex-queries';
-import { playbackIsPlayingAtom } from 'root/Player';
-import Footer from 'routes/virtuoso-components/Footer';
-import ScrollSeekPlaceholder from 'routes/virtuoso-components/ScrollSeekPlaceholder';
-import { AppConfig, LocationWithState, RouteParams } from 'types/interfaces';
+import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
-import List from './List';
-import Row from './Row';
+import TrackTable from './TrackTable';
 
-export interface ArtistTracksContext {
-  albums: Album[];
-  artist: ArtistQueryData | undefined;
-  config: AppConfig;
-  filter: string;
-  getFormattedTime: (inMs: number) => string;
-  hoverIndex: React.MutableRefObject<number | null>;
-  isPlaying: boolean;
-  items: Track[];
-  library: Library;
-  nowPlaying: PlayQueueItem | undefined;
-  playTracks: (tracks: Track[], shuffle?: boolean, key?: string) => Promise<void>;
-  setFilter: React.Dispatch<React.SetStateAction<string>>;
-  setSort: React.Dispatch<React.SetStateAction<PlexSort>>;
-  sort: PlexSort;
-}
+const artistTracksSortingAtom = atom<SortingState>([]);
 
-export interface RowProps {
-  context: ArtistTracksContext;
-  index: number;
-  track: Track;
-}
-
-const RowContent = (props: RowProps) => <Row {...props} />;
+const defaultViewSettings: AppTrackViewSettings = {
+  columns: {
+    grandparentTitle: false,
+    lastViewedAt: false,
+    originallyAvailableAt: true,
+    originalTitle: false,
+    parentTitle: false,
+    parentYear: false,
+    thumb: true,
+    viewCount: true,
+  },
+  compact: false,
+  multiLineRating: false,
+  multiLineTitle: true,
+};
 
 const ArtistTracks = () => {
+  const { id } = useParams<keyof RouteParams>() as RouteParams;
+
   const config = useConfig();
   const library = useLibrary();
-  const navigationType = useNavigationType();
-  // data loading
   const location = useLocation() as LocationWithState;
-  const { id } = useParams<keyof RouteParams>() as RouteParams;
-  const [sort, setSort] = useState(() => {
-    if (navigationType === 'POP') {
-      return (sessionStorage.getItem(`artist-tracks-sort ${id}`)
-        ? PlexSort.parse(sessionStorage.getItem(`artist-tracks-sort ${id}`)!)
-        : location.state.sort);
+  const navigationType = useNavigationType();
+  const viewSettings = window.electron
+    .readConfig('artist-tracks-view-settings') as AppTrackViewSettings;
+  const [filter, setFilter] = useState('');
+  const [open, setOpen] = useState(false);
+  const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
+  const [sortingState, setSortingState] = useAtom(artistTracksSortingAtom);
+  const { playTracks } = usePlayback();
+
+  const [sorting, setSorting] = useState<SortingState>(() => {
+    if (navigationType === 'POP' && !isEmpty(sortingState)) {
+      return sortingState;
     }
-    return location.state.sort;
+    return location.state.sorting;
   });
-  const artist = useArtist(+id, library);
-  const appearances = useArtistAppearances(
+  const [sort] = sorting;
+
+  const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
+  const { data: appearances, isLoading: appearancesLoading } = useArtistAppearances(
     config.data,
     library,
     +id,
     location.state.title,
     location.state.guid,
   );
-  const { data: tracks, isLoading } = useArtistTracks({
+  const { data: tracks, isLoading: tracksLoading } = useArtistTracks({
     config: config.data,
     library,
     id: +id,
     title: location.state.title,
     guid: location.state.guid,
     removeDupes: false,
-    sort,
+    sort: PlexSort.parseColumnSort(sort, 'track'),
   });
-  // other hooks
-  const hoverIndex = useRef<number | null>(null);
-  const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const queryClient = useQueryClient();
-  const scrollCount = useRef(0);
-  const virtuoso = useRef<VirtuosoHandle>(null);
-  const [filter, setFilter] = useState('');
-  const { data: nowPlaying } = useNowPlaying();
-  const { getFormattedTime } = useFormattedTime();
-  const { playTracks } = usePlayback();
 
-  useEffect(() => () => sessionStorage
-    .setItem(`artist-tracks-sort ${id}`, sort.stringify()), [id, sort]);
+  useEffect(() => () => setSortingState(sorting), [setSortingState, sorting]);
+
+  const additionalColumns = [{
+    id: 'originallyAvailableAt',
+    accessorFn: (track: Track) => track.originallyAvailableAt,
+    cell: (info: CellContext<Track, Date>) => (moment.utc(info.getValue())
+      .format('DD MMMM YYYY')),
+    header: () => (
+      <Typography color="text.secondary" lineHeight="24px" variant="overline">
+        Release Date
+      </Typography>
+    ),
+  }];
 
   const albums: Album[] = useMemo(() => {
     const newAlbums = [];
-    if (artist.data && appearances.data) {
-      newAlbums.push(...artist.data.albums);
-      artist.data.hubs.forEach((hub) => {
+    if (artist && appearances) {
+      newAlbums.push(...artist.albums);
+      artist.hubs.forEach((hub) => {
         if (hub.type === 'album') newAlbums.push(...hub.items as Album[]);
       });
-      newAlbums.push(...appearances.data);
+      newAlbums.push(...appearances);
     }
     return newAlbums;
-  }, [appearances.data, artist.data]);
+  }, [appearances, artist]);
 
   const items = useMemo(() => {
-    if (!tracks) {
+    if (!tracks || isEmpty(albums)) {
       return [];
     }
+    const newTracks = tracks.map((track) => {
+      const { originallyAvailableAt } = albums.find((album) => album.id === track.parentId)!;
+      return Object.assign(track, { originallyAvailableAt });
+    });
     if (filter === '') {
-      return tracks;
+      return newTracks;
     }
-    return tracks.filter(
+    return newTracks.filter(
       (track) => track.title?.toLowerCase().includes(filter.toLowerCase())
       || track.grandparentTitle?.toLowerCase().includes(filter.toLowerCase())
       || track.originalTitle?.toLowerCase().includes(filter.toLowerCase())
       || track.parentTitle?.toLowerCase().includes(filter.toLowerCase()),
     );
-  }, [filter, tracks]);
-
-  useEffect(() => {
-    queryClient.setQueryData(['selected-rows'], []);
-  }, [id, queryClient]);
-
-  const handleScrollState = (isScrolling: boolean) => {
-    if (isScrolling) {
-      document.body.classList.add('disable-hover');
-    }
-    if (!isScrolling) {
-      document.body.classList.remove('disable-hover');
-    }
-  };
+  }, [albums, filter, tracks]);
 
   const initialScrollTop = useMemo(() => {
     let top;
@@ -150,79 +138,79 @@ const ArtistTracks = () => {
     return 0;
   }, [id, navigationType]);
 
-  const artistTracksContext: ArtistTracksContext = useMemo(() => ({
-    albums,
-    artist: artist.data,
-    config: config.data,
-    filter,
-    getFormattedTime,
-    hoverIndex,
-    isPlaying,
-    items,
-    library,
-    nowPlaying,
-    playTracks,
-    setFilter,
-    setSort,
-    sort,
-  }), [
-    albums,
-    artist.data,
-    config,
-    filter,
-    getFormattedTime,
-    hoverIndex,
-    items,
-    isPlaying,
-    library,
-    nowPlaying,
-    playTracks,
-    setFilter,
-    setSort,
-    sort,
-  ]);
+  const handlePlayNow = useCallback(async (
+    key?: string,
+    shuffle?: boolean,
+    sortedItems?: Track[],
+  ) => {
+    if (sortedItems && !isEmpty(sortedItems)) {
+      playTracks(sortedItems, shuffle, key);
+      return;
+    }
+    playTracks(items, shuffle, key);
+  }, [items, playTracks]);
+
+  if (artistLoading || appearancesLoading || tracksLoading) {
+    return null;
+  }
 
   return (
     <motion.div
       animate={{ opacity: 1 }}
+      className="scroll-container"
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       key={location.pathname}
-      style={{ height: '100%' }}
-      onAnimationComplete={() => virtuoso.current
-        ?.scrollTo({ top: initialScrollTop })}
+      ref={setScrollRef}
+      style={{ height: '100%', overflow: 'overlay' }}
+      onAnimationComplete={() => scrollRef?.scrollTo({ top: initialScrollTop })}
+      onScroll={(e) => {
+        const target = e.currentTarget as unknown as HTMLDivElement;
+        sessionStorage.setItem(
+          `artist-tracks-scroll ${id}`,
+          target.scrollTop as unknown as string,
+        );
+      }}
     >
-      <Virtuoso
-        className="scroll-container"
-        components={{
-          Footer,
-          Header,
-          List,
-          ScrollSeekPlaceholder,
+      <Header
+        artist={artist!.artist}
+        filter={filter}
+        handlePlayNow={handlePlayNow}
+        setFilter={setFilter}
+      />
+      <TrackTable
+        additionalColumns={additionalColumns}
+        columnOptions={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.columns
+            : defaultViewSettings.columns
+        }
+        isViewCompact={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.compact
+            : defaultViewSettings.compact
+        }
+        library={library}
+        multiLineRating={
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineRating
+            : defaultViewSettings.multiLineRating
+        }
+        open={open}
+        playbackFn={handlePlayNow}
+        rows={items || []}
+        scrollRef={scrollRef}
+        setOpen={setOpen}
+        setSorting={setSorting}
+        sorting={sorting}
+        subtextOptions={{
+          albumTitle: true,
+          artistTitle: true,
+          showSubtext: typeof viewSettings !== 'undefined'
+            ? viewSettings.multiLineTitle
+            : defaultViewSettings.multiLineTitle,
         }}
-        context={artistTracksContext}
-        data={artist.isLoading || appearances.isLoading || isLoading ? [] : items}
-        fixedItemHeight={56}
-        isScrolling={handleScrollState}
-        itemContent={(index, item, context) => RowContent({ context, index, track: item })}
-        ref={virtuoso}
-        scrollSeekConfiguration={{
-          enter: (velocity) => {
-            if (scrollCount.current < 10) return false;
-            return Math.abs(velocity) > 500;
-          },
-          exit: (velocity) => Math.abs(velocity) < 100,
-        }}
-        style={{ overflowY: 'overlay' } as unknown as React.CSSProperties}
-        totalCount={isLoading || tracks === undefined ? 0 : items.length}
-        onScroll={(e) => {
-          if (scrollCount.current < 10) scrollCount.current += 1;
-          const target = e.currentTarget as unknown as HTMLDivElement;
-          sessionStorage.setItem(
-            `artist-tracks-scroll ${id}`,
-            target.scrollTop as unknown as string,
-          );
-        }}
+        viewKey="artist"
       />
     </motion.div>
   );

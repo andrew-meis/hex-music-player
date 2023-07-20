@@ -1,6 +1,5 @@
 import { ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   GroupingState,
   Row,
@@ -13,7 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty, isEqual, range } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsArrowDownShort, BsArrowUpShort } from 'react-icons/bs';
@@ -28,6 +27,7 @@ import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
 import { TrackTablePlaceholder, TrackTableRow, styles } from 'components/track-table';
 import { ColumnVisibilityDialog, useDefaultColumns } from 'components/track-table/columns';
+import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
@@ -77,7 +77,7 @@ const TrackTable: React.FC<{
   subtextOptions,
 }) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const queryClient = useQueryClient();
+  const setSortedTracks = useSetAtom(sortedTracksAtom);
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [compact, setCompact] = useState(isViewCompact);
@@ -98,6 +98,7 @@ const TrackTable: React.FC<{
     .map((i) => rows[+i]), [rows, rowSelection]);
 
   const columns = useDefaultColumns({
+    additionalColumns: [],
     isPlaying,
     library,
     nowPlaying,
@@ -131,19 +132,19 @@ const TrackTable: React.FC<{
   });
 
   useEffect(() => {
-    const sortedItems = table.getSortedRowModel().flatRows
-      .filter((flatRow) => !flatRow.getIsGrouped())
+    const sortedItems = table.getRowModel().rows
+      .filter((_row) => !_row.getIsGrouped())
       .map(({ original }) => original);
-    queryClient.setQueryData(['track-table-sorted'], sortedItems);
-  }, [queryClient, table]);
+    setSortedTracks(sortedItems);
+  }, [setSortedTracks, sorting, table]);
 
   const handleClick = useCallback((event: React.MouseEvent, row: Row<Track>) => {
     if (event.button !== 0) return;
     if (event.detail === 2) {
       let sortedItems;
       if (!isEmpty(sorting)) {
-        sortedItems = table.getSortedRowModel().flatRows
-          .filter((flatRow) => !flatRow.getIsGrouped())
+        sortedItems = table.getRowModel().rows
+          .filter((_row) => !_row.getIsGrouped())
           .map(({ original }) => original);
       }
       playbackFn(row.original.key, false, sortedItems);

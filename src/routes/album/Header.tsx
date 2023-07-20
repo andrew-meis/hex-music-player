@@ -1,5 +1,6 @@
 import { Avatar, Box, Fade, SvgIcon, Typography } from '@mui/material';
 import chroma, { contrast } from 'chroma-js';
+import { useAtomValue } from 'jotai';
 import { reduce } from 'lodash';
 import moment from 'moment';
 import React, { useEffect, useMemo } from 'react';
@@ -10,6 +11,7 @@ import { useInView } from 'react-intersection-observer';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Album, Library, Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
+import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import { WIDTH_CALC } from 'constants/measures';
 import { PaletteState } from 'hooks/usePalette';
 import { DragTypes } from 'types/enums';
@@ -28,13 +30,10 @@ const titleStyle = {
 const Header: React.FC<{
   album: Album,
   colors: PaletteState,
-  handlePlayNow: (
-    key?: string,
-    shuffle?: boolean,
-    sortedItems?: Track[],
-  ) => Promise<void>,
+  handlePlayNow: (key?: string, shuffle?: boolean, sortedItems?: Track[]) => Promise<void>,
   library: Library,
 }> = ({ album, colors, handlePlayNow, library }) => {
+  const sortedTracks = useAtomValue(sortedTracksAtom);
   const { ref, inView, entry } = useInView({ threshold: [0.99, 0] });
   const { width } = useOutletContext() as { width: number };
   const countNoun = album.leafCount > 1 || album.leafCount === 0 ? 'tracks' : 'track';
@@ -97,7 +96,7 @@ const Header: React.FC<{
   const gradStart = baseColor.brighten(0.3).alpha(0.75).css();
   const gradEndOne = baseColor.saturate(0.3).alpha(0.75).css();
 
-  const handlePlay = () => handlePlayNow();
+  const handlePlay = () => handlePlayNow(undefined, false, sortedTracks);
   const handleShuffle = () => handlePlayNow(undefined, true);
 
   return (

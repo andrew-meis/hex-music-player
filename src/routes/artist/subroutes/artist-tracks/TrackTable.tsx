@@ -1,56 +1,38 @@
-import { ClickAwayListener, SvgIcon, Typography } from '@mui/material';
+import { ClickAwayListener } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import {
+  ColumnDef,
+  GroupingState,
   Row,
   SortingState,
   VisibilityState,
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
+  getGroupedRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { atom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty, isEqual, range } from 'lodash';
-import moment from 'moment';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { BsArrowDownShort, BsArrowUpShort } from 'react-icons/bs';
-import { RiHeartLine, RiTimeLine } from 'react-icons/ri';
-import { Link, NavLink } from 'react-router-dom';
-import { useKey } from 'react-use';
 import {
   ItemProps,
   ScrollSeekPlaceholderProps,
   TableProps,
   TableVirtuoso,
 } from 'react-virtuoso';
-import { Library, PlaylistItem, Track } from 'api/index';
+import { Library, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
 import { TrackTablePlaceholder, TrackTableRow, styles } from 'components/track-table';
-import {
-  ParentIndexCell,
-  IndexCell,
-  ThumbCell,
-  TitleCell,
-  RatingCell,
-} from 'components/track-table/cells';
-import { ColumnVisibilityDialog } from 'components/track-table/columns';
+import { useDefaultColumns, ColumnVisibilityDialog } from 'components/track-table/columns';
+import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
-import Footer from './Footer';
-
-const columnHelper = createColumnHelper<PlaylistItem>();
-
-const iconSx = {
-  color: 'text.secondary',
-  height: 18,
-  width: 18,
-};
-
-export const sortedPlaylistItemsAtom = atom<PlaylistItem[]>([]);
 
 const TableFoot = React.forwardRef((
   { style, ...props }: TableProps,
@@ -67,9 +49,8 @@ const TableFoot = React.forwardRef((
 ));
 
 const TrackTable: React.FC<{
-  additionalMenuOptions?(selectedItems: PlaylistItem[]): React.ReactNode,
+  additionalColumns?: ColumnDef<Track, any>[],
   columnOptions: Partial<Record<keyof Track, boolean>>,
-  isScrollingFn?: (isScrolling: boolean) => void,
   isViewCompact: boolean,
   library: Library,
   multiLineRating: boolean,
@@ -77,18 +58,18 @@ const TrackTable: React.FC<{
   playbackFn: (
     key?: string,
     shuffle?: boolean,
-    sortedItems?: PlaylistItem[],
+    sortedItems?: Track[],
   ) => Promise<void>;
-  rows: PlaylistItem[],
+  rows: Track[],
   scrollRef: HTMLDivElement | null,
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setSorting: React.Dispatch<React.SetStateAction<SortingState>>,
+  sorting: SortingState,
   subtextOptions: SubtextOptions,
-  trackDropFn?: (droppedItems: PlaylistItem[], prevId?: number) => Promise<void>,
-  onDeleteKey?: (selectedItems: PlaylistItem[]) => void,
+  viewKey: string,
 }> = ({
-  additionalMenuOptions,
+  additionalColumns,
   columnOptions,
-  isScrollingFn,
   isViewCompact,
   library,
   multiLineRating,
@@ -97,12 +78,13 @@ const TrackTable: React.FC<{
   rows,
   scrollRef,
   setOpen,
+  setSorting,
+  sorting,
   subtextOptions,
-  trackDropFn,
-  onDeleteKey,
+  viewKey,
 }) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
-  const setSortedPlaylistItems = useSetAtom(sortedPlaylistItemsAtom);
+  const setSortedTracks = useSetAtom(sortedTracksAtom);
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [compact, setCompact] = useState(isViewCompact);
@@ -115,205 +97,39 @@ const TrackTable: React.FC<{
   const { data: nowPlaying } = useNowPlaying();
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });
+  const [grouping, setGrouping] = useState<GroupingState>([]);
   const [rowSelection, setRowSelection] = useState({});
-  const [sorting, setSorting] = useState<SortingState>([]);
 
   const selectedItems = useMemo(() => Object.keys(rowSelection)
     .map((i) => rows[+i]), [rows, rowSelection]);
 
-  const columns = useMemo(() => [
-    columnHelper.accessor((row) => row.track.parentIndex, {
-      id: 'parentIndex',
-      cell: (info) => <ParentIndexCell info={info} />,
-      header: '',
-      enableSorting: false,
-    }),
-    columnHelper.accessor(() => 0, {
-      id: 'index',
-      cell: (info) => (
-        <IndexCell
-          index={info.row.index + 1}
-          isPlaying={isPlaying}
-          playing={nowPlaying?.track.id === info.row.original.track.id}
-        />
-      ),
-      header: '',
-      enableSorting: false,
-    }),
-    columnHelper.accessor((row) => row.track.thumb, {
-      id: 'thumb',
-      cell: (info) => (
-        <ThumbCell
-          isIndexVisible={info.table.getColumn('index')?.getIsVisible() || false}
-          isPlaying={isPlaying}
-          library={library}
-          playing={nowPlaying?.track.id === info.row.original.track.id}
-          track={info.row.original.track}
-        />
-      ),
-      header: '',
-      enableSorting: false,
-    }),
-    columnHelper.accessor((row) => row.track.title, {
-      id: 'title',
-      cell: (info) => (
-        <TitleCell
-          options={titleOptions}
-          playing={nowPlaying?.track.id === info.row.original.track.id}
-          track={info.row.original.track}
-        />
-      ),
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Title
-        </Typography>
-      ),
-      sortingFn: 'alphanumeric',
-    }),
-    columnHelper.accessor((row) => row.track.grandparentTitle, {
-      id: 'grandparentTitle',
-      cell: (info) => {
-        const { track } = info.row.original;
-        return (
-          <NavLink
-            className="link"
-            state={{
-              guid: track.grandparentGuid,
-              title: track.grandparentTitle,
-            }}
-            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
-            to={`/artists/${track.grandparentId}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            {info.getValue()}
-          </NavLink>
-        );
-      },
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Album Artist
-        </Typography>
-      ),
-      sortingFn: 'alphanumeric',
-    }),
-    columnHelper.accessor((row) => row.track.originalTitle, {
-      id: 'originalTitle',
-      cell: (info) => {
-        const { track } = info.row.original;
-        return (
-          <NavLink
-            className="link"
-            state={{
-              guid: track.grandparentGuid,
-              title: track.grandparentTitle,
-            }}
-            style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
-            to={`/artists/${track.grandparentId}`}
-            onClick={(event) => event.stopPropagation()}
-          >
-            {info.getValue() || track.grandparentTitle}
-          </NavLink>
-        );
-      },
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Track Artist
-        </Typography>
-      ),
-      sortingFn: 'alphanumeric',
-    }),
-    columnHelper.accessor((row) => row.track.parentTitle, {
-      id: 'parentTitle',
-      cell: (info) => (
-        <NavLink
-          className="link"
-          style={({ isActive }) => (isActive ? { pointerEvents: 'none' } : {})}
-          to={`/albums/${info.row.original.track.parentTitle}`}
-          onClick={(event) => event.stopPropagation()}
-        >
-          {info.getValue()}
-        </NavLink>
-      ),
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Album
-        </Typography>
-      ),
-      sortingFn: 'alphanumeric',
-    }),
-    columnHelper.accessor((row) => row.track.viewCount, {
-      id: 'viewCount',
-      cell: (info) => (
-        <Link className="link" to={`/history/${info.row.original.track.id}`}>
-          {
-            info.getValue()
-              ? `${info.getValue()} ${info.getValue() > 1
-                ? 'plays'
-                : 'play'}`
-              : 'unplayed'
-          }
-        </Link>
-      ),
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Playcount
-        </Typography>
-      ),
-      sortUndefined: -1,
-    }),
-    columnHelper.accessor((row) => row.track.lastViewedAt, {
-      id: 'lastViewedAt',
-      cell: (info) => (
-        <Link className="link" to={`/history/${info.row.original.track.id}`}>
-          {info.getValue() ? moment(info.getValue()).fromNow() : 'unplayed'}
-        </Link>
-      ),
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Last Played
-        </Typography>
-      ),
-      sortUndefined: -1,
-    }),
-    columnHelper.accessor((row) => row.track.parentYear, {
-      id: 'parentYear',
-      cell: (info) => (info.getValue()),
-      header: () => (
-        <Typography color="text.secondary" lineHeight="24px" variant="overline">
-          Year
-        </Typography>
-      ),
-    }),
-    columnHelper.accessor((row) => row.track.userRating, {
-      id: 'userRating',
-      cell: (info) => (
-        <RatingCell
-          library={library}
-          showAdditionalRow={ratingOptions}
-          track={info.row.original.track}
-        />
-      ),
-      header: () => <SvgIcon sx={iconSx}><RiHeartLine /></SvgIcon>,
-      sortUndefined: -1,
-    }),
-    columnHelper.accessor((row) => row.track.duration, {
-      id: 'duration',
-      cell: (info) => moment.utc(info.getValue()).format('mm:ss'),
-      header: () => <SvgIcon sx={iconSx}><RiTimeLine /></SvgIcon>,
-    }),
-  ], [isPlaying, library, nowPlaying?.track.id, ratingOptions, titleOptions]);
+  const columns = useDefaultColumns({
+    additionalColumns: additionalColumns || [],
+    isPlaying,
+    library,
+    nowPlaying,
+    ratingOptions,
+    titleOptions,
+  });
 
   const table = useReactTable({
     columns,
     data: rows,
     enableRowSelection: true,
+    enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
     onColumnVisibilityChange: setColumnVisibility,
+    onGroupingChange: setGrouping,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     state: {
       columnVisibility,
+      expanded: true,
+      grouping,
       rowSelection,
       sorting,
     },
@@ -323,10 +139,10 @@ const TrackTable: React.FC<{
     const sortedItems = table.getRowModel().rows
       .filter((_row) => !_row.getIsGrouped())
       .map(({ original }) => original);
-    setSortedPlaylistItems(sortedItems);
-  }, [rows, setSortedPlaylistItems, sorting, table]);
+    setSortedTracks(sortedItems);
+  }, [rows, setSortedTracks, sorting, table]);
 
-  const handleClick = useCallback((event: React.MouseEvent, row: Row<PlaylistItem>) => {
+  const handleClick = useCallback((event: React.MouseEvent, row: Row<Track>) => {
     if (event.button !== 0) return;
     if (event.detail === 2) {
       let sortedItems;
@@ -335,7 +151,7 @@ const TrackTable: React.FC<{
           .filter((_row) => !_row.getIsGrouped())
           .map(({ original }) => original);
       }
-      playbackFn(row.original.track.key, false, sortedItems);
+      playbackFn(row.original.key, false, sortedItems);
     }
     const { id } = row.original;
     const selectedIds = selectedItems.map((item) => item.id);
@@ -376,7 +192,7 @@ const TrackTable: React.FC<{
 
   const handleContextMenu = useCallback((
     event: React.MouseEvent<Element>,
-    row: Row<PlaylistItem>,
+    row: Row<Track>,
   ) => {
     event.preventDefault();
     const { original } = row;
@@ -401,7 +217,7 @@ const TrackTable: React.FC<{
     table.toggleAllRowsSelected(false);
   };
 
-  const handleDragStart = useCallback((row: Row<PlaylistItem>) => {
+  const handleDragStart = useCallback((row: Row<Track>) => {
     const { original } = row;
     const nodes = document.querySelectorAll('tr.track-table-row');
     nodes.forEach((node) => node.setAttribute('data-non-dragged', 'true'));
@@ -423,12 +239,6 @@ const TrackTable: React.FC<{
       document.body.classList.remove('disable-hover');
     }
   };
-
-  useKey('Delete', () => {
-    if (!onDeleteKey) return;
-    table.toggleAllRowsSelected(false);
-    onDeleteKey(selectedItems);
-  }, { event: 'keyup' }, [selectedItems]);
 
   return (
     <>
@@ -463,7 +273,7 @@ const TrackTable: React.FC<{
             </ClickAwayListener>
           ),
           TableFoot,
-          TableRow: ({ ...props }: ItemProps<PlaylistItem>) => {
+          TableRow: ({ ...props }: ItemProps<Track>) => {
             const next = table.getRowModel().rows[props['data-index'] + 1];
             const prev = table.getRowModel().rows[props['data-index'] - 1];
             const row = table.getRowModel().rows[props['data-index']];
@@ -489,7 +299,6 @@ const TrackTable: React.FC<{
                 prevId={row.getIsGrouped() ? undefined : prev?.original.id}
                 row={row}
                 selectedItems={selectedItems}
-                trackDropFn={trackDropFn}
                 onClick={(e) => handleClick(e, row)}
                 onContextMenu={(e: React.MouseEvent) => handleContextMenu(e, row)}
                 onDragEnd={handleDragEnd}
@@ -501,16 +310,21 @@ const TrackTable: React.FC<{
         }}
         customScrollParent={scrollRef || undefined}
         fixedFooterContent={() => (
-          <Footer
-            isSorted={!isEmpty(sorting)}
-            trackDropFn={trackDropFn}
-          />
+          <tr>
+            <td
+              colSpan={100}
+              style={{
+                borderTop: '1px solid var(--mui-palette-border-main)',
+                height: 30,
+              }}
+            />
+          </tr>
         )}
         fixedHeaderContent={() => (
           <>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header, index, array) => (
+                {headerGroup.headers.map((header) => (
                   <th
                     className={styles[header.column.id]}
                     colSpan={header.colSpan}
@@ -518,9 +332,6 @@ const TrackTable: React.FC<{
                     key={header.id}
                     style={{
                       background: 'var(--mui-palette-background-paper)',
-                      textAlign: (index === 0 && array[1]?.column.columnDef.header !== '')
-                        ? 'left' : undefined,
-                      width: (index === 0 && array[1]?.column.columnDef.header !== '') ? 26 : '',
                     }}
                     onClick={header.column.getToggleSortingHandler()}
                   >
@@ -543,7 +354,7 @@ const TrackTable: React.FC<{
           </>
         )}
         fixedItemHeight={compact ? 40 : 56}
-        isScrolling={isScrollingFn || handleScrollState}
+        isScrolling={handleScrollState}
         itemContent={(index) => {
           const row = table.getRowModel().rows[index];
           if (row.getIsGrouped()) {
@@ -583,15 +394,13 @@ const TrackTable: React.FC<{
         anchorPoint={anchorPoint}
         playSwitch={playSwitch}
         toggleMenu={toggleMenu}
-        tracks={selectedItems.map((selectedItem) => selectedItem.track)}
+        tracks={selectedItems}
         onClose={() => {
           toggleMenu(false);
           table.resetRowSelection();
         }}
         {...menuProps}
-      >
-        {!!additionalMenuOptions && additionalMenuOptions(selectedItems)}
-      </TrackMenu>
+      />
       <ColumnVisibilityDialog
         compact={compact}
         open={open}
@@ -602,17 +411,14 @@ const TrackTable: React.FC<{
         setTitleOptions={setTitleOptions}
         table={table}
         titleOptions={titleOptions}
-        viewKey="playlist"
+        viewKey={viewKey}
       />
     </>
   );
 };
 
 TrackTable.defaultProps = {
-  additionalMenuOptions: undefined,
-  isScrollingFn: undefined,
-  trackDropFn: undefined,
-  onDeleteKey: undefined,
+  additionalColumns: [],
 };
 
 const arePropsEqual = (prev: any, next: any) => isEqual(prev, next);

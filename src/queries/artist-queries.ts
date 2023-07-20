@@ -59,6 +59,7 @@ export const useArtistTracks = ({
   }),
   {
     enabled: id !== -1,
+    keepPreviousData: true,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   },

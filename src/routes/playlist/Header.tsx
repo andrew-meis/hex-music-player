@@ -5,15 +5,17 @@ import {
   SvgIcon,
   Typography,
 } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import React from 'react';
 import { BsMusicNoteList } from 'react-icons/bs';
 import { useInView } from 'react-intersection-observer';
 import { useOutletContext } from 'react-router-dom';
-import { Playlist, PlaylistItem, Track } from 'api/index';
+import { Playlist, PlaylistItem } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import FixedHeader from './FixedHeader';
+import { sortedPlaylistItemsAtom } from './TrackTable';
 
 const titleStyle = {
   overflow: 'hidden',
@@ -25,16 +27,13 @@ const titleStyle = {
 };
 
 const Header: React.FC<{
-  handlePlayNow: (
-    key?: string,
-    shuffle?: boolean,
-    sortedItems?: (PlaylistItem | Track)[],
-  ) => Promise<void>,
+  handlePlayNow: (key?: string, shuffle?: boolean, sortedItems?: PlaylistItem[]) => Promise<void>,
   playlist: Playlist,
 }> = ({
   handlePlayNow,
   playlist,
 }) => {
+  const sortedPlaylistItems = useAtomValue(sortedPlaylistItemsAtom);
   const { width } = useOutletContext() as { width: number };
   const countNoun = playlist.leafCount > 1 || playlist.leafCount === 0 ? 'tracks' : 'track';
   const [thumbSrc] = useThumbnail(playlist?.thumb || playlist?.composite || 'none', 300);
@@ -43,7 +42,7 @@ const Header: React.FC<{
     threshold: [0.99, 0],
   });
 
-  const handlePlay = () => handlePlayNow();
+  const handlePlay = () => handlePlayNow(undefined, false, sortedPlaylistItems);
   const handleShuffle = () => handlePlayNow(undefined, true);
 
   if (!playlist) {
