@@ -29,7 +29,6 @@ const defaultViewSettings: AppTrackViewSettings = {
 };
 
 const Album = () => {
-  const viewSettings = window.electron.readConfig('album-view-settings') as AppTrackViewSettings;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
   const library = useLibrary();
@@ -37,6 +36,7 @@ const Album = () => {
   const albumTracks = useAlbumTracks(+id, library);
   const location = useLocation();
   const navigationType = useNavigationType();
+  const viewSettings = window.electron.readConfig('album-view-settings') as AppTrackViewSettings;
   const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
