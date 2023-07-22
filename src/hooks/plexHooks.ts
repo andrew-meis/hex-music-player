@@ -1,10 +1,10 @@
+import { useAtomValue } from 'jotai';
 import ky from 'ky';
 import { useCallback } from 'react';
-import { useLibrary } from 'queries/app-queries';
+import { libraryAtom } from 'root/Root';
 
 export const useUploadArt = () => {
-  const library = useLibrary();
-
+  const library = useAtomValue(libraryAtom);
   const uploadArt = useCallback(async (id: number, data: string | ArrayBuffer | null) => {
     const url = library.api.getAuthenticatedUrl(
       `/library/metadata/${id}/arts`,
@@ -16,8 +16,7 @@ export const useUploadArt = () => {
 };
 
 export const useLibraryMaintenance = () => {
-  const library = useLibrary();
-
+  const library = useAtomValue(libraryAtom);
   const refreshMetadata = useCallback(async (id: number) => {
     const url = library.api.getAuthenticatedUrl(
       `/library/metadata/${id}/refresh`,
@@ -29,7 +28,7 @@ export const useLibraryMaintenance = () => {
 };
 
 export const useThumbnail = (src: string, size: number) => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const url = library.api.getAuthenticatedUrl(src);
   const thumb = library.api.getAuthenticatedUrl(
     '/photo/:/transcode',

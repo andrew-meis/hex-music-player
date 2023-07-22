@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Track } from 'api/index';
 import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist } from 'queries/artist-queries';
 import { useRecentTracks } from 'queries/track-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 
@@ -29,8 +30,8 @@ const defaultViewSettings: AppTrackViewSettings = {
 const RecentFavorites = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const navigationType = useNavigationType();
   const viewSettings = window.electron
@@ -43,7 +44,7 @@ const RecentFavorites = () => {
 
   const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
   const { data: tracks, isLoading: tracksLoading } = useRecentTracks({
-    config: config.data,
+    config,
     library,
     id: +id,
     days,

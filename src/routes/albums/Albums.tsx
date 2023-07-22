@@ -19,7 +19,7 @@ import { PlexSort } from 'classes';
 import { AlbumMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
+import { configAtom, libraryAtom, settingsAtom } from 'root/Root';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { QueryKeys } from 'types/enums';
@@ -104,15 +104,17 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Albums = () => {
+  const config = useAtomValue(configAtom);
   const fetchTimeout = useRef(0);
   const filters = useAtomValue(filtersAtom);
   const hoverIndex = useRef<number | null>(null);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
+  const settings = useAtomValue(settingsAtom);
   const scrollCount = useRef(0);
   const sorting = useAtomValue(albumSortingAtom);
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -120,8 +122,6 @@ const Albums = () => {
   const [containerStart, setContainerStart] = useState(0);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
-  const { data: config } = useConfig();
-  const { data: settings } = useSettings();
   const { playSwitch, playUri } = usePlayback();
   const { width } = useOutletContext() as { width: number };
 
@@ -142,8 +142,8 @@ const Albums = () => {
   }, [filters, limit, sorting]);
 
   const fetchAlbums = useCallback(async ({ pageParam = 0 }) => {
-    params.append('X-Plex-Container-Start', `${pageParam}`);
-    params.append('X-Plex-Container-Size', `${containerSize}`);
+    params.set('X-Plex-Container-Start', `${pageParam}`);
+    params.set('X-Plex-Container-Size', `${containerSize}`);
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,

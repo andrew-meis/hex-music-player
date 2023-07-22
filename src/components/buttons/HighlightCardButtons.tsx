@@ -1,12 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import { Box, Button, SvgIcon } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import { BsPlayFill } from 'react-icons/bs';
 import { FiRadio } from 'react-icons/fi';
 import { RiShuffleFill } from 'react-icons/ri';
 import { TiArrowForward } from 'react-icons/ti';
 import { MotionBox } from 'components/motion-components/motion-components';
 import usePlayback from 'hooks/usePlayback';
-import { useSettings } from 'queries/app-queries';
+import { settingsAtom } from 'root/Root';
 import { PlayActions } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
@@ -85,7 +86,7 @@ const allButtons = [
 ];
 
 const HighlightCardButtons = ({ item }: { item: Result }) => {
-  const { data: settings } = useSettings();
+  const settings = useAtomValue(settingsAtom);
   const { playSwitch } = usePlayback();
   const { colorMode } = settings;
   const buttons = allButtons.filter((button) => button.type === item._type);

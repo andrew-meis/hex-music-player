@@ -1,6 +1,7 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import chroma, { contrast } from 'chroma-js';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { uniqBy } from 'lodash';
 import React, { useMemo, useState } from 'react';
 import { NavLink, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
@@ -11,7 +12,7 @@ import Palette from 'components/palette/Palette';
 import { WIDTH_CALC } from 'constants/measures';
 import { useThumbnail } from 'hooks/plexHooks';
 import { useAlbumSearch, useTopAlbums } from 'queries/album-queries';
-import { useConfig, useLibrary } from 'queries/app-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import { AlbumSortKeys, SortOrders } from 'types/enums';
 
 const scale = (inputY: number, yRange: number[], xRange: number[]) => {
@@ -195,14 +196,14 @@ const Item = ({ activeIndex, album, index, setActiveIndex }: ItemProps) => {
 };
 
 const Home = () => {
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const [activeIndex, setActiveIndex] = useState(0);
   const { width } = useOutletContext() as { width: number };
 
   const { data: newAlbums, isLoading: loadingNewAlbums } = useAlbumSearch(
-    config.data,
+    config,
     library,
     {
       'album.originallyAvailableAt>>': '-90d',
@@ -210,7 +211,7 @@ const Home = () => {
     },
   );
   const { data: topAlbums, isLoading: loadingTopAlbums } = useTopAlbums({
-    config: config.data,
+    config,
     library,
     limit: 10,
     seconds: 60 * 60 * 24 * 30,

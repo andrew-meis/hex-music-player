@@ -10,6 +10,7 @@ import {
   SvgIcon,
 } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
 import { CgSearch } from 'react-icons/cg';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
@@ -18,13 +19,13 @@ import { RiRefreshLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'react-use';
 import useHistoryStack from 'hooks/useHistoryStack';
-import { useLibrary } from 'queries/app-queries';
+import { libraryAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import SearchResultBox from './SearchResultBox';
 
 const Search = ({ searchContainer } : {searchContainer: React.RefObject<HTMLDivElement>}) => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const searchInput = useRef<HTMLInputElement>(null);

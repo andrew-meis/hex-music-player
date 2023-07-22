@@ -1,25 +1,22 @@
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtom, useAtomValue } from 'jotai';
 import ky from 'ky';
 import { useCallback } from 'react';
 import {
   Album, Artist, PlayQueue, PlayQueueItem, Playlist, Track, parsePlayQueue,
 } from 'api/index';
 import useToast from 'hooks/useToast';
-import {
-  appQueryKeys,
-  useAccount, useLibrary, useQueueId, useServer, useSettings,
-} from 'queries/app-queries';
+import { accountAtom, libraryAtom, queueIdAtom, serverAtom, settingsAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
-import { AppConfig } from 'types/interfaces';
 
 const useQueue = () => {
-  const account = useAccount();
-  const library = useLibrary();
+  const account = useAtomValue(accountAtom);
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
-  const server = useServer();
+  const server = useAtomValue(serverAtom);
+  const settings = useAtomValue(settingsAtom);
   const toast = useToast();
-  const queueId = useQueueId();
-  const { data: settings } = useSettings();
+  const [queueId, setQueueId] = useAtom(queueIdAtom);
 
   const addToQueue = useCallback(async ({
     newTracks,
@@ -61,16 +58,6 @@ const useQueue = () => {
     return parsePlayQueue(response);
   }, [account.client.identifier, library, queueId, server.clientIdentifier, toast]);
 
-  const setQueueId = useCallback(async (id: number) => {
-    const newConfig = queryClient.setQueryData(
-      appQueryKeys.config,
-      (oldData: AppConfig | undefined): AppConfig | undefined => (
-        { ...oldData as AppConfig, queueId: id }
-      ),
-    );
-    window.electron.writeConfig('config', newConfig);
-  }, [queryClient]);
-
   const getQueue = useCallback(async (
     id: number | undefined = queueId,
     center: number | undefined = undefined,
@@ -93,7 +80,7 @@ const useQueue = () => {
     key?: string | undefined,
   ) => {
     let newQueue = await library.createQueue({ uri, key, shuffle });
-    await setQueueId(newQueue.id);
+    setQueueId(newQueue.id);
     newQueue = await getQueue(newQueue.id);
     return newQueue;
   }, [getQueue, library, setQueueId]);
@@ -136,7 +123,6 @@ const useQueue = () => {
 
   return {
     addToQueue,
-    setQueueId,
     getQueue,
     createQueue,
     removeFromQueue,

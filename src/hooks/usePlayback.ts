@@ -1,10 +1,11 @@
+import { useAtomValue } from 'jotai';
 import { useCallback } from 'react';
 import { v4 } from 'uuid';
 import { Album, Artist, Genre, Playlist, PlayQueueItem, Track } from 'api/index';
 import useQueue from 'hooks/useQueue';
-import { useAccount, useConfig, useLibrary, useQueueId, useServer } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
+import { accountAtom, configAtom, libraryAtom, queueIdAtom, serverAtom } from 'root/Root';
 import { PlayActions } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
 
@@ -20,12 +21,12 @@ export interface PlayParams {
 }
 
 const usePlayback = () => {
-  const account = useAccount();
-  const config = useConfig();
-  const library = useLibrary();
+  const account = useAtomValue(accountAtom);
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const player = usePlayerContext();
-  const queueId = useQueueId();
-  const server = useServer();
+  const queueId = useAtomValue(queueIdAtom);
+  const server = useAtomValue(serverAtom);
   const {
     addToQueue,
     getQueue,
@@ -47,10 +48,10 @@ const usePlayback = () => {
 
   const playAlbumRadio = useCallback(async (album: Album) => {
     // eslint-disable-next-line max-len
-    const uri = `${server.uri}/library/sections/${config.data.sectionId}/stations/3/${album.id}/${v4()}?type=audio&maxDegreesOfSeparation=-1`;
+    const uri = `${server.uri}/library/sections/${config.sectionId}/stations/3/${album.id}/${v4()}?type=audio&maxDegreesOfSeparation=-1`;
     const newQueue = await createQueue(uri, false);
     player.initTracks(newQueue);
-  }, [config.data.sectionId, createQueue, player, server.uri]);
+  }, [config.sectionId, createQueue, player, server.uri]);
 
   const playAlbumAtTrack = useCallback(async (track: Track, shuffle: boolean = false) => {
     const uri = `${server.uri}${track.parentKey}`;

@@ -2,6 +2,7 @@ import {
   Box, Collapse, List, ListItem, Typography,
 } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import React, { useCallback, useState } from 'react';
 import { BsGrid } from 'react-icons/bs';
 import { FaCaretDown, FaCaretRight } from 'react-icons/fa';
@@ -11,8 +12,8 @@ import { Playlist } from 'api/index';
 import { PlaylistMenu } from 'components/menus';
 import { navlistTypeActiveStyle, navlistTypeStyle } from 'constants/style';
 import usePlayback from 'hooks/usePlayback';
-import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
+import { libraryAtom } from 'root/Root';
 import PlaylistLink from './PlaylistLink';
 
 const listItemStyle = {
@@ -47,7 +48,7 @@ const activeBox = (isActive: boolean) => ({
 });
 
 const PlaylistLinks = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);

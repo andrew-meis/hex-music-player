@@ -7,12 +7,13 @@ import {
   Typography,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { isString } from 'lodash';
 import { useRef, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { TiPlus } from 'react-icons/ti';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { filterOptionsQueryFn, MediaTag } from 'queries/library-query-fns';
+import { configAtom, libraryAtom } from 'root/Root';
 import { Filter } from '../FilterPanel';
 import { FilterSchema } from '../filterSchemas';
 
@@ -33,8 +34,8 @@ interface FilterAutocompleteProps {
 const FilterAutocomplete = ({
   handleAddFilter, group, schema,
 }: FilterAutocompleteProps) => {
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const [count, setCount] = useState(0);
   const [disableInput, setDisableInput] = useState(false);
   const [open, setOpen] = useState(false);
@@ -42,7 +43,7 @@ const FilterAutocomplete = ({
   const { data: options } = useQuery(
     [schema.field, group],
     () => filterOptionsQueryFn({
-      config: config.data,
+      config,
       field: schema.field,
       library,
       type: groups[group],

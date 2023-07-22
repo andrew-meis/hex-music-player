@@ -29,6 +29,7 @@ const formatPlaycount = (x: number) => {
 
 const useDefaultColumns = ({
   additionalColumns,
+  getFormattedTime,
   isPlaying,
   library,
   nowPlaying,
@@ -37,6 +38,7 @@ const useDefaultColumns = ({
   useTrackNumber,
 }: {
   additionalColumns: ColumnDef<Track, any>[],
+  getFormattedTime: (inMS: number) => string,
   isPlaying: boolean,
   library: Library,
   nowPlaying: PlayQueueItem | undefined,
@@ -113,7 +115,8 @@ const useDefaultColumns = ({
     ),
     sortingFn: 'alphanumeric',
   }),
-  columnHelper.accessor('originalTitle', {
+  columnHelper.accessor((row) => (row.originalTitle || row.grandparentTitle), {
+    id: 'originalTitle',
     cell: (info) => {
       const track = info.row.original;
       return (
@@ -127,7 +130,7 @@ const useDefaultColumns = ({
           to={`/artists/${track.grandparentId}`}
           onClick={(event) => event.stopPropagation()}
         >
-          {info.getValue() || track.grandparentTitle}
+          {info.getValue()}
         </NavLink>
       );
     },
@@ -205,11 +208,12 @@ const useDefaultColumns = ({
     sortUndefined: -1,
   }),
   columnHelper.accessor('duration', {
-    cell: (info) => moment.utc(info.getValue()).format('mm:ss'),
+    cell: (info) => getFormattedTime(info.getValue()),
     header: () => <SvgIcon sx={iconSx}><RiTimeLine /></SvgIcon>,
   }),
 ]), [
   additionalColumns,
+  getFormattedTime,
   isPlaying,
   library,
   nowPlaying?.track.id,

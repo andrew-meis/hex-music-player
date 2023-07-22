@@ -1,5 +1,6 @@
 import { Avatar, Box, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -9,8 +10,8 @@ import { NowPlayingMenu } from 'components/menus';
 import TrackRating from 'components/rating/TrackRating';
 import Subtext from 'components/subtext/Subtext';
 import usePlayback from 'hooks/usePlayback';
-import { useLibrary } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';
+import { libraryAtom } from 'root/Root';
 import { DragTypes } from 'types/enums';
 
 const typographyStyle = {
@@ -47,7 +48,7 @@ const DraggableAvatar = ({ nowPlaying, onContextMenu, src }: {
 };
 
 const NowPlaying = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const { data: nowPlaying } = useNowPlaying();

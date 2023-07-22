@@ -11,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { BiPaste } from 'react-icons/bi';
 import { TbExternalLink } from 'react-icons/tb';
@@ -19,7 +19,7 @@ import { useOutletContext } from 'react-router-dom';
 import { HexSort } from 'classes';
 import Select from 'components/select/Select';
 import { WIDTH_CALC } from 'constants/measures';
-import { appQueryKeys, useSettings } from 'queries/app-queries';
+import { settingsAtom } from 'root/Root';
 import { AlbumWithSection, AppSettings } from 'types/interfaces';
 import ColorPicker from './ColorPicker';
 
@@ -32,15 +32,13 @@ const boxStyle = {
 
 const Settings = () => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
-  const { data: settings } = useSettings();
+  const [settings, setSettings] = useAtom(settingsAtom);
   const { height } = useOutletContext() as { height: number };
-  const updateConfig = useCallback(async (key: keyof AppSettings, value: any) => {
+  const updateConfig = useCallback((key: keyof AppSettings, value: any) => {
     const newSettings = structuredClone(settings);
     newSettings[key] = value;
-    window.electron.writeConfig('settings', newSettings);
-    await queryClient.refetchQueries(appQueryKeys.settings);
-  }, [settings, queryClient]);
+    setSettings(newSettings);
+  }, [settings, setSettings]);
 
   const handleDarkModeOption = async () => {
     await updateConfig('colorMode', (settings.colorMode === 'light' ? 'dark' : 'light'));

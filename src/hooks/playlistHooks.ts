@@ -1,9 +1,10 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import ky from 'ky';
 import { useCallback } from 'react';
 import { parsePlaylistContainer, Playlist, PlaylistItem } from 'api/index';
 import useToast from 'hooks/useToast';
-import { useLibrary, useServer } from 'queries/app-queries';
+import { libraryAtom, serverAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 
 const refetchPlaylistQueries = async (queryClient: QueryClient, id: number) => {
@@ -13,9 +14,9 @@ const refetchPlaylistQueries = async (queryClient: QueryClient, id: number) => {
 };
 
 export const useAddToPlaylist = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
-  const server = useServer();
+  const server = useAtomValue(serverAtom);
   const toast = useToast();
   return async (id: Playlist['id'], idsToAdd: number[], quiet = false) => {
     const response = await library.addToPlaylist(
@@ -35,8 +36,8 @@ export const useAddToPlaylist = () => {
 };
 
 export const useCreatePlaylist = () => {
-  const library = useLibrary();
-  const server = useServer();
+  const library = useAtomValue(libraryAtom);
+  const server = useAtomValue(serverAtom);
   return async (title: string) => {
     const url = library.api.getAuthenticatedUrl(
       '/playlists',
@@ -53,7 +54,7 @@ export const useCreatePlaylist = () => {
 };
 
 export const useDeletePlaylist = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
   const toast = useToast();
   return async (id: number) => {
@@ -64,7 +65,7 @@ export const useDeletePlaylist = () => {
 };
 
 export const useMovePlaylistItems = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
   return useCallback(async (playlistId: number, playlistItemIds: number[], afterId?: number) => {
     // eslint-disable-next-line no-restricted-syntax
@@ -88,7 +89,7 @@ export const useMovePlaylistItems = () => {
 };
 
 export const useRemoveFromPlaylist = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
   const toast = useToast();
   return useCallback(async (playlistId: Playlist['id'], itemId: PlaylistItem['id']) => {

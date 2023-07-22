@@ -1,14 +1,15 @@
 import { IconButton, SvgIcon } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import { RiRepeat2Fill, RiRepeatOneFill } from 'react-icons/ri';
 import { iconButtonStyle } from 'constants/style';
-import { useSettings } from 'queries/app-queries';
+import { settingsAtom } from 'root/Root';
 
 interface RepeatProps {
-  handleRepeat: (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => Promise<void>;
+  handleRepeat: (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => void;
 }
 
 const Repeat = ({ handleRepeat }: RepeatProps) => {
-  const { data: settings } = useSettings();
+  const settings = useAtomValue(settingsAtom);
 
   return (
     <>

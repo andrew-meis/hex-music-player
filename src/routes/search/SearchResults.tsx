@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { useMemo, useRef } from 'react';
 import { BiChevronRight } from 'react-icons/bi';
 import {
@@ -18,7 +19,7 @@ import { iconMotion } from 'components/motion-components/motion-variants';
 import PlaylistCarousel from 'components/playlist/PlaylistCarousel';
 import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
-import { useLibrary } from 'queries/app-queries';
+import { libraryAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { Result } from 'types/types';
 import Header from './Header';
@@ -48,7 +49,7 @@ const Subheader = ({ text }: { text: string }) => (
 const SearchResults = () => {
   const box = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const navigate = useNavigate();
   const navigationType = useNavigationType();
   const { width } = useOutletContext() as { width: number };

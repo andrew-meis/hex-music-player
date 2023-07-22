@@ -1,14 +1,15 @@
 import { Typography } from '@mui/material';
 import { CellContext } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Track } from 'api/index';
 import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
-import { useLibrary } from 'queries/app-queries';
 import { useSimilarTracks, useTrack } from 'queries/track-queries';
+import { libraryAtom } from 'root/Root';
 import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 
@@ -31,7 +32,7 @@ const defaultViewSettings: AppTrackViewSettings = {
 const SimilarTracks = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const navigationType = useNavigationType();
   const viewSettings = window.electron

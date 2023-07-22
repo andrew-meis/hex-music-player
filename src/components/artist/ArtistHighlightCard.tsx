@@ -1,5 +1,6 @@
 import { Avatar, Box, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -11,7 +12,7 @@ import HighlightCardButtons from 'components/buttons/HighlightCardButtons';
 import { ArtistMenu } from 'components/menus';
 import usePalette, { defaultColors } from 'hooks/usePalette';
 import usePlayback from 'hooks/usePlayback';
-import { useLibrary, useSettings } from 'queries/app-queries';
+import { libraryAtom, settingsAtom } from 'root/Root';
 import { DragTypes, SortOrders, TrackSortKeys } from 'types/enums';
 
 const typographyStyle = {
@@ -36,11 +37,11 @@ const textStyle = {
 
 const ArtistHighlightCard = ({ artist }: { artist: Artist }) => {
   const box = useRef<HTMLDivElement>(null);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
+  const settings = useAtomValue(settingsAtom);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
-  const { data: settings } = useSettings();
   const { playSwitch } = usePlayback();
   const { colorMode } = settings;
 

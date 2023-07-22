@@ -1,5 +1,6 @@
 import { Avatar, Box, ListItem, SvgIcon } from '@mui/material';
 import { MenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { BsMusicNoteList } from 'react-icons/bs';
@@ -7,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { Album, Artist, Playlist, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import Tooltip from 'components/tooltip/Tooltip';
 import { useAddToPlaylist } from 'hooks/playlistHooks';
-import { useLibrary } from 'queries/app-queries';
+import { libraryAtom } from 'root/Root';
 import { DragTypes } from 'types/enums';
 
 interface CompactPlaylistProps {
@@ -20,7 +21,7 @@ interface CompactPlaylistProps {
 const CompactPlaylist = ({
   handleContextMenu, menuState, menuTarget, playlist,
 }: CompactPlaylistProps) => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const [open, setOpen] = useState(false);
   const thumbSrc = useMemo(() => {
     if (!playlist || (!playlist.thumb && !playlist.composite)) return undefined;

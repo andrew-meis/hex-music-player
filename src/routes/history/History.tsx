@@ -1,6 +1,7 @@
 import { Box, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import moment from 'moment';
 import React, { useMemo, useRef, useState } from 'react';
 import { RiTimeLine } from 'react-icons/ri';
@@ -10,8 +11,8 @@ import { Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useTrackHistory } from 'queries/track-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import Footer from 'routes/virtuoso-components/Footer';
 import { RouteParams } from 'types/interfaces';
 
@@ -63,8 +64,8 @@ const List = React
   ));
 
 const History = () => {
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const menuTarget = useRef<Track[]>();
   const menuIndex = useRef<number>();
@@ -75,7 +76,7 @@ const History = () => {
   const { playSwitch } = usePlayback();
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const { data, isLoading } = useTrackHistory({
-    config: config.data,
+    config,
     library,
     id: +id,
   });

@@ -8,7 +8,7 @@ import { FaTimes } from 'react-icons/fa';
 import { MdOutlinePlaylistAddCheck } from 'react-icons/md';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { PlexSort } from 'classes';
-import { useConfig, useLibrary, useServer } from 'queries/app-queries';
+import { configAtom, libraryAtom, serverAtom } from 'root/Root';
 import { albumSortingAtom } from 'routes/albums/Albums';
 import { artistSortingAtom } from 'routes/artists/Artists';
 import { trackSortingAtom } from 'routes/tracks/Tracks';
@@ -79,20 +79,22 @@ export interface Filter {
 }
 
 const FilterPanel = ({ pathname }: { pathname: string }) => {
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const limit = useAtomValue(limitAtom);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const queryClient = useQueryClient();
-  const server = useServer();
+  const server = useAtomValue(serverAtom);
   const type = pathnameMap[pathname.substring(1)];
+
   const albumSorting = useAtomValue(albumSortingAtom);
   const artistSorting = useAtomValue(artistSortingAtom);
   const trackSorting = useAtomValue(trackSortingAtom);
+
   const [error, setError] = useState(false);
   const [filters, setFilters] = useAtom(filtersAtom);
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState('');
-  const { data: config } = useConfig();
 
   useEffect(() => {
     if (filters.length === 0) setShow(false);

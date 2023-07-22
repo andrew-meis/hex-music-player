@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
@@ -6,7 +7,7 @@ import { Track } from 'api/index';
 import Palette from 'components/palette/Palette';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbum, useAlbumTracks } from 'queries/album-queries';
-import { useLibrary } from 'queries/app-queries';
+import { libraryAtom } from 'root/Root';
 import { PlayActions } from 'types/enums';
 import { AppTrackViewSettings, RouteParams } from 'types/interfaces';
 import Header from './Header';
@@ -31,7 +32,7 @@ const defaultViewSettings: AppTrackViewSettings = {
 const Album = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const album = useAlbum(+id, library);
   const albumTracks = useAlbumTracks(+id, library);
   const location = useLocation();

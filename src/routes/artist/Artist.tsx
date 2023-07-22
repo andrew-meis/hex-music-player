@@ -2,6 +2,7 @@ import { Box, SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem, useMenuState } from '@szhsin/react-menu';
 import { inPlaceSort } from 'fast-sort';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty, throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { MdMusicOff } from 'react-icons/md';
@@ -22,7 +23,6 @@ import { VIEW_PADDING } from 'constants/measures';
 import { useLibraryMaintenance } from 'hooks/plexHooks';
 import useHideAlbum from 'hooks/useHideAlbum';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
-import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import {
   ArtistQueryData,
   useArtist,
@@ -30,6 +30,7 @@ import {
   useArtistTracks,
 } from 'queries/artist-queries';
 import { useRecentTracks } from 'queries/track-queries';
+import { configAtom, libraryAtom, settingsAtom } from 'root/Root';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
@@ -96,21 +97,22 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Artist = () => {
-  const config = useConfig();
-  const library = useLibrary();
-  // data loading
-  const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
+
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
+  const location = useLocation() as LocationWithState;
+
   const artist = useArtist(+id, library);
   const appearances = useArtistAppearances(
-    config.data,
+    config,
     library,
     +id,
     location.state.title,
     location.state.guid,
   );
   const topTracks = useArtistTracks({
-    config: config.data,
+    config,
     library,
     id: +id,
     title: location.state.title,
@@ -119,26 +121,26 @@ const Artist = () => {
     slice: 5,
   });
   const recentTracks = useRecentTracks({
-    config: config.data,
+    config,
     library,
     id: +id,
     days: 90,
   });
-  // other hooks
+
   const hideAlbum = useHideAlbum();
   const menuSection = useRef<string | null>();
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const settings = useAtomValue(settingsAtom);
   const virtuoso = useRef<VirtuosoHandle>(null);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [filter, setFilter] = useState('All Releases');
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
-  const { data: settings } = useSettings();
   const { playArtist, playArtistRadio, playSwitch } = usePlayback();
   const { refreshMetadata } = useLibraryMaintenance();
   const { width } = useOutletContext() as { width: number };
-  // create array for virtualization
+
   const throttledCols = throttle(() => getColumns(width), 300, { leading: true });
   const grid = useMemo(() => ({ cols: throttledCols() as number }), [throttledCols]);
   const [sort, setSort] = useState(HexSort.parse(settings.albumSort!));

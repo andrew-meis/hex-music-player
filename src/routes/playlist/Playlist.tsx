@@ -1,6 +1,7 @@
 import { SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useDrop } from 'react-dnd';
@@ -10,8 +11,8 @@ import { Album, Artist, PlayQueueItem, PlaylistItem, Track } from 'api/index';
 import { useAddToPlaylist, useMovePlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import usePlayback from 'hooks/usePlayback';
 import useToast from 'hooks/useToast';
-import { useLibrary } from 'queries/app-queries';
 import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
+import { libraryAtom } from 'root/Root';
 import mergeRefs from 'scripts/merge-refs';
 import { DragTypes, PlayActions } from 'types/enums';
 import { AppTrackViewSettings, RouteParams } from 'types/interfaces';
@@ -40,7 +41,7 @@ const Playlist = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
   const addToPlaylist = useAddToPlaylist();
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const move = useMovePlaylistItems();
   const navigationType = useNavigationType();

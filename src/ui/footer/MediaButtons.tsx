@@ -1,8 +1,8 @@
 import { Box } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useCallback } from 'react';
-import { appQueryKeys, useSettings } from 'queries/app-queries';
 import { usePlayerContext } from 'root/Player';
+import { settingsAtom } from 'root/Root';
 import Next from './buttons/Next';
 import PlayPause from './buttons/PlayPause';
 import Previous from './buttons/Previous';
@@ -11,14 +11,12 @@ import Shuffle from './buttons/Shuffle';
 
 const MediaButtons = () => {
   const player = usePlayerContext();
-  const queryClient = useQueryClient();
-  const { data: settings } = useSettings();
+  const [settings, setSettings] = useAtom(settingsAtom);
 
-  const handleRepeat = useCallback(async (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => {
+  const handleRepeat = useCallback((value: 'repeat-none' | 'repeat-one' | 'repeat-all') => {
     const newSettings = structuredClone(settings);
     newSettings.repeat = value;
-    window.electron.writeConfig('settings', newSettings);
-    await queryClient.refetchQueries(appQueryKeys.settings);
+    setSettings(newSettings);
     if (value === 'repeat-one') {
       player.loop = true;
       player.singleMode = true;
@@ -26,7 +24,7 @@ const MediaButtons = () => {
     }
     player.loop = false;
     player.singleMode = false;
-  }, [settings, queryClient, player]);
+  }, [settings, setSettings, player]);
 
   return (
     <Box

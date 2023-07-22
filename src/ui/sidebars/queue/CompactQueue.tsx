@@ -1,5 +1,6 @@
 import { Avatar, Box, Tooltip, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import { isNumber } from 'lodash';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
@@ -8,9 +9,9 @@ import { useMeasure } from 'react-use';
 import { Album, Artist, Library, PlaylistItem, PlayQueueItem, Track } from 'api/index';
 import { QueueMenu } from 'components/menus';
 import useDragActions from 'hooks/useDragActions';
-import { useLibrary } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
 import 'styles/queue.scss';
+import { libraryAtom } from 'root/Root';
 import { DragTypes } from 'types/enums';
 
 interface ItemProps {
@@ -96,7 +97,7 @@ const CompactQueue = () => {
   const contextMenuItems = useRef<PlayQueueItem[]>([]);
   const dropIndex = useRef<number | null>(null);
   const hoverIndex = useRef<number | null>(null);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const [ref, { height }] = useMeasure();

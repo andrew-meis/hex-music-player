@@ -6,21 +6,21 @@ import { IoPlaySkipForward } from 'react-icons/io5';
 import { PlayQueue, PlayQueueItem } from 'api/index';
 import { iconButtonStyle } from 'constants/style';
 import useQueue from 'hooks/useQueue';
-import { useQueueId } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
 import { playbackDurationAtom, playbackIsPlayingAtom, usePlayerContext } from 'root/Player';
+import { queueIdAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { isPlayQueueItem } from 'types/type-guards';
 
 interface NextProps {
-  handleRepeat: (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => Promise<void>;
+  handleRepeat: (value: 'repeat-none' | 'repeat-one' | 'repeat-all') => void;
 }
 
 const Next = ({ handleRepeat }: NextProps) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const player = usePlayerContext();
   const queryClient = useQueryClient();
-  const queueId = useQueueId();
+  const queueId = useAtomValue(queueIdAtom);
   const setDuration = useSetAtom(playbackDurationAtom);
   const setIsPlaying = useSetAtom(playbackIsPlayingAtom);
   const [disableNext, setDisableNext] = useState(false);

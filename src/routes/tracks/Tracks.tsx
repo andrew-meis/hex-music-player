@@ -10,7 +10,7 @@ import { ListRange } from 'react-virtuoso';
 import { Track, parseTrackContainer } from 'api/index';
 import { PlexSort } from 'classes';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { AppTrackViewSettings } from 'types/interfaces';
 import { Filter, filtersAtom } from 'ui/sidebars/filter-panel/FilterPanel';
@@ -84,19 +84,19 @@ const defaultViewSettings: AppTrackViewSettings = {
 };
 
 const Tracks = () => {
-  const viewSettings = window.electron.readConfig('tracks-view-settings') as AppTrackViewSettings;
+  const config = useAtomValue(configAtom);
   const fetchTimeout = useRef(0);
   const filters = useAtomValue(filtersAtom);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
+  const viewSettings = window.electron.readConfig('tracks-view-settings') as AppTrackViewSettings;
   const [containerStart, setContainerStart] = useState(0);
   const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const [sorting, setSorting] = useAtom(trackSortingAtom);
-  const { data: config } = useConfig();
   const { playUri } = usePlayback();
 
   const params = useMemo(() => {
@@ -105,7 +105,14 @@ const Tracks = () => {
     addFiltersToParams(filters, newParams);
     if (!isEmpty(sorting)) {
       const sortString = sorting
-        .map((columnSort) => PlexSort.parseColumnSort(columnSort, 'track').stringify())
+        .map((columnSort) => {
+          if (columnSort.id === 'originalTitle') {
+            const artistSortString = `artist.titleSort:${columnSort.desc ? 'desc' : 'asc'}`;
+            return [artistSortString, PlexSort.parseColumnSort(columnSort, 'track').stringify()]
+              .join(',');
+          }
+          return PlexSort.parseColumnSort(columnSort, 'track').stringify();
+        })
         .join(',');
       newParams.append('sort', sortString);
     }
@@ -116,8 +123,8 @@ const Tracks = () => {
   }, [filters, limit, sorting]);
 
   const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
-    params.append('X-Plex-Container-Start', `${pageParam}`);
-    params.append('X-Plex-Container-Size', `${containerSize}`);
+    params.set('X-Plex-Container-Start', `${pageParam}`);
+    params.set('X-Plex-Container-Size', `${containerSize}`);
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,

@@ -37,6 +37,7 @@ import {
 } from 'components/track-table/cells';
 import { ColumnVisibilityDialog } from 'components/track-table/columns';
 import { WIDTH_CALC } from 'constants/measures';
+import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
@@ -113,6 +114,7 @@ const TrackTable: React.FC<{
 
   const { playSwitch } = usePlayback();
   const { data: nowPlaying } = useNowPlaying();
+  const { getFormattedTime } = useFormattedTime();
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });
   const [rowSelection, setRowSelection] = useState({});
@@ -196,7 +198,7 @@ const TrackTable: React.FC<{
       ),
       sortingFn: 'alphanumeric',
     }),
-    columnHelper.accessor((row) => row.track.originalTitle, {
+    columnHelper.accessor((row) => (row.track.originalTitle || row.track.grandparentTitle), {
       id: 'originalTitle',
       cell: (info) => {
         const { track } = info.row.original;
@@ -211,7 +213,7 @@ const TrackTable: React.FC<{
             to={`/artists/${track.grandparentId}`}
             onClick={(event) => event.stopPropagation()}
           >
-            {info.getValue() || track.grandparentTitle}
+            {info.getValue()}
           </NavLink>
         );
       },
@@ -298,10 +300,10 @@ const TrackTable: React.FC<{
     }),
     columnHelper.accessor((row) => row.track.duration, {
       id: 'duration',
-      cell: (info) => moment.utc(info.getValue()).format('mm:ss'),
+      cell: (info) => getFormattedTime(info.getValue()),
       header: () => <SvgIcon sx={iconSx}><RiTimeLine /></SvgIcon>,
     }),
-  ], [isPlaying, library, nowPlaying?.track.id, ratingOptions, titleOptions]);
+  ], [getFormattedTime, isPlaying, library, nowPlaying?.track.id, ratingOptions, titleOptions]);
 
   const table = useReactTable({
     columns,

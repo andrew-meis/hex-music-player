@@ -1,16 +1,17 @@
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import { useCallback } from 'react';
 import { Album, Artist, PlayQueueItem, Track } from 'api/index';
 import usePlayback from 'hooks/usePlayback';
 import useQueue from 'hooks/useQueue';
-import { useLibrary, useQueueId } from 'queries/app-queries';
 import { usePlayerContext } from 'root/Player';
+import { libraryAtom, queueIdAtom } from 'root/Root';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 
 const useDragActions = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const player = usePlayerContext();
-  const queueId = useQueueId();
+  const queueId = useAtomValue(queueIdAtom);
   const { addToQueue, getQueue, removeFromQueue, updateQueue } = useQueue();
   const { playAlbum, playArtist, playTracks } = usePlayback();
 

@@ -13,9 +13,9 @@ import React, {
 import { PlayQueue, PlayQueueItem, Track } from 'api/index';
 import { Gapless5, IsGapless5, LogLevel } from 'classes';
 import useQueue from 'hooks/useQueue';
-import { useLibrary, useQueueId, useSettings } from 'queries/app-queries';
 import { useCurrentQueue, useNowPlaying } from 'queries/plex-queries';
 import { QueryKeys } from 'types/enums';
+import { libraryAtom, queueIdAtom, settingsAtom } from './Root';
 
 // STATE
 export const playbackDurationAtom = atom(0);
@@ -64,17 +64,18 @@ const Player = ({ children }: {children: ReactNode}) => {
   const setDuration = useSetAtom(playbackDurationAtom);
   const [isPlaying, setIsPlaying] = useAtom(playbackIsPlayingAtom);
   const setProgress = useSetAtom(playbackProgressAtom);
+
   const volume = useAtomValue(volumeAtom);
   const initialized = useRef<boolean | null>(null);
   const loadQueue = useRef<PlayQueueItem[]>([]);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
-  const queueId = useQueueId();
+  const settings = useAtomValue(settingsAtom);
   const timelineRef = useRef(0);
+  const [queueId, setQueueId] = useAtom(queueIdAtom);
   const { data: nowPlaying } = useNowPlaying();
   const { data: playQueue } = useCurrentQueue();
-  const { data: settings } = useSettings();
-  const { setQueueId, updateTimeline } = useQueue();
+  const { updateTimeline } = useQueue();
 
   const player = useMemo(() => (new (Gapless5 as any)({
     ...playerOptions,
@@ -158,7 +159,7 @@ const Player = ({ children }: {children: ReactNode}) => {
   player.resetApp = async () => {
     initialized.current = false;
     player.stop();
-    await setQueueId(0);
+    setQueueId(0);
     player.removeAllTracks();
     queryClient.removeQueries([QueryKeys.PLAYQUEUE]);
     setDuration(() => 0);
@@ -216,7 +217,7 @@ const Player = ({ children }: {children: ReactNode}) => {
     player.stop();
     if (nowPlaying) {
       await updateTimeline(nowPlaying.id, 'stopped', nowPlaying.track.duration, nowPlaying.track);
-      await setQueueId(0);
+      setQueueId(0);
       player.removeAllTracks();
       queryClient.removeQueries([QueryKeys.PLAYQUEUE]);
       setDuration(() => 0);

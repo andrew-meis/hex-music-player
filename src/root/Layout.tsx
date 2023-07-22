@@ -1,10 +1,10 @@
 import { Box, CircularProgress } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
 import Toast from 'components/toast/Toast';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtists } from 'queries/artist-queries';
 import { usePlaylists } from 'queries/playlist-queries';
 import { AppSettings } from 'types/interfaces';
@@ -14,15 +14,16 @@ import Navbar from 'ui/sidebars/navbar/Navbar';
 import CompactQueue from 'ui/sidebars/queue/CompactQueue';
 import Queue from 'ui/sidebars/queue/Queue';
 import Titlebar from 'ui/titlebar/Titlebar';
+import { configAtom, libraryAtom } from './Root';
 
 const Layout = ({ settings }: {settings: AppSettings}) => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const searchContainer = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
   const playlists = usePlaylists(library);
-  const { data: config } = useConfig();
+  const config = useAtomValue(configAtom);
   const artists = useArtists({ config, library });
 
   if (artists.isLoading || playlists.isLoading) {

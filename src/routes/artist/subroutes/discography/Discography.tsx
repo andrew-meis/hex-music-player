@@ -1,6 +1,7 @@
 import { Box } from '@mui/material';
 import { sort } from 'fast-sort';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
@@ -8,8 +9,8 @@ import { Album, Track } from 'api/index';
 import { plexSort } from 'classes';
 import { WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistAppearances, useArtistTracks } from 'queries/artist-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import TrackTable from 'routes/album/TrackTable';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
 import {
@@ -40,8 +41,8 @@ const defaultViewSettings: AppTrackViewSettings = {
 const Discography = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const viewSettings = window.electron.readConfig('album-view-settings') as AppTrackViewSettings;
   const [activeRelease, setActiveRelease] = useState<AlbumWithSection>();
@@ -52,14 +53,14 @@ const Discography = () => {
 
   const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
   const { data: appearances, isLoading: appearancesLoading } = useArtistAppearances(
-    config.data,
+    config,
     library,
     +id,
     location.state.title,
     location.state.guid,
   );
   const { data: tracks, isLoading: tracksLoading } = useArtistTracks({
-    config: config.data,
+    config,
     library,
     id: +id,
     title: location.state.title,

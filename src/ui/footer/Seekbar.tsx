@@ -5,7 +5,6 @@ import { isBoolean } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import useFormattedTime from 'hooks/useFormattedTime';
 import useQueue from 'hooks/useQueue';
-import { useQueueId } from 'queries/app-queries';
 import { useNowPlaying } from 'queries/plex-queries';
 import {
   playbackProgressAtom,
@@ -13,6 +12,7 @@ import {
   usePlayerContext,
   playbackIsPlayingAtom,
 } from 'root/Player';
+import { queueIdAtom } from 'root/Root';
 
 export const displayRemainingAtom = atomWithStorage('display-remaining', true, {
   getItem: (key, initialValue) => {
@@ -35,13 +35,21 @@ const Seekbar = () => {
   const track = useRef<HTMLSpanElement>(null);
 
   const player = usePlayerContext();
-  const queueId = useQueueId();
+  const queueId = useAtomValue(queueIdAtom);
   const [draggingPosition, setDraggingPosition] = useState(0);
   const setPlayerPosition = useSetAtom(playbackProgressAtom);
   const { data: nowPlaying } = useNowPlaying();
   const { getFormattedTime } = useFormattedTime();
   const { updateTimeline } = useQueue();
   const [displayRemaining, setDisplayRemaining] = useAtom(displayRemainingAtom);
+
+  useEffect(() => {
+    if (queueId === 0) {
+      if (!elapsed.current || !remaining.current || !thumb.current || !track.current) return;
+      thumb.current.style.left = '0%';
+      track.current.style.width = '0%';
+    }
+  }, [queueId]);
 
   useEffect(() => {
     store.sub(playbackProgressAtom, () => {

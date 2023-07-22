@@ -14,6 +14,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Library, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
+import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
@@ -60,6 +61,7 @@ const TrackTableStatic: React.FC<{
 
   const { playSwitch } = usePlayback();
   const { data: nowPlaying } = useNowPlaying();
+  const { getFormattedTime } = useFormattedTime();
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });
   const [rowSelection, setRowSelection] = useState({});
@@ -69,6 +71,7 @@ const TrackTableStatic: React.FC<{
 
   const columns = useDefaultColumns({
     additionalColumns: additionalColumns || [],
+    getFormattedTime,
     isPlaying,
     library,
     nowPlaying,

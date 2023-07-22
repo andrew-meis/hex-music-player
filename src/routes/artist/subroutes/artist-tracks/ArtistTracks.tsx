@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { CellContext, SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { atom, useAtom } from 'jotai';
+import { atom, useAtom, useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -9,12 +9,12 @@ import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Album, Track } from 'api/index';
 import { PlexSort } from 'classes';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import {
   useArtist,
   useArtistAppearances,
   useArtistTracks,
 } from 'queries/artist-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
 import Header from './Header';
 import TrackTable from './TrackTable';
@@ -40,8 +40,8 @@ const defaultViewSettings: AppTrackViewSettings = {
 const ArtistTracks = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const navigationType = useNavigationType();
   const viewSettings = window.electron
@@ -62,14 +62,14 @@ const ArtistTracks = () => {
 
   const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
   const { data: appearances, isLoading: appearancesLoading } = useArtistAppearances(
-    config.data,
+    config,
     library,
     +id,
     location.state.title,
     location.state.guid,
   );
   const { data: tracks, isLoading: tracksLoading } = useArtistTracks({
-    config: config.data,
+    config,
     library,
     id: +id,
     title: location.state.title,

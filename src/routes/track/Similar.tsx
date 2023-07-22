@@ -1,6 +1,7 @@
 import { Box, CircularProgress, Grid, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import { usePrevious } from 'react-use';
@@ -12,9 +13,9 @@ import PaginationDots from 'components/pagination-dots/PaginationDots';
 import { typographyStyle } from 'constants/style';
 import { PlayParams } from 'hooks/usePlayback';
 import useToast from 'hooks/useToast';
-import { useConfig } from 'queries/app-queries';
 import { useLastfmSimilar } from 'queries/last-fm-queries';
 import { getTrackMatch } from 'queries/plex-query-fns';
+import { configAtom } from 'root/Root';
 import { PlayActions } from 'types/enums';
 import { LastFmTrack } from 'types/lastfm-interfaces';
 
@@ -58,7 +59,7 @@ interface SimilarProps {
 
 const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarProps) => {
   const cols = throttle(() => getColumns(width || 900), 300, { leading: true })();
-  const config = useConfig();
+  const config = useAtomValue(configAtom);
   const hoverIndex = useRef(0);
   const length = (cols || 4) * 4;
   const match = useRef<Track>();
@@ -101,7 +102,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
       artist: track.artist.name,
       title: track.name,
       library,
-      sectionId: config.data.sectionId!,
+      sectionId: config.sectionId!,
     });
     if (trackMatch) {
       match.current = trackMatch;

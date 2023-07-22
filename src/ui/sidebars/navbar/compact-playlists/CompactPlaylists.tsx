@@ -1,5 +1,6 @@
 import { List, ListItem, SvgIcon } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import React, { useCallback, useState } from 'react';
 import { BsGrid } from 'react-icons/bs';
 import { NavLink } from 'react-router-dom';
@@ -7,8 +8,8 @@ import { Playlist } from 'api/index';
 import { PlaylistMenu } from 'components/menus';
 import Tooltip from 'components/tooltip/Tooltip';
 import usePlayback from 'hooks/usePlayback';
-import { useLibrary } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
+import { libraryAtom } from 'root/Root';
 import CompactPlaylist from './CompactPlaylist';
 
 const listStyle = {
@@ -36,7 +37,7 @@ const activeStyle = {
 };
 
 const CompactPlaylists = () => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
   const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const [menuTarget, setMenuTarget] = useState<Playlist[]>([]);

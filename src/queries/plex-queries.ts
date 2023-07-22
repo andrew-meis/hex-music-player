@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import useQueue from 'hooks/useQueue';
-import { useAccount, useLibrary, useQueueId } from 'queries/app-queries';
+import { accountAtom, libraryAtom, queueIdAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 
 export const useCurrentQueue = () => {
-  const library = useLibrary();
-  const queueId = useQueueId();
+  const library = useAtomValue(libraryAtom);
+  const queueId = useAtomValue(queueIdAtom);
   const { getQueue } = useQueue();
   return useQuery(
     [QueryKeys.PLAYQUEUE, queueId],
@@ -19,8 +20,8 @@ export const useCurrentQueue = () => {
 };
 
 export const useNowPlaying = () => {
-  const library = useLibrary();
-  const queueId = useQueueId();
+  const library = useAtomValue(libraryAtom);
+  const queueId = useAtomValue(queueIdAtom);
   const { getQueue } = useQueue();
   return useQuery(
     [QueryKeys.PLAYQUEUE, queueId],
@@ -39,7 +40,7 @@ export const useNowPlaying = () => {
 };
 
 export const useUser = () => {
-  const account = useAccount();
+  const account = useAtomValue(accountAtom);
   return useQuery(
     [QueryKeys.USER],
     () => account.info(),

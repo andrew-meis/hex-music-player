@@ -20,7 +20,7 @@ const colors = [
 
 interface ColorPickerProps {
   primaryColor: string;
-  updateConfig: (key: keyof AppSettings, value: any) => Promise<void>;
+  updateConfig: (key: keyof AppSettings, value: any) => void;
 }
 
 const ColorPicker = ({ primaryColor, updateConfig }: ColorPickerProps) => {

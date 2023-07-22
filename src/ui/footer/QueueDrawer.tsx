@@ -1,9 +1,10 @@
 import { Drawer, IconButton, SvgIcon } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { BsViewList } from 'react-icons/bs';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
-import { useSettings } from 'queries/app-queries';
+import { settingsAtom } from 'root/Root';
 import Queue from 'ui/sidebars/queue/Queue';
 
 const popperProps = {
@@ -18,7 +19,7 @@ const popperProps = {
 };
 
 const QueueDrawer = () => {
-  const { data: settings } = useSettings();
+  const settings = useAtomValue(settingsAtom);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(1);
 

@@ -17,8 +17,8 @@ import { PlexSort, plexSort } from 'classes';
 import { ArtistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, QueryKeys, SortOrders, TrackSortKeys } from 'types/enums';
@@ -113,9 +113,10 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Artists = () => {
+  const config = useAtomValue(configAtom);
   const fetchTimeout = useRef(0);
   const filters = useAtomValue(filtersAtom);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const limit = useAtomValue(limitAtom);
   const location = useLocation();
   const navigate = useNavigate();
@@ -131,7 +132,6 @@ const Artists = () => {
   const [open, setOpen] = useState(false);
   const [openArtist, setOpenArtist] = useState<OpenArtist>({ id: -1, title: '', guid: '' });
   const [openCard, setOpenCard] = useState({ row: -1, index: -1 });
-  const { data: config } = useConfig();
   const { playSwitch, playUri } = usePlayback();
   const { width } = useOutletContext() as { height: number, width: number };
 
@@ -152,8 +152,8 @@ const Artists = () => {
   }, [filters, limit, sorting]);
 
   const fetchArtists = useCallback(async ({ pageParam = 0 }) => {
-    params.append('X-Plex-Container-Start', `${pageParam}`);
-    params.append('X-Plex-Container-Size', `${containerSize}`);
+    params.set('X-Plex-Container-Start', `${pageParam}`);
+    params.set('X-Plex-Container-Size', `${containerSize}`);
     const url = [
       library.api.uri,
       `/library/sections/${config.sectionId!}/all?${params.toString()}`,

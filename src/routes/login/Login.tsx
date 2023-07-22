@@ -6,8 +6,8 @@ import qs from 'qs';
 import React, { useState } from 'react';
 import { redirect, useLoaderData, useNavigate } from 'react-router-dom';
 import { Account, Client, Device, Library, ServerConnection } from 'api/index';
-import { defaultSettings, useSettings } from 'queries/app-queries';
 import CssTheme from 'root/CssTheme';
+import { defaultSettings } from 'root/Root';
 import ThemeMode from 'root/ThemeMode';
 import initializeApp from 'scripts/initialize-app';
 import { AppSettings, AppConfig } from 'types/interfaces';
@@ -66,13 +66,12 @@ export const loginLoader = async () => {
 };
 
 const Login = () => {
-  const loaderData = useLoaderData() as Awaited<ReturnType<typeof loginLoader>>;
+  const { settings } = useLoaderData() as Awaited<ReturnType<typeof loginLoader>>;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [loadingButton, setLoadingButton] = useState(0);
   const [selectedServer, setSelectedServer] = useState<Device | undefined>(undefined);
   const [step, setStep] = useState('init');
-  const { data: settings } = useSettings(loaderData.settings);
   const { data: pinData } = useQuery(
     ['auth-url'],
     async () => {

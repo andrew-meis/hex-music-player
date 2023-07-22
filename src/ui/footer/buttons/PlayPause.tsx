@@ -10,9 +10,9 @@ import { PlayQueueItem } from 'api/index';
 import { iconButtonStyle } from 'constants/style';
 import useKeyPress from 'hooks/useKeyPress';
 import useQueue from 'hooks/useQueue';
-import { useQueueId } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
 import { playbackIsPlayingAtom, usePlayerContext } from 'root/Player';
+import { queueIdAtom } from 'root/Root';
 import { isPlayQueueItem } from 'types/type-guards';
 
 const { platform } = window.electron.getAppInfo();
@@ -21,7 +21,7 @@ const PlayPause = () => {
   const ctrlPress = useKeyPress(platform === 'darwin' ? 'Meta' : 'Control');
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
   const player = usePlayerContext();
-  const queueId = useQueueId();
+  const queueId = useAtomValue(queueIdAtom);
   const setIsPlaying = useSetAtom(playbackIsPlayingAtom);
   const { data: playQueue } = useCurrentQueue();
   const { updateTimeline } = useQueue();
@@ -83,7 +83,7 @@ const PlayPause = () => {
       onClick={handlePlayPause}
     >
       <SvgIcon sx={{ width: '1.7em', height: '1.7em' }}>
-        {!!nowPlaying && ctrlPress && (<RiStopCircleFill />)}
+        {ctrlPress && (<RiStopCircleFill />)}
         {!ctrlPress && isPlaying && (<RiPauseCircleFill />)}
         {!ctrlPress && !isPlaying && (<RiPlayCircleFill />)}
       </SvgIcon>

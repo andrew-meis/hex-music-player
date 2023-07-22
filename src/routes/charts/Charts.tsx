@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { isEmpty } from 'lodash';
 import moment, { Moment } from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -6,8 +7,8 @@ import { useLocation, useNavigationType } from 'react-router-dom';
 import { Track } from 'api/index';
 import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useTopTracks } from 'queries/track-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import { AppTrackViewSettings } from 'types/interfaces';
 import Header from './Header';
 
@@ -27,8 +28,8 @@ const defaultViewSettings: AppTrackViewSettings = {
 };
 
 const Charts = () => {
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const viewSettings = window.electron.readConfig('charts-view-settings') as AppTrackViewSettings;
   const [open, setOpen] = useState(false);
@@ -57,7 +58,7 @@ const Charts = () => {
   });
 
   const { data: tracks, isFetching, isLoading } = useTopTracks({
-    config: config.data,
+    config,
     library,
     limit: 100,
     start: startDate.unix(),
@@ -99,14 +100,14 @@ const Charts = () => {
   const uri = useMemo(() => {
     const uriParams = {
       type: 10,
-      librarySectionID: config.data.sectionId,
+      librarySectionID: config.sectionId,
       'viewedAt>': startDate.unix(),
       'viewedAt<': endDate.unix(),
       limit: 101,
       accountID: 1,
     };
     return `/library/all/top?${new URLSearchParams(uriParams as any).toString()}`;
-  }, [config.data, endDate, startDate]);
+  }, [config, endDate, startDate]);
 
   const handlePlayNow = useCallback(async (
     key?: string,

@@ -1,5 +1,6 @@
 import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import moment from 'moment';
 import { useMemo, useRef } from 'react';
 import { useLocation, useNavigationType, useOutletContext, useParams } from 'react-router-dom';
@@ -7,9 +8,9 @@ import Palette from 'components/palette/Palette';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbumQuick } from 'queries/album-queries';
-import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import { useLastfmSearch, useLastfmTrack } from 'queries/last-fm-queries';
 import { useTrack, useTrackHistory } from 'queries/track-queries';
+import { configAtom, libraryAtom, settingsAtom } from 'root/Root';
 import { RouteParams } from 'types/interfaces';
 import Graphs from './Graphs';
 import Header from './Header';
@@ -17,19 +18,21 @@ import Info from './Info';
 import Similar from './Similar';
 
 const Track = () => {
+  const { id } = useParams<keyof RouteParams>() as RouteParams;
+
   const box = useRef<HTMLDivElement>(null);
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const navigationType = useNavigationType();
-  const { data: settings } = useSettings();
-  const { id } = useParams<keyof RouteParams>() as RouteParams;
+  const settings = useAtomValue(settingsAtom);
+
   const { data: track } = useTrack({
     library,
     id: +id,
   });
   const { data: trackHistory } = useTrackHistory({
-    config: config.data,
+    config,
     library,
     id: +id,
   });

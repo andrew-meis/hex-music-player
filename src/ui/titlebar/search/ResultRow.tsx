@@ -1,12 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 import { Avatar, Box, ListItem, SvgIcon, Typography } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import { FaTags } from 'react-icons/fa';
 import { IoMdMicrophone } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
-import { useLibrary } from 'queries/app-queries';
+import { libraryAtom } from 'root/Root';
 import { DragTypes, SortOrders, TrackSortKeys } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
@@ -43,7 +44,7 @@ interface ResultRowProps {
 const ResultRow = ({
   result, setOpen,
 }: ResultRowProps) => {
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const navigate = useNavigate();
   const [isHovered, setHovered] = useState(false);
   const [tooltipOpen, setTooltipOpen] = useState(false);

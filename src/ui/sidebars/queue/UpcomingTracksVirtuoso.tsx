@@ -1,6 +1,7 @@
 import { Avatar, Box, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -16,8 +17,8 @@ import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
 import useRowSelect from 'hooks/useRowSelect';
 import useTrackDragDrop from 'hooks/useTrackDragDrop';
-import { useLibrary, useSettings } from 'queries/app-queries';
 import { useCurrentQueue } from 'queries/plex-queries';
+import { libraryAtom, settingsAtom } from 'root/Root';
 import { DragTypes } from 'types/enums';
 
 export interface UpcomingTracksContext {
@@ -200,12 +201,12 @@ const UpcomingTracksVirtuoso = () => {
   const box = useRef<HTMLDivElement | null>(null);
   const dropIndex = useRef<number | null>(null);
   const hoverIndex = useRef<number | null>(null);
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const settings = useAtomValue(settingsAtom);
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
   const { addLast, addMany, moveMany, moveManyLast, removeMany } = useDragActions();
   const { data: playQueue } = useCurrentQueue();
-  const { data: settings } = useSettings();
   const { playQueueItem } = usePlayback();
   const { selectedRows, setSelectedRows, handleClickAway, handleRowClick } = useRowSelect([]);
 

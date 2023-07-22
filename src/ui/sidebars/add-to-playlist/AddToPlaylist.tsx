@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { RxCheck } from 'react-icons/rx';
@@ -17,8 +18,8 @@ import { MotionBox } from 'components/motion-components/motion-components';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
 import useToast from 'hooks/useToast';
-import { useLibrary, useSettings } from 'queries/app-queries';
 import { usePlaylists } from 'queries/playlist-queries';
+import { libraryAtom, settingsAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
 
@@ -115,13 +116,13 @@ const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) =>
 const AddToPlaylist = ({ items }: { items: Item[] }) => {
   const addToPlaylist = useAddToPlaylist();
   const createPlaylist = useCreatePlaylist();
-  const library = useLibrary();
+  const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
+  const settings = useAtomValue(settingsAtom);
   const toast = useToast();
   const [selected, setSelected] = useState<number[]>([]);
   const [title, setTitle] = useState('');
   const { data: playlists, isLoading } = usePlaylists(library);
-  const { data: settings } = useSettings();
   const { colorMode } = settings;
 
   useEffect(() => setSelected([]), [items]);

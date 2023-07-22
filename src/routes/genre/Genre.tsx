@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { throttle, uniqBy } from 'lodash';
 import { useMemo, useRef, useState } from 'react';
 import { BiChevronRight } from 'react-icons/bi';
@@ -19,9 +20,9 @@ import { iconMotion } from 'components/motion-components/motion-variants';
 import TrackCarousel from 'components/track/TrackCarousel';
 import { WIDTH_CALC } from 'constants/measures';
 import { useAlbumsByGenre } from 'queries/album-queries';
-import { useConfig, useLibrary, useSettings } from 'queries/app-queries';
 import { useLastfmTag } from 'queries/last-fm-queries';
 import { useTracksByGenre } from 'queries/track-queries';
+import { configAtom, libraryAtom, settingsAtom } from 'root/Root';
 import { getColumnsNarrow } from 'scripts/get-columns';
 import { AlbumSortKeys, SortOrders } from 'types/enums';
 import { LocationWithState, RouteParams } from 'types/interfaces';
@@ -50,13 +51,13 @@ const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => 
 
 const Genre = () => {
   const box = useRef<HTMLDivElement>(null);
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const navigate = useNavigate();
   const navigationType = useNavigationType();
+  const settings = useAtomValue(settingsAtom);
   const [expandedText, setExpandedText] = useState(false);
-  const { data: config } = useConfig();
-  const { data: settings } = useSettings();
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const { width } = useOutletContext() as { width: number };
 

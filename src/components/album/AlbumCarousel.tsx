@@ -1,6 +1,6 @@
-/* eslint-disable react/jsx-no-undef */
 import { Box } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
+import { useAtomValue } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Album, Library } from 'api/index';
 import { AlbumMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
-import { useSettings } from 'queries/app-queries';
+import { settingsAtom } from 'root/Root';
 import { getColumns } from 'scripts/get-columns';
 import AlbumCard from './AlbumCard';
 import AlbumCardNoText from './AlbumCardNoText';
@@ -23,8 +23,8 @@ interface AlbumCarouselProps {
 const AlbumCarousel = ({
   albums, library, navigate, width,
 }: AlbumCarouselProps) => {
+  const settings = useAtomValue(settingsAtom);
   const [menuTarget, setMenuTarget] = useState<Album[]>([]);
-  const { data: settings } = useSettings();
   const { playSwitch } = usePlayback();
 
   const throttledCols = throttle(() => getColumns(width), 300, { leading: true });

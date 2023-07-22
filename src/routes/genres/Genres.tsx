@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { countBy, throttle } from 'lodash';
 import React, { useMemo, useRef } from 'react';
 import {
@@ -12,9 +13,9 @@ import {
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Genre, Library } from 'api/index';
 import { VIEW_PADDING } from 'constants/measures';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtists } from 'queries/artist-queries';
 import { filterOptionsQueryFn } from 'queries/library-query-fns';
+import { configAtom, libraryAtom } from 'root/Root';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { AppConfig } from 'types/interfaces';
@@ -49,8 +50,8 @@ export interface RowProps {
 const RowContent = (props: RowProps) => <Row {...props} />;
 
 const Genres = () => {
-  const { data: config } = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation();
   const navigate = useNavigate();
   const navigationType = useNavigationType();

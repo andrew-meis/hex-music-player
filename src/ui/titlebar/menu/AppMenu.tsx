@@ -2,15 +2,16 @@ import { Avatar, Box, Dialog, SvgIcon, Typography } from '@mui/material';
 import { Menu, MenuButton, MenuButtonProps, MenuItem } from '@szhsin/react-menu';
 import { useQuery } from '@tanstack/react-query';
 import { XMLParser } from 'fast-xml-parser';
+import { useAtomValue } from 'jotai';
 import ky from 'ky';
 import React, { useState } from 'react';
 import { FiMoreVertical, FiLogOut } from 'react-icons/fi';
 import { IoInformationCircleOutline, IoSettingsSharp } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 import useQueue from 'hooks/useQueue';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useNowPlaying, useUser } from 'queries/plex-queries';
 import { usePlayerContext } from 'root/Player';
+import { configAtom, libraryAtom } from 'root/Root';
 import { AppConfig } from 'types/interfaces';
 import { isPlayQueueItem } from 'types/type-guards';
 
@@ -81,11 +82,11 @@ const IconMenuButton = React.forwardRef((
 ));
 
 const AppMenu = () => {
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const navigate = useNavigate();
   const player = usePlayerContext();
   const [open, setOpen] = useState(false);
-  const { data: config } = useConfig();
   const { data: nowPlaying } = useNowPlaying();
   const { data: user } = useUser();
   const { data: users } = useQuery<User[]>(

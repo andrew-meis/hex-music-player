@@ -2,6 +2,7 @@
 import {
   Avatar, Box, SvgIcon, Typography,
 } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
@@ -9,7 +10,7 @@ import { FaTags } from 'react-icons/fa';
 import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import usePalette, { defaultColors } from 'hooks/usePalette';
-import { useLibrary, useSettings } from 'queries/app-queries';
+import { libraryAtom, settingsAtom } from 'root/Root';
 import { DragTypes, SortOrders, TrackSortKeys } from 'types/enums';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
@@ -58,8 +59,8 @@ interface TopResultProps {
 
 const TopResult = ({ imgSize, topResult }: TopResultProps) => {
   const box = useRef<HTMLDivElement>(null);
-  const library = useLibrary();
-  const { data: settings } = useSettings();
+  const library = useAtomValue(libraryAtom);
+  const settings = useAtomValue(settingsAtom);
   const { colorMode } = settings;
 
   const thumbSrc = useMemo(() => {

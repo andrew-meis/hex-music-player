@@ -1,6 +1,7 @@
 import { useMenuState } from '@szhsin/react-menu';
 import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { useAtomValue } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
@@ -18,8 +19,8 @@ import { plexSort } from 'classes';
 import { ArtistMenu } from 'components/menus';
 import { VIEW_PADDING } from 'constants/measures';
 import usePlayback, { PlayParams } from 'hooks/usePlayback';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { useArtist, useArtistTracks } from 'queries/artist-queries';
+import { configAtom, libraryAtom } from 'root/Root';
 import FooterWide from 'routes/virtuoso-components/FooterWide';
 import { getColumns } from 'scripts/get-columns';
 import { PlayActions, SortOrders, TrackSortKeys } from 'types/enums';
@@ -85,8 +86,8 @@ const RowContent = (props: RowProps) => <Row {...props} />;
 const GroupRowContent = (props: RowProps) => <GroupRow {...props} />;
 
 const SimilarArtists = () => {
-  const config = useConfig();
-  const library = useLibrary();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const { id } = useParams<keyof RouteParams>() as RouteParams;
   const artist = useArtist(+id, library);
@@ -107,7 +108,7 @@ const SimilarArtists = () => {
 
   const openArtistQuery = useArtist(openArtist.id, library);
   const openArtistTracksQuery = useArtistTracks({
-    config: config.data,
+    config,
     library,
     id: openArtist.id,
     title: openArtist.title,

@@ -51,6 +51,7 @@ const trackSortOptions: {
   { value: 'random', label: 'Random', type: 'alpha' },
   // { value: 'album.originallyAvailableAt', label: 'Release Date', type: 'date' },
   { value: 'title', label: 'Title', type: 'alpha' },
+  { value: 'originalTitle', label: 'Track Artist', type: 'number' },
   { value: 'parentYear', label: 'Year', type: 'date' },
 ];
 

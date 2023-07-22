@@ -1,5 +1,6 @@
 import { Box, ListItem, SvgIcon, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { capitalize } from 'lodash';
 import React from 'react';
 import { BiChevronLeft } from 'react-icons/bi';
@@ -12,8 +13,8 @@ import {
   navlistTypeActiveStyle,
   navlistTypeStyle,
 } from 'constants/style';
-import { useConfig, useLibrary } from 'queries/app-queries';
 import { MediaTag, filterOptionsQueryFn } from 'queries/library-query-fns';
+import { configAtom, libraryAtom } from 'root/Root';
 import { isAlbum, isArtist, isGenre } from 'types/type-guards';
 
 export interface ItemProps {
@@ -66,8 +67,8 @@ interface NavlistProps {
 }
 
 const Navlist = ({ list, setIndex }: NavlistProps) => {
-  const library = useLibrary();
-  const { data: config } = useConfig();
+  const config = useAtomValue(configAtom);
+  const library = useAtomValue(libraryAtom);
   const { data: items, isLoading } = useQuery(
     [list],
     async () => {

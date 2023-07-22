@@ -29,7 +29,6 @@ export interface AppSettings {
 
 export interface AppConfig {
   clientId?: string;
-  queueId?: number;
   sectionId?: number;
   serverName?: string;
   token?: string;
@@ -59,8 +58,8 @@ export interface ElectronAPI {
   quit: () => void;
   unmaximize: () => void;
   getAppInfo: () => AppInfo;
-  readConfig: (key: string) => AppSettings | AppConfig | AppTrackViewSettings;
-  writeConfig: (key: string, value: any) => AppSettings | AppConfig | AppTrackViewSettings;
+  readConfig: (key: string) => any;
+  writeConfig: (key: string, value: any) => any;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
   updatePlaying: (key: 'playing', value: boolean) => void;

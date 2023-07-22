@@ -29,6 +29,7 @@ import { TrackTablePlaceholder, TrackTableRow, styles } from 'components/track-t
 import { ColumnVisibilityDialog, useDefaultColumns } from 'components/track-table/columns';
 import { sortedTracksAtom } from 'components/track-table/TrackTable';
 import { WIDTH_CALC } from 'constants/measures';
+import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
@@ -88,6 +89,7 @@ const TrackTable: React.FC<{
 
   const { playSwitch } = usePlayback();
   const { data: nowPlaying } = useNowPlaying();
+  const { getFormattedTime } = useFormattedTime();
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ ...columnOptions });
   const [grouping, setGrouping] = useState<GroupingState>(groupBy ? [groupBy] : []);
@@ -99,6 +101,7 @@ const TrackTable: React.FC<{
 
   const columns = useDefaultColumns({
     additionalColumns: [],
+    getFormattedTime,
     isPlaying,
     library,
     nowPlaying,
