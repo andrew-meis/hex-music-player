@@ -1,9 +1,8 @@
 import { Box, Grid } from '@mui/material';
-import React from 'react';
-import AdditionalButtons from './AdditionalButtons';
-import MediaButtons from './MediaButtons';
+import Drawers from './Drawers';
+import Seekbar from './media-control/Seekbar';
+import MediaControl from './MediaControl';
 import NowPlaying from './NowPlaying';
-import Seekbar from './Seekbar';
 
 const Footer = () => (
   <Box
@@ -26,11 +25,11 @@ const Footer = () => (
       </Grid>
       <Grid item maxWidth="600px !important" xs={7}>
         <Box height="20%" />
-        <MediaButtons />
+        <MediaControl />
         <Seekbar />
       </Grid>
       <Grid item xs>
-        <AdditionalButtons />
+        <Drawers />
       </Grid>
     </Grid>
   </Box>

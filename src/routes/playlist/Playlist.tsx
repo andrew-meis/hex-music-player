@@ -1,9 +1,9 @@
 import { SvgIcon } from '@mui/material';
 import { MenuDivider, MenuItem } from '@szhsin/react-menu';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
@@ -17,6 +17,7 @@ import mergeRefs from 'scripts/merge-refs';
 import { DragTypes, PlayActions } from 'types/enums';
 import { AppTrackViewSettings, RouteParams } from 'types/interfaces';
 import { isPlaylistItem } from 'types/type-guards';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 import Subheader from './Subheader';
 import TrackTable from './TrackTable';
@@ -48,11 +49,17 @@ const Playlist = () => {
   const playlist = usePlaylist(+id, library);
   const playlistItems = usePlaylistItems(+id, library);
   const removeFromPlaylist = useRemoveFromPlaylist();
+  const setTableKey = useSetAtom(tableKeyAtom);
   const toast = useToast();
   const [filter, setFilter] = useState('');
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('playlist');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const items = useMemo(() => {
     if (!playlistItems.data) {
@@ -189,7 +196,6 @@ const Playlist = () => {
       />
       <Subheader
         filter={filter}
-        openColumnDialog={() => setOpen(true)}
         playlist={playlist.data}
         setFilter={setFilter}
       />
@@ -211,11 +217,9 @@ const Playlist = () => {
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
-        open={open}
         playbackFn={handlePlayNow}
         rows={items}
         scrollRef={scrollRef}
-        setOpen={setOpen}
         subtextOptions={{
           albumTitle: true,
           artistTitle: true,

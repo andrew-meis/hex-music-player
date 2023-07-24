@@ -1,9 +1,9 @@
 import { Box } from '@mui/material';
 import { sort } from 'fast-sort';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Album, Track } from 'api/index';
 import { plexSort } from 'classes';
@@ -19,6 +19,7 @@ import {
   AlbumWithSection,
   AppTrackViewSettings,
 } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 import ReleaseAvatar from './ReleaseAvatar';
 import ReleaseHeader from './ReleaseHeader';
@@ -44,12 +45,18 @@ const Discography = () => {
   const config = useAtomValue(configAtom);
   const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
+  const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron.readConfig('album-view-settings') as AppTrackViewSettings;
   const [activeRelease, setActiveRelease] = useState<AlbumWithSection>();
   const [filter, setFilter] = useState('All Releases');
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('album');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
   const { data: appearances, isLoading: appearancesLoading } = useArtistAppearances(
@@ -195,11 +202,9 @@ const Discography = () => {
                   ? viewSettings.multiLineRating
                   : defaultViewSettings.multiLineRating
               }
-              open={open}
               playbackFn={handlePlayNow}
               rows={tracks?.filter((track) => track.parentId === activeRelease.id) || []}
               scrollRef={scrollRef}
-              setOpen={setOpen}
               subtextOptions={{
                 albumTitle: false,
                 artistTitle: true,

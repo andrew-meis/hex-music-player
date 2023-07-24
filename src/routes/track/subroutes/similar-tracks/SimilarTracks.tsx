@@ -1,9 +1,9 @@
 import { Typography } from '@mui/material';
 import { CellContext } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Track } from 'api/index';
 import { TrackTable } from 'components/track-table';
@@ -11,6 +11,7 @@ import usePlayback from 'hooks/usePlayback';
 import { useSimilarTracks, useTrack } from 'queries/track-queries';
 import { libraryAtom } from 'root/Root';
 import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 
 const defaultViewSettings: AppTrackViewSettings = {
@@ -35,12 +36,18 @@ const SimilarTracks = () => {
   const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const navigationType = useNavigationType();
+  const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron
     .readConfig('similar-tracks-view-settings') as AppTrackViewSettings;
   const [filter, setFilter] = useState('');
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playTracks } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('similar');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { data: currentTrack, isLoading: trackLoading } = useTrack({ id: +id, library });
   const { data: tracks, isLoading: tracksLoading } = useSimilarTracks({
@@ -148,11 +155,9 @@ const SimilarTracks = () => {
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
-        open={open}
         playbackFn={handlePlayNow}
         rows={items || []}
         scrollRef={scrollRef}
-        setOpen={setOpen}
         subtextOptions={{
           albumTitle: true,
           artistTitle: true,
@@ -160,7 +165,7 @@ const SimilarTracks = () => {
             ? viewSettings.multiLineTitle
             : defaultViewSettings.multiLineTitle,
         }}
-        viewKey="similar"
+        tableKey="similar"
       />
     </motion.div>
   );

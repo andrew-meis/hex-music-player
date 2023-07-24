@@ -18,7 +18,8 @@ import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
-import { ColumnVisibilityDialog, useDefaultColumns } from './columns';
+import ColumnSettings from 'ui/sidebars/column-settings/ColumnSettings';
+import { useDefaultColumns } from './columns';
 import styles from './TrackTable.module.scss';
 import TrackTableRowStatic from './TrackTableRowStatic';
 
@@ -28,27 +29,23 @@ const TrackTableStatic: React.FC<{
   isViewCompact: boolean,
   library: Library,
   multiLineRating: boolean,
-  open: boolean,
   playbackFn: (
     key?: string,
     shuffle?: boolean,
   ) => Promise<void>;
   rows: Track[],
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   subtextOptions: SubtextOptions,
-  viewKey: string,
+  tableKey: string,
 }> = ({
   additionalColumns,
   columnOptions,
   isViewCompact,
   library,
   multiLineRating,
-  open,
   playbackFn,
   rows,
-  setOpen,
   subtextOptions,
-  viewKey,
+  tableKey,
 }) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
 
@@ -234,6 +231,7 @@ const TrackTableStatic: React.FC<{
       </ClickAwayListener>
       <TrackMenu
         anchorPoint={anchorPoint}
+        playNow={() => playbackFn(selectedItems[0].key, false)}
         playSwitch={playSwitch}
         toggleMenu={toggleMenu}
         tracks={selectedItems}
@@ -243,17 +241,15 @@ const TrackTableStatic: React.FC<{
         }}
         {...menuProps}
       />
-      <ColumnVisibilityDialog
+      <ColumnSettings
         compact={compact}
-        open={open}
         ratingOptions={ratingOptions}
         setCompact={setCompact}
-        setOpen={setOpen}
         setRatingOptions={setRatingOptions}
         setTitleOptions={setTitleOptions}
         table={table}
+        tableKey={tableKey}
         titleOptions={titleOptions}
-        viewKey={viewKey}
       />
     </>
   );

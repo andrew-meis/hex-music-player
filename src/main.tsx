@@ -20,6 +20,7 @@ import SimilarArtists from 'routes/artist/subroutes/similar-artists/SimilarArtis
 import Artists from 'routes/artists/Artists';
 import Charts from 'routes/charts/Charts';
 import Genre from 'routes/genre/Genre';
+import GenreTracks from 'routes/genre/genre-tracks/GenreTracks';
 import Genres from 'routes/genres/Genres';
 import History from 'routes/history/History';
 import Home from 'routes/home/Home';
@@ -158,6 +159,11 @@ const router = createHashRouter([
       {
         path: '/genres/:id',
         element: <Genre />,
+        errorElement: <ErrorElement />,
+      },
+      {
+        path: '/genres/:id/tracks',
+        element: <GenreTracks />,
         errorElement: <ErrorElement />,
       },
       {

@@ -1,9 +1,9 @@
 import { Drawer } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { Album, Track } from 'api/index';
+import { Album, Artist, Track } from 'api/index';
 import AddToPlaylist from 'ui/sidebars/add-to-playlist/AddToPlaylist';
 
-type Item = Album | Track;
+export type Item = Album | Artist | Track;
 
 const AddToPlaylistDrawer = () => {
   const { data: items } = useQuery<Item[]>(

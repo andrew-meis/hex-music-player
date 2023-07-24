@@ -53,6 +53,7 @@ const GenreCard = ({ genre, context }: GenreCardProps) => {
       sx={{
         background: 'none',
         borderRadius: '32px',
+        cursor: 'pointer',
         willChange: 'transform',
       }}
       whileHover="hover"

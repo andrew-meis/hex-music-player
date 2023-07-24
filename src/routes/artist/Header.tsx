@@ -4,12 +4,10 @@ import { BiChevronRight } from 'react-icons/bi';
 import { HiArrowSmUp, HiArrowSmDown } from 'react-icons/hi';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'react-router-dom';
-import { usePrevious } from 'react-use';
 import { Artist } from 'api/index';
 import { ChipSelect } from 'components/chips';
 import { MotionSvg, MotionTypography } from 'components/motion-components/motion-components';
 import { iconMotion } from 'components/motion-components/motion-variants';
-import PaginationDots from 'components/pagination-dots/PaginationDots';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { HexSortKeys, SortOrders, TrackSortKeys } from 'types/enums';
@@ -48,16 +46,9 @@ const Header = ({ context }: { context?: ArtistContext }) => {
   } = context!;
   const { artist } = artistData!;
 
-  const [activeIndex, setActiveIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const chipRef = useRef<HTMLDivElement | null>(null);
-  const prevIndex = usePrevious(activeIndex);
   const tracksInView = useInView({ threshold: 0 });
-  const difference = useMemo(() => {
-    if (prevIndex) return activeIndex - prevIndex;
-    return 1;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex]);
   const colLength = (cols - 1) * 2;
 
   const maxWidth = 1600;
@@ -130,17 +121,9 @@ const Header = ({ context }: { context?: ArtistContext }) => {
         <Box bgcolor="background.paper" position="relative">
           <div style={{ height: 12, width: '100%' }} />
           <SimilarArtistsCards
-            activeIndex={activeIndex}
             artist={artist}
             context={context}
-            difference={difference}
             similarArtists={similarArtists}
-          />
-          <PaginationDots
-            activeIndex={activeIndex}
-            array={similarArtists}
-            colLength={colLength}
-            setActiveIndex={setActiveIndex}
           />
         </Box>
       )}

@@ -1,7 +1,7 @@
 import { Typography } from '@mui/material';
 import { CellContext, SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { atom, useAtom, useAtomValue } from 'jotai';
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -16,6 +16,7 @@ import {
 } from 'queries/artist-queries';
 import { configAtom, libraryAtom } from 'root/Root';
 import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 import TrackTable from './TrackTable';
 
@@ -44,13 +45,19 @@ const ArtistTracks = () => {
   const library = useAtomValue(libraryAtom);
   const location = useLocation() as LocationWithState;
   const navigationType = useNavigationType();
+  const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron
     .readConfig('artist-tracks-view-settings') as AppTrackViewSettings;
   const [filter, setFilter] = useState('');
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const [sortingState, setSortingState] = useAtom(artistTracksSortingAtom);
   const { playTracks } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('artist');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [sorting, setSorting] = useState<SortingState>(() => {
     if (navigationType === 'POP' && !isEmpty(sortingState)) {
@@ -196,11 +203,9 @@ const ArtistTracks = () => {
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
-        open={open}
         playbackFn={handlePlayNow}
         rows={items || []}
         scrollRef={scrollRef}
-        setOpen={setOpen}
         setSorting={setSorting}
         sorting={sorting}
         subtextOptions={{
@@ -210,7 +215,7 @@ const ArtistTracks = () => {
             ? viewSettings.multiLineTitle
             : defaultViewSettings.multiLineTitle,
         }}
-        viewKey="artist"
+        tableKey="artist"
       />
     </motion.div>
   );

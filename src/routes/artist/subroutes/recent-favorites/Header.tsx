@@ -200,7 +200,7 @@ const Header: React.FC<{
                 </Box>
               )}
               ref={chipRef}
-              sx={{ fontSize: '0.9rem' }}
+              sx={{ fontSize: '0.9rem', ml: 'auto' }}
               onClick={() => setOpen(true)}
             />
           </SelectTooltip>

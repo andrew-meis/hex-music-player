@@ -1,33 +1,52 @@
-import { Avatar, Box, SvgIcon } from '@mui/material';
-import { AnimatePresence } from 'framer-motion';
+import { Box } from '@mui/material';
+import { useMenuState } from '@szhsin/react-menu';
+import React, { useCallback, useState } from 'react';
 import { BiChevronRight } from 'react-icons/bi';
-import { IoMdMicrophone } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { Artist } from 'api/index';
+import { ArtistMenu } from 'components/menus';
 import {
-  MotionBox, MotionSvg, MotionTypography,
+  MotionBox,
+  MotionSvg,
+  MotionTypography,
 } from 'components/motion-components/motion-components';
-import { iconMotion, tracklistMotion } from 'components/motion-components/motion-variants';
-import { Subtitle, Title } from 'components/typography/TitleSubtitle';
+import { iconMotion } from 'components/motion-components/motion-variants';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import { ArtistContext } from '../Artist';
+import SimilarArtistCard from './SimilarArtistCard';
 
-interface SimilarArtistsCardsProps {
-  activeIndex: number;
+const SimilarArtistsCards: React.FC<{
   artist: Artist;
   context: ArtistContext;
-  difference: number;
   similarArtists: Artist[];
-}
+}> = ({
+  artist,
+  context,
+  similarArtists: allSimilarArtists,
+}) => {
+  const { cols, library, navigate, playSwitch, width } = context;
+  const [menuTarget, setMenuTarget] = useState<Artist[]>([]);
+  const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
 
-const SimilarArtistsCards = ({
-  activeIndex, artist, context, difference, similarArtists: allSimilarArtists,
-}: SimilarArtistsCardsProps) => {
-  const { cols, library, navigate, width } = context;
   const cardWidth = (Math.floor((width - VIEW_PADDING) / (cols - 1)));
-  const length = (cols - 1) * 2;
-  const similarArtists = allSimilarArtists
-    .slice((activeIndex * length), (activeIndex * length + length));
+  const length = (cols - 1);
+  const similarArtists = allSimilarArtists.slice(0, length);
+
+  const handleContextMenu = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = event.currentTarget.getAttribute('data-id');
+    if (!target) {
+      return;
+    }
+    const targetId = parseInt(target, 10);
+    setMenuTarget(similarArtists
+      .filter((similarArtist) => similarArtist)
+      .filter((similarArtist) => similarArtist.id === targetId) as Artist[]);
+    setAnchorPoint({ x: event.clientX, y: event.clientY });
+    toggleMenu(true);
+  }, [similarArtists, toggleMenu]);
+
   return (
     <Box display="flex" flexDirection="column" margin="auto" width={WIDTH_CALC}>
       <MotionTypography
@@ -47,85 +66,64 @@ const SimilarArtistsCards = ({
           </MotionSvg>
         </Link>
       </MotionTypography>
-      <AnimatePresence custom={difference} initial={false} mode="wait">
+      <Box
+        alignContent="space-between"
+        display="flex"
+        minHeight={70 + 32}
+      >
+        {similarArtists?.map((similarArtist, index) => (
+          <SimilarArtistCard
+            cardWidth={cardWidth}
+            cols={cols}
+            handleContextMenu={handleContextMenu}
+            index={index}
+            key={similarArtist.id}
+            library={library}
+            menuTarget={menuTarget}
+            navigate={navigate}
+            similarArtist={similarArtist}
+          />
+        ))}
         <MotionBox
-          alignContent="space-between"
-          animate={{ x: 0, opacity: 1 }}
-          custom={difference}
+          alignItems="center"
+          borderRadius="12px"
           display="flex"
-          exit="exit"
-          flexWrap="wrap"
-          initial="enter"
-          key={activeIndex}
-          minHeight={allSimilarArtists.length > 3 ? 148 : 0}
-          transition={{ duration: 0.2 }}
-          variants={tracklistMotion}
+          height={70}
+          justifyContent="center"
+          ml={1}
+          sx={{
+            color: 'text.secondary',
+            cursor: 'pointer',
+            transition: '0.2s',
+            '&:hover': {
+              backgroundColor: 'action.hover',
+              color: 'text.primary',
+            },
+          }}
+          whileHover="hover"
+          width={70}
+          onClick={() => navigate(`/artists/${artist.id}/similar`)}
         >
-          {similarArtists?.map((similarArtist, index) => {
-            const thumbSrc = library.api
-              .getAuthenticatedUrl(
-                '/photo/:/transcode',
-                { url: similarArtist.thumb, width: 100, height: 100 },
-              );
-            return (
-              <Box
-                alignItems="center"
-                borderRadius="12px"
-                display="flex"
-                height={70}
-                key={similarArtist.id}
-                sx={{
-                  cursor: 'pointer',
-                  marginRight: (index + 1) % (cols - 1) === 0 ? '0px' : '8px',
-                  transition: '0.2s',
-                  '& > div.MuiAvatar-root': {
-                    transition: '0.2s',
-                    filter: 'grayscale(60%)',
-                  },
-                  '&:hover': {
-                    backgroundColor: 'action.hover',
-                    '& > div.MuiAvatar-root': {
-                      filter: 'none',
-                    },
-                  },
-                }}
-                width={cardWidth - (8 / ((cols - 1) / (cols - 2)))}
-                onClick={() => navigate(
-                  `/artists/${similarArtist.id}`,
-                  { state: { guid: similarArtist.guid, title: similarArtist.title } },
-                )}
-              >
-                <Avatar
-                  alt={similarArtist.title}
-                  src={similarArtist.thumb ? thumbSrc : ''}
-                  sx={{
-                    height: 60,
-                    marginLeft: '8px',
-                    width: 60,
-                  }}
-                >
-                  <SvgIcon className="generic-icon" sx={{ color: 'common.black' }}>
-                    <IoMdMicrophone />
-                  </SvgIcon>
-                </Avatar>
-                <Box>
-                  <Title marginTop="2px" marginX="8px">
-                    {similarArtist.title}
-                  </Title>
-                  <Subtitle
-                    marginX="8px"
-                  >
-                    {similarArtist.genre.slice(0, 2).map(
-                      // eslint-disable-next-line max-len
-                      (genre, i, a) => `${genre.tag.toLowerCase()}${i !== a.length - 1 ? ', ' : ''}`,
-                    )}
-                  </Subtitle>
-                </Box>
-              </Box>
-            );
-          })}
+          <MotionSvg
+            sx={{ width: '2em', height: '2em' }}
+            variants={iconMotion}
+            viewBox="0 0 24 24"
+          >
+            <BiChevronRight />
+          </MotionSvg>
         </MotionBox>
-      </AnimatePresence>
+      </Box>
+      <ArtistMenu
+        anchorPoint={anchorPoint}
+        artists={menuTarget}
+        playSwitch={playSwitch}
+        toggleMenu={toggleMenu}
+        onClose={() => {
+          toggleMenu(false);
+          setMenuTarget([]);
+        }}
+        {...menuProps}
+      />
     </Box>
   );
 };

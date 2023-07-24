@@ -27,12 +27,13 @@ import { Library, Track } from 'api/index';
 import { TrackMenu } from 'components/menus';
 import { SubtextOptions } from 'components/subtext/Subtext';
 import { TrackTablePlaceholder, TrackTableRow, styles } from 'components/track-table';
-import { ColumnVisibilityDialog, useDefaultColumns } from 'components/track-table/columns';
+import { useDefaultColumns } from 'components/track-table/columns';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
+import ColumnSettings from 'ui/sidebars/column-settings/ColumnSettings';
 
 const TableFoot = React.forwardRef((
   { style, ...props }: TableProps,
@@ -55,14 +56,12 @@ const TrackTable: React.FC<{
   library: Library,
   listRange: React.MutableRefObject<ListRange | undefined>,
   multiLineRating: boolean,
-  open: boolean,
   playbackFn: (
     key?: string,
     shuffle?: boolean,
   ) => Promise<void>;
   rows: Track[],
   scrollRef: HTMLDivElement | null,
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   setSorting: React.Dispatch<React.SetStateAction<SortingState>>,
   sorting: SortingState,
   subtextOptions: SubtextOptions,
@@ -73,11 +72,9 @@ const TrackTable: React.FC<{
   library,
   listRange,
   multiLineRating,
-  open,
   playbackFn,
   rows,
   scrollRef,
-  setOpen,
   setSorting,
   sorting,
   subtextOptions,
@@ -383,6 +380,7 @@ const TrackTable: React.FC<{
       />
       <TrackMenu
         anchorPoint={anchorPoint}
+        playNow={() => playbackFn(selectedItems[0].key, false)}
         playSwitch={playSwitch}
         toggleMenu={toggleMenu}
         tracks={selectedItems}
@@ -392,17 +390,15 @@ const TrackTable: React.FC<{
         }}
         {...menuProps}
       />
-      <ColumnVisibilityDialog
+      <ColumnSettings
         compact={compact}
-        open={open}
         ratingOptions={ratingOptions}
         setCompact={setCompact}
-        setOpen={setOpen}
         setRatingOptions={setRatingOptions}
         setTitleOptions={setTitleOptions}
         table={table}
+        tableKey="tracks"
         titleOptions={titleOptions}
-        viewKey="tracks"
       />
     </>
   );

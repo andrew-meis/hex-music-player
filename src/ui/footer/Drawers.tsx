@@ -1,11 +1,12 @@
 import { Box } from '@mui/material';
-import AddToPlaylistDrawer from './AddToPlaylistDrawer';
-import FilterDrawer from './FilterDrawer';
+import AddToPlaylistDrawer from './drawers/AddToPlaylistDrawer';
+import ColumnSettingsDrawer from './drawers/ColumnSettingsDrawer';
+import FilterDrawer from './drawers/FilterDrawer';
+import QueueDrawer from './drawers/QueueDrawer';
 import LyricsButton from './LyricsButton';
-import QueueDrawer from './QueueDrawer';
-import VolumeSlider from './VolumeSlider';
+import VolumeSlider from './media-control/VolumeSlider';
 
-const AdditionalButtons = () => (
+const Drawers = () => (
   <Box
     sx={{
       alignItems: 'center',
@@ -18,10 +19,11 @@ const AdditionalButtons = () => (
   >
     <LyricsButton />
     <FilterDrawer />
+    <ColumnSettingsDrawer />
     <QueueDrawer />
     <VolumeSlider />
     <AddToPlaylistDrawer />
   </Box>
 );
 
-export default AdditionalButtons;
+export default Drawers;

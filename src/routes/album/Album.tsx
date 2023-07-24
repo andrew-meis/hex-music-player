@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Track } from 'api/index';
 import Palette from 'components/palette/Palette';
@@ -10,6 +10,7 @@ import { useAlbum, useAlbumTracks } from 'queries/album-queries';
 import { libraryAtom } from 'root/Root';
 import { PlayActions } from 'types/enums';
 import { AppTrackViewSettings, RouteParams } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 import Subheader from './Subheader';
 import TrackTable from './TrackTable';
@@ -37,10 +38,16 @@ const Album = () => {
   const albumTracks = useAlbumTracks(+id, library);
   const location = useLocation();
   const navigationType = useNavigationType();
+  const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron.readConfig('album-view-settings') as AppTrackViewSettings;
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('album');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePlayNow = useCallback(async (
     key?: string,
@@ -109,7 +116,6 @@ const Album = () => {
             <Subheader
               album={album.data.album}
               colors={colors}
-              openColumnDialog={() => setOpen(true)}
             />
             <TrackTable
               columnOptions={
@@ -129,11 +135,9 @@ const Album = () => {
                   ? viewSettings.multiLineRating
                   : defaultViewSettings.multiLineRating
               }
-              open={open}
               playbackFn={handlePlayNow}
               rows={albumTracks.data || []}
               scrollRef={scrollRef}
-              setOpen={setOpen}
               subtextOptions={{
                 albumTitle: false,
                 artistTitle: true,

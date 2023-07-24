@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
 import moment, { Moment } from 'moment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -10,6 +10,7 @@ import usePlayback from 'hooks/usePlayback';
 import { useTopTracks } from 'queries/track-queries';
 import { configAtom, libraryAtom } from 'root/Root';
 import { AppTrackViewSettings } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 
 const defaultViewSettings: AppTrackViewSettings = {
@@ -31,10 +32,16 @@ const Charts = () => {
   const config = useAtomValue(configAtom);
   const library = useAtomValue(libraryAtom);
   const location = useLocation();
+  const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron.readConfig('charts-view-settings') as AppTrackViewSettings;
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playTracks, playUri } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('charts');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const navigationType = useNavigationType();
   const savedState = JSON.parse(sessionStorage.getItem('charts-state') || '{}');
@@ -146,7 +153,6 @@ const Charts = () => {
         endDate={endDate}
         handlePlayNow={handlePlayNow}
         isFetching={isFetching}
-        openColumnDialog={() => setOpen(true)}
         setDays={setDays}
         setEndDate={setEndDate}
         setStartDate={setStartDate}
@@ -169,11 +175,9 @@ const Charts = () => {
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
-        open={open}
         playbackFn={handlePlayNow}
         rows={tracks || []}
         scrollRef={scrollRef}
-        setOpen={setOpen}
         subtextOptions={{
           albumTitle: true,
           artistTitle: true,
@@ -181,7 +185,7 @@ const Charts = () => {
             ? viewSettings.multiLineTitle
             : defaultViewSettings.multiLineTitle,
         }}
-        viewKey="charts"
+        tableKey="charts"
       />
     </motion.div>
   );

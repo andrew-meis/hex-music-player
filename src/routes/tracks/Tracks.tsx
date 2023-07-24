@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { SortingState } from '@tanstack/react-table';
 import { motion } from 'framer-motion';
-import { atom, useAtom, useAtomValue } from 'jotai';
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
 import ky from 'ky';
 import { isEmpty } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -13,6 +13,7 @@ import usePlayback from 'hooks/usePlayback';
 import { configAtom, libraryAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { AppTrackViewSettings } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import { Filter, filtersAtom } from 'ui/sidebars/filter-panel/FilterPanel';
 import { limitAtom } from 'ui/sidebars/filter-panel/InputLimit';
 import Header from './Header';
@@ -92,12 +93,18 @@ const Tracks = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const range = useRef<ListRange>();
+  const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron.readConfig('tracks-view-settings') as AppTrackViewSettings;
   const [containerStart, setContainerStart] = useState(0);
-  const [open, setOpen] = useState(false);
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const [sorting, setSorting] = useAtom(trackSortingAtom);
   const { playUri } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('tracks');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const params = useMemo(() => {
     const newParams = new URLSearchParams();
@@ -237,7 +244,6 @@ const Tracks = () => {
       />
       <Subheader
         count={flatTracks.length}
-        openColumnDialog={() => setOpen(true)}
       />
       <TrackTable
         columnOptions={
@@ -258,11 +264,9 @@ const Tracks = () => {
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
-        open={open}
         playbackFn={handlePlayNow}
         rows={flatTracks}
         scrollRef={scrollRef}
-        setOpen={setOpen}
         setSorting={setSorting}
         sorting={sorting}
         subtextOptions={{

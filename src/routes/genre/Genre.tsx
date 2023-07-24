@@ -50,6 +50,8 @@ const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => 
 );
 
 const Genre = () => {
+  const { id } = useParams<keyof RouteParams>() as RouteParams;
+
   const box = useRef<HTMLDivElement>(null);
   const config = useAtomValue(configAtom);
   const library = useAtomValue(libraryAtom);
@@ -58,7 +60,6 @@ const Genre = () => {
   const navigationType = useNavigationType();
   const settings = useAtomValue(settingsAtom);
   const [expandedText, setExpandedText] = useState(false);
-  const { id } = useParams<keyof RouteParams>() as RouteParams;
   const { width } = useOutletContext() as { width: number };
 
   const throttledCols = throttle(() => getColumnsNarrow(width), 300, { leading: true });
@@ -224,7 +225,9 @@ const Genre = () => {
             <>
               <Subheader
                 text="Top Tracks"
-                onClick={() => {}}
+                onClick={() => navigate(`/genres/${id}/tracks`, {
+                  state: { title: location.state.title },
+                })}
               />
               <TrackCarousel
                 library={library}

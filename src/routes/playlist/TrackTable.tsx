@@ -35,12 +35,12 @@ import {
   TitleCell,
   RatingCell,
 } from 'components/track-table/cells';
-import { ColumnVisibilityDialog } from 'components/track-table/columns';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
 import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
+import ColumnSettings from 'ui/sidebars/column-settings/ColumnSettings';
 import Footer from './Footer';
 
 const columnHelper = createColumnHelper<PlaylistItem>();
@@ -74,7 +74,6 @@ const TrackTable: React.FC<{
   isViewCompact: boolean,
   library: Library,
   multiLineRating: boolean,
-  open: boolean,
   playbackFn: (
     key?: string,
     shuffle?: boolean,
@@ -82,7 +81,6 @@ const TrackTable: React.FC<{
   ) => Promise<void>;
   rows: PlaylistItem[],
   scrollRef: HTMLDivElement | null,
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
   subtextOptions: SubtextOptions,
   trackDropFn?: (droppedItems: PlaylistItem[], prevId?: number) => Promise<void>,
   onDeleteKey?: (selectedItems: PlaylistItem[]) => void,
@@ -93,11 +91,9 @@ const TrackTable: React.FC<{
   isViewCompact,
   library,
   multiLineRating,
-  open,
   playbackFn,
   rows,
   scrollRef,
-  setOpen,
   subtextOptions,
   trackDropFn,
   onDeleteKey,
@@ -328,15 +324,18 @@ const TrackTable: React.FC<{
     setSortedPlaylistItems(sortedItems);
   }, [rows, setSortedPlaylistItems, sorting, table]);
 
+  const sortedItems = useMemo(() => {
+    if (!isEmpty(sorting)) {
+      return table.getRowModel().rows
+        .filter((_row) => !_row.getIsGrouped())
+        .map(({ original }) => original);
+    }
+    return undefined;
+  }, [sorting, table]);
+
   const handleClick = useCallback((event: React.MouseEvent, row: Row<PlaylistItem>) => {
     if (event.button !== 0) return;
     if (event.detail === 2) {
-      let sortedItems;
-      if (!isEmpty(sorting)) {
-        sortedItems = table.getRowModel().rows
-          .filter((_row) => !_row.getIsGrouped())
-          .map(({ original }) => original);
-      }
       playbackFn(row.original.track.key, false, sortedItems);
     }
     const { id } = row.original;
@@ -374,7 +373,7 @@ const TrackTable: React.FC<{
       return;
     }
     table.setRowSelection({ [row.id]: true });
-  }, [playbackFn, rowSelection, selectedItems, sorting, table]);
+  }, [playbackFn, rowSelection, selectedItems, sortedItems, table]);
 
   const handleContextMenu = useCallback((
     event: React.MouseEvent<Element>,
@@ -583,6 +582,7 @@ const TrackTable: React.FC<{
       />
       <TrackMenu
         anchorPoint={anchorPoint}
+        playNow={() => playbackFn(selectedItems[0].track.key, false, sortedItems)}
         playSwitch={playSwitch}
         toggleMenu={toggleMenu}
         tracks={selectedItems.map((selectedItem) => selectedItem.track)}
@@ -594,17 +594,15 @@ const TrackTable: React.FC<{
       >
         {!!additionalMenuOptions && additionalMenuOptions(selectedItems)}
       </TrackMenu>
-      <ColumnVisibilityDialog
+      <ColumnSettings
         compact={compact}
-        open={open}
         ratingOptions={ratingOptions}
         setCompact={setCompact}
-        setOpen={setOpen}
         setRatingOptions={setRatingOptions}
         setTitleOptions={setTitleOptions}
         table={table}
+        tableKey="playlist"
         titleOptions={titleOptions}
-        viewKey="playlist"
       />
     </>
   );

@@ -1,15 +1,17 @@
 import { motion } from 'framer-motion';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isEmpty } from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Track } from 'api/index';
+import { plexSort } from 'classes';
 import { TrackTable } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
-import { useArtist } from 'queries/artist-queries';
-import { useRecentTracks } from 'queries/track-queries';
+import { useAlbumsByGenre } from 'queries/album-queries';
+import { useTracksByGenre } from 'queries/track-queries';
 import { configAtom, libraryAtom } from 'root/Root';
-import { AppTrackViewSettings, LocationWithState, RouteParams } from 'types/interfaces';
+import { AlbumSortKeys, SortOrders } from 'types/enums';
+import { RouteParams, AppTrackViewSettings, LocationWithState } from 'types/interfaces';
 import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 import Header from './Header';
 
@@ -28,7 +30,7 @@ const defaultViewSettings: AppTrackViewSettings = {
   multiLineTitle: true,
 };
 
-const RecentFavorites = () => {
+const GenreTracks: React.FC = () => {
   const { id } = useParams<keyof RouteParams>() as RouteParams;
 
   const config = useAtomValue(configAtom);
@@ -37,24 +39,31 @@ const RecentFavorites = () => {
   const navigationType = useNavigationType();
   const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron
-    .readConfig('recent-favorites-view-settings') as AppTrackViewSettings;
-  const [days, setDays] = useState(90);
+    .readConfig('genre-tracks-view-settings') as AppTrackViewSettings;
   const [filter, setFilter] = useState('');
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playTracks } = usePlayback();
 
   useEffect(() => {
-    setTableKey('recent');
+    setTableKey('genre');
     return () => setTableKey('');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { data: artist, isLoading: artistLoading } = useArtist(+id, library);
-  const { data: tracks, isLoading: tracksLoading } = useRecentTracks({
+  const { data: albums, isLoading: albumsLoading } = useAlbumsByGenre({
     config,
-    library,
     id: +id,
-    days,
+    library,
+    limit: 0,
+    sort: plexSort(AlbumSortKeys.PLAYCOUNT, SortOrders.DESC),
+  });
+  const { data: tracks, isLoading: tracksLoading } = useTracksByGenre({
+    albumIds: albums?.map((album) => album.id) || [],
+    config,
+    id: +id,
+    library,
+    limit: -1,
+    sort: plexSort(AlbumSortKeys.PLAYCOUNT, SortOrders.DESC),
   });
 
   const items = useMemo(() => {
@@ -99,7 +108,7 @@ const RecentFavorites = () => {
     playTracks(items, shuffle, key);
   }, [items, playTracks]);
 
-  if (artistLoading || tracksLoading) {
+  if (albumsLoading || tracksLoading) {
     return null;
   }
 
@@ -122,12 +131,9 @@ const RecentFavorites = () => {
       }}
     >
       <Header
-        artist={artist!.artist}
-        days={days}
         filter={filter}
-        handlePlayNow={handlePlayNow}
-        setDays={setDays}
         setFilter={setFilter}
+        title={location.state.title}
       />
       <TrackTable
         columnOptions={
@@ -156,10 +162,10 @@ const RecentFavorites = () => {
             ? viewSettings.multiLineTitle
             : defaultViewSettings.multiLineTitle,
         }}
-        tableKey="recent"
+        tableKey="genre"
       />
     </motion.div>
   );
 };
 
-export default RecentFavorites;
+export default GenreTracks;

@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { RxCheck } from 'react-icons/rx';
 import { ListProps, Virtuoso } from 'react-virtuoso';
-import { Album, Library, Track } from 'api/index';
+import { Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
@@ -22,6 +22,7 @@ import { usePlaylists } from 'queries/playlist-queries';
 import { libraryAtom, settingsAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
+import { Item } from 'ui/footer/drawers/AddToPlaylistDrawer';
 
 const List = React
   .forwardRef((
@@ -37,8 +38,6 @@ const List = React
       {children}
     </Box>
   ));
-
-type Item = Album | Track;
 
 const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) => {
   if (items.length === 0) {

@@ -6,7 +6,7 @@ import {
   MenuItem,
 } from '@szhsin/react-menu';
 import { useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { MdPlaylistAdd } from 'react-icons/md';
 import { RiHistoryFill } from 'react-icons/ri';
 import { TbWaveSawTool } from 'react-icons/tb';
@@ -20,19 +20,19 @@ import { PlayActions } from 'types/enums';
 import AlbumMenuItem from './menu-items/AlbumMenuItem';
 import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
-interface TrackMenuProps extends ControlledMenuProps{
-  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
-  toggleMenu: (open?: boolean | undefined) => void;
-  tracks: Track[] | undefined;
-}
-
-const TrackMenu = ({
+const TrackMenu: React.FC<ControlledMenuProps & {
+  playNow?: () => Promise<void>,
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>,
+  toggleMenu: (open?: boolean | undefined) => void,
+  tracks: Track[] | undefined,
+}> = ({
   children,
+  playNow,
   playSwitch,
   toggleMenu,
   tracks,
   ...props
-}: TrackMenuProps) => {
+}) => {
   const artists = useArtistMatch({
     name: tracks && tracks.length === 1
       ? tracks[0].originalTitle || tracks[0].grandparentTitle
@@ -57,13 +57,17 @@ const TrackMenu = ({
     }
     if (tracks.length === 1) {
       const [track] = tracks;
+      if (button.action === PlayActions.PLAY_TRACK && !!playNow) {
+        await playNow();
+        return;
+      }
       await playSwitch(button.action, { track, shuffle: button.shuffle });
       return;
     }
     if (tracks.length > 1) {
       await playSwitch(button.action, { tracks, shuffle: button.shuffle });
     }
-  }, [playSwitch, tracks]);
+  }, [playNow, playSwitch, tracks]);
 
   if (!tracks) return null;
 
@@ -187,6 +191,10 @@ const TrackMenu = ({
       {children}
     </ControlledMenu>
   );
+};
+
+TrackMenu.defaultProps = {
+  playNow: undefined,
 };
 
 export default TrackMenu;

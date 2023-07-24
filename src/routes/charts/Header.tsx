@@ -1,5 +1,5 @@
 import {
-  Box, Chip, Divider, Fade, IconButton, SvgIcon, TextField, Typography,
+  Box, Chip, Fade, IconButton, SvgIcon, TextField, Typography,
 } from '@mui/material';
 import { useAtomValue } from 'jotai';
 import moment from 'moment';
@@ -9,7 +9,6 @@ import { useInView } from 'react-intersection-observer';
 import { Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { sortedTracksAtom } from 'components/track-table/TrackTable';
-import TableSettings from 'components/track-table/TrackTableSettings';
 import { WIDTH_CALC } from 'constants/measures';
 import { iconButtonStyle } from 'constants/style';
 import FixedHeader from './FixedHeader';
@@ -30,7 +29,6 @@ const Header: React.FC<{
   endDate: moment.Moment,
   handlePlayNow: (key?: string, shuffle?: boolean, sortedItems?: Track[]) => Promise<void>
   isFetching: boolean,
-  openColumnDialog: () => void,
   setDays: React.Dispatch<React.SetStateAction<number>>,
   setEndDate: React.Dispatch<React.SetStateAction<moment.Moment>>,
   setStartDate: React.Dispatch<React.SetStateAction<moment.Moment>>,
@@ -40,7 +38,6 @@ const Header: React.FC<{
   endDate,
   handlePlayNow,
   isFetching,
-  openColumnDialog,
   setDays,
   setEndDate,
   setStartDate,
@@ -209,20 +206,6 @@ const Header: React.FC<{
                 <RiRefreshLine />
               </SvgIcon>
             )}
-          </Box>
-          <Divider
-            orientation="vertical"
-            sx={{
-              borderColor: 'var(--mui-palette-border-main)',
-              height: 36,
-              ml: '12px',
-              mr: '14px',
-            }}
-          />
-          <Box mt="2px">
-            <TableSettings
-              openColumnDialog={openColumnDialog}
-            />
           </Box>
         </Box>
       </Box>

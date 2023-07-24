@@ -104,6 +104,7 @@ const Header: React.FC<{
           display="flex"
           height={72}
           justifyContent="space-between"
+          paddingX="6px"
         >
           <ChipFilter
             filter={filter}

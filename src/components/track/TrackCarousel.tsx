@@ -1,8 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import { useSetAtom } from 'jotai';
+import React, { useCallback, useEffect } from 'react';
 import { Library, Track } from 'api/index';
-import TrackTableStatic from 'components/track-table/TrackTableStatic';
+import { TrackTableStatic } from 'components/track-table';
 import usePlayback from 'hooks/usePlayback';
 import { AppTrackViewSettings } from 'types/interfaces';
+import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 
 const defaultViewSettings: AppTrackViewSettings = {
   columns: {
@@ -25,11 +27,17 @@ const TrackCarousel: React.FC<{
   tracks: Track[],
   rows: number;
 }> = ({ library, tracks, rows }) => {
+  const setTableKey = useSetAtom(tableKeyAtom);
   const trackPage = tracks.slice(0, rows);
   const viewSettings = window.electron
-    .readConfig('track-preview-view-settings') as AppTrackViewSettings;
-  const [open, setOpen] = useState(false);
+    .readConfig('static-view-settings') as AppTrackViewSettings;
   const { playTracks } = usePlayback();
+
+  useEffect(() => {
+    setTableKey('static');
+    return () => setTableKey('');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePlayNow = useCallback(async (
     key?: string,
@@ -56,10 +64,8 @@ const TrackCarousel: React.FC<{
           ? viewSettings.multiLineRating
           : defaultViewSettings.multiLineRating
       }
-      open={open}
       playbackFn={handlePlayNow}
       rows={trackPage || []}
-      setOpen={setOpen}
       subtextOptions={{
         albumTitle: true,
         artistTitle: true,
@@ -67,7 +73,7 @@ const TrackCarousel: React.FC<{
           ? viewSettings.multiLineTitle
           : defaultViewSettings.multiLineTitle,
       }}
-      viewKey="charts"
+      tableKey="static"
     />
   );
 };

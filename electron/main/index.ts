@@ -118,7 +118,7 @@ async function createWindow() {
     height: bounds?.height || 720,
     icon: join(ROOT_PATH.public, 'favicon.svg'),
     minHeight: 720,
-    minWidth: 1080,
+    minWidth: 1202,
     show: false,
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 20, y: 17 },
@@ -128,7 +128,7 @@ async function createWindow() {
       nodeIntegration: false,
       preload,
     },
-    width: bounds?.width || 1080,
+    width: bounds?.width || 1202,
     x: bounds?.x,
     y: bounds?.y,
   });

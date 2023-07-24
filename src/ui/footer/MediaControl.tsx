@@ -3,13 +3,13 @@ import { useAtom } from 'jotai';
 import { useCallback } from 'react';
 import { usePlayerContext } from 'root/Player';
 import { settingsAtom } from 'root/Root';
-import Next from './buttons/Next';
-import PlayPause from './buttons/PlayPause';
-import Previous from './buttons/Previous';
-import Repeat from './buttons/Repeat';
-import Shuffle from './buttons/Shuffle';
+import Next from './media-control/Next';
+import PlayPause from './media-control/PlayPause';
+import Previous from './media-control/Previous';
+import Repeat from './media-control/Repeat';
+import Shuffle from './media-control/Shuffle';
 
-const MediaButtons = () => {
+const MediaControl = () => {
   const player = usePlayerContext();
   const [settings, setSettings] = useAtom(settingsAtom);
 
@@ -46,4 +46,4 @@ const MediaButtons = () => {
   );
 };
 
-export default MediaButtons;
+export default MediaControl;

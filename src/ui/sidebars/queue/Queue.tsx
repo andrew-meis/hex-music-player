@@ -20,7 +20,7 @@ const Queue = ({ index, setIndex }: QueueProps) => {
         appear={false}
         container={slideContainer.current}
         direction="left"
-        easing="ease-in"
+        easing="ease-in-out"
         in={index === 1}
         timeout={300}
       >
@@ -55,7 +55,7 @@ const Queue = ({ index, setIndex }: QueueProps) => {
       <Slide
         container={slideContainer.current}
         direction="right"
-        easing="ease-in"
+        easing="ease-in-out"
         in={index === 0}
         timeout={300}
       >

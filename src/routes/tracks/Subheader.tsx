@@ -1,14 +1,11 @@
 import { Box, Chip } from '@mui/material';
 import React from 'react';
-import TableSettings from 'components/track-table/TrackTableSettings';
 import { WIDTH_CALC } from 'constants/measures';
 
 const Subheader: React.FC<{
   count: number,
-  openColumnDialog: () => void,
 }> = ({
   count,
-  openColumnDialog,
 }) => (
   <Box
     alignItems="center"
@@ -20,11 +17,6 @@ const Subheader: React.FC<{
     width={WIDTH_CALC}
   >
     <Chip color="primary" label={`${count} ${count === 1 ? 'track' : 'tracks'}`} />
-    <Box display="flex">
-      <TableSettings
-        openColumnDialog={openColumnDialog}
-      />
-    </Box>
   </Box>
 );
 
