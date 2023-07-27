@@ -1,4 +1,5 @@
 import { Avatar, Box, Chip, ClickAwayListener, SvgIcon, Typography } from '@mui/material';
+import { atom, useAtomValue } from 'jotai';
 import React, { useRef, useState } from 'react';
 import { IoMdMicrophone } from 'react-icons/io';
 import { RxCheck } from 'react-icons/rx';
@@ -7,6 +8,8 @@ import { Artist, Library } from 'api/index';
 import { ChipSelect } from 'components/chips';
 import SelectTooltip from 'components/tooltip/SelectTooltip';
 import { VIEW_PADDING } from 'constants/measures';
+
+export const headerTextAtom = atom('');
 
 const Header: React.FC<{
   artist: Artist,
@@ -22,6 +25,7 @@ const Header: React.FC<{
   setFilter,
 }) => {
   const chipRef = useRef<HTMLDivElement | null>(null);
+  const headerText = useAtomValue(headerTextAtom);
   const [open, setOpen] = useState(false);
   const { width } = useOutletContext() as { width: number };
 
@@ -71,7 +75,8 @@ const Header: React.FC<{
         >
           {artist.title}
         </NavLink>
-        &nbsp;&nbsp;»&nbsp;&nbsp;Discography
+        &nbsp;&nbsp;»&nbsp;&nbsp;
+        {headerText || 'Discography'}
       </Typography>
       <SelectTooltip
         maxWidth={tooltipMaxWidth}

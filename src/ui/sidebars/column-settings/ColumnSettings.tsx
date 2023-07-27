@@ -114,7 +114,8 @@ const ColumnSettings: React.FC<{
               mr={1}
             >
               {(table.getAllLeafColumns() as Column<Track, unknown>[])
-                .filter((column) => !['parentIndex', 'title'].includes(column.id))
+                .filter((column) => !['parentId', 'parentIndex', 'parentRatingKey', 'title']
+                  .includes(column.id))
                 .map((column) => (
                   <ColumnSwitch
                     column={column}
