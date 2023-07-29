@@ -106,7 +106,6 @@ export enum QueryKeys {
   SEARCH_PAGE = 'search-page',
   SEARCH_TRACKS = 'search-tracks',
   SIMILAR_TRACKS = 'similar-tracks',
-  TOAST = 'toast',
   TOP = 'top',
   TRACK = 'track',
   TRACKS_BY_GENRE = 'tracks-by-genre',

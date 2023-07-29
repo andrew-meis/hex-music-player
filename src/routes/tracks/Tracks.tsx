@@ -6,6 +6,7 @@ import ky from 'ky';
 import { isEmpty } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
+import { useDebounce } from 'react-use';
 import { ListRange } from 'react-virtuoso';
 import { Track, parseTrackContainer } from 'api/index';
 import { PlexSort } from 'classes';
@@ -96,9 +97,15 @@ const Tracks = () => {
   const setTableKey = useSetAtom(tableKeyAtom);
   const viewSettings = window.electron.readConfig('tracks-view-settings') as AppTrackViewSettings;
   const [containerStart, setContainerStart] = useState(0);
+  const [filter, setFilter] = useState('');
+  const [filterDebounced, setFilterDebounced] = useState('');
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const [sorting, setSorting] = useAtom(trackSortingAtom);
   const { playUri } = usePlayback();
+
+  useDebounce(() => {
+    setFilterDebounced(filter);
+  }, 500, [filter]);
 
   useEffect(() => {
     setTableKey('tracks');
@@ -110,6 +117,15 @@ const Tracks = () => {
     const newParams = new URLSearchParams();
     newParams.append('type', 10 as unknown as string);
     addFiltersToParams(filters, newParams);
+    if (filterDebounced) {
+      newParams.append('push', Number(1).toString());
+      newParams.append('artist.title', filterDebounced);
+      newParams.append('or', Number(1).toString());
+      newParams.append('album.title', filterDebounced);
+      newParams.append('or', Number(1).toString());
+      newParams.append('track.title', filterDebounced);
+      newParams.append('pop', Number(1).toString());
+    }
     if (!isEmpty(sorting)) {
       const sortString = sorting
         .map((columnSort) => {
@@ -127,7 +143,7 @@ const Tracks = () => {
       newParams.append('limit', limit);
     }
     return newParams;
-  }, [filters, limit, sorting]);
+  }, [filterDebounced, filters, limit, sorting]);
 
   const fetchTracks = useCallback(async ({ pageParam = 0 }) => {
     params.set('X-Plex-Container-Start', `${pageParam}`);
@@ -143,7 +159,7 @@ const Tracks = () => {
   }, [config.sectionId, library.api, params]);
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: [QueryKeys.ALL_TRACKS, filters, limit, sorting],
+    queryKey: [QueryKeys.ALL_TRACKS, filterDebounced, filters, limit, sorting],
     queryFn: fetchTracks,
     getNextPageParam: () => containerStart,
     keepPreviousData: true,
@@ -244,6 +260,8 @@ const Tracks = () => {
       />
       <Subheader
         count={flatTracks.length}
+        filter={filter}
+        setFilter={setFilter}
       />
       <TrackTable
         columnOptions={
