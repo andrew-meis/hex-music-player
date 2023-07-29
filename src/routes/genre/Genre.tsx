@@ -38,6 +38,7 @@ const Subheader = ({ text, onClick }: { text: string, onClick: () => void }) => 
     fontFamily="TT Commons, sans-serif"
     fontSize="1.625rem"
     marginRight="auto"
+    paddingX="1px"
     whileHover="hover"
     width="fit-content"
     onClick={onClick}
