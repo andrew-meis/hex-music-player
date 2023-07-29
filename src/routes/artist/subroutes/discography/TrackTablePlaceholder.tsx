@@ -1,32 +1,10 @@
 /* eslint-disable react/no-array-index-key */
-import { Skeleton, SkeletonProps } from '@mui/material';
+import { Skeleton } from '@mui/material';
 import { Column } from '@tanstack/react-table';
 import React from 'react';
 import { PlaylistItem, Track } from 'api/index';
 import { styles } from 'components/track-table';
-
-const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> = {
-  distance: [{ variant: 'text', width: '50%' }],
-  duration: [{ sx: { ml: 'auto' }, variant: 'text', width: 50 }],
-  grandparentTitle: [{ variant: 'text', width: '50%' }],
-  index: [{ sx: { display: 'none' } }],
-  lastViewedAt: [{ variant: 'text', width: 88 }],
-  originallyAvailableAt: [{ variant: 'text', width: '70%' }],
-  originalTitle: [{ variant: 'text', width: '70%' }],
-  parentIndex: [{ sx: { display: 'none' } }],
-  parentTitle: [{ variant: 'text', width: '50%' }],
-  parentYear: [{ variant: 'text', width: 40 }],
-  thumb: [{ height: 40, sx: { margin: 'auto' }, variant: 'rounded', width: 40 }],
-  title: [
-    { variant: 'text', width: '50%' },
-    { variant: 'text', width: '40%' },
-  ],
-  userRating: [
-    { sx: { ml: 'auto' }, variant: 'text', width: 75 },
-    { sx: { ml: 'auto' }, variant: 'text', width: 60 },
-  ],
-  viewCount: [{ variant: 'text', width: 64 }],
-};
+import { skeletonPropsMap } from 'components/track-table/TrackTablePlaceholder';
 
 const TrackTablePlaceholder: React.FC<{
   columns: Column<PlaylistItem, unknown>[] | Column<Track, unknown>[],

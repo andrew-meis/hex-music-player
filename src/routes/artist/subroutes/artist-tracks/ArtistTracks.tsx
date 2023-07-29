@@ -26,11 +26,10 @@ const defaultViewSettings: AppTrackViewSettings = {
   columns: {
     grandparentTitle: false,
     lastViewedAt: false,
-    originallyAvailableAt: true,
     originalTitle: false,
     parentTitle: false,
     parentYear: false,
-    thumb: true,
+    ratingCount: false,
     viewCount: true,
   },
   compact: false,

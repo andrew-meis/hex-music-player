@@ -8,9 +8,9 @@ import { useDrop } from 'react-dnd';
 import { MdDelete } from 'react-icons/md';
 import { useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { Album, Artist, PlayQueueItem, PlaylistItem, Track } from 'api/index';
+import { toastAtom } from 'components/toast/Toast';
 import { useAddToPlaylist, useMovePlaylistItems, useRemoveFromPlaylist } from 'hooks/playlistHooks';
 import usePlayback from 'hooks/usePlayback';
-import useToast from 'hooks/useToast';
 import { usePlaylist, usePlaylistItems } from 'queries/playlist-queries';
 import { libraryAtom } from 'root/Root';
 import mergeRefs from 'scripts/merge-refs';
@@ -29,7 +29,7 @@ const defaultViewSettings: AppTrackViewSettings = {
     originalTitle: false,
     parentTitle: false,
     parentYear: false,
-    thumb: true,
+    ratingCount: false,
     viewCount: false,
   },
   compact: false,
@@ -50,7 +50,7 @@ const Playlist = () => {
   const playlistItems = usePlaylistItems(+id, library);
   const removeFromPlaylist = useRemoveFromPlaylist();
   const setTableKey = useSetAtom(tableKeyAtom);
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   const [filter, setFilter] = useState('');
   const [scrollRef, setScrollRef] = useState<HTMLDivElement | null>(null);
   const { playSwitch } = usePlayback();
@@ -123,13 +123,13 @@ const Playlist = () => {
   const handleRemove = useCallback((selectedItems: (Track | PlaylistItem)[]) => {
     if (!selectedItems.every((item): item is PlaylistItem => isPlaylistItem(item))) return;
     if (playlist.data?.smart) {
-      toast({ type: 'error', text: 'Cannot edit smart playlist' });
+      setToast({ type: 'error', text: 'Cannot edit smart playlist' });
       return;
     }
     selectedItems.forEach((item) => {
       removeFromPlaylist(item.playlistId, item.id);
     });
-  }, [playlist.data?.smart, removeFromPlaylist, toast]);
+  }, [playlist.data?.smart, removeFromPlaylist, setToast]);
 
   const additionalMenuOptions = useCallback((selectedItems: (Track | PlaylistItem)[]) => (
     <>
@@ -202,18 +202,18 @@ const Playlist = () => {
       <TrackTable
         additionalMenuOptions={playlist.data.smart ? undefined : additionalMenuOptions}
         columnOptions={
-          isEmpty(viewSettings.columns)
-            ? defaultViewSettings.columns
-            : viewSettings.columns
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.columns
+            : defaultViewSettings.columns
         }
         isViewCompact={
-          typeof viewSettings.compact !== 'undefined'
+          typeof viewSettings !== 'undefined'
             ? viewSettings.compact
             : defaultViewSettings.compact
         }
         library={library}
         multiLineRating={
-          typeof viewSettings.multiLineRating !== 'undefined'
+          typeof viewSettings !== 'undefined'
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
@@ -223,7 +223,7 @@ const Playlist = () => {
         subtextOptions={{
           albumTitle: true,
           artistTitle: true,
-          showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
+          showSubtext: typeof viewSettings !== 'undefined'
             ? viewSettings.multiLineTitle
             : defaultViewSettings.multiLineTitle,
         }}

@@ -16,13 +16,12 @@ import Header from './Header';
 
 const defaultViewSettings: AppTrackViewSettings = {
   columns: {
-    distance: true,
     grandparentTitle: false,
     lastViewedAt: false,
     originalTitle: false,
     parentTitle: false,
     parentYear: false,
-    thumb: true,
+    ratingCount: false,
     viewCount: false,
   },
   compact: false,

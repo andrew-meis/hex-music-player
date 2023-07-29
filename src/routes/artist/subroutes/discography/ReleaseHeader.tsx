@@ -1,14 +1,15 @@
 import { Avatar, Box, Typography } from '@mui/material';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import moment from 'moment';
 import React, { useEffect } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { NavLink } from 'react-router-dom';
 import { Track } from 'api/index';
 import PlayShuffleButton from 'components/play-shuffle-buttons/PlayShuffleButton';
 import { sortedTracksAtom } from 'components/track-table/TrackTable';
+import { DragTypes } from 'types/enums';
 import { AlbumWithSection } from 'types/interfaces';
-import { headerTextAtom } from './Header';
 
 const titleStyle = {
   overflow: 'hidden',
@@ -37,30 +38,26 @@ const typeMap: Map = {
 export const ReleaseHeader: React.FC<{
   album: AlbumWithSection,
   handlePlayNow: (key?: string, shuffle?: boolean, sortedItems?: Track[]) => Promise<void>,
-  prevAlbumTitle: string,
   thumbSrc: string,
   trackKey: string,
   trackLength: number,
 }> = ({
   album,
   handlePlayNow,
-  prevAlbumTitle,
   thumbSrc,
   trackKey,
   trackLength,
 }) => {
-  const inView = useInView({ threshold: 0.99 });
-  const setHeaderText = useSetAtom(headerTextAtom);
   const sortedTracks = useAtomValue(sortedTracksAtom);
 
+  const [, drag, dragPreview] = useDrag(() => ({
+    type: DragTypes.ALBUM,
+    item: () => [album],
+  }), [album]);
+
   useEffect(() => {
-    if (inView.entry?.intersectionRect.top && inView.entry?.intersectionRect.top < 150) {
-      setHeaderText(album.title);
-    }
-    if (inView.inView) {
-      setHeaderText(prevAlbumTitle || '');
-    }
-  }, [album.title, inView.entry, inView.inView, prevAlbumTitle, setHeaderText]);
+    dragPreview(getEmptyImage(), { captureDraggingState: true });
+  }, [dragPreview, album]);
 
   const releaseDate = moment.utc(album.originallyAvailableAt).format('DD MMMM YYYY');
 
@@ -72,7 +69,7 @@ export const ReleaseHeader: React.FC<{
       color="text.primary"
       display="flex"
       marginTop={4}
-      ref={inView.ref}
+      ref={drag}
     >
       <Avatar
         src={thumbSrc}

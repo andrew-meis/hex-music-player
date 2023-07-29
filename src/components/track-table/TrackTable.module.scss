@@ -110,6 +110,7 @@ td.originallyAvailableAt,
 td.originalTitle,
 td.parentTitle,
 td.parentYear,
+td.ratingCount,
 td.viewCount {
   font-size: 0.95rem;
   overflow: hidden;
@@ -126,6 +127,7 @@ th.originallyAvailableAt,
 th.originalTitle,
 th.parentTitle,
 th.parentYear,
+th.ratingCount,
 th.viewCount {
   padding-top: 4px;
   text-align: left;
@@ -149,7 +151,9 @@ th.parentYear {
 }
 
 td.originallyAvailableAt,
-th.originallyAvailableAt {
+th.originallyAvailableAt,
+td.ratingCount,
+th.ratingCount {
   width: 164px;
 }
 

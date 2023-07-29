@@ -67,7 +67,6 @@ const Header = ({ album, colors, library, playSwitch, track }: HeaderProps) => {
       >
         <Box
           height={71}
-          maxWidth={900}
           position="fixed"
           width={WIDTH_CALC}
           zIndex={400}

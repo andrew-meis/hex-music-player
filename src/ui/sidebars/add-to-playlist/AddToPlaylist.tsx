@@ -8,16 +8,16 @@ import {
   Typography,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { RxCheck } from 'react-icons/rx';
 import { ListProps, Virtuoso } from 'react-virtuoso';
 import { Library } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
+import { toastAtom } from 'components/toast/Toast';
 import { typographyStyle } from 'constants/style';
 import { useAddToPlaylist, useCreatePlaylist } from 'hooks/playlistHooks';
-import useToast from 'hooks/useToast';
 import { usePlaylists } from 'queries/playlist-queries';
 import { libraryAtom, settingsAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
@@ -118,7 +118,7 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
   const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
   const settings = useAtomValue(settingsAtom);
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   const [selected, setSelected] = useState<number[]>([]);
   const [title, setTitle] = useState('');
   const { data: playlists, isLoading } = usePlaylists(library);
@@ -162,10 +162,10 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
     const response = await createPlaylist(title);
     if (response.size > 0) {
       await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
-      toast({ type: 'success', text: 'Playlist created' });
+      setToast({ type: 'success', text: 'Playlist created' });
     }
     if (response.size === 0) {
-      toast({ type: 'error', text: 'Failed to create playlist' });
+      setToast({ type: 'error', text: 'Failed to create playlist' });
     }
     setTitle('');
   };

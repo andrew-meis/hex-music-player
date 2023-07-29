@@ -1,6 +1,7 @@
 import { Drawer, IconButton, SvgIcon } from '@mui/material';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
+import { MotionBox } from 'components/motion-components/motion-components';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 
@@ -55,40 +56,47 @@ export const ColumnSettingsDrawer = () => {
 
   return (
     <>
-      <Tooltip
-        PopperProps={popperProps}
-        placement="top"
-        title="Columns"
-      >
-        <IconButton
-          disableRipple
-          size="small"
-          sx={{
-            ...iconButtonStyle,
-            display: tableKey ? 'inherit' : 'none',
-            marginRight: '4px',
-            width: tableKey ? '32px' : '0px',
-            height: '30px',
-            color: open ? 'primary.main' : 'text.secondary',
-            '&:hover': {
-              backgroundColor: 'transparent',
-              color: open ? 'primary.light' : 'text.primary',
-            },
-          }}
-          onClick={() => setOpen(!open)}
+      {!!tableKey && (
+        <MotionBox
+          animate={{ width: 32, opacity: 1 }}
+          exit={{ width: 0, opacity: 0 }}
+          initial={{ width: 0, opacity: 0 }}
+          mr={0.5}
         >
-          <SvgIcon
-            sx={{
-              position: 'absolute',
-              width: '0.9em',
-              height: '0.9em',
-            }}
-            viewBox="0 2 24 24"
+          <Tooltip
+            PopperProps={popperProps}
+            placement="top"
+            title="Columns"
           >
-            <TbTableOptions />
-          </SvgIcon>
-        </IconButton>
-      </Tooltip>
+            <IconButton
+              disableRipple
+              size="small"
+              sx={{
+                ...iconButtonStyle,
+                width: 32,
+                height: 30,
+                color: open ? 'primary.main' : 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: open ? 'primary.light' : 'text.primary',
+                },
+              }}
+              onClick={() => setOpen(!open)}
+            >
+              <SvgIcon
+                sx={{
+                  position: 'absolute',
+                  width: '0.9em',
+                  height: '0.9em',
+                }}
+                viewBox="0 2 24 24"
+              >
+                <TbTableOptions />
+              </SvgIcon>
+            </IconButton>
+          </Tooltip>
+        </MotionBox>
+      )}
       <Drawer
         PaperProps={{
           ref: setDrawerContainer,

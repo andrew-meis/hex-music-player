@@ -189,7 +189,6 @@ const Login = () => {
   const finishLogin = async (key: number) => {
     window.electron.writeConfig('config', {
       clientId: client.identifier,
-      queueId: 0,
       sectionId: key,
       serverName: selectedServer?.name,
       token: account.authToken,

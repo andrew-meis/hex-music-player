@@ -110,7 +110,7 @@ const Track = () => {
                 );
               }}
             >
-              <Box maxWidth="900px" mx="auto" pb="48px" width={WIDTH_CALC}>
+              <Box mx="auto" pb="48px" width={WIDTH_CALC}>
                 <Header
                   album={album}
                   colors={colors}
@@ -139,7 +139,7 @@ const Track = () => {
                   library={library}
                   playSwitch={playSwitch}
                   title={lastfmSearch?.name}
-                  width={Math.min(width - VIEW_PADDING, 900)}
+                  width={width - VIEW_PADDING}
                 />
               </Box>
             </Box>

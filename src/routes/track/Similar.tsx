@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Grid, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import { AnimatePresence } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { throttle } from 'lodash';
 import React, { useMemo, useRef, useState } from 'react';
 import { usePrevious } from 'react-use';
@@ -10,9 +10,9 @@ import { TrackMenu } from 'components/menus';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { tracklistMotion } from 'components/motion-components/motion-variants';
 import PaginationDots from 'components/pagination-dots/PaginationDots';
+import { toastAtom } from 'components/toast/Toast';
 import { typographyStyle } from 'constants/style';
 import { PlayParams } from 'hooks/usePlayback';
-import useToast from 'hooks/useToast';
 import { useLastfmSimilar } from 'queries/last-fm-queries';
 import { getTrackMatch } from 'queries/plex-query-fns';
 import { configAtom } from 'root/Root';
@@ -54,16 +54,16 @@ interface SimilarProps {
   library: Library;
   playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
   title: string | undefined;
-  width: number | undefined;
+  width: number;
 }
 
 const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarProps) => {
-  const cols = throttle(() => getColumns(width || 900), 300, { leading: true })();
+  const cols = throttle(() => getColumns(width), 300, { leading: true })();
   const config = useAtomValue(configAtom);
   const hoverIndex = useRef(0);
   const length = (cols || 4) * 4;
   const match = useRef<Track>();
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   const [activeIndex, setActiveIndex] = useState(0);
   const prevIndex = usePrevious(activeIndex);
   const difference = useMemo(() => {
@@ -72,7 +72,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-  const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
+  const [menuProps, toggleMenu] = useMenuState({ unmountOnClose: true });
   const { data: similarTracks, isLoading } = useLastfmSimilar({
     apikey,
     artist,
@@ -95,8 +95,8 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
     match.current = undefined;
     hoverIndex.current = index;
     setAnchorPoint({
-      x: event.currentTarget.getBoundingClientRect().x,
-      y: event.currentTarget.getBoundingClientRect().y + 28,
+      x: event.clientX,
+      y: event.clientY,
     });
     const trackMatch = await getTrackMatch({
       artist: track.artist.name,
@@ -109,7 +109,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
       toggleMenu(true);
       return;
     }
-    toast({ type: 'error', text: 'No matching track found.' });
+    setToast({ type: 'error', text: 'No matching track found.' });
   };
 
   if (isLoading) {
@@ -265,12 +265,7 @@ const Similar = ({ apikey, artist, library, playSwitch, title, width }: SimilarP
         </MotionBox>
       </AnimatePresence>
       <TrackMenu
-        arrow
-        portal
-        align="center"
         anchorPoint={anchorPoint}
-        direction="left"
-        offsetX={-10}
         playSwitch={playSwitch}
         toggleMenu={toggleMenu}
         tracks={match.current ? [match.current] : undefined}

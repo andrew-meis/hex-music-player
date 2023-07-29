@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { AnimatePresence } from 'framer-motion';
 import AddToPlaylistDrawer from './drawers/AddToPlaylistDrawer';
 import ColumnSettingsDrawer from './drawers/ColumnSettingsDrawer';
 import FilterDrawer from './drawers/FilterDrawer';
@@ -17,12 +18,14 @@ const Drawers = () => (
     }}
     width={1}
   >
-    <LyricsButton />
-    <FilterDrawer />
-    <ColumnSettingsDrawer />
-    <QueueDrawer />
-    <VolumeSlider />
-    <AddToPlaylistDrawer />
+    <AnimatePresence mode="wait">
+      <LyricsButton key="lyrics" />
+      <FilterDrawer key="filter" />
+      <ColumnSettingsDrawer key="settings" />
+      <QueueDrawer key="queue" />
+      <VolumeSlider key="volume" />
+      <AddToPlaylistDrawer key="add" />
+    </AnimatePresence>
   </Box>
 );
 

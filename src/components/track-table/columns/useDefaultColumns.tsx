@@ -16,7 +16,18 @@ const iconSx = {
   width: 18,
 };
 
-const formatPlaycount = (x: number) => {
+export const formatListenerCount = (x: number) => {
+  switch (true) {
+    case x === 1:
+      return `${x.toLocaleString()} listener`;
+    case x > 1:
+      return `${x.toLocaleString()} listeners`;
+    default:
+      return 'no listeners';
+  }
+};
+
+export const formatPlaycount = (x: number) => {
   switch (true) {
     case x === 1:
       return `${x} play`;
@@ -159,12 +170,11 @@ const useDefaultColumns = ({
     ),
     sortingFn: 'alphanumeric',
   }),
-  columnHelper.accessor('viewCount', {
+  columnHelper.accessor((row) => (row.globalViewCount || row.viewCount), {
+    id: 'viewCount',
     cell: (info) => (
       <Link className="link" to={`/history/${info.row.original.id}`}>
-        {info.row.original.globalViewCount
-          ? formatPlaycount(info.row.original.globalViewCount)
-          : formatPlaycount(info.getValue())}
+        {formatPlaycount(info.getValue())}
       </Link>
     ),
     header: () => (
@@ -193,6 +203,14 @@ const useDefaultColumns = ({
     header: () => (
       <Typography color="text.secondary" lineHeight="24px" variant="overline">
         Year
+      </Typography>
+    ),
+  }),
+  columnHelper.accessor('ratingCount', {
+    cell: (info) => formatListenerCount(info.getValue()),
+    header: () => (
+      <Typography color="text.secondary" lineHeight="24px" variant="overline">
+        Popularity
       </Typography>
     ),
   }),

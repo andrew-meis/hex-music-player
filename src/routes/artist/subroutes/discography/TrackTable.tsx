@@ -34,6 +34,7 @@ import { useNowPlaying } from 'queries/plex-queries';
 import { playbackIsPlayingAtom } from 'root/Player';
 import { AlbumWithSection } from 'types/interfaces';
 import ColumnSettings from 'ui/sidebars/column-settings/ColumnSettings';
+import { headerTextAtom } from './Header';
 import ReleaseHeader from './ReleaseHeader';
 import TrackTablePlaceholder from './TrackTablePlaceholder';
 
@@ -79,6 +80,7 @@ const TrackTable: React.FC<{
   subtextOptions,
 }) => {
   const isPlaying = useAtomValue(playbackIsPlayingAtom);
+  const setHeaderText = useSetAtom(headerTextAtom);
   const setSortedTracks = useSetAtom(sortedTracksAtom);
 
   const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
@@ -300,7 +302,6 @@ const TrackTable: React.FC<{
                       <ReleaseHeader
                         album={release}
                         handlePlayNow={playbackFn}
-                        prevAlbumTitle={prev?.original.parentTitle}
                         thumbSrc={library.api.getAuthenticatedUrl(
                           '/photo/:/transcode',
                           {
@@ -451,6 +452,15 @@ const TrackTable: React.FC<{
             ));
         }}
         key={`${compact}`}
+        rangeChanged={(newRange) => {
+          const { startIndex } = newRange;
+          if (startIndex === 0) {
+            setHeaderText('');
+            return;
+          }
+          const title = table.getRowModel().rows[startIndex].original.parentTitle;
+          setHeaderText(title);
+        }}
         scrollSeekConfiguration={{
           enter: (velocity) => Math.abs(velocity) > 500,
           exit: (velocity) => Math.abs(velocity) < 100,

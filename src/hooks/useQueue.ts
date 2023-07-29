@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import ky from 'ky';
 import { useCallback } from 'react';
 import {
   Album, Artist, PlayQueue, PlayQueueItem, Playlist, Track, parsePlayQueue,
 } from 'api/index';
-import useToast from 'hooks/useToast';
+import { toastAtom } from 'components/toast/Toast';
 import { accountAtom, libraryAtom, queueIdAtom, serverAtom, settingsAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 
@@ -15,7 +15,7 @@ const useQueue = () => {
   const queryClient = useQueryClient();
   const server = useAtomValue(serverAtom);
   const settings = useAtomValue(settingsAtom);
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   const [queueId, setQueueId] = useAtom(queueIdAtom);
 
   const addToQueue = useCallback(async ({
@@ -54,9 +54,9 @@ const useQueue = () => {
     if (!sendToast) {
       return parsePlayQueue(response);
     }
-    toast({ type: 'info', text: 'Added to queue' });
+    setToast({ type: 'info', text: 'Added to queue' });
     return parsePlayQueue(response);
-  }, [account.client.identifier, library, queueId, server.clientIdentifier, toast]);
+  }, [account.client.identifier, library, queueId, server.clientIdentifier, setToast]);
 
   const getQueue = useCallback(async (
     id: number | undefined = queueId,

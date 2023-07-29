@@ -22,7 +22,7 @@ const defaultViewSettings: AppTrackViewSettings = {
     originalTitle: false,
     parentTitle: false,
     parentYear: false,
-    thumb: true,
+    ratingCount: false,
     viewCount: false,
   },
   compact: false,

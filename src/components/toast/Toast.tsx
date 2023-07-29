@@ -1,9 +1,10 @@
 import { Snackbar, Typography } from '@mui/material';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { atom, useAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
-import { QueryKeys } from 'types/enums';
 import { ToastMessage } from 'types/interfaces';
+
+export const toastAtom = atom<ToastMessage>({ type: undefined, text: '' });
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
   props,
@@ -11,32 +12,23 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>((
 ) => <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />);
 
 const Toast = () => {
-  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const { data: message } = useQuery<ToastMessage>(
-    [QueryKeys.TOAST],
-    () => ({ type: undefined, text: '' }),
-    {
-      initialData: { type: undefined, text: '' },
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    },
-  );
+  const [toast, setToast] = useAtom(toastAtom);
 
   useEffect(() => {
-    if (message.text !== '') {
+    if (toast.text !== '') {
       setOpen(true);
     }
-  }, [message]);
+  }, [toast]);
 
   const handleClose = () => {
     setOpen(false);
-    setTimeout(() => queryClient.refetchQueries([QueryKeys.TOAST]), 300);
+    setTimeout(() => setToast({ type: undefined, text: '' }), 500);
   };
 
   return (
     <Snackbar
+      disableWindowBlurListener
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       autoHideDuration={2000}
       open={open}
@@ -45,17 +37,17 @@ const Toast = () => {
     >
       <Alert
         icon={false}
-        severity={message.type}
+        severity={toast.type}
         sx={{
           backgroundImage: 'none',
           padding: 0,
         }}
       >
         <Typography
-          color={`var(--mui-palette-${message.type}-contrastText)`}
+          color={`var(--mui-palette-${toast.type}-contrastText)`}
           sx={{ textAlign: 'center', width: '204px' }}
         >
-          {message.text}
+          {toast.text}
         </Typography>
       </Alert>
     </Snackbar>

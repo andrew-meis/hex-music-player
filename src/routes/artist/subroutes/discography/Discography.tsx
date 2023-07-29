@@ -29,6 +29,7 @@ const defaultViewSettings: AppTrackViewSettings = {
     originalTitle: false,
     parentTitle: false,
     parentYear: false,
+    ratingCount: false,
     thumb: false,
     viewCount: false,
   },
@@ -152,19 +153,19 @@ const Discography = () => {
       >
         <TrackTable
           columnOptions={
-            isEmpty(viewSettings.columns)
-              ? defaultViewSettings.columns
-              : viewSettings.columns
+            typeof viewSettings !== 'undefined'
+              ? viewSettings.columns
+              : defaultViewSettings.columns
           }
           groupBy={['parentId', 'parentRatingKey', 'parentIndex']}
           isViewCompact={
-            typeof viewSettings.compact !== 'undefined'
+            typeof viewSettings !== 'undefined'
               ? viewSettings.compact
               : defaultViewSettings.compact
           }
           library={library}
           multiLineRating={
-            typeof viewSettings.multiLineRating !== 'undefined'
+            typeof viewSettings !== 'undefined'
               ? viewSettings.multiLineRating
               : defaultViewSettings.multiLineRating
           }
@@ -175,7 +176,7 @@ const Discography = () => {
           subtextOptions={{
             albumTitle: false,
             artistTitle: true,
-            showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
+            showSubtext: typeof viewSettings !== 'undefined'
               ? viewSettings.multiLineTitle
               : defaultViewSettings.multiLineTitle,
           }}

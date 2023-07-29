@@ -16,7 +16,13 @@ const Subheader: React.FC<{
     mx="auto"
     width={WIDTH_CALC}
   >
-    <Chip color="primary" label={`${count} ${count === 1 ? 'track' : 'tracks'}`} />
+    <Chip
+      color="primary"
+      label={`${count} ${count === 1 ? 'track' : 'tracks'}`}
+      sx={{
+        fontSize: '0.9rem',
+      }}
+    />
   </Box>
 );
 

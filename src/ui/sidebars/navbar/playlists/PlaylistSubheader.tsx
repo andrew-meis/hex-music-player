@@ -2,12 +2,13 @@ import {
   Box, Collapse, InputAdornment, InputBase, ListSubheader, SvgIcon,
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { TiPlus } from 'react-icons/ti';
 import { useNavigate } from 'react-router-dom';
+import { toastAtom } from 'components/toast/Toast';
 import { useCreatePlaylist } from 'hooks/playlistHooks';
-import useToast from 'hooks/useToast';
 import { QueryKeys } from 'types/enums';
 
 interface PlaylistSubheaderProps {
@@ -19,7 +20,7 @@ const PlaylistSubheader = ({ show, setShow }: PlaylistSubheaderProps) => {
   const queryClient = useQueryClient();
   const createPlaylist = useCreatePlaylist();
   const navigate = useNavigate();
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   const [title, setTitle] = useState('');
 
   useEffect(() => () => setTitle(''), [show]);
@@ -32,11 +33,11 @@ const PlaylistSubheader = ({ show, setShow }: PlaylistSubheaderProps) => {
       setShow(false);
       await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
       navigate(`/playlists/${newPlaylist.id}`);
-      toast({ type: 'success', text: 'Playlist created' });
+      setToast({ type: 'success', text: 'Playlist created' });
     }
     if (response.size === 0) {
       setShow(false);
-      toast({ type: 'error', text: 'Failed to create playlist' });
+      setToast({ type: 'error', text: 'Failed to create playlist' });
     }
   };
 

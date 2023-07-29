@@ -1,9 +1,9 @@
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import ky from 'ky';
 import { useCallback } from 'react';
 import { parsePlaylistContainer, Playlist, PlaylistItem } from 'api/index';
-import useToast from 'hooks/useToast';
+import { toastAtom } from 'components/toast/Toast';
 import { libraryAtom, serverAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 
@@ -17,7 +17,7 @@ export const useAddToPlaylist = () => {
   const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
   const server = useAtomValue(serverAtom);
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   return async (id: Playlist['id'], idsToAdd: number[], quiet = false) => {
     const response = await library.addToPlaylist(
       id,
@@ -27,10 +27,10 @@ export const useAddToPlaylist = () => {
     if (quiet) return;
     if (response.MediaContainer.leafCountAdded > 0) {
       await refetchPlaylistQueries(queryClient, id);
-      toast({ type: 'success', text: 'Added to playlist' });
+      setToast({ type: 'success', text: 'Added to playlist' });
     }
     if (!response || response.MediaContainer.leafCountAdded === 0) {
-      toast({ type: 'error', text: 'No items added to playlist' });
+      setToast({ type: 'error', text: 'No items added to playlist' });
     }
   };
 };
@@ -56,11 +56,11 @@ export const useCreatePlaylist = () => {
 export const useDeletePlaylist = () => {
   const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   return async (id: number) => {
     await library.deletePlaylist(id);
     await queryClient.refetchQueries([QueryKeys.PLAYLISTS]);
-    toast({ type: 'error', text: 'Deleted playlist' });
+    setToast({ type: 'error', text: 'Deleted playlist' });
   };
 };
 
@@ -91,10 +91,10 @@ export const useMovePlaylistItems = () => {
 export const useRemoveFromPlaylist = () => {
   const library = useAtomValue(libraryAtom);
   const queryClient = useQueryClient();
-  const toast = useToast();
+  const setToast = useSetAtom(toastAtom);
   return useCallback(async (playlistId: Playlist['id'], itemId: PlaylistItem['id']) => {
     await library.removeFromPlaylist(playlistId, itemId);
     await refetchPlaylistQueries(queryClient, playlistId);
-    toast({ type: 'error', text: 'Removed from playlist' });
-  }, [library, queryClient, toast]);
+    setToast({ type: 'error', text: 'Removed from playlist' });
+  }, [library, queryClient, setToast]);
 };

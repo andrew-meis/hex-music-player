@@ -5,7 +5,7 @@ import React from 'react';
 import { PlaylistItem, Track } from 'api/index';
 import styles from './TrackTable.module.scss';
 
-const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> = {
+export const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> = {
   distance: [{ variant: 'text', width: '50%' }],
   duration: [{ sx: { ml: 'auto' }, variant: 'text', width: 50 }],
   grandparentTitle: [{ variant: 'text', width: '50%' }],
@@ -16,6 +16,7 @@ const skeletonPropsMap: Partial<Record<keyof Track, Partial<SkeletonProps>[]>> =
   parentIndex: [{ sx: { display: 'none' } }],
   parentTitle: [{ variant: 'text', width: '50%' }],
   parentYear: [{ variant: 'text', width: 40 }],
+  ratingCount: [{ variant: 'text', width: 128 }],
   thumb: [{ height: 40, sx: { margin: 'auto' }, variant: 'rounded', width: 40 }],
   title: [
     { variant: 'text', width: '50%' },

@@ -76,7 +76,7 @@ const defaultViewSettings: AppTrackViewSettings = {
     originalTitle: false,
     parentTitle: false,
     parentYear: false,
-    thumb: true,
+    ratingCount: false,
     viewCount: false,
   },
   compact: false,
@@ -247,20 +247,20 @@ const Tracks = () => {
       />
       <TrackTable
         columnOptions={
-          isEmpty(viewSettings.columns)
-            ? defaultViewSettings.columns
-            : viewSettings.columns
+          typeof viewSettings !== 'undefined'
+            ? viewSettings.columns
+            : defaultViewSettings.columns
         }
         isScrollingFn={handleScrollState}
         isViewCompact={
-          typeof viewSettings.compact !== 'undefined'
+          typeof viewSettings !== 'undefined'
             ? viewSettings.compact
             : defaultViewSettings.compact
         }
         library={library}
         listRange={range}
         multiLineRating={
-          typeof viewSettings.multiLineRating !== 'undefined'
+          typeof viewSettings !== 'undefined'
             ? viewSettings.multiLineRating
             : defaultViewSettings.multiLineRating
         }
@@ -272,7 +272,7 @@ const Tracks = () => {
         subtextOptions={{
           albumTitle: true,
           artistTitle: true,
-          showSubtext: typeof viewSettings.multiLineTitle !== 'undefined'
+          showSubtext: typeof viewSettings !== 'undefined'
             ? viewSettings.multiLineTitle
             : defaultViewSettings.multiLineTitle,
         }}

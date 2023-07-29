@@ -17,7 +17,6 @@ const FixedHeader = ({ thumbSrcSm, track }: FixedHeaderProps) => (
     display="flex"
     height={70}
     marginX="auto"
-    maxWidth="900px"
     paddingX="6px"
     width="calc(100% - 12px)"
   >

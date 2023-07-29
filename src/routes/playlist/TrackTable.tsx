@@ -35,6 +35,10 @@ import {
   TitleCell,
   RatingCell,
 } from 'components/track-table/cells';
+import {
+  formatListenerCount,
+  formatPlaycount,
+} from 'components/track-table/columns/useDefaultColumns';
 import { WIDTH_CALC } from 'constants/measures';
 import useFormattedTime from 'hooks/useFormattedTime';
 import usePlayback from 'hooks/usePlayback';
@@ -239,17 +243,11 @@ const TrackTable: React.FC<{
       ),
       sortingFn: 'alphanumeric',
     }),
-    columnHelper.accessor((row) => row.track.viewCount, {
+    columnHelper.accessor((row) => (row.track.globalViewCount || row.track.viewCount), {
       id: 'viewCount',
       cell: (info) => (
-        <Link className="link" to={`/history/${info.row.original.track.id}`}>
-          {
-            info.getValue()
-              ? `${info.getValue()} ${info.getValue() > 1
-                ? 'plays'
-                : 'play'}`
-              : 'unplayed'
-          }
+        <Link className="link" to={`/history/${info.row.original.id}`}>
+          {formatPlaycount(info.getValue())}
         </Link>
       ),
       header: () => (
@@ -279,6 +277,15 @@ const TrackTable: React.FC<{
       header: () => (
         <Typography color="text.secondary" lineHeight="24px" variant="overline">
           Year
+        </Typography>
+      ),
+    }),
+    columnHelper.accessor((row) => row.track.ratingCount, {
+      id: 'ratingCount',
+      cell: (info) => formatListenerCount(info.getValue()),
+      header: () => (
+        <Typography color="text.secondary" lineHeight="24px" variant="overline">
+          Popularity
         </Typography>
       ),
     }),

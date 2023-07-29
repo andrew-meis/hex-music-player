@@ -12,6 +12,7 @@ const columnMap: Partial<Record<keyof Track, string>> = {
   originalTitle: 'Track Artist',
   parentTitle: 'Album',
   parentYear: 'Year',
+  ratingCount: 'Popularity',
   thumb: 'Artwork',
   userRating: 'Rating',
   viewCount: 'Playcount',

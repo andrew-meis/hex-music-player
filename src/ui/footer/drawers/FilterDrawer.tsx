@@ -2,6 +2,7 @@ import { Drawer, IconButton, SvgIcon } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import { FiFilter } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
+import { MotionBox } from 'components/motion-components/motion-components';
 import Tooltip from 'components/tooltip/Tooltip';
 import { iconButtonStyle } from 'constants/style';
 import FilterPanel from 'ui/sidebars/filter-panel/FilterPanel';
@@ -35,39 +36,45 @@ const FilterDrawer = () => {
   return (
     <>
       {routes.includes(location.pathname) && (
-        <Tooltip
-          PopperProps={popperProps}
-          placement="top"
-          title="Filters & Sorting"
+        <MotionBox
+          animate={{ width: 32, opacity: 1 }}
+          exit={{ width: 0, opacity: 0 }}
+          initial={{ width: 0, opacity: 0 }}
+          mr={0.5}
         >
-          <IconButton
-            disableRipple
-            size="small"
-            sx={{
-              ...iconButtonStyle,
-              marginRight: '4px',
-              width: '32px',
-              height: '30px',
-              color: open ? 'primary.main' : 'text.secondary',
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: open ? 'primary.light' : 'text.primary',
-              },
-            }}
-            onClick={handleDrawerOpen}
+          <Tooltip
+            PopperProps={popperProps}
+            placement="top"
+            title="Filters & Sorting"
           >
-            <SvgIcon
+            <IconButton
+              disableRipple
+              size="small"
               sx={{
-                position: 'absolute',
-                width: '0.9em',
-                height: '0.9em',
+                ...iconButtonStyle,
+                width: 32,
+                height: 30,
+                color: open ? 'primary.main' : 'text.secondary',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: open ? 'primary.light' : 'text.primary',
+                },
               }}
-              viewBox="0 1 24 24"
+              onClick={handleDrawerOpen}
             >
-              <FiFilter />
-            </SvgIcon>
-          </IconButton>
-        </Tooltip>
+              <SvgIcon
+                sx={{
+                  position: 'absolute',
+                  width: '0.9em',
+                  height: '0.9em',
+                }}
+                viewBox="0 1 24 24"
+              >
+                <FiFilter />
+              </SvgIcon>
+            </IconButton>
+          </Tooltip>
+        </MotionBox>
       )}
       <Drawer
         PaperProps={{
