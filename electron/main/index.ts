@@ -103,7 +103,7 @@ const resetTaskbarButtons = (isPlaying : boolean) => {
 
 async function createWindow() {
   const bounds = readData('bounds', configPath);
-  if (bounds.x !== undefined && bounds.y !== undefined) {
+  if (typeof bound !== 'undefined') {
     const display = screen.getDisplayNearestPoint({ x: bounds.x, y: bounds.y });
     if (!(bounds.x > display.bounds.x && bounds.x < display.size.width)
       || !(bounds.y > display.bounds.y && bounds.y < display.size.height)) {
