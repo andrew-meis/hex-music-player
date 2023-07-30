@@ -27,7 +27,7 @@ const normalizedPlatform = (platform: string): string => {
 };
 
 const client = new Client({
-  identifier: config.clientId,
+  identifier: config.clientId || undefined,
   product: sysInfo.appName,
   version: sysInfo.appVersion,
   device: normalizedPlatform(sysInfo.platform),
