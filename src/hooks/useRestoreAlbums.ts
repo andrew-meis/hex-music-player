@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { isEmpty } from 'lodash';
 import { Artist } from 'api/index';
 import { QueryKeys } from 'types/enums';
 
@@ -7,7 +6,7 @@ const useRestoreAlbums = () => {
   const queryClient = useQueryClient();
   return async (artist: Artist) => {
     const filters = window.electron.readFilters('filters');
-    if (isEmpty(filters)) {
+    if (!filters) {
       window.electron.writeFilters('filters', [{ artist: artist.guid, exclusions: [] }]);
       await queryClient.refetchQueries([QueryKeys.ARTIST_APPEARANCES, artist.id]);
       await queryClient.refetchQueries([QueryKeys.ARTIST_TRACKS, artist.id]);

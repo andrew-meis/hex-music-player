@@ -1,5 +1,5 @@
 import ky from 'ky';
-import { deburr, isEmpty } from 'lodash';
+import { deburr } from 'lodash';
 import { Account, Library, MediaType, parseContainerType, parseHubContainer } from 'api/index';
 import { PlexSort, plexSort } from 'classes';
 import { AlbumSortKeys, SortOrders } from 'types/enums';
@@ -68,7 +68,7 @@ export const artistAppearancesQueryFn = async (
     },
   );
   const appearsOnFilter = window.electron.readFilters('filters');
-  if (isEmpty(appearsOnFilter)) {
+  if (!appearsOnFilter) {
     return albums;
   }
   const [hasFilteredAlbums] = appearsOnFilter.filter((filter) => filter.artist === guid);
@@ -115,7 +115,7 @@ export const artistTracksQueryFn = async ({
     .filter((track) => (track.originalTitle?.toLowerCase().includes(title.toLowerCase()))
       || (track.grandparentId === id));
   const appearsOnFilter = window.electron.readFilters('filters');
-  if (isEmpty(appearsOnFilter)) {
+  if (!appearsOnFilter) {
     if (slice) { return tracks.slice(0, slice); }
     return tracks;
   }

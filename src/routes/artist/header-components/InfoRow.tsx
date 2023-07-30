@@ -80,7 +80,7 @@ const MenuBox = ({ artist, navigate, playSwitch, refreshMetadata, width }: MenuB
   const menuRef = useRef<HTMLDivElement | null>(null);
   const mbid = (artist.mbid[0].id as unknown as string).slice(7);
   const filters = window.electron.readFilters('filters');
-  const hasHiddenReleases = filters.findIndex((obj) => obj.artist === artist.guid) !== -1;
+  const hasHiddenReleases = filters?.findIndex((obj) => obj.artist === artist.guid) !== -1;
   const restoreAlbums = useRestoreAlbums();
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
 
