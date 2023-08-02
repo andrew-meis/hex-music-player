@@ -1,27 +1,11 @@
 import { Box, Typography } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
-import ky from 'ky';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { WIDTH_CALC } from 'constants/measures';
 import { useNowPlaying } from 'queries/plex-queries';
+import { useLyrics } from 'queries/track-queries';
+import { LyricsObject } from 'queries/track-query-fns';
 import { playbackProgressAtom } from 'root/Player';
-import { QueryKeys } from 'types/enums';
-
-interface LyricsData {
-  albumName: string;
-  artistName: string;
-  duration: number;
-  id: number;
-  instrumental: boolean;
-  isrc: string;
-  lang: string;
-  name: string;
-  plainLyrics: string | null;
-  releaseData: string;
-  spotifyId: string;
-  syncedLyrics: string | null;
-}
 
 const getTextStyle = (playerOffset: number, startOffset: number, nextOffset: number) => {
   if (playerOffset > startOffset && playerOffset < nextOffset) {
@@ -41,7 +25,7 @@ const timestampToMs = (timestamp: string) => {
   return (split[0] * 60000) + (split[1] * 1000);
 };
 
-const processLyrics = (data: LyricsData, duration: number) => {
+const processLyrics = (data: LyricsObject, duration: number) => {
   if (data.syncedLyrics) {
     const syncedLyrics = data.syncedLyrics
       .split('\n')
@@ -65,38 +49,12 @@ const Lyrics = () => {
   const { position } = useAtomValue(playbackProgressAtom);
   const [activeLine, setActiveLine] = useState<HTMLSpanElement | null>();
   const { data: nowPlaying } = useNowPlaying();
-  const { data: lyrics } = useQuery(
-    [QueryKeys.LYRICS, nowPlaying?.id],
-    async () => {
-      const url = 'https://lrclib.net/api/get';
-      try {
-        const params = new URLSearchParams();
-        params.append('artist_name', nowPlaying?.track.grandparentTitle.toLowerCase() || '');
-        params.append('album_name', nowPlaying?.track.parentTitle.toLowerCase() || '');
-        params.append('track_name', nowPlaying?.track.title.toLowerCase() || '');
-        params
-          .append('duration', (Math.floor((nowPlaying?.track.duration || 0) / 1000)).toString());
-        const response = await ky(`${url}?${params.toString()}`).json() as LyricsData;
-        return processLyrics(response, nowPlaying?.track.duration || 0);
-      } catch {
-        const params = new URLSearchParams();
-        params.append('artist_name', nowPlaying?.track.originalTitle.toLowerCase() || '');
-        params.append('album_name', nowPlaying?.track.parentTitle.toLowerCase() || '');
-        params.append('track_name', nowPlaying?.track.title.toLowerCase() || '');
-        params
-          .append('duration', (Math.floor((nowPlaying?.track.duration || 0) / 1000)).toString());
-        const response = await ky(`${url}?${params.toString()}`).json() as LyricsData;
-        return processLyrics(response, nowPlaying?.track.duration || 0);
-      }
-    },
-    {
-      enabled: !!nowPlaying,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-      staleTime: Infinity,
-    },
-  );
+  const { data: lyricsData } = useLyrics({ track: nowPlaying?.track });
+
+  const lyrics = useMemo(() => {
+    if (!lyricsData || !nowPlaying) return undefined;
+    return processLyrics(lyricsData, nowPlaying.track.duration || 0);
+  }, [lyricsData, nowPlaying]);
 
   useEffect(() => {
     if (!box.current || !activeLine) {

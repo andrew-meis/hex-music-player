@@ -55,7 +55,7 @@ const InfoRow = ({ data, title }: InfoRowProps) => (
 
 interface InfoProps {
   album: Album;
-  lastfmTrack: LastFmTrack;
+  lastfmTrack: LastFmTrack | undefined;
   track: Track;
 }
 
@@ -93,13 +93,13 @@ const Info = ({ album, lastfmTrack, track }: InfoProps) => {
         <InfoCard lg={4} md={12}>
           <InfoRow data={track.viewCount > 0 ? track.viewCount : '—'} title="Playcount" />
           <InfoRow
-            data={lastfmTrack.listeners
+            data={lastfmTrack?.listeners
               ? parseInt(lastfmTrack.listeners, 10).toLocaleString()
               : '—'}
             title="Last.fm Listeners"
           />
           <InfoRow
-            data={lastfmTrack.playcount
+            data={lastfmTrack?.playcount
               ? parseInt(lastfmTrack.playcount, 10).toLocaleString()
               : '—'}
             title="Last.fm Scrobbles"

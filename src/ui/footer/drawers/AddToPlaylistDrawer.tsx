@@ -1,19 +1,26 @@
 import { Drawer } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { atom, useAtom } from 'jotai';
+import { useEffect, useState } from 'react';
 import { Album, Artist, Track } from 'api/index';
 import AddToPlaylist from 'ui/sidebars/add-to-playlist/AddToPlaylist';
 
-export type Item = Album | Artist | Track;
+export const addToPlaylistAtom = atom<Album[] | Artist[] | Track[] | null>(null);
 
 const AddToPlaylistDrawer = () => {
-  const { data: items } = useQuery<Item[]>(
-    ['playlist-dialog-open'],
-    () => ([]),
-    {
-      initialData: [],
-      staleTime: Infinity,
-    },
-  );
+  const [items, setItems] = useAtom(addToPlaylistAtom);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (items) {
+      setOpen(true);
+    }
+  }, [items]);
+
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => setItems(null), 500);
+    }
+  }, [open, setItems]);
 
   return (
     <Drawer
@@ -25,11 +32,13 @@ const AddToPlaylistDrawer = () => {
         },
       }}
       anchor="right"
-      open={items.length > 0}
+      open={open}
       transitionDuration={300}
       variant="persistent"
     >
-      <AddToPlaylist items={items} />
+      {!!items && (
+        <AddToPlaylist items={items} setOpen={setOpen} />
+      )}
     </Drawer>
   );
 };

@@ -6,6 +6,33 @@ import { plexSort } from 'classes';
 import { SortOrders, TrackSortKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
 
+export interface LyricsObject {
+  albumGuid: string;
+  artistGuid: string;
+  trackGuid: string;
+  albumTitle: string;
+  artistTitle: string;
+  trackTitle: string;
+  instrumental: boolean;
+  plainLyrics: string | null;
+  syncedLyrics: string | null;
+}
+
+export interface LyricsResponse {
+  albumName: string;
+  artistName: string;
+  duration: number;
+  id: number;
+  instrumental: boolean;
+  isrc: string;
+  lang: string;
+  name: string;
+  plainLyrics: string | null;
+  releaseData: string;
+  spotifyId: string;
+  syncedLyrics: string | null;
+}
+
 export interface Playcount {
   historyKey: string;
   key: string;
@@ -27,6 +54,99 @@ export interface Playcount {
   accountID: number;
   deviceID: number;
 }
+
+const createLyricsUrl = (
+  artist: string,
+  album: string,
+  track: string,
+  duration: string,
+) => {
+  const url = 'https://lrclib.net/api/get';
+  const params = new URLSearchParams();
+  params.append('artist_name', artist);
+  params.append('album_name', album);
+  params.append('track_name', track);
+  params.append('duration', duration);
+  return `${url}?${params.toString()}`;
+};
+
+export const lyricsQueryFn = async (
+  track: Track,
+) => {
+  const savedLyrics = window.electron.readLyrics(track.guid);
+  const shouldRefetch = savedLyrics
+    && !savedLyrics.instrumental
+    && !savedLyrics.plainLyrics
+    && !savedLyrics.syncedLyrics;
+  if (savedLyrics && !shouldRefetch) {
+    return savedLyrics;
+  }
+  try {
+    const url = createLyricsUrl(
+      track.grandparentTitle?.toLowerCase() || ' ',
+      track.parentTitle?.toLowerCase() || ' ',
+      track.title?.toLowerCase() || ' ',
+      (Math.floor((track.duration || 0) / 1000)).toString(),
+    );
+    const response = await ky(url).json<LyricsResponse>();
+    const lyrics: LyricsObject = {
+      albumGuid: track.parentGuid,
+      artistGuid: track.grandparentGuid,
+      trackGuid: track.guid,
+      albumTitle: track.parentTitle,
+      artistTitle: track.grandparentTitle === 'Various Artists'
+        ? track.originalTitle
+        : track.grandparentTitle,
+      trackTitle: track.title,
+      instrumental: response.instrumental,
+      plainLyrics: response.plainLyrics,
+      syncedLyrics: response.syncedLyrics,
+    };
+    window.electron.writeLyrics(track.guid, lyrics);
+    return lyrics;
+  } catch {
+    try {
+      const url = createLyricsUrl(
+        track.originalTitle?.toLowerCase() || ' ',
+        track.parentTitle?.toLowerCase() || ' ',
+        track.title?.toLowerCase() || ' ',
+        (Math.floor((track.duration || 0) / 1000)).toString(),
+      );
+      const response = await ky(url).json<LyricsResponse>();
+      const lyrics: LyricsObject = {
+        albumGuid: track.parentGuid,
+        artistGuid: track.grandparentGuid,
+        trackGuid: track.guid,
+        albumTitle: track.parentTitle,
+        artistTitle: track.grandparentTitle === 'Various Artists'
+          ? track.originalTitle
+          : track.grandparentTitle,
+        trackTitle: track.title,
+        instrumental: response.instrumental,
+        plainLyrics: response.plainLyrics,
+        syncedLyrics: response.syncedLyrics,
+      };
+      window.electron.writeLyrics(track.guid, lyrics);
+      return lyrics;
+    } catch {
+      const lyrics: LyricsObject = {
+        albumGuid: track.parentGuid,
+        artistGuid: track.grandparentGuid,
+        trackGuid: track.guid,
+        albumTitle: track.parentTitle,
+        artistTitle: track.grandparentTitle === 'Various Artists'
+          ? track.originalTitle
+          : track.grandparentTitle,
+        trackTitle: track.title,
+        instrumental: false,
+        plainLyrics: null,
+        syncedLyrics: null,
+      };
+      window.electron.writeLyrics(track.guid, lyrics);
+      return lyrics;
+    }
+  }
+};
 
 export const recentTracksQueryFn = async (
   config: AppConfig,

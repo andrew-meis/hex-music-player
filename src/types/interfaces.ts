@@ -2,6 +2,7 @@ import { AlertColor, PaletteMode } from '@mui/material';
 import { SortingState } from '@tanstack/react-table';
 import { Location } from 'react-router-dom';
 import { Account, Album, Device, Library, Track } from 'api/index';
+import { LyricsObject } from 'queries/track-query-fns';
 
 export interface AlbumWithSection extends Album {
   section: string;
@@ -62,6 +63,8 @@ export interface ElectronAPI {
   writeConfig: (key: string, value: any) => any;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
+  readLyrics: (guid: string) => LyricsObject;
+  writeLyrics: (guid: string, lyrics: LyricsObject) => LyricsObject;
   updatePlaying: (key: 'playing', value: boolean) => void;
   receive: (channel: string, func: (action: { event: string }) => void) => () => void;
 }

@@ -5,7 +5,31 @@ import { PlexSort } from 'classes';
 import { topLibraryQueryFn } from 'queries/library-query-fns';
 import { QueryKeys } from 'types/enums';
 import { AppConfig } from 'types/interfaces';
-import { recentTracksQueryFn, similarTracksQueryFn, trackHistoryQueryFn } from './track-query-fns';
+import {
+  lyricsQueryFn,
+  recentTracksQueryFn,
+  similarTracksQueryFn,
+  trackHistoryQueryFn,
+} from './track-query-fns';
+
+export const useLyrics = (
+  {
+    track,
+  } : {
+    track: Track | undefined,
+  },
+) => useQuery(
+  [QueryKeys.LYRICS, track?.id],
+  () => lyricsQueryFn(track!),
+  {
+    enabled: !!track,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    staleTime: Infinity,
+  },
+);
 
 export const useRecentTracks = (
   {

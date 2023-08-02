@@ -5,7 +5,7 @@ import {
   MenuDivider,
   MenuItem,
 } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { MdPlaylistAdd } from 'react-icons/md';
 import { RiHistoryFill } from 'react-icons/ri';
@@ -17,6 +17,7 @@ import { ButtonSpecs, trackButtons, tracksButtons } from 'constants/buttons';
 import useArtistMatch from 'hooks/useArtistMatch';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
+import { addToPlaylistAtom } from 'ui/footer/drawers/AddToPlaylistDrawer';
 import AlbumMenuItem from './menu-items/AlbumMenuItem';
 import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
@@ -39,7 +40,7 @@ const NowPlayingMenu = ({
       : '',
   });
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const setItems = useSetAtom(addToPlaylistAtom);
 
   const handleArtistNavigate = (artist: Artist) => {
     const state = { guid: artist.guid, title: artist.title };
@@ -90,8 +91,7 @@ const NowPlayingMenu = ({
       ))}
       <MenuDivider />
       <MenuItem
-        onClick={() => queryClient
-          .setQueryData(['playlist-dialog-open'], tracks)}
+        onClick={() => setItems(tracks)}
       >
         <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
         Add to playlist

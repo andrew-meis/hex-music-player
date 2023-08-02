@@ -13,7 +13,7 @@ import React, { useEffect, useState } from 'react';
 import { RiSendPlaneLine } from 'react-icons/ri';
 import { RxCheck } from 'react-icons/rx';
 import { ListProps, Virtuoso } from 'react-virtuoso';
-import { Library } from 'api/index';
+import { Album, Artist, Library, Track } from 'api/index';
 import { MotionBox } from 'components/motion-components/motion-components';
 import { toastAtom } from 'components/toast/Toast';
 import { typographyStyle } from 'constants/style';
@@ -22,7 +22,6 @@ import { usePlaylists } from 'queries/playlist-queries';
 import { libraryAtom, settingsAtom } from 'root/Root';
 import { QueryKeys } from 'types/enums';
 import { isAlbum, isArtist, isTrack } from 'types/type-guards';
-import { Item } from 'ui/footer/drawers/AddToPlaylistDrawer';
 
 const List = React
   .forwardRef((
@@ -39,12 +38,13 @@ const List = React
     </Box>
   ));
 
-const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) => {
-  if (items.length === 0) {
-    return (
-      <Box height={56} />
-    );
-  }
+const TracksToAdd: React.FC<{
+  items: Album[] | Artist[] | Track[],
+  library: Library,
+}> = ({
+  library,
+  items,
+}) => {
   const [item] = items;
   return (
     <Box
@@ -112,7 +112,13 @@ const TracksToAdd = ({ library, items }: { library: Library, items: Item[] }) =>
   );
 };
 
-const AddToPlaylist = ({ items }: { items: Item[] }) => {
+const AddToPlaylist: React.FC<{
+  items: Album[] | Artist[] | Track[],
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+}> = ({
+  items,
+  setOpen,
+}) => {
   const addToPlaylist = useAddToPlaylist();
   const createPlaylist = useCreatePlaylist();
   const library = useAtomValue(libraryAtom);
@@ -137,15 +143,11 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
   };
 
   const handleSave = async () => {
-    if (items.length === 0) {
-      queryClient.setQueryData(['playlist-dialog-open'], []);
-      return;
-    }
     const itemIds = items.map((item) => item.id);
     selected.forEach(async (id) => {
       await addToPlaylist(id, itemIds);
     });
-    queryClient.setQueryData(['playlist-dialog-open'], []);
+    setOpen(false);
   };
 
   const handleScrollState = (isScrolling: boolean) => {
@@ -291,7 +293,7 @@ const AddToPlaylist = ({ items }: { items: Item[] }) => {
                 },
               }}
               variant="contained"
-              onClick={() => queryClient.setQueryData(['playlist-dialog-open'], [])}
+              onClick={() => setOpen(false)}
             >
               <Box alignItems="center" display="flex" justifyContent="center" width={1}>
                 Cancel

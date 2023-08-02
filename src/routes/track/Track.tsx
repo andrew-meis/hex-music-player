@@ -1,20 +1,21 @@
-import { Box } from '@mui/material';
+import { Box, Dialog } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import moment from 'moment';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigationType, useOutletContext, useParams } from 'react-router-dom';
 import Palette from 'components/palette/Palette';
 import { VIEW_PADDING, WIDTH_CALC } from 'constants/measures';
 import usePlayback from 'hooks/usePlayback';
 import { useAlbumQuick } from 'queries/album-queries';
 import { useLastfmSearch, useLastfmTrack } from 'queries/last-fm-queries';
-import { useTrack, useTrackHistory } from 'queries/track-queries';
+import { useLyrics, useTrack, useTrackHistory } from 'queries/track-queries';
 import { configAtom, libraryAtom, settingsAtom } from 'root/Root';
 import { RouteParams } from 'types/interfaces';
 import Graphs from './Graphs';
 import Header from './Header';
 import Info from './Info';
+import Lyrics from './Lyrics';
 import Similar from './Similar';
 
 const Track = () => {
@@ -26,16 +27,25 @@ const Track = () => {
   const location = useLocation();
   const navigationType = useNavigationType();
   const settings = useAtomValue(settingsAtom);
+  const [open, setOpen] = useState(false);
+  const { playSwitch } = usePlayback();
+  const { width } = useOutletContext() as { width: number };
 
   const { data: track } = useTrack({
     library,
     id: +id,
+  });
+  const { data: album } = useAlbumQuick(library, track?.parentId);
+
+  const { data: lyricsData } = useLyrics({
+    track,
   });
   const { data: trackHistory } = useTrackHistory({
     config,
     library,
     id: +id,
   });
+
   const { data: lastfmSearch } = useLastfmSearch({
     apikey: settings?.apiKey,
     artist: track?.grandparentTitle,
@@ -46,9 +56,7 @@ const Track = () => {
     artist: lastfmSearch?.artist,
     title: lastfmSearch?.name,
   });
-  const { data: album } = useAlbumQuick(library, track?.parentId);
-  const { playSwitch } = usePlayback();
-  const { width } = useOutletContext() as { width: number };
+
   const moments = useMemo(
     () => trackHistory
       .map((obj) => moment.unix(obj.viewedAt)),
@@ -71,7 +79,7 @@ const Track = () => {
     return 0;
   }, [id, navigationType]);
 
-  if (!track || !trackHistory || !lastfmTrack || !album) {
+  if (!track || !trackHistory || !album) {
     return null;
   }
 
@@ -114,8 +122,10 @@ const Track = () => {
                 <Header
                   album={album}
                   colors={colors}
+                  isLyrics={!!lyricsData}
                   library={library}
                   playSwitch={playSwitch}
+                  setOpen={setOpen}
                   track={track}
                 />
                 <Info
@@ -141,6 +151,22 @@ const Track = () => {
                   title={lastfmSearch?.name}
                   width={width - VIEW_PADDING}
                 />
+                <Dialog
+                  maxWidth="sm"
+                  open={open}
+                  sx={{
+                    zIndex: 2000,
+                  }}
+                  onClose={() => setOpen(false)}
+                >
+                  {!!lyricsData && (
+                    <Lyrics
+                      lyricsData={lyricsData}
+                      setOpen={setOpen}
+                      track={track}
+                    />
+                  )}
+                </Dialog>
               </Box>
             </Box>
           </motion.div>

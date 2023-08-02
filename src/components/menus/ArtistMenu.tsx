@@ -5,7 +5,7 @@ import {
   MenuDivider,
   MenuItem,
 } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { MdPlaylistAdd } from 'react-icons/md';
 import { RiHistoryFill } from 'react-icons/ri';
@@ -15,6 +15,7 @@ import { Artist } from 'api/index';
 import { ButtonSpecs, artistButtons } from 'constants/buttons';
 import { PlayParams } from 'hooks/usePlayback';
 import { PlayActions } from 'types/enums';
+import { addToPlaylistAtom } from 'ui/footer/drawers/AddToPlaylistDrawer';
 import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
 interface ArtistMenuProps extends ControlledMenuProps{
@@ -31,7 +32,7 @@ const ArtistMenu = ({
   ...props
 }: ArtistMenuProps) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const setItems = useSetAtom(addToPlaylistAtom);
 
   const handleArtistNavigate = (artist: Artist) => {
     const state = { guid: artist.guid, title: artist.title };
@@ -65,8 +66,7 @@ const ArtistMenu = ({
       ))}
       <MenuDivider />
       <MenuItem
-        onClick={() => queryClient
-          .setQueryData(['playlist-dialog-open'], artists)}
+        onClick={() => setItems(artists)}
       >
         <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
         Add to playlist

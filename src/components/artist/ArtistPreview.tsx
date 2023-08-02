@@ -79,7 +79,9 @@ const ArtistPreview: React.FC<{
         ref={ref}
       >
         {
-          entry && entry.intersectionRatio > 0.3
+          entry
+          && entry.intersectionRatio > 0.3
+          && !openArtistTracksQuery.isFetching
             ? (
               <TrackCarousel
                 library={library}

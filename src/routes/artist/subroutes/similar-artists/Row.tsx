@@ -55,6 +55,13 @@ const Row = React.memo(({ index: rowIndex, context }: RowProps) => {
         title: artist.title,
       });
     }
+    if (openCard.row !== rowIndex) {
+      setOpenArtist({
+        id: -1,
+        guid: '',
+        title: '',
+      });
+    }
     setOpenCard({ row: rowIndex, index: colIndex });
   };
 

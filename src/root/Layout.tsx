@@ -17,13 +17,14 @@ import Titlebar from 'ui/titlebar/Titlebar';
 import { configAtom, libraryAtom } from './Root';
 
 const Layout = ({ settings }: {settings: AppSettings}) => {
+  const config = useAtomValue(configAtom);
   const library = useAtomValue(libraryAtom);
   const location = useLocation();
+  const playlists = usePlaylists(library);
   const searchContainer = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(1);
   const [ref, { width, height }] = useMeasure();
-  const playlists = usePlaylists(library);
-  const config = useAtomValue(configAtom);
+
   const artists = useArtists({ config, library });
 
   if (artists.isLoading || playlists.isLoading) {

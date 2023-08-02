@@ -1,5 +1,5 @@
 import { Box, Collapse, SvgIcon } from '@mui/material';
-import React, { useRef } from 'react';
+import React from 'react';
 import { BiChevronDown } from 'react-icons/bi';
 import { Artist } from 'api/index';
 import ArtistCard from 'components/artist/ArtistCard';
@@ -34,7 +34,6 @@ const Row = ({ artists, context, index: rowIndex }: RowProps) => {
     width,
   } = context;
 
-  const scrollTop = useRef<number | undefined>();
   const openIndex = openCard.index;
   const caretPos = getCaretPos(grid.cols, openIndex, width);
 
@@ -43,7 +42,6 @@ const Row = ({ artists, context, index: rowIndex }: RowProps) => {
     artist: Artist,
     colIndex: number,
   ) => {
-    scrollTop.current = e.currentTarget.offsetTop - 72;
     if (openCard.row === rowIndex && openCard.index === colIndex) {
       setOpenArtist({
         id: -1,
@@ -60,13 +58,21 @@ const Row = ({ artists, context, index: rowIndex }: RowProps) => {
         title: artist.title,
       });
     }
+    if (openCard.row !== rowIndex) {
+      setOpenArtist({
+        id: -1,
+        guid: '',
+        title: '',
+      });
+    }
     setOpenCard({ row: rowIndex, index: colIndex });
   };
 
-  const handleEntered = () => {
-    virtuoso.current?.scrollTo({
-      top: scrollTop.current,
+  const handleEntered = (index: number) => {
+    virtuoso.current?.scrollToIndex({
       behavior: 'smooth',
+      index,
+      offset: -72,
     });
     if (openArtist.id === artists[openIndex].id) {
       setOpenArtist({
@@ -127,7 +133,7 @@ const Row = ({ artists, context, index: rowIndex }: RowProps) => {
       </Box>
       <Collapse
         in={openCard.row === rowIndex}
-        onEntered={handleEntered}
+        onEntered={() => handleEntered(rowIndex)}
         onExit={() => setOpen(false)}
       >
         <Box

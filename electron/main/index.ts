@@ -14,8 +14,9 @@ app.commandLine.appendSwitch('disable-background-timer-throttling');
 const dataPath = app.getPath('userData');
 const configPath = join(dataPath, 'config.json');
 const filtersPath = join(dataPath, 'filters.json');
+const lyricsFile = join(dataPath, 'lyrics.json');
 
-function parseData(file) {
+function parseData(file: string) {
   const defaultData = {};
   try {
     return JSON.parse(readFileSync(file).toString());
@@ -24,18 +25,33 @@ function parseData(file) {
   }
 }
 
-function writeData(key, value, file) {
+function writeData(key: string, value: any, file: string) {
   const contents = parseData(file);
   contents[key] = value;
   writeFileSync(file, JSON.stringify(contents, null, 2));
 }
 
-function readData(key, file) {
+function readData(key: string, file: string) {
   const contents = parseData(file);
   try {
     return contents[key];
   } catch {
     return {};
+  }
+}
+
+function writeLyrics(guid: string, lyrics: any) {
+  const contents = parseData(lyricsFile);
+  contents[guid] = lyrics;
+  writeFileSync(lyricsFile, JSON.stringify(contents, null, 2));
+}
+
+function readLyrics(guid: string) {
+  const contents = parseData(lyricsFile);
+  try {
+    return contents[guid];
+  } catch {
+    return undefined;
   }
 }
 
@@ -103,7 +119,7 @@ const resetTaskbarButtons = (isPlaying : boolean) => {
 
 async function createWindow() {
   const bounds = readData('bounds', configPath);
-  if (typeof bound !== 'undefined') {
+  if (typeof bounds !== 'undefined') {
     const display = screen.getDisplayNearestPoint({ x: bounds.x, y: bounds.y });
     if (!(bounds.x > display.bounds.x && bounds.x < display.size.width)
       || !(bounds.y > display.bounds.y && bounds.y < display.size.height)) {
@@ -239,6 +255,13 @@ ipcMain.on('read-filters', (event, arg) => {
 ipcMain.on('write-filters', (event, arg) => {
   writeData(arg.key, arg.value, filtersPath);
   event.returnValue = readData(arg.key, filtersPath);
+});
+ipcMain.on('read-lyrics', (event, arg) => {
+  event.returnValue = readLyrics(arg.guid);
+});
+ipcMain.on('write-lyrics', (event, arg) => {
+  writeLyrics(arg.guid, arg.lyrics);
+  event.returnValue = readLyrics(arg.guid);
 });
 ipcMain.on('get-app-info', (event) => {
   event.returnValue = {

@@ -5,7 +5,7 @@ import {
   MenuDivider,
   MenuItem,
 } from '@szhsin/react-menu';
-import { useQueryClient } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import { BsPlayFill } from 'react-icons/bs';
 import { MdPlaylistAdd, MdClear } from 'react-icons/md';
 import { TbWaveSawTool } from 'react-icons/tb';
@@ -15,6 +15,7 @@ import { Artist, PlayQueueItem, Track } from 'api/index';
 import useArtistMatch from 'hooks/useArtistMatch';
 import useDragActions from 'hooks/useDragActions';
 import usePlayback from 'hooks/usePlayback';
+import { addToPlaylistAtom } from 'ui/footer/drawers/AddToPlaylistDrawer';
 import AlbumMenuItem from './menu-items/AlbumMenuItem';
 import ArtistMenuItem from './menu-items/ArtistMenuItem';
 
@@ -38,7 +39,7 @@ const QueueMenu = ({
       : '',
   });
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const setItems = useSetAtom(addToPlaylistAtom);
   const { moveMany, moveManyLast } = useDragActions();
   const { playQueueItem } = usePlayback();
   if (!currentId || !items) return null;
@@ -82,8 +83,7 @@ const QueueMenu = ({
         </MenuItem>
         <MenuDivider />
         <MenuItem
-          onClick={() => queryClient
-            .setQueryData(['playlist-dialog-open'], items.map((el) => el.track))}
+          onClick={() => setItems(items.map((el) => el.track))}
         >
           <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
           Add to playlist
@@ -132,8 +132,7 @@ const QueueMenu = ({
       </MenuItem>
       <MenuDivider />
       <MenuItem
-        onClick={() => queryClient
-          .setQueryData(['playlist-dialog-open'], items.map((el) => el.track))}
+        onClick={() => setItems(items.map((el) => el.track))}
       >
         <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
         Add to playlist

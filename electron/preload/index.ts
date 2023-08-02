@@ -15,6 +15,8 @@ contextBridge.exposeInMainWorld('electron', {
   writeConfig: (key, value) => ipcRenderer.sendSync('write-config', { key, value }),
   readFilters: (key) => ipcRenderer.sendSync('read-filters', { key }),
   writeFilters: (key, value) => ipcRenderer.sendSync('write-filters', { key, value }),
+  readLyrics: (guid) => ipcRenderer.sendSync('read-lyrics', { guid }),
+  writeLyrics: (guid, lyrics) => ipcRenderer.sendSync('write-lyrics', { guid, lyrics }),
   // communicate player state to and from main process
   updatePlaying: (key, value) => ipcRenderer.send('update-playing', { key, value }),
   receive: (channel, func) => {

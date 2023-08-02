@@ -1,9 +1,10 @@
-import { Avatar, Box, Fade, Typography } from '@mui/material';
+import { Avatar, Box, Fade, IconButton, SvgIcon, Typography } from '@mui/material';
 import { useMenuState } from '@szhsin/react-menu';
 import chroma, { contrast } from 'chroma-js';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
+import { BsChatRightQuote } from 'react-icons/bs';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
 import { Album, Library, Track } from 'api/index';
@@ -11,6 +12,7 @@ import { ChipGenres } from 'components/chips';
 import { MenuIcon, TrackMenu } from 'components/menus';
 import TrackRating from 'components/rating/TrackRating';
 import { WIDTH_CALC } from 'constants/measures';
+import { iconButtonStyle } from 'constants/style';
 import { useThumbnail } from 'hooks/plexHooks';
 import { PaletteState } from 'hooks/usePalette';
 import { PlayParams } from 'hooks/usePlayback';
@@ -27,15 +29,23 @@ const titleStyle = {
   marginBottom: '5px',
 };
 
-interface HeaderProps {
-  album: Album;
-  colors: PaletteState;
-  library: Library;
-  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>;
-  track: Track;
-}
-
-const Header = ({ album, colors, library, playSwitch, track }: HeaderProps) => {
+const Header: React.FC<{
+  album: Album,
+  colors: PaletteState,
+  isLyrics: boolean,
+  library: Library,
+  playSwitch: (action: PlayActions, params: PlayParams) => Promise<void>,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  track: Track,
+}> = ({
+  album,
+  colors,
+  isLyrics,
+  library,
+  playSwitch,
+  setOpen,
+  track,
+}) => {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const [menuProps, toggleMenu] = useMenuState({ transition: true, unmountOnClose: true });
@@ -200,13 +210,33 @@ const Header = ({ album, colors, library, playSwitch, track }: HeaderProps) => {
           genres={album.genre}
           navigate={navigate}
         />
-        <MenuIcon
-          height={32}
-          menuRef={menuRef}
-          menuState={menuProps.state}
-          toggleMenu={toggleMenu}
-          width={24}
-        />
+        <div style={{ display: 'flex' }}>
+          {isLyrics && (
+            <IconButton
+              disableRipple
+              size="small"
+              sx={{
+                ...iconButtonStyle,
+                marginRight: '4px',
+                marginTop: '2px',
+                width: '32px',
+                height: '30px',
+              }}
+              onClick={() => setOpen(true)}
+            >
+              <SvgIcon sx={{ height: '0.9em', width: '0.9em' }}>
+                <BsChatRightQuote />
+              </SvgIcon>
+            </IconButton>
+          )}
+          <MenuIcon
+            height={32}
+            menuRef={menuRef}
+            menuState={menuProps.state}
+            toggleMenu={toggleMenu}
+            width={24}
+          />
+        </div>
         <TrackMenu
           arrow
           portal

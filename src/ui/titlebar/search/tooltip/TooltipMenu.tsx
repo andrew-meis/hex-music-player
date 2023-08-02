@@ -1,7 +1,7 @@
 import {
   Box, Button, ButtonGroup, SvgIcon,
 } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
+import { useSetAtom } from 'jotai';
 import React from 'react';
 import { MdPlaylistAdd } from 'react-icons/md';
 import { TbWaveSawTool } from 'react-icons/tb';
@@ -11,6 +11,7 @@ import { allButtons, ButtonSpecs } from 'constants/buttons';
 import usePlayback from 'hooks/usePlayback';
 import { isAlbum, isArtist, isGenre, isPlaylist, isTrack } from 'types/type-guards';
 import { Result } from 'types/types';
+import { addToPlaylistAtom } from 'ui/footer/drawers/AddToPlaylistDrawer';
 
 const buttonStyle = {
   width: '-webkit-fill-available',
@@ -39,7 +40,7 @@ interface Props {
 
 const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const setItems = useSetAtom(addToPlaylistAtom);
   const { playSwitch } = usePlayback();
 
   const handleButton = async (
@@ -116,7 +117,7 @@ const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
               sx={buttonStyle}
               onClick={(event) => {
                 handleButtonGeneric(event);
-                queryClient.setQueryData(['playlist-dialog-open'], [result]);
+                setItems([result]);
               }}
             >
               <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
@@ -131,7 +132,7 @@ const TooltipMenu = ({ result, setOpen, setTooltipOpen }: Props) => {
               sx={buttonStyle}
               onClick={(event) => {
                 handleButtonGeneric(event);
-                queryClient.setQueryData(['playlist-dialog-open'], [result]);
+                setItems([result]);
               }}
             >
               <SvgIcon sx={{ mr: '8px' }}><MdPlaylistAdd /></SvgIcon>
