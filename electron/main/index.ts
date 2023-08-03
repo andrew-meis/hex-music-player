@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies, no-param-reassign */
 // @ts-nocheck
-import { readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { hostname, release, version } from 'os';
 import path, { join } from 'path';
 import {
@@ -14,7 +14,7 @@ app.commandLine.appendSwitch('disable-background-timer-throttling');
 const dataPath = app.getPath('userData');
 const configPath = join(dataPath, 'config.json');
 const filtersPath = join(dataPath, 'filters.json');
-const lyricsFile = join(dataPath, 'lyrics.json');
+const lyricsPath = join(dataPath, 'lyrics');
 
 function parseData(file: string) {
   const defaultData = {};
@@ -40,17 +40,32 @@ function readData(key: string, file: string) {
   }
 }
 
-function writeLyrics(guid: string, lyrics: any) {
-  const contents = parseData(lyricsFile);
-  contents[guid] = lyrics;
-  writeFileSync(lyricsFile, JSON.stringify(contents, null, 2));
+function writeLyrics(lyrics: any) {
+  const { artistGuid, trackGuid } = lyrics;
+  if (!existsSync(lyricsPath)) {
+    mkdirSync(lyricsPath);
+  }
+  const trimmedGuid = artistGuid[0] === 'p'
+    ? artistGuid.slice(13)
+    : artistGuid.slice(8);
+  const lyricsFilePath = join(dataPath, 'lyrics', `${trimmedGuid}.json`);
+  const contents = parseData(lyricsFilePath);
+  contents[trackGuid] = lyrics;
+  writeFileSync(lyricsFilePath, JSON.stringify(contents, null, 2));
 }
 
-function readLyrics(guid: string) {
-  const contents = parseData(lyricsFile);
+function readLyrics(artistGuid: string, trackGuid: string) {
+  if (!existsSync(lyricsPath)) {
+    mkdirSync(lyricsPath);
+  }
+  const trimmedGuid = artistGuid[0] === 'p'
+    ? artistGuid.slice(13)
+    : artistGuid.slice(8);
+  const lyricsFilePath = join(dataPath, 'lyrics', `${trimmedGuid}.json`);
+  const contents = parseData(lyricsFilePath);
   try {
-    return contents[guid];
-  } catch {
+    return contents[trackGuid];
+  } catch (error) {
     return undefined;
   }
 }
@@ -257,11 +272,11 @@ ipcMain.on('write-filters', (event, arg) => {
   event.returnValue = readData(arg.key, filtersPath);
 });
 ipcMain.on('read-lyrics', (event, arg) => {
-  event.returnValue = readLyrics(arg.guid);
+  event.returnValue = readLyrics(arg.artistGuid, arg.trackGuid);
 });
 ipcMain.on('write-lyrics', (event, arg) => {
-  writeLyrics(arg.guid, arg.lyrics);
-  event.returnValue = readLyrics(arg.guid);
+  writeLyrics(arg.lyrics);
+  event.returnValue = readLyrics(arg.lyrics.artistGuid, arg.lyrics.trackGuid);
 });
 ipcMain.on('get-app-info', (event) => {
   event.returnValue = {

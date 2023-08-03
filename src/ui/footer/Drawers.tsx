@@ -19,9 +19,9 @@ const Drawers = () => (
     width={1}
   >
     <AnimatePresence mode="wait">
-      <LyricsButton key="lyrics" />
       <FilterDrawer key="filter" />
       <ColumnSettingsDrawer key="settings" />
+      <LyricsButton key="lyrics" />
       <QueueDrawer key="queue" />
       <VolumeSlider key="volume" />
       <AddToPlaylistDrawer key="add" />

@@ -73,7 +73,7 @@ const createLyricsUrl = (
 export const lyricsQueryFn = async (
   track: Track,
 ) => {
-  const savedLyrics = window.electron.readLyrics(track.guid);
+  const savedLyrics = window.electron.readLyrics(track.grandparentGuid, track.guid);
   const shouldRefetch = savedLyrics
     && !savedLyrics.instrumental
     && !savedLyrics.plainLyrics
@@ -102,7 +102,7 @@ export const lyricsQueryFn = async (
       plainLyrics: response.plainLyrics,
       syncedLyrics: response.syncedLyrics,
     };
-    window.electron.writeLyrics(track.guid, lyrics);
+    window.electron.writeLyrics(lyrics);
     return lyrics;
   } catch {
     try {
@@ -126,7 +126,7 @@ export const lyricsQueryFn = async (
         plainLyrics: response.plainLyrics,
         syncedLyrics: response.syncedLyrics,
       };
-      window.electron.writeLyrics(track.guid, lyrics);
+      window.electron.writeLyrics(lyrics);
       return lyrics;
     } catch {
       const lyrics: LyricsObject = {
@@ -142,7 +142,7 @@ export const lyricsQueryFn = async (
         plainLyrics: null,
         syncedLyrics: null,
       };
-      window.electron.writeLyrics(track.guid, lyrics);
+      window.electron.writeLyrics(lyrics);
       return lyrics;
     }
   }

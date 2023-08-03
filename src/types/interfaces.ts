@@ -63,8 +63,8 @@ export interface ElectronAPI {
   writeConfig: (key: string, value: any) => any;
   readFilters: (key: string) => Filter[];
   writeFilters: (key: string, value: any) => Filter[];
-  readLyrics: (guid: string) => LyricsObject;
-  writeLyrics: (guid: string, lyrics: LyricsObject) => LyricsObject;
+  readLyrics: (artistGuid: string, trackGuid: string) => LyricsObject;
+  writeLyrics: (lyrics: LyricsObject) => LyricsObject;
   updatePlaying: (key: 'playing', value: boolean) => void;
   receive: (channel: string, func: (action: { event: string }) => void) => () => void;
 }

@@ -90,7 +90,7 @@ const Lyrics: React.FC<{
       ...(validSyncedLyrics && { syncedLyrics: value }),
       ...(!validSyncedLyrics && validPlainLyrics && { plainLyrics: value }),
     };
-    window.electron.writeLyrics(lyricsData.trackGuid, newLyrics);
+    window.electron.writeLyrics(newLyrics);
     queryClient.refetchQueries([QueryKeys.LYRICS, track.id]);
     setOpen(false);
   };
