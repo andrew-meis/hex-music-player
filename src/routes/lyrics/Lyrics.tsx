@@ -1,70 +1,53 @@
 import { Box, Typography } from '@mui/material';
-import { useAtomValue } from 'jotai';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { WIDTH_CALC } from 'constants/measures';
 import { useNowPlaying } from 'queries/plex-queries';
 import { useLyrics } from 'queries/track-queries';
-import { LyricsObject } from 'queries/track-query-fns';
-import { playbackProgressAtom } from 'root/Player';
-
-const getTextStyle = (playerOffset: number, startOffset: number, nextOffset: number) => {
-  if (playerOffset > startOffset && playerOffset < nextOffset) {
-    return { color: 'text.primary' };
-  }
-  if (playerOffset < startOffset) {
-    return { color: 'text.secondary' };
-  }
-  if (playerOffset > nextOffset) {
-    return { color: 'text.disabled' };
-  }
-  return { color: 'text.secondary' };
-};
+import RenderSyncedLyrics from './RenderSyncedLyrics';
 
 const timestampToMs = (timestamp: string) => {
   const split = timestamp.split(':') as unknown as number[];
   return (split[0] * 60000) + (split[1] * 1000);
 };
 
-const processLyrics = (data: LyricsObject, duration: number) => {
-  if (data.syncedLyrics) {
-    const syncedLyrics = data.syncedLyrics
-      .split('\n')
-      .map((lyric) => ({
-        line: lyric.slice(11),
-        startOffset: timestampToMs(lyric.slice(1, 9)),
-      }));
-    return syncedLyrics;
-  }
-  if (data.plainLyrics) {
-    return data.plainLyrics.split('\n').map((line) => ({ line, startOffset: duration }));
-  }
-  return [{
-    line: 'No lyrics found.',
-    startOffset: duration,
-  }];
+const processSyncedLyrics = (syncedLyrics: string) => {
+  const processedLyrics = syncedLyrics
+    .split('\n')
+    .map((lyric) => ({
+      line: lyric.slice(10).trim(),
+      startOffset: timestampToMs(lyric.slice(1, 9)),
+    }));
+  return processedLyrics;
 };
 
+const processPlainLyrics = (plainLyrics: string, duration: number) => plainLyrics
+  .split('\n').map((line) => ({ line, startOffset: duration }));
+
 const Lyrics = () => {
-  const box = useRef<HTMLDivElement | null>();
-  const { position } = useAtomValue(playbackProgressAtom);
-  const [activeLine, setActiveLine] = useState<HTMLSpanElement | null>();
   const { data: nowPlaying } = useNowPlaying();
   const { data: lyricsData } = useLyrics({ track: nowPlaying?.track });
 
-  const lyrics = useMemo(() => {
-    if (!lyricsData || !nowPlaying) return undefined;
-    return processLyrics(lyricsData, nowPlaying.track.duration || 0);
+  const syncedLyrics = useMemo(() => {
+    if (!lyricsData || !lyricsData.syncedLyrics || !nowPlaying) return undefined;
+    return processSyncedLyrics(lyricsData.syncedLyrics);
   }, [lyricsData, nowPlaying]);
 
-  useEffect(() => {
-    if (!box.current || !activeLine) {
-      return;
-    }
-    box.current.scrollTo({ top: activeLine.offsetTop - 210, behavior: 'smooth' });
-  }, [activeLine]);
+  const plainLyrics = useMemo(() => {
+    if (!lyricsData || !lyricsData.plainLyrics || !nowPlaying) return undefined;
+    return processPlainLyrics(lyricsData.plainLyrics, nowPlaying.track.duration || 0);
+  }, [lyricsData, nowPlaying]);
 
-  if (!lyrics) {
+  if (!syncedLyrics && !plainLyrics) {
     return null;
+  }
+
+  if (syncedLyrics) {
+    return (
+      <RenderSyncedLyrics
+        nowPlaying={nowPlaying!}
+        syncedLyrics={syncedLyrics}
+      />
+    );
   }
 
   return (
@@ -72,7 +55,6 @@ const Lyrics = () => {
       className="scroll-container"
       height={1}
       overflow="auto"
-      ref={box}
       width={1}
     >
       <Box
@@ -81,56 +63,21 @@ const Lyrics = () => {
         margin="auto"
         width={WIDTH_CALC}
       >
-        {lyrics.map((lyric, index, array) => {
-          const next = array[index + 1];
-          if (!next) {
-            return (
-              <Typography
-                fontFamily="TT Commons, sans-serif"
-                // eslint-disable-next-line react/no-array-index-key
-                key={index}
-                ref={
-                  position > lyric.startOffset
-                    ? setActiveLine
-                    : null
-                }
-                sx={{
-                  fontWeight: 600,
-                  ...getTextStyle(
-                    position,
-                    lyric.startOffset,
-                    nowPlaying?.track.duration || 0,
-                  ),
-                }}
-                variant="h4"
-              >
-                {lyric.line || ''}
-                &nbsp;
-              </Typography>
-            );
-          }
-          return (
-            <Typography
-              fontFamily="TT Commons, sans-serif"
-              // eslint-disable-next-line react/no-array-index-key
-              key={index}
-              ref={
-                position > lyric.startOffset
-                && position < next.startOffset
-                  ? setActiveLine
-                  : null
-              }
-              sx={{
-                fontWeight: 600,
-                ...getTextStyle(position, lyric.startOffset, next.startOffset),
-              }}
-              variant="h4"
-            >
-              {lyric.line || ''}
-              &nbsp;
-            </Typography>
-          );
-        })}
+        {plainLyrics!.map((lyric, index) => (
+          <Typography
+            fontFamily="TT Commons, sans-serif"
+            // eslint-disable-next-line react/no-array-index-key
+            key={index}
+            sx={{
+              color: 'text.secondary',
+              fontWeight: 600,
+            }}
+            variant="h4"
+          >
+            {lyric.line || ''}
+            &nbsp;
+          </Typography>
+        ))}
         <Box height={0.5} width={1} />
       </Box>
     </Box>
