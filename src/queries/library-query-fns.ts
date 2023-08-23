@@ -69,7 +69,6 @@ export const topLibraryQueryFn = async ({
         'viewedAt>': timestamp - seconds,
         'viewedAt<': timestamp,
         limit,
-        accountID: 1,
       },
     );
     response = await ky(url).json() as Record<string, any>;
@@ -83,7 +82,6 @@ export const topLibraryQueryFn = async ({
         'viewedAt>': start!,
         'viewedAt<': end!,
         limit,
-        accountID: 1,
       },
     );
     response = await ky(url).json() as Record<string, any>;

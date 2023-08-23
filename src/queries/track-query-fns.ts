@@ -163,7 +163,6 @@ export const recentTracksQueryFn = async (
       metadataItemID: id,
       'viewedAt<': time.unix(),
       'viewedAt>': time.subtract(days, 'day').unix(),
-      accountID: 1,
     },
   );
   const response = await ky(url).json() as Record<string, any>;
@@ -214,7 +213,6 @@ export const trackHistoryQueryFn = async (
       sort: plexSort(TrackSortKeys.VIEWED_AT, SortOrders.DESC).stringify(),
       librarySectionID: config.sectionId!,
       metadataItemID: id,
-      accountID: 1,
     },
   );
   const response = await ky(url).json() as Record<string, any>;

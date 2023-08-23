@@ -162,7 +162,7 @@ const AppMenu = () => {
             marginBottom: 5,
             padding: 0,
           }}
-          onClick={() => setOpen(true)}
+          // onClick={() => setOpen(true)}
         >
           <Box
             alignItems="center"
@@ -172,12 +172,12 @@ const AppMenu = () => {
             fontSize="14px"
             fontWeight={600}
             py="7px"
-            sx={{
-              cursor: 'pointer',
-              '&:hover': {
-                bgcolor: 'action.disabled',
-              },
-            }}
+            // sx={{
+            //   cursor: 'pointer',
+            //   '&:hover': {
+            //     bgcolor: 'action.disabled',
+            //   },
+            // }}
             width={1}
           >
             <Avatar

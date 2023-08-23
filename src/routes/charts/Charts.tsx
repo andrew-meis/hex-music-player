@@ -111,7 +111,6 @@ const Charts = () => {
       'viewedAt>': startDate.unix(),
       'viewedAt<': endDate.unix(),
       limit: 101,
-      accountID: 1,
     };
     return `/library/all/top?${new URLSearchParams(uriParams as any).toString()}`;
   }, [config, endDate, startDate]);
