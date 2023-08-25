@@ -91,8 +91,8 @@ const PlayShuffleButton = ({
       <MotionBox
         sx={{
           position: 'absolute',
-          right: '2px',
-          bottom: '2px',
+          right: '3px',
+          bottom: '3px',
         }}
         transition={{ type: 'spring', stiffness: 100 }}
         whileHover={{ scale: [null, 1.3, 1.2] }}
@@ -104,6 +104,7 @@ const PlayShuffleButton = ({
               height: '22px',
               color: 'primary.main',
               backgroundColor: 'background.default',
+              boxShadow: 'var(--mui-shadows-2)',
               '&:hover': {
                 color: 'primary.light',
                 backgroundColor: 'background.default',
