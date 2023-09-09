@@ -18,7 +18,9 @@ const Toast = () => {
   useEffect(() => {
     if (toast.text !== '') {
       setOpen(true);
+      return;
     }
+    setOpen(false);
   }, [toast]);
 
   const handleClose = () => {

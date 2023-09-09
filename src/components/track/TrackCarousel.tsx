@@ -9,6 +9,7 @@ import { tableKeyAtom } from 'ui/footer/drawers/ColumnSettingsDrawer';
 const defaultViewSettings: AppTrackViewSettings = {
   columns: {
     grandparentTitle: false,
+    lastRatedAt: false,
     lastViewedAt: false,
     originalTitle: false,
     parentTitle: false,

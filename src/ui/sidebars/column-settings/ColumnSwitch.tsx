@@ -7,6 +7,7 @@ const columnMap: Partial<Record<keyof Track, string>> = {
   duration: 'Duration',
   grandparentTitle: 'Album Artist',
   index: 'Index',
+  lastRatedAt: 'Last Rated',
   lastViewedAt: 'Last Played',
   originallyAvailableAt: 'Release Date',
   originalTitle: 'Track Artist',

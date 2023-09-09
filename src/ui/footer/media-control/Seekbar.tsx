@@ -55,10 +55,18 @@ const Seekbar = () => {
     store.sub(playbackProgressAtom, () => {
       if (!elapsed.current || !remaining.current || !thumb.current || !track.current) return;
       const newProgress = store.get(playbackProgressAtom);
-      elapsed.current.innerText = getFormattedTime(newProgress.position);
-      remaining.current.innerText = displayRemaining
-        ? `-${getFormattedTime(newProgress.duration - newProgress.position)}`
-        : getFormattedTime(newProgress.duration);
+      if (draggingPosition) {
+        elapsed.current.innerText = getFormattedTime(draggingPosition);
+        remaining.current.innerText = displayRemaining
+          ? `-${getFormattedTime(newProgress.duration - draggingPosition)}`
+          : getFormattedTime(newProgress.duration);
+      }
+      if (!draggingPosition) {
+        elapsed.current.innerText = getFormattedTime(newProgress.position);
+        remaining.current.innerText = displayRemaining
+          ? `-${getFormattedTime(newProgress.duration - newProgress.position)}`
+          : getFormattedTime(newProgress.duration);
+      }
       thumb.current.style.left = `
         ${((draggingPosition || newProgress.position) / newProgress.duration) * 100}%
       `;

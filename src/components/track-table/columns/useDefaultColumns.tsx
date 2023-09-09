@@ -197,6 +197,19 @@ const useDefaultColumns = ({
     ),
     sortUndefined: -1,
   }),
+  columnHelper.accessor('lastRatedAt', {
+    cell: (info) => (
+      <>
+        {info.getValue() ? moment(info.getValue()).fromNow() : 'never rated'}
+      </>
+    ),
+    header: () => (
+      <Typography color="text.secondary" lineHeight="24px" variant="overline">
+        Last Rated
+      </Typography>
+    ),
+    sortUndefined: -1,
+  }),
   ...additionalColumns || [],
   columnHelper.accessor('parentYear', {
     cell: (info) => (info.getValue()),

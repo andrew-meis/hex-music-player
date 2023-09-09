@@ -271,6 +271,20 @@ const TrackTable: React.FC<{
       ),
       sortUndefined: -1,
     }),
+    columnHelper.accessor((row) => row.track.lastRatedAt, {
+      id: 'lastRatedAt',
+      cell: (info) => (
+        <>
+          {info.getValue() ? moment(info.getValue()).fromNow() : 'never rated'}
+        </>
+      ),
+      header: () => (
+        <Typography color="text.secondary" lineHeight="24px" variant="overline">
+          Last Rated
+        </Typography>
+      ),
+      sortUndefined: -1,
+    }),
     columnHelper.accessor((row) => row.track.parentYear, {
       id: 'parentYear',
       cell: (info) => (info.getValue()),

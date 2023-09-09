@@ -73,6 +73,7 @@ const roundDown = (x: number) => Math.floor(x / containerSize) * containerSize;
 const defaultViewSettings: AppTrackViewSettings = {
   columns: {
     grandparentTitle: true,
+    lastRatedAt: false,
     lastViewedAt: false,
     originalTitle: false,
     parentTitle: false,
