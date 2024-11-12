@@ -1,6 +1,7 @@
 # Hex Music Player
 
 Music client for Plex Media Server.
+Screenshots: https://imgur.com/a/hex-music-player-gFBHb1u
 
 ## Setup
 1. Install, login to Plex through your browser, and select your server and music library.
